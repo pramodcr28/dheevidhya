@@ -3,51 +3,42 @@ import * as UserProfileActions from './user-profile.actions';
 
 
 export interface UserProfileState {
-  user: any;
-  departments:any[];
+  userConfig: any;
   loading: boolean;
   isAuthenticated: boolean;
-  token: string;
+  token: string | null;
 }
 
-const localStorageKey = 'userProfileState';
+export const localStorageKey = 'userProfileState';
 
 export const initialState: UserProfileState = (() => {
   const savedState = localStorage.getItem(localStorageKey);
   return savedState ? JSON.parse(savedState) : { 
-    user: null, 
+    userConfig: null, 
     loading: false, 
     isAuthenticated: false, 
-    token: "" ,
-    departments : []
+    token: null ,
   };
 })();
 
 export const userProfileReducer = createReducer(
   initialState,
-  on(UserProfileActions.loadUserProfile, (state, { user }) => ({
+  on(UserProfileActions.loadUserProfile, (state, { userConfig }) => ({
     ...state,
-    user,
+    userConfig,
     loading: true
   })),
-  on(UserProfileActions.loadUserAssociatedDepartments, (state, { departments }) => ({
+  on(UserProfileActions.loadUserProfileSuccess, (state, { userConfig }) => ({
     ...state,
-    departments,
-    loading: false,
-    isAuthenticated: true
-  })),
-  on(UserProfileActions.loadUserProfileSuccess, (state, { user }) => ({
-    ...state,
-    user,
+    userConfig,
     loading: false,
     isAuthenticated: true
   })),
   on(UserProfileActions.clearUserProfile, () => ({
-    user: null,
+    userConfig: null,
     loading: false,
     isAuthenticated: false,
-    token: "",
-    departments : []
+    token: null
   })),
   on(UserProfileActions.addToken, (state, { token }) => ({
     ...state,

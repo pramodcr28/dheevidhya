@@ -3,6 +3,7 @@ import { Dashboard } from './app/pages/dashboard/dashboard';
 import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
 import { AppLayout } from './app/core/layout/component/app.layout';
+import { StudentListComponent } from './app/pages/students/student-list/student-list.component';
 
 export const appRoutes: Routes = [
     {
@@ -10,6 +11,7 @@ export const appRoutes: Routes = [
         component: AppLayout,
         children: [
             { path: '', component: Dashboard },
+            { path: 'students', component: StudentListComponent },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ]

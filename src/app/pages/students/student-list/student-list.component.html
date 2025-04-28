@@ -1,0 +1,90 @@
+
+    <p-table
+        #dt
+        [value]="products()"
+        [rows]="10"
+        [columns]="cols"
+        [paginator]="true"
+        [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [(selection)]="selectedProducts"
+        [rowHover]="false"
+        dataKey="id"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 20, 30]"
+    >
+        <ng-template #caption>
+            <div class="flex items-center justify-between">
+                <h5 class="m-0">All Students List</h5>
+                <span class="flex items-center justify-between gap-3">
+                    <p-iconfield>
+                        <p-inputicon styleClass="pi pi-search" />
+                        <input pInputText type="text"  (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+                    </p-iconfield>
+                    <p-button  icon="pi pi-filter" rounded="true" (onClick)="openNew()" />
+                    <p-button  icon="pi pi-plus" rounded="true" (onClick)="openNew()" />
+                </span>
+              
+            </div>
+        </ng-template>
+        <ng-template #header>
+            <tr>
+        
+                <th style="min-width: 12rem">Code</th>
+                <th pSortableColumn="name" style="min-width:12rem">
+                    Name
+                    <p-sortIcon field="name" />
+                </th>
+                <th>Image</th>
+                <th pSortableColumn="price" style="min-width: 8rem">
+                    Price
+                    <p-sortIcon field="price" />
+                </th>
+                <th pSortableColumn="category" style="min-width:10rem">
+                    Category
+                    <p-sortIcon field="category" />
+                </th>
+                <th pSortableColumn="rating" style="min-width: 12rem">
+                    Reviews
+                    <p-sortIcon field="rating" />
+                </th>
+                <th pSortableColumn="inventoryStatus" style="min-width: 12rem">
+                    Status
+                    <p-sortIcon field="inventoryStatus" />
+                </th>
+                <th style="min-width: 8rem"></th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-product>
+            <tr>
+                <td style="min-width: 12rem">{{ product.code }}</td>
+                <td style="min-width: 12rem">{{ product.name }}</td>
+                <td>
+                    <img [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + product.image" [alt]="product.name" style="width: 64px" class="rounded" />
+                </td>
+                <td>{{ product.price | currency: 'USD' }}</td>
+                <td>{{ product.category }}</td>
+                <td>
+                    <p-rating [(ngModel)]="product.rating" [readonly]="true" />
+                </td>
+                <td>
+                    <p-tag [value]="product.inventoryStatus" [severity]="getSeverity(product.inventoryStatus)" />
+                </td>
+                <td class="">
+                    <i class="pi pi-user-edit hover:text-primary-600 px-3 cursor-pointer" (click)="editProduct(product)" ></i>
+                    <i class="pi pi-trash hover:text-primary-600 px-3 cursor-pointer" (click)="deleteProduct(product)" ></i>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <app-student-dialog 
+    [visible]="productDialog" 
+    [product]="product" 
+    [statuses]="statuses"
+    (save)="onProductSave($event)"
+    (cancel)="hideDialog()">
+  </app-student-dialog>
+
+  <p-confirmdialog [style]="{ width: '450px' }" />    

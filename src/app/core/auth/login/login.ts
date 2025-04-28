@@ -10,6 +10,9 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
 import { AuthServerProvider } from '../../services/auth-jwt.service';
 import { mergeMap } from 'rxjs';
 import { AccountService } from '../../services/account.service';
+import { UserProfileState } from '../../store/user-profile/user-profile.reducer';
+import { Store } from '@ngrx/store';
+import { clearUserProfile } from '../../store/user-profile/user-profile.actions';
 
 @Component({
     selector: 'app-login',
@@ -24,7 +27,7 @@ import { AccountService } from '../../services/account.service';
         RippleModule, 
         AppFloatingConfigurator,
         ReactiveFormsModule],
-    templateUrl: 'login.html'
+    templateUrl: 'login.html',
 })
 export class Login {
     username = viewChild.required<ElementRef>('username');
@@ -39,9 +42,10 @@ export class Login {
   
     private  authServerProvider = inject(AuthServerProvider);
     private  router = inject(Router);
+    private store = inject(Store<{ userProfile: UserProfileState }>);
   
     ngOnInit(): void {
-  
+     this.store.dispatch(clearUserProfile());
     }
   
     ngAfterViewInit(): void {
