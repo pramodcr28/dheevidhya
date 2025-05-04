@@ -6,13 +6,13 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
-import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 import { AuthServerProvider } from '../../services/auth-jwt.service';
 import { mergeMap } from 'rxjs';
 import { AccountService } from '../../services/account.service';
 import { UserProfileState } from '../../store/user-profile/user-profile.reducer';
 import { Store } from '@ngrx/store';
 import { clearUserProfile } from '../../store/user-profile/user-profile.actions';
+import { AppFloatingConfigurator } from '../../layout/app.floatingconfigurator';
 
 @Component({
     selector: 'app-login',

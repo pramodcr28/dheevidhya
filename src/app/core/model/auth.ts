@@ -1,4 +1,4 @@
-import { IGuardianProfile, IHeadMasterProfile, IHeadOfDepartmentProfile, IITAdministratorProfile, ILecturerProfile, IPrincipalProfile, IProfessorProfile, ISportsCoachProfile, IStudentProfile, ISubstituteTeacherProfile, ITeacherProfile } from "./roles-profile";
+import { IStudentProfile, IGuardianProfile, ITeacherProfile, ILecturerProfile, IProfessorProfile, IHeadOfDepartmentProfile, IHeadMasterProfile, IPrincipalProfile, ISportsCoachProfile, ISubstituteTeacherProfile, IITAdministratorProfile } from "../../pages/models/user.model";
 
 export class Login {
     constructor(
@@ -60,3 +60,9 @@ export class Login {
     roles?: IRoleConfigs | null;
   }
   
+
+export interface PasswordChangeDTO {
+  currentPassword: string;
+  newPassword: string;
+  isTenantUser: boolean;
+}

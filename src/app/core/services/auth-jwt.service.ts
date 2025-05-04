@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Login } from '../model/auth';
+import { Login, PasswordChangeDTO } from '../model/auth';
 import { environment } from '../../../environments/environment';
 import { Store } from '@ngrx/store';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
@@ -34,5 +34,9 @@ export class AuthServerProvider {
     // const user: UserProfile = this.parseUserFromToken(response.token); // Extract user info from token
 
     this.store.dispatch(addToken({ token: response.id_token }));
+  }
+
+  changePassword(passwordChangeDTO: PasswordChangeDTO): Observable<any> {
+    return this.http.post(`${environment.ServerUrl}api/account/change-password`, passwordChangeDTO);
   }
 }

@@ -4,7 +4,7 @@ import { RouterLink, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
-import { LayoutService } from '../service/layout.service';
+import { LayoutService } from '../services/layout.service';
 
 @Component({
     selector: 'app-topbar',
@@ -74,11 +74,12 @@ import { LayoutService } from '../service/layout.service';
                             <span>Logout</span>         
                         </button>
                     </a>
-                   
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user"></i>
-                        <span>Profile</span>
-                    </button>
+                   <a [routerLink]="'/profile'">
+                        <button type="button"  class="layout-topbar-action">
+                            <i class="pi pi-user"></i>
+                            <span>Profile</span>
+                        </button>
+                   </a>  
                 </div>
             </div>
         </div>

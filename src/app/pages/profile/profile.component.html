@@ -1,0 +1,61 @@
+<!-- password-change.component.html -->
+<div class="max-w-md mx-auto my-8 bg-white rounded-lg shadow-md overflow-hidden">
+  <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+    <h2 class="text-xl font-semibold text-gray-700">Change Password</h2>
+  </div>
+  
+  <div class="p-6">
+    <p-toast></p-toast>
+    
+    <form [formGroup]="passwordForm" (ngSubmit)="onSubmit()">
+      <!-- Current Password Field -->
+      <div class="mb-4">
+        <label for="currentPassword" class="block mb-2 font-medium text-gray-700">Current Password</label>
+        <p-password 
+          id="currentPassword" 
+          formControlName="currentPassword"
+          [toggleMask]="true"
+          
+          styleClass="w-full"
+          class="w-full">
+        </p-password>
+        <small 
+          class="text-red-500 text-sm mt-1 block" 
+          *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched">
+          Current password is required
+        </small>
+      </div>
+      
+      <!-- New Password Field -->
+      <div class="mb-4">
+        <label for="newPassword" class="block mb-2 font-medium text-gray-700">New Password</label>
+        <p-password 
+          id="newPassword" 
+          formControlName="newPassword"
+          [toggleMask]="true"
+          styleClass="w-full"
+          [feedback]="true"
+          class="w-full">
+        </p-password>
+        <small 
+          class="text-red-500 text-sm mt-1 block" 
+          *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched">
+          New password must be at least 8 characters
+        </small>
+      </div>
+      
+      
+      <!-- Submit Button -->
+      <div class="mt-6">
+        <p-button 
+          type="submit" 
+          label="Change Password" 
+          icon="pi pi-check" 
+          [loading]="loading"
+          [disabled]="passwordForm.invalid"
+          styleClass="bg-blue-500 hover:bg-blue-600">
+        </p-button>
+      </div>
+    </form>
+  </div>
+</div>
