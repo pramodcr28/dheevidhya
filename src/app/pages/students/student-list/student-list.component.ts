@@ -18,7 +18,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { StudentDialogComponent } from '../student-dialog/student-dialog.component';
 import { ExportColumn, Column } from '../../../core/model/table.model';
 import { catchError, map, Observable, of, Subscription, switchMap, tap } from 'rxjs';
-import { IProfileConfig, ITenantAuthority, ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
+import { IProfileConfig,  ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ITEMS_PER_PAGE} from '../../../core/model/pagination.constants';
 import { EntityArrayResponseType, UserService } from '../../service/user.service';
@@ -28,8 +28,6 @@ import { Store } from '@ngrx/store';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { selectUserConfig } from '../../../core/store/user-profile/user-profile.selectors';
 import dayjs from 'dayjs/esm';
-import { DATE_TIME_FORMAT } from '../../../core/model/constants';
-
 
 @Component({
   selector: 'app-student-list',
