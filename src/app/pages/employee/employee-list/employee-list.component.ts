@@ -1,8 +1,5 @@
-
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, NgZone, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MessageService, ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
@@ -15,29 +12,32 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
-import { StudentDialogComponent } from '../student-dialog/student-dialog.component';
-import { ExportColumn, Column } from '../../../core/model/table.model';
-import { catchError, map, Observable, of, Subscription, switchMap, tap } from 'rxjs';
-import { IProfileConfig,  ITenantAuthority,  ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ITEMS_PER_PAGE} from '../../../core/model/pagination.constants';
-import { EntityArrayResponseType, UserService } from '../../service/user.service';
-import { SortService } from '../../../shared/sort';
-import { ProfileConfigService } from '../../service/profile-config.service';
+import { EmployeeDialogComponent } from './../employee-dialog/employee-dialog.component';
+import { Component, inject, NgZone, signal } from '@angular/core';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
+import dayjs from 'dayjs/esm';
+import { Subscription, Observable, tap, catchError, of, switchMap, map } from 'rxjs';
+import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
+import { ExportColumn, Column } from '../../../core/model/table.model';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { selectUserConfig } from '../../../core/store/user-profile/user-profile.selectors';
-import dayjs from 'dayjs/esm';
+import { SortService } from '../../../shared/sort';
+import { NewTenantUser, ITenantUser, NewProfileConfig, IProfileConfig, ITenantAuthority } from '../../models/user.model';
+import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantAuthorityService } from '../../service/tenant-authority.service';
+import { UserService, EntityArrayResponseType } from '../../service/user.service';
 
 @Component({
-  selector: 'app-student-list',
-  imports: [CommonModule,TableModule,FormsModule,ButtonModule,RippleModule,ToastModule,ToolbarModule,RatingModule,InputTextModule,DialogModule,TagModule,InputIconModule,IconFieldModule,ConfirmDialogModule,StudentDialogComponent],
-  templateUrl: './student-list.component.html',
-  providers: [MessageService, ConfirmationService]
+  selector: 'app-employee-list',
+  imports: [CommonModule,TableModule,FormsModule,ButtonModule,RippleModule,ToastModule,ToolbarModule,RatingModule,InputTextModule,DialogModule,TagModule,InputIconModule,IconFieldModule,ConfirmDialogModule,EmployeeDialogComponent],
+  templateUrl: './employee-list.component.html',
+  styles: ``,
+  providers:[MessageService, ConfirmationService]
 })
-export class StudentListComponent {
-    private store = inject(Store<{ userProfile: UserProfileState }>);
+export class EmployeeListComponent {
+private store = inject(Store<{ userProfile: UserProfileState }>);
     studentDialog: boolean = false;
     student!:NewTenantUser | ITenantUser;
     studentProfile! : NewProfileConfig | IProfileConfig | any;
@@ -85,9 +85,8 @@ export class StudentListComponent {
 
     
       protected onResponseSuccess(response: EntityArrayResponseType): void {
-
-        let result:any = response.body?.filter((a:ITenantUser) =>{
-          return a.authorities?.find( authority=>authority.name == 'STUDENT') != null;
+          let result:any = response.body?.filter((a:ITenantUser) =>{
+          return a.authorities?.find( authority=>authority.name != 'STUDENT') != null;
         });
         this.tenantUsers.set(result);
       }
@@ -137,7 +136,7 @@ export class StudentListComponent {
     }
     openNew() {
       this.student = { 
-        authorities: [ this.tenantAuthorities().find((a:any) => a.name === 'STUDENT')],
+        authorities: [],
         isTenantUser: true,
         createdBy: this.currentUser,
         lastModifiedBy: this.currentUser,
@@ -145,7 +144,7 @@ export class StudentListComponent {
         createdDate: dayjs(),
         lastModifiedDate: dayjs(),
         imageUrl: '',
-        email: 'NA',
+        email: '',
         passwordHash: '1234'
       } as NewTenantUser | any;
     

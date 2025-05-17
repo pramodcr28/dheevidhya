@@ -1,0 +1,67 @@
+
+    <p-table
+        #dt
+        [value]="tenantUsers()!"
+        [rows]="10"
+        [columns]="cols"
+        [paginator]="true"
+        [globalFilterFields]="['firstName']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [rowHover]="false"
+        dataKey="id"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Staff"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 20, 30]">
+        <ng-template #caption>
+            <div class="flex items-center justify-between">
+                <h5 class="m-0">All Staff List</h5>
+                <span class="flex items-center justify-between gap-3">
+                    <p-iconfield>
+                        <p-inputicon styleClass="pi pi-search" />
+                    </p-iconfield>
+                    <p-button  icon="pi pi-filter" rounded="true" (onClick)="openNew()" />
+                    <p-button  icon="pi pi-plus" rounded="true" (onClick)="openNew()" />
+                </span>
+              
+            </div>
+        </ng-template>
+        <ng-template #header>
+            <tr>
+                <th style="min-width: 12rem">Name</th>
+                <th pSortableColumn="name" style="min-width:12rem">
+                    Register Id
+                    <p-sortIcon field="name" />
+                </th>
+                <th pSortableColumn="price" style="min-width: 8rem">
+                    Location
+                    <p-sortIcon field="price" />
+                </th>
+                <th style="min-width: 4rem"></th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-student>
+            <tr>
+                <td style="min-width: 12rem">{{ student.firstName  + ' ' + student.lastName }}</td>
+                <td style="min-width: 12rem">{{ student.login }}</td>
+                <td>{{ student.locality }}</td>
+
+                <td class="">
+                    <i class="pi pi-user-edit hover:text-primary-600 px-3 cursor-pointer" (click)="editStudent(student)" ></i>
+                    <i class="pi pi-trash hover:text-primary-600 px-3 cursor-pointer" (click)="deleteStudent(student)" ></i>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    @if( this.studentDialog){
+        <app-employee-dialog 
+        [visible]="studentDialog" 
+        [student]="student" 
+        [studentProfile]="studentProfile"
+        (save)="onStudentSave($event)"
+        (cancel)="hideDialog()">
+      </app-employee-dialog>
+    
+    }
+
+  <p-confirmdialog [style]="{ width: '450px' }" />    
