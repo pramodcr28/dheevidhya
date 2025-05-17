@@ -13,24 +13,7 @@
               Registration ID is required.
             </small>
           </div>
-          <!-- <div>
-            <label for="email" class="block font-bold mb-2">Email</label>
-            <input type="email" pInputText id="email" formControlName="email" fluid />
-            <small class="text-red-500" *ngIf="studentForm.get('email')?.invalid && (submitted || studentForm.get('email')?.touched)">
-              Email is required.
-            </small>
-          </div> -->
         </div>
-
-        <!-- <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="passwordHash" class="block font-bold mb-2">Password</label>
-            <input type="text" pInputText id="passwordHash" formControlName="passwordHash" autofocus fluid />
-            <small class="text-red-500" *ngIf="studentForm.get('passwordHash')?.invalid && (submitted || studentForm.get('passwordHash')?.touched)">
-              Password is required.
-            </small>
-          </div>
-        </div> -->
 
         <!-- Personal details -->
         <div class="grid grid-cols-2 gap-4">
@@ -49,12 +32,6 @@
             </small>
           </div>
         </div>
-
-        <!-- Status -->
-        <!-- <div>
-          <label for="activated" class="block font-bold mb-2">Status</label>
-          <p-toggleButton formControlName="activated" onLabel="Activated" offLabel="Deactivated" onIcon="pi-check" offIcon="pi pi-times"></p-toggleButton>
-        </div> -->
 
         <!-- Address section title -->
         <div class="mt-2">
@@ -168,7 +145,7 @@
             Department is required.
           </small>
         </div>
-
+        
         <!-- Class Selection -->
         <div class="mt-2" *ngIf="selectedDepartment">
           <label class="block font-bold mb-2">Class</label>
@@ -200,10 +177,6 @@
             Section is required.
           </small>
         </div>
-
-        <!-- Additional profile fields can be added here based on your ProfileConfigFormService -->
-        <!-- For example, if your ProfileConfigFormService defines fields like 'enrollmentDate' or 'rollNumber',
-             you would add those field controls here -->
 
       </form>
     </div>

@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApplicationConfigService } from '../../core/services/application-config.service';
 // import { EntityResponseType } from '../../core/services/common.service';
-import { NewTenantUser, ITenantUser, ITenantAuthority } from '../models/user.model';
+import { NewTenantUser, ITenantUser, ITenantAuthority, IGuardianProfile, IHeadMasterProfile, IHeadOfDepartmentProfile, IITAdministratorProfile, ILecturerProfile, IPrincipalProfile, IProfessorProfile, IRoleConfigs, ISportsCoachProfile, IStudentProfile, ISubstituteTeacherProfile, ITeacherProfile, IVicePrincipalProfile } from '../models/user.model';
 import { isPresent } from '../../core/services/operators';
 import { createRequestOption } from '../../core/services/request-util';
 import dayjs from 'dayjs/esm';
@@ -151,6 +151,57 @@ export class UserService {
       filters: filters
       };
 
-return this.http.post<any>(`${environment.ServerUrl + environment.ADMIN_BASE_URL}api/profile-configs/search`, searchRequest);
+    return this.http.post<any>(`${environment.ServerUrl + environment.ADMIN_BASE_URL}api/profile-configs/search`, searchRequest);
 }
+
+//  generateRoleConfig(authorities: ITenantAuthority[] | null,sectionId:any,selectedSection:any): IRoleConfigs {
+//     const roleConfig: IRoleConfigs = { };
+//     authorities?.forEach(authority => {
+//       switch (authority.name) {
+//         case 'STUDENT':
+//           roleConfig.student = {
+//             classId: sectionId ?? null,
+//             sectionId: selectedSection ?? null
+//           } as IStudentProfile;
+//           break;
+//         case 'GUARDIAN':
+//           roleConfig.parent = {} as IGuardianProfile;
+//           break;
+//         case 'TEACHER':
+//           roleConfig.teacher = {} as ITeacherProfile;
+//           break;
+//         case 'LECTURER':
+//           roleConfig.lecturer = {} as ILecturerProfile;
+//           break;
+//         case 'PROFESSOR':
+//           roleConfig.professor = {} as IProfessorProfile;
+//           break;
+//         case 'HEAD_OF_DEPARTMENT':
+//           roleConfig.headofdepartment = {} as IHeadOfDepartmentProfile;
+//           break;
+//         case 'HEAD_MASTER':
+//           roleConfig.headmaster = {} as IHeadMasterProfile;
+//           break;
+//         case 'PRINCIPAL/DEAN':
+//           roleConfig.principal = {} as IPrincipalProfile;
+//           break;
+//         case 'VICE_PRINCIPAL':
+//           roleConfig.viceprincipal = {} as IVicePrincipalProfile;
+//           break;
+//         case 'SPORTS_COACH':
+//           roleConfig.sportscoach = {} as ISportsCoachProfile;
+//           break;
+//         case 'SUBSTITUTE_TEACHER':
+//           roleConfig.substituteteacher = {} as ISubstituteTeacherProfile;
+//           break;
+//         case 'IT_ADMINISTRATOR':
+//           roleConfig.itadmin = {} as IITAdministratorProfile;
+//           break;
+//         default:
+//           break;
+//       }
+//     });
+
+//     return roleConfig;
+//   }
 }
