@@ -1,56 +1,53 @@
-import { map, filter } from 'rxjs';
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { ReactiveFormsModule, FormsModule, FormGroup } from '@angular/forms';
-import { Store } from '@ngrx/store';
-import { ButtonModule } from 'primeng/button';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { SelectModule } from 'primeng/select';
+import { CommonModule } from '@angular/common';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
-import { RadioButtonModule } from 'primeng/radiobutton';
 import { RippleModule } from 'primeng/ripple';
-import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToggleButtonModule } from 'primeng/togglebutton';
-import { Gender } from '../../../core/model/auth';
+import { IProfileConfig, ITenantUser, NewProfileConfig, NewTenantUser,IStudentProfile, IGuardianProfile, IHeadMasterProfile, IHeadOfDepartmentProfile, IITAdministratorProfile, ILecturerProfile, IPrincipalProfile, IProfessorProfile, IRoleConfigs, ISportsCoachProfile, ISubstituteTeacherProfile, ITeacherProfile, ITenantAuthority, IVicePrincipalProfile } from '../../models/user.model';
+import { UserService } from '../../service/user.service';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
+import { Store } from '@ngrx/store';
 import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
 import { IBranch } from '../../models/tenant.model';
-import { NewTenantUser, ITenantUser, NewProfileConfig, IProfileConfig, IStudentProfile, ITenantAuthority, IRoleConfigs, IGuardianProfile, ITeacherProfile, ILecturerProfile, IProfessorProfile, IHeadOfDepartmentProfile, IHeadMasterProfile, IPrincipalProfile, IVicePrincipalProfile, ISportsCoachProfile, ISubstituteTeacherProfile, IITAdministratorProfile } from '../../models/user.model';
-import { ProfileConfigFormService } from '../../service/profile-config-form.service';
 import { TenantUserFormService } from '../../service/tenant-user-form.service';
-import { UserService } from '../../service/user.service';
-import { MultiSelect } from 'primeng/multiselect';
+import { ProfileConfigFormService } from '../../service/profile-config-form.service';
+import { Gender } from '../../../core/model/auth';
 
 @Component({
-  selector: 'app-employee-dialog',
+  selector: 'app-guardian-dialog',
   imports: [
-        SelectModule,
-        RadioButtonModule,
-        InputNumberModule,
-        CommonModule,
-        ButtonModule,
-        RippleModule,
-        InputTextModule,
-        TextareaModule,
-        DialogModule,
-        InputIconModule,
-        IconFieldModule,
-        ConfirmDialogModule,
-        SelectModule,
-        ReactiveFormsModule,
-        ToggleButtonModule,
-        FormsModule,
-        MultiSelect
+    SelectModule,
+    RadioButtonModule,
+    InputNumberModule,
+    CommonModule,
+    ButtonModule,
+    RippleModule,
+    InputTextModule,
+    TextareaModule,
+    DialogModule,
+    InputIconModule,
+    IconFieldModule,
+    ConfirmDialogModule,
+    SelectModule,
+    ReactiveFormsModule,
+    ToggleButtonModule,
+    FormsModule
   ],
-  templateUrl: './employee-dialog.component.html',
-  styles: ``
+  templateUrl: './guardian-dialog.component.html',
+  standalone: true
 })
-export class EmployeeDialogComponent {
- studentService = inject(UserService);
+export class GuardianDialogComponent implements OnInit {
+  studentService = inject(UserService);
   tenantUserFormService = inject(TenantUserFormService);
   profileConfigFormService = inject(ProfileConfigFormService);
   private store = inject(Store<{ userProfile: UserProfileState }>);
@@ -136,7 +133,7 @@ export class EmployeeDialogComponent {
     this.studentProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.studentProfile);
     
     this.studentService.getAuthorities().subscribe((response: any) => {
-      this.availableAuthorities = response.body.filter(((authority:any)=>authority.name != "STUDENT" && authority.name != "GUARDIAN")).map((authority:any)=> { return {name:authority.name}});
+      this.availableAuthorities = response.body;
     });
 
     this.store.select(getAssociatedDepartments).subscribe(departments => {
@@ -222,98 +219,73 @@ export class EmployeeDialogComponent {
           if( !existingRoles?.[authority.name]){
             roleConfig.student = {
               classId: this.selectedClass?.id ?? null,
-              sectionId: this.selectedSection?.id ?? null,
-              rollNumber: null
+              sectionId: this.selectedSection?.id ?? null
             } as IStudentProfile;
           }
          
           break;
         case 'GUARDIAN':
            if(!existingRoles?.[authority.name]){
-             roleConfig.parent = {
-              studentIds:[],
-
-             } as IGuardianProfile;
+             roleConfig.parent = {} as IGuardianProfile;
            }
           break;
         case 'TEACHER':
            if(!existingRoles?.[authority.name]){
-             roleConfig.teacher = {
-              subjectIds:[],
-
-             } as ITeacherProfile;
+             roleConfig.teacher = {} as ITeacherProfile;
            }
     
           break;
         case 'LECTURER':
             if(!existingRoles?.[authority.name]){
-             roleConfig.lecturer = {
-              subjectIds:[]
-             } as ILecturerProfile;
-            }
+             roleConfig.lecturer = {} as ILecturerProfile;
+           }
+       
           break;
         case 'PROFESSOR':
             if(!existingRoles?.[authority.name]){
-             roleConfig.professor = {
-              subjectIds:[],
-
-             } as IProfessorProfile;
+             roleConfig.professor = {} as IProfessorProfile;
            }
           
           break;
         case 'HEAD_OF_DEPARTMENT':
             if(!existingRoles?.[authority.name]){
-            roleConfig.headofdepartment = {
-
-            } as IHeadOfDepartmentProfile;
+            roleConfig.headofdepartment = {} as IHeadOfDepartmentProfile;
            }
         
           break;
         case 'HEAD_MASTER':
             if(!existingRoles?.[authority.name]){
-             roleConfig.headmaster = {
-
-             } as IHeadMasterProfile;
+             roleConfig.headmaster = {} as IHeadMasterProfile;
            }
       
           break;
-        case 'PRINCIPAL':
+        case 'PRINCIPAL/DEAN':
             if(!existingRoles?.[authority.name]){
-            roleConfig.principal = {
-
-            } as IPrincipalProfile;
+            roleConfig.principal = {} as IPrincipalProfile;
            }
  
           break;
         case 'VICE_PRINCIPAL':
             if(!existingRoles?.[authority.name]){
-           roleConfig.viceprincipal = {
-
-           } as IVicePrincipalProfile;
+           roleConfig.viceprincipal = {} as IVicePrincipalProfile;
            }
     
           break;
         case 'SPORTS_COACH':
             if(!existingRoles?.[authority.name]){
-            roleConfig.sportscoach = {
-
-            } as ISportsCoachProfile;
+            roleConfig.sportscoach = {} as ISportsCoachProfile;
            }
        
           break;
         case 'SUBSTITUTE_TEACHER':
            if(!existingRoles?.[authority.name]){
-            roleConfig.substituteteacher = {
-               subjectIds:[]
-            } as ISubstituteTeacherProfile;
+            roleConfig.substituteteacher = {} as ISubstituteTeacherProfile;
            }
 
           break;
         case 'IT_ADMINISTRATOR':
           if(!existingRoles?.[authority.name]){
-             roleConfig.itadmin = {
-
-             } as IITAdministratorProfile;
+             roleConfig.itadmin = {} as IITAdministratorProfile;
            }
           break;
         default:

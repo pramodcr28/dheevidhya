@@ -82,8 +82,8 @@ export interface IRoleConfigs {
 
 
 export interface IStudentProfile {
-  rollNumber?: string | null;
-  classId? : number | null;
+    rollNumber?: string | null;
+    classId? : number | null;
     sectionId? : number | null;
 }
 

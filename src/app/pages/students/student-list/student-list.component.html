@@ -47,6 +47,7 @@
 
                 <td class="">
                     <i class="pi pi-user-edit hover:text-primary-600 px-3 cursor-pointer" (click)="editStudent(student)" ></i>
+                    <i class="pi pi-user-plus hover:text-primary-600 px-3 cursor-pointer" (click)="addOrEditGuardian(student)" ></i>
                     <i class="pi pi-trash hover:text-primary-600 px-3 cursor-pointer" (click)="deleteStudent(student)" ></i>
                 </td>
             </tr>
@@ -61,6 +62,18 @@
         (save)="onStudentSave($event)"
         (cancel)="hideDialog()">
       </app-student-dialog>
+    
+    }
+
+    
+    @if( this.guardianDialog){
+        <app-guardian-dialog 
+        [visible]="studentDialog" 
+        [student]="student" 
+        [studentProfile]="studentProfile"
+        (save)="onStudentSave($event)"
+        (cancel)="hideDialog()">
+      </app-guardian-dialog>
     
     }
 

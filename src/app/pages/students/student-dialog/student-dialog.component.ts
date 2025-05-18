@@ -219,7 +219,8 @@ export class StudentDialogComponent implements OnInit {
           if( !existingRoles?.[authority.name]){
             roleConfig.student = {
               classId: this.selectedClass?.id ?? null,
-              sectionId: this.selectedSection?.id ?? null
+              sectionId: this.selectedSection?.id ?? null,
+              guardianId: null
             } as IStudentProfile;
           }
          

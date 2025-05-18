@@ -29,16 +29,18 @@ import { UserProfileState } from '../../../core/store/user-profile/user-profile.
 import { selectUserConfig } from '../../../core/store/user-profile/user-profile.selectors';
 import dayjs from 'dayjs/esm';
 import { TenantAuthorityService } from '../../service/tenant-authority.service';
+import { GuardianDialogComponent } from '../guardian-dialog/guardian-dialog.component';
 
 @Component({
   selector: 'app-student-list',
-  imports: [CommonModule,TableModule,FormsModule,ButtonModule,RippleModule,ToastModule,ToolbarModule,RatingModule,InputTextModule,DialogModule,TagModule,InputIconModule,IconFieldModule,ConfirmDialogModule,StudentDialogComponent],
+  imports: [CommonModule,TableModule,FormsModule,ButtonModule,RippleModule,ToastModule,ToolbarModule,RatingModule,InputTextModule,DialogModule,TagModule,InputIconModule,IconFieldModule,ConfirmDialogModule,GuardianDialogComponent,StudentDialogComponent],
   templateUrl: './student-list.component.html',
   providers: [MessageService, ConfirmationService]
 })
 export class StudentListComponent {
     private store = inject(Store<{ userProfile: UserProfileState }>);
     studentDialog: boolean = false;
+    guardianDialog: boolean = false;
     student!:NewTenantUser | ITenantUser;
     studentProfile! : NewProfileConfig | IProfileConfig | any;
     submitted: boolean = false;
@@ -212,5 +214,9 @@ export class StudentListComponent {
         this.studentDialog = true;
       })
      
+     }
+
+     addOrEditGuardian(student:ITenantUser){
+
      }
 }

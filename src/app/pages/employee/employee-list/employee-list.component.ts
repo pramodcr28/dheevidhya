@@ -85,8 +85,8 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
 
     
       protected onResponseSuccess(response: EntityArrayResponseType): void {
-          let result:any = response.body?.filter((a:ITenantUser) =>{
-          return a.authorities?.find( authority=>authority.name != 'STUDENT') != null;
+        let result:any = response.body?.filter((a:ITenantUser) =>{
+          return a.authorities?.find( authority=>authority.name != 'STUDENT') != null && a.authorities?.find( authority=>authority.name != 'GUARDIAN') != null;
         });
         this.tenantUsers.set(result);
       }
