@@ -1,0 +1,101 @@
+<div class="w-full overflow-x-auto py-4 bg-white h-full">
+  <div class="scale-[0.9] md:scale-100 origin-top">
+    <p-organizationChart [value]="data" class="min-w-[800px] w-fit mx-auto">
+      
+      <!-- Default template -->
+      <ng-template let-node pTemplate="default">
+        <div
+          class="p-3 rounded-xl shadow-md bg-white text-gray-700 border border-blue-300 hover:bg-blue-50 text-center min-w-[120px] whitespace-nowrap cursor-pointer"
+          (click)="toggleNode(node, $event)"
+        >
+          {{ node.label }}
+        </div>
+      </ng-template>
+
+      <ng-template let-node pTemplate="branch">
+        <div class="pb-3">
+          <span>🌿 {{ node.label }}</span>
+
+            <button type="button" (click)="toggleNode(node, $event)"
+            class="absolute left-1/2 bottom-[-12px] transform -translate-x-1/2 
+                    bg-white rounded-full w-6  h-6 flex items-center justify-center 
+                    border border-primary-300 hover:border-white shadow-md 
+                    hover:bg-primary-500 text-primary-500 hover:text-white z-10">
+                <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+            </button>
+
+        </div>
+      </ng-template>
+
+      <ng-template let-node pTemplate="department">
+       <div class="pb-3">
+          🏢 {{ node.label }}
+            <button type="button" (click)="toggleNode(node, $event)"
+            class="absolute left-1/2 bottom-[-12px] transform -translate-x-1/2 
+                    bg-white rounded-full w-6  h-6 flex items-center justify-center 
+                    border border-primary-300 hover:border-white shadow-md 
+                    hover:bg-primary-500 text-primary-500 hover:text-white z-10">
+                <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+            </button>
+
+        </div>
+      </ng-template>
+
+      <ng-template let-node pTemplate="class">
+        <div class="pb-3">
+          📘 {{ node.label }}
+            <button type="button" (click)="toggleNode(node, $event)"
+            class="absolute left-1/2 bottom-[-12px] transform -translate-x-1/2 
+                    bg-white rounded-full w-6  h-6 flex items-center justify-center 
+                    border border-primary-300 hover:border-white shadow-md 
+                    hover:bg-primary-500 text-primary-500 hover:text-white z-10">
+                <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+            </button>
+
+        </div>
+      </ng-template>
+
+      <ng-template let-node pTemplate="section">
+       <div class="pb-3">
+          📂 {{ node.label }}
+                    <button type="button" (click)="toggleNode(node, $event)"
+                    class="absolute left-1/2 bottom-[-12px] transform -translate-x-1/2 
+                    bg-white rounded-full w-6  h-6 flex items-center justify-center 
+                    border border-primary-300 hover:border-white shadow-md 
+                    hover:bg-primary-500 text-primary-500 hover:text-white z-10">
+                <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+            </button>
+
+        </div>
+      </ng-template>
+
+      <ng-template let-node pTemplate="subject">
+  <div class="pb-2 relative">
+    <!-- SpeedDial positioned outside the top-right corner -->
+    <div class="absolute -top-6 -right-10 z-10">
+      <p-speeddial
+        [model]="items"
+        [radius]="0"
+        [showIcon]="'pi pi-pen-to-square'"
+        [buttonProps]="{size:'small', raised:true, severity:'primary',  iconPos:'top'}"
+        [buttonStyle]="{ 'background': 'transparent', 'color':'red', 'border': 'none', 'boxShadow': 'none' }"
+  
+        direction="down"
+      />
+    </div>
+
+    {{ node.label }}
+  </div>
+</ng-template>
+ <ng-template #iconTemplate>
+           <i class="pi pi-plus"></i> 
+         </ng-template>
+
+    </p-organizationChart>
+  </div>
+</div>
+<p-toast />
+
+<p-dialog [visible]="false" [style]="{ width: '60vw' }" [header]="'Edit Organization'" [modal]="true">
+
+</p-dialog>

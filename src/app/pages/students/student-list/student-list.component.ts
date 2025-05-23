@@ -43,6 +43,9 @@ export class StudentListComponent {
     guardianDialog: boolean = false;
     student!:NewTenantUser | ITenantUser;
     studentProfile! : NewProfileConfig | IProfileConfig | any;
+    selectedGaurdian!:NewTenantUser | ITenantUser;
+    selectedGaurdianProfile! : NewProfileConfig | IProfileConfig | any;
+    selectedStudentProfile! : NewProfileConfig | IProfileConfig | any;
     submitted: boolean = false;
     exportColumns!: ExportColumn[];
     cols!: Column[];
@@ -217,6 +220,78 @@ export class StudentListComponent {
      }
 
      addOrEditGuardian(student:ITenantUser){
+     let gaurdianId = student.profile?.roles?.student?.guardianId;
+      this.selectedStudentProfile = student.profile as any;
+     if(gaurdianId){
+          this.studentService.find(gaurdianId).subscribe((result:any)=>{ 
+            this.selectedGaurdianProfile = student.profile;
+            this.selectedGaurdian = { ...result.body};
+            this.guardianDialog = true;
+          });
+     }else{
+
+      this.selectedGaurdian = { 
+        authorities: [ this.tenantAuthorities().find((a:any) => a.name === 'GUARDIAN')],
+        isTenantUser: true,
+        createdBy: this.currentUser,
+        lastModifiedBy: this.currentUser,
+        activated:true,
+        createdDate: dayjs(),
+        lastModifiedDate: dayjs(),
+        imageUrl: '',
+        email: '',
+        passwordHash: '1234'
+      } as NewTenantUser | any;
+    
+      this.selectedGaurdianProfile = {
+        departments:student.profile?.departments
+      } as NewProfileConfig;
+      this.guardianDialog = true;
 
      }
+
+     }
+
+     onGuardianSave(gaurdian: { gaurdian: NewTenantUser|ITenantUser; guardianProfile: NewProfileConfig|IProfileConfig; }) {
+        console.log(gaurdian);
+
+        if(!gaurdian.gaurdian.id){
+          let newStudent : NewTenantUser | any  = {...gaurdian.gaurdian};
+          this.studentService.create(newStudent as NewTenantUser).subscribe(result=>{
+            gaurdian.guardianProfile.userId = result.body?.id.toString();
+        
+            this.profileService.create(gaurdian.guardianProfile as NewProfileConfig).subscribe(result2=>{
+              debugger
+              if(this.selectedStudentProfile.roles?.student){
+                this.selectedStudentProfile.roles.student.guardianId = result.body?.id.toString();
+              }
+                
+              this.profileService.update( this.selectedStudentProfile  as IProfileConfig).subscribe(result=>{
+              setTimeout(()=>{
+              this.hideDialog();
+              this.load();
+              this.messageService.add({text: "Congrats! Record updated!",closeIcon: "close"});
+              });  
+            })
+            })
+         
+          })
+        }else{
+          this.studentService.update(gaurdian.gaurdian as ITenantUser).subscribe(result=>{
+            this.profileService.update(gaurdian.guardianProfile as IProfileConfig).subscribe(result=>{
+              setTimeout(()=>{
+              this.hideDialog();
+              this.load();
+              this.messageService.add({text: "Congrats! Record updated!", closeIcon: "close"});
+              });  
+            })
+         
+          })
+        }
+      
+     }
+
+hideGuardianDialog() {
+     this.guardianDialog = false;
+}
 }

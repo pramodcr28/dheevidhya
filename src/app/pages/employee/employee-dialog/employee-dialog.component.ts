@@ -1,4 +1,3 @@
-import { map, filter } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { ReactiveFormsModule, FormsModule, FormGroup } from '@angular/forms';
@@ -17,7 +16,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
+import { getAssociatedDepartments, getBranch } from '../../../core/store/user-profile/user-profile.selectors';
 import { IBranch } from '../../models/tenant.model';
 import { NewTenantUser, ITenantUser, NewProfileConfig, IProfileConfig, IStudentProfile, ITenantAuthority, IRoleConfigs, IGuardianProfile, ITeacherProfile, ILecturerProfile, IProfessorProfile, IHeadOfDepartmentProfile, IHeadMasterProfile, IPrincipalProfile, IVicePrincipalProfile, ISportsCoachProfile, ISubstituteTeacherProfile, IITAdministratorProfile } from '../../models/user.model';
 import { ProfileConfigFormService } from '../../service/profile-config-form.service';
@@ -50,73 +49,50 @@ import { MultiSelect } from 'primeng/multiselect';
   styles: ``
 })
 export class EmployeeDialogComponent {
- studentService = inject(UserService);
+  studentService = inject(UserService);
   tenantUserFormService = inject(TenantUserFormService);
   profileConfigFormService = inject(ProfileConfigFormService);
   private store = inject(Store<{ userProfile: UserProfileState }>);
 
   @Input() visible: boolean = false;
   @Input() statuses: any[] = [];
-  @Input() set student(value: NewTenantUser | ITenantUser) {
-    this._student = value;
-    if (this.studentForm) {
-      this.tenantUserFormService.resetForm(this.studentForm, value);
+  @Input() set employee(employee: NewTenantUser | ITenantUser) {
+    this._employee = employee;
+    if (this.employeeForm) {
+      this.tenantUserFormService.resetForm(this.employeeForm, employee);
     }
   }
-  get student(): NewTenantUser | ITenantUser {
-    return this._student;
+  get employee(): NewTenantUser | ITenantUser {
+    return this._employee;
   }
 
-  @Input() set studentProfile(value: NewProfileConfig | IProfileConfig) {
-    this._studentProfile = value;
-    if (this.studentProfileForm && value) {
-      this.profileConfigFormService.resetForm(this.studentProfileForm, value);
+  @Input() set employeeProfile(profile: NewProfileConfig | IProfileConfig) {
+    
+    this._employeeProfile = profile;
+    if (this.employeeProfileForm && profile) {
+      this.profileConfigFormService.resetForm(this.employeeProfileForm, profile);
       
-      if (value.departments && value.departments.length > 0) {
-        const departmentId = value.departments[0];
+      if (profile.departments && profile.departments.length > 0) {
+        const departmentId = profile.departments[0];
         const foundDepartment = this.associatedDepartments.find(dep => dep.id === departmentId);
         if (foundDepartment) {
           this.selectedDepartment = foundDepartment;
-          
-          if (value.roles && value.roles.student) {
-            const studentRole = value.roles.student as IStudentProfile;
-            
-            // Find class
-            if (studentRole.classId && this.selectedDepartment?.department?.classes) {
-              const foundClass = this.selectedDepartment.department.classes.find(
-                (cls: any) => cls.id === studentRole.classId
-              );
-              if (foundClass) {
-                this.selectedClass = foundClass;
-                
-                // Find section
-                if (studentRole.sectionId && this.selectedClass?.sections) {
-                  const foundSection = this.selectedClass.sections.find(
-                    (sec: any) => sec.id === studentRole.sectionId
-                  );
-                  if (foundSection) {
-                    this.selectedSection = foundSection;
-                  }
-                }
-              }
-            }
-          }
         }
       }
     }
   }
-  get studentProfile(): NewProfileConfig | IProfileConfig {
-    return this._studentProfile;
+  get employeeProfile(): NewProfileConfig | IProfileConfig {
+    return this._employeeProfile;
   }
 
-  @Output() save = new EventEmitter<{ student: NewTenantUser | ITenantUser; studentProfile: NewProfileConfig | IProfileConfig }>();
+  @Output() save = new EventEmitter<{ employee: NewTenantUser | ITenantUser; employeeProfile: NewProfileConfig | IProfileConfig }>();
   @Output() cancel = new EventEmitter<void>();
 
-  private _student!: NewTenantUser | ITenantUser;
-  private _studentProfile!: NewProfileConfig | IProfileConfig;
+  private _employee!: NewTenantUser | ITenantUser;
+  private _employeeProfile!: NewProfileConfig | IProfileConfig;
   
-  studentForm!: FormGroup;
-  studentProfileForm!: FormGroup;
+  employeeForm!: FormGroup;
+  employeeProfileForm!: FormGroup;
   submitted: boolean = false;
   availableAuthorities: any[] = [];
   associatedDepartments: any[] = [];
@@ -130,60 +106,66 @@ export class EmployeeDialogComponent {
     { label: 'Male', value: 'MALE' },
     { label: 'Other', value: 'OTHER' }
   ];
-
+  branch:IBranch | any;
+  contactNumber:any;
   ngOnInit(): void {
-    this.studentForm = this.tenantUserFormService.createTenantUserFormGroup(this.student);
-    this.studentProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.studentProfile);
+    this.employeeForm = this.tenantUserFormService.createTenantUserFormGroup(this.employee);
+    this.employeeProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.employeeProfile);
     
     this.studentService.getAuthorities().subscribe((response: any) => {
       this.availableAuthorities = response.body.filter(((authority:any)=>authority.name != "STUDENT" && authority.name != "GUARDIAN")).map((authority:any)=> { return {name:authority.name}});
     });
 
     this.store.select(getAssociatedDepartments).subscribe(departments => {
+      
       this.associatedDepartments = departments.map((department: any) => {
         return { ...department, name: department.department?.name };
       });
       
-      if (this._studentProfile && this._studentProfile.departments && this._studentProfile.departments.length > 0) {
-        const departmentId = this._studentProfile.departments[0];
+      if (this._employeeProfile && this._employeeProfile.departments && this._employeeProfile.departments.length > 0) {
+        const departmentId = this._employeeProfile.departments[0];
         const foundDepartment = this.associatedDepartments.find(dep => dep.id === departmentId);
         if (foundDepartment) {
           this.selectedDepartment = foundDepartment;
-          this.setClassAndSectionFromProfile();
+          // this.setClassAndSectionFromProfile();
         }
       }
     });
+
+     this.store.select(getBranch).subscribe(branch => {
+       this.branch = branch;
+    });
   }
 
-  private setClassAndSectionFromProfile(): void {
-    if (this._studentProfile?.roles?.student && this.selectedDepartment?.department?.classes) {
-      const studentRole = this._studentProfile.roles.student as IStudentProfile;
-      if (studentRole.classId) {
-        const foundClass = this.selectedDepartment.department.classes.find(
-          (cls: any) => cls.id == studentRole.classId
-        );
-        if (foundClass) {
-          this.selectedClass = foundClass;
+  // private setClassAndSectionFromProfile(): void {
+  //   if (this._employeeProfile?.roles && this.selectedDepartment?.department?.classes) {
+  //     const studentRole = this._employeeProfile.roles.employee as IStudentProfile;
+  //     if (studentRole.classId) {
+  //       const foundClass = this.selectedDepartment.department.classes.find(
+  //         (cls: any) => cls.id == studentRole.classId
+  //       );
+  //       if (foundClass) {
+  //         this.selectedClass = foundClass;
           
-          if (studentRole.sectionId && this.selectedClass?.sections) {
-            const foundSection = this.selectedClass.sections.find(
-              (sec: any) => sec.id == studentRole.sectionId
-            );
-            if (foundSection) {
-              this.selectedSection = foundSection;
-            }
-          }
-        }
-      }
-    }
-  }
+  //         if (studentRole.sectionId && this.selectedClass?.sections) {
+  //           const foundSection = this.selectedClass.sections.find(
+  //             (sec: any) => sec.id == studentRole.sectionId
+  //           );
+  //           if (foundSection) {
+  //             this.selectedSection = foundSection;
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   onSave() {
     this.submitted = true;
-    const updatedStudent = this.tenantUserFormService.getTenantUser(this.studentForm);
+    const updatedStudent = this.tenantUserFormService.getTenantUser(this.employeeForm);
     
     if (!updatedStudent.id) {
-      updatedStudent.branch = this.selectedDepartment.branch;
+      updatedStudent.branch = this.branch;
       updatedStudent.passwordHash = "";
     }
 
@@ -191,14 +173,15 @@ export class EmployeeDialogComponent {
   }
 
   async generateUserProfile(updatedStudent: ITenantUser | NewTenantUser) {
-    const profileFormData = this.profileConfigFormService.getProfileConfig(this.studentProfileForm);
-    this.studentProfile = {
+    const profileFormData = this.profileConfigFormService.getProfileConfig(this.employeeProfileForm);
+    this.employeeProfile = {
       ...profileFormData,
       id: profileFormData.id ?? null,
       userId: updatedStudent.id?.toString(),
       academicYear: this.selectedDepartment.academicYear,
       username: updatedStudent.login,
       email: updatedStudent.email,
+      contactNumber:this.contactNumber,
       fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
       gender: this.selectedGender,
       departments: [this.selectedDepartment.id],
@@ -206,8 +189,8 @@ export class EmployeeDialogComponent {
     };
 
     this.save.emit({
-      student: updatedStudent,
-      studentProfile: this.studentProfile
+      employee: updatedStudent,
+      employeeProfile: this.employeeProfile
     });
   }
 
@@ -220,7 +203,7 @@ export class EmployeeDialogComponent {
         case 'STUDENT':
 
           if( !existingRoles?.[authority.name]){
-            roleConfig.student = {
+            roleConfig.employee = {
               classId: this.selectedClass?.id ?? null,
               sectionId: this.selectedSection?.id ?? null,
               rollNumber: null

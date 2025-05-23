@@ -13,15 +13,15 @@ import { RippleModule } from 'primeng/ripple';
 import { TextareaModule } from 'primeng/textarea';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToggleButtonModule } from 'primeng/togglebutton';
-import { IProfileConfig, ITenantUser, NewProfileConfig, NewTenantUser,IStudentProfile, IGuardianProfile, IHeadMasterProfile, IHeadOfDepartmentProfile, IITAdministratorProfile, ILecturerProfile, IPrincipalProfile, IProfessorProfile, IRoleConfigs, ISportsCoachProfile, ISubstituteTeacherProfile, ITeacherProfile, ITenantAuthority, IVicePrincipalProfile } from '../../models/user.model';
+import { IProfileConfig, ITenantUser, NewProfileConfig, NewTenantUser, IGuardianProfile, IRoleConfigs,ITenantAuthority } from '../../models/user.model';
 import { UserService } from '../../service/user.service';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { Store } from '@ngrx/store';
-import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
-import { IBranch } from '../../models/tenant.model';
 import { TenantUserFormService } from '../../service/tenant-user-form.service';
 import { ProfileConfigFormService } from '../../service/profile-config-form.service';
 import { Gender } from '../../../core/model/auth';
+import { IBranch } from '../../models/tenant.model';
+import { getBranch } from '../../../core/store/user-profile/user-profile.selectors';
 
 @Component({
   selector: 'app-guardian-dialog',
@@ -51,77 +51,40 @@ export class GuardianDialogComponent implements OnInit {
   tenantUserFormService = inject(TenantUserFormService);
   profileConfigFormService = inject(ProfileConfigFormService);
   private store = inject(Store<{ userProfile: UserProfileState }>);
-
+  branch:IBranch | any;
   @Input() visible: boolean = false;
-  @Input() statuses: any[] = [];
-  @Input() set student(value: NewTenantUser | ITenantUser) {
-    this._student = value;
-    if (this.studentForm) {
-      this.tenantUserFormService.resetForm(this.studentForm, value);
+  @Input() set gaurdian(value: NewTenantUser | ITenantUser) {
+    this._gaurdian = value;
+    if (this.guardianForm) {
+      this.tenantUserFormService.resetForm(this.guardianForm, value);
     }
   }
-  get student(): NewTenantUser | ITenantUser {
-    return this._student;
+  get gaurdian(): NewTenantUser | ITenantUser {
+    return this._gaurdian;
   }
-
-  @Input() set studentProfile(value: NewProfileConfig | IProfileConfig) {
+  @Input() studentProfile:IProfileConfig | any;
+  @Input() set guardianProfile(value: NewProfileConfig | IProfileConfig) {
     this._studentProfile = value;
-    if (this.studentProfileForm && value) {
-      this.profileConfigFormService.resetForm(this.studentProfileForm, value);
-      
-      if (value.departments && value.departments.length > 0) {
-        const departmentId = value.departments[0];
-        const foundDepartment = this.associatedDepartments.find(dep => dep.id === departmentId);
-        if (foundDepartment) {
-          this.selectedDepartment = foundDepartment;
-          
-          if (value.roles && value.roles.student) {
-            const studentRole = value.roles.student as IStudentProfile;
-            
-            // Find class
-            if (studentRole.classId && this.selectedDepartment?.department?.classes) {
-              const foundClass = this.selectedDepartment.department.classes.find(
-                (cls: any) => cls.id === studentRole.classId
-              );
-              if (foundClass) {
-                this.selectedClass = foundClass;
-                
-                // Find section
-                if (studentRole.sectionId && this.selectedClass?.sections) {
-                  const foundSection = this.selectedClass.sections.find(
-                    (sec: any) => sec.id === studentRole.sectionId
-                  );
-                  if (foundSection) {
-                    this.selectedSection = foundSection;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+    if (this.guardianProfileForm && value) {
+      this.profileConfigFormService.resetForm(this.guardianProfileForm, value);
+    
     }
   }
-  get studentProfile(): NewProfileConfig | IProfileConfig {
+  get guardianProfile(): NewProfileConfig | IProfileConfig {
     return this._studentProfile;
   }
 
-  @Output() save = new EventEmitter<{ student: NewTenantUser | ITenantUser; studentProfile: NewProfileConfig | IProfileConfig }>();
+  @Output() save = new EventEmitter<{ gaurdian: NewTenantUser | ITenantUser; guardianProfile: NewProfileConfig | IProfileConfig }>();
   @Output() cancel = new EventEmitter<void>();
 
-  private _student!: NewTenantUser | ITenantUser;
+  private _gaurdian!: NewTenantUser | ITenantUser;
   private _studentProfile!: NewProfileConfig | IProfileConfig;
   
-  studentForm!: FormGroup;
-  studentProfileForm!: FormGroup;
+  guardianForm!: FormGroup;
+  guardianProfileForm!: FormGroup;
   submitted: boolean = false;
-  availableAuthorities: any[] = [];
-  associatedDepartments: any[] = [];
-  associatedBranch: IBranch | undefined;
-  selectedDepartment: any;
-  selectedClass: any;
-  selectedSection: any;
   selectedGender: Gender = Gender.MALE;
+    contactNumber:any;
   genderOptions: any[] = [
     { label: 'Female', value: 'FEMALE' },
     { label: 'Male', value: 'MALE' },
@@ -129,82 +92,41 @@ export class GuardianDialogComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.studentForm = this.tenantUserFormService.createTenantUserFormGroup(this.student);
-    this.studentProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.studentProfile);
-    
-    this.studentService.getAuthorities().subscribe((response: any) => {
-      this.availableAuthorities = response.body;
-    });
-
-    this.store.select(getAssociatedDepartments).subscribe(departments => {
-      this.associatedDepartments = departments.map((department: any) => {
-        return { ...department, name: department.department?.name };
-      });
-      
-      if (this._studentProfile && this._studentProfile.departments && this._studentProfile.departments.length > 0) {
-        const departmentId = this._studentProfile.departments[0];
-        const foundDepartment = this.associatedDepartments.find(dep => dep.id === departmentId);
-        if (foundDepartment) {
-          this.selectedDepartment = foundDepartment;
-          this.setClassAndSectionFromProfile();
-        }
-      }
+    this.guardianForm = this.tenantUserFormService.createTenantUserFormGroup(this.gaurdian);
+    this.guardianProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.guardianProfile);
+    this.store.select(getBranch).subscribe(branch=>{
+    this.branch =  branch
     });
   }
 
-  private setClassAndSectionFromProfile(): void {
-    if (this._studentProfile?.roles?.student && this.selectedDepartment?.department?.classes) {
-      const studentRole = this._studentProfile.roles.student as IStudentProfile;
-      if (studentRole.classId) {
-        const foundClass = this.selectedDepartment.department.classes.find(
-          (cls: any) => cls.id == studentRole.classId
-        );
-        if (foundClass) {
-          this.selectedClass = foundClass;
-          
-          if (studentRole.sectionId && this.selectedClass?.sections) {
-            const foundSection = this.selectedClass.sections.find(
-              (sec: any) => sec.id == studentRole.sectionId
-            );
-            if (foundSection) {
-              this.selectedSection = foundSection;
-            }
-          }
-        }
-      }
-    }
-  }
 
   onSave() {
     this.submitted = true;
-    const updatedStudent = this.tenantUserFormService.getTenantUser(this.studentForm);
-    
-    if (!updatedStudent.id) {
-      updatedStudent.branch = this.selectedDepartment.branch;
-      updatedStudent.passwordHash = "";
-    }
+    const updatedStudent = this.tenantUserFormService.getTenantUser(this.guardianForm);
 
     this.generateUserProfile(updatedStudent);
   }
 
   async generateUserProfile(updatedStudent: ITenantUser | NewTenantUser) {
-    const profileFormData = this.profileConfigFormService.getProfileConfig(this.studentProfileForm);
-    this.studentProfile = {
+    const profileFormData = this.profileConfigFormService.getProfileConfig(this.guardianProfileForm);
+    this.guardianProfile = {
       ...profileFormData,
       id: profileFormData.id ?? null,
       userId: updatedStudent.id?.toString(),
-      academicYear: this.selectedDepartment.academicYear,
+      academicYear: "NA",
       username: updatedStudent.login,
       email: updatedStudent.email,
+      contactNumber: this.contactNumber,
       fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
+      departments:this.studentProfile.departments,
       gender: this.selectedGender,
-      departments: [this.selectedDepartment.id],
       roles: await this.generateRoleConfig(updatedStudent.authorities!,profileFormData.roles)
     };
+      updatedStudent.branch =  this.branch;
 
     this.save.emit({
-      student: updatedStudent,
-      studentProfile: this.studentProfile
+      gaurdian: updatedStudent,
+      guardianProfile: this.guardianProfile
     });
   }
 
@@ -214,78 +136,11 @@ export class GuardianDialogComponent implements OnInit {
     };
     authorities?.forEach((authority) => {
       switch (authority?.name) {
-        case 'STUDENT':
-
-          if( !existingRoles?.[authority.name]){
-            roleConfig.student = {
-              classId: this.selectedClass?.id ?? null,
-              sectionId: this.selectedSection?.id ?? null
-            } as IStudentProfile;
-          }
-         
-          break;
         case 'GUARDIAN':
            if(!existingRoles?.[authority.name]){
-             roleConfig.parent = {} as IGuardianProfile;
-           }
-          break;
-        case 'TEACHER':
-           if(!existingRoles?.[authority.name]){
-             roleConfig.teacher = {} as ITeacherProfile;
-           }
-    
-          break;
-        case 'LECTURER':
-            if(!existingRoles?.[authority.name]){
-             roleConfig.lecturer = {} as ILecturerProfile;
-           }
-       
-          break;
-        case 'PROFESSOR':
-            if(!existingRoles?.[authority.name]){
-             roleConfig.professor = {} as IProfessorProfile;
-           }
-          
-          break;
-        case 'HEAD_OF_DEPARTMENT':
-            if(!existingRoles?.[authority.name]){
-            roleConfig.headofdepartment = {} as IHeadOfDepartmentProfile;
-           }
-        
-          break;
-        case 'HEAD_MASTER':
-            if(!existingRoles?.[authority.name]){
-             roleConfig.headmaster = {} as IHeadMasterProfile;
-           }
-      
-          break;
-        case 'PRINCIPAL/DEAN':
-            if(!existingRoles?.[authority.name]){
-            roleConfig.principal = {} as IPrincipalProfile;
-           }
- 
-          break;
-        case 'VICE_PRINCIPAL':
-            if(!existingRoles?.[authority.name]){
-           roleConfig.viceprincipal = {} as IVicePrincipalProfile;
-           }
-    
-          break;
-        case 'SPORTS_COACH':
-            if(!existingRoles?.[authority.name]){
-            roleConfig.sportscoach = {} as ISportsCoachProfile;
-           }
-       
-          break;
-        case 'SUBSTITUTE_TEACHER':
-           if(!existingRoles?.[authority.name]){
-            roleConfig.substituteteacher = {} as ISubstituteTeacherProfile;
-           }
-
-          break;
-        case 'IT_ADMINISTRATOR':
-          if(!existingRoles?.[authority.name]){
-             roleConfig.itadmin = {} as IITAdministratorProfile;
+             roleConfig.parent = {
+                childrens: [this.studentProfile.userId],
+             } as IGuardianProfile;
            }
           break;
         default:

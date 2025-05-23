@@ -39,8 +39,8 @@ import { UserService, EntityArrayResponseType } from '../../service/user.service
 export class EmployeeListComponent {
 private store = inject(Store<{ userProfile: UserProfileState }>);
     studentDialog: boolean = false;
-    student!:NewTenantUser | ITenantUser;
-    studentProfile! : NewProfileConfig | IProfileConfig | any;
+    employee!:NewTenantUser | ITenantUser;
+    employeeProfile! : NewProfileConfig | IProfileConfig | any;
     submitted: boolean = false;
     exportColumns!: ExportColumn[];
     cols!: Column[];
@@ -115,14 +115,14 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
                     return of(normalResult);
                 }
     
-                return this.studentService.search(0,10,'id','ASC',{ 'user_id.in': ids }
+                return this.studentService.search(0,100,'id','ASC',{ 'user_id.in': ids }
                 ).pipe(
                     map(searchResult => {
                         return { body: normalResult.body?.map((user:any)=>{
                           user['profile'] = searchResult.content?.find((config:any)=>{
                             return user.id  == config.userId
                           });
-  
+  console.log(searchResult);
                           return user;
                         }), headers: normalResult.headers };
                     }),
@@ -135,7 +135,7 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
         );
     }
     openNew() {
-      this.student = { 
+      this.employee = { 
         authorities: [],
         isTenantUser: true,
         createdBy: this.currentUser,
@@ -148,7 +148,7 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
         passwordHash: '1234'
       } as NewTenantUser | any;
     
-      this.studentProfile = {} as NewProfileConfig;
+      this.employeeProfile = {} as NewProfileConfig;
       this.submitted = false;
       this.studentDialog = true;
     }
@@ -158,21 +158,20 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
          this.submitted = false;
      }
  
-     onStudentSave(student: { student: NewTenantUser | ITenantUser; studentProfile: NewProfileConfig | IProfileConfig | any }) {
+     onStudentSave(employee: { employee: NewTenantUser | ITenantUser; employeeProfile: NewProfileConfig | IProfileConfig }| any) {
         this.submitted = true;
-
-        for (let role in student.studentProfile.roles) {
-          if (student.studentProfile.roles[role] == null) {
-            delete student.studentProfile.roles[role];
+  for (let role in employee.employeeProfile.roles) {
+          if (employee.employeeProfile.roles[role] == null) {
+            delete employee.employeeProfile.roles[role];
           }
         }
 
-        if(!student.student.id){
-          let newStudent : NewTenantUser | any  = {...student.student};
+        if(!employee.employee.id){
+          let newStudent : NewTenantUser | any  = {...employee.employee};
           this.studentService.create(newStudent as NewTenantUser).subscribe(result=>{
-            student.studentProfile.userId = result.body?.id.toString();
+            employee.employeeProfile.userId = result.body?.id.toString();
         
-            this.profileService.create(student.studentProfile as NewProfileConfig).subscribe(result=>{
+            this.profileService.create(employee.employeeProfile as NewProfileConfig).subscribe(result=>{
               setTimeout(()=>{
               this.hideDialog();
               this.load();
@@ -182,8 +181,8 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
          
           })
         }else{
-          this.studentService.update(student.student as ITenantUser).subscribe(result=>{
-            this.profileService.update(student.studentProfile as IProfileConfig).subscribe(result=>{
+          this.studentService.update(employee.employee as ITenantUser).subscribe(result=>{
+            this.profileService.update(employee.employeeProfile as IProfileConfig).subscribe(result=>{
               setTimeout(()=>{
               this.hideDialog();
               this.load();
@@ -196,18 +195,20 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
       
      }
 
-     deleteStudent(student:ITenantUser){
-      this.studentService.delete(student.id).subscribe(res=>{
-        this.profileService.delete(student.profile?.id!).subscribe(result=>{
+     deleteStudent(employee:ITenantUser){
+      this.studentService.delete(employee.id).subscribe(res=>{
+        this.profileService.delete(employee.profile?.id!).subscribe(result=>{
           this.load();
         })
       });
      }
 
-     editStudent(student:ITenantUser){
-      this.studentService.find(student.id).subscribe((result:any)=>{
-        this.studentProfile = student.profile;
-        this.student = { ...result.body};
+     editStudent(employee:ITenantUser){
+      console.log(employee);
+      this.studentService.find(employee.id).subscribe((result:any)=>{
+        
+        this.employeeProfile = employee.profile;
+        this.employee = { ...result.body};
         this.studentDialog = true;
       })
      

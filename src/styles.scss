@@ -3,3 +3,6 @@
 @use './assets/layout/layout.scss';
 @use 'primeicons/primeicons.css';
 @use './assets/demo/demo.scss';
+:root {
+  --p-form-field-sm-font-size: 0.05rem; // Your custom value
+}

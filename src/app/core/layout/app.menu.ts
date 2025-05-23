@@ -24,6 +24,7 @@ export class AppMenu {
                 label: 'Home',
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
+                     { label: 'Organization ', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] },
                     { label: 'Students', icon: 'pi pi-fw pi-users', routerLink: ['/students'] },
                     { label: 'Staff', icon: 'pi pi-fw pi-users', routerLink: ['/employees'] }
                 ]

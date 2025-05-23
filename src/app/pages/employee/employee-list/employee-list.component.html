@@ -39,15 +39,15 @@
                 <th style="min-width: 4rem"></th>
             </tr>
         </ng-template>
-        <ng-template #body let-student>
+        <ng-template #body let-employee>
             <tr>
-                <td style="min-width: 12rem">{{ student.firstName  + ' ' + student.lastName }}</td>
-                <td style="min-width: 12rem">{{ student.login }}</td>
-                <td>{{ student.locality }}</td>
+                <td style="min-width: 12rem">{{ employee.firstName  + ' ' + employee.lastName }}</td>
+                <td style="min-width: 12rem">{{ employee.login }}</td>
+                <td>{{ employee.locality }}</td>
 
                 <td class="">
-                    <i class="pi pi-user-edit hover:text-primary-600 px-3 cursor-pointer" (click)="editStudent(student)" ></i>
-                    <i class="pi pi-trash hover:text-primary-600 px-3 cursor-pointer" (click)="deleteStudent(student)" ></i>
+                    <i class="pi pi-user-edit hover:text-primary-600 px-3 cursor-pointer" (click)="editStudent(employee)" ></i>
+                    <i class="pi pi-trash hover:text-primary-600 px-3 cursor-pointer" (click)="deleteStudent(employee)" ></i>
                 </td>
             </tr>
         </ng-template>
@@ -56,8 +56,8 @@
     @if( this.studentDialog){
         <app-employee-dialog 
         [visible]="studentDialog" 
-        [student]="student" 
-        [studentProfile]="studentProfile"
+        [employee]="employee" 
+        [employeeProfile]="employeeProfile"
         (save)="onStudentSave($event)"
         (cancel)="hideDialog()">
       </app-employee-dialog>

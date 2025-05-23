@@ -85,10 +85,11 @@ export interface IStudentProfile {
     rollNumber?: string | null;
     classId? : number | null;
     sectionId? : number | null;
+    guardianId? : number | null;
 }
 
 export interface IGuardianProfile {
-  childrens?: string | null;
+  childrens?: string[] | null;
   email?: string | null;
   contactNumber?: string | null;
 }

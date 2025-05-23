@@ -54,7 +54,7 @@
         </ng-template>
     </p-table>
 
-    @if( this.studentDialog){
+     @if( this.studentDialog){ 
         <app-student-dialog 
         [visible]="studentDialog" 
         [student]="student" 
@@ -62,17 +62,17 @@
         (save)="onStudentSave($event)"
         (cancel)="hideDialog()">
       </app-student-dialog>
-    
     }
 
     
     @if( this.guardianDialog){
         <app-guardian-dialog 
-        [visible]="studentDialog" 
-        [student]="student" 
-        [studentProfile]="studentProfile"
-        (save)="onStudentSave($event)"
-        (cancel)="hideDialog()">
+        [visible]="guardianDialog" 
+        [gaurdian]="selectedGaurdian" 
+        [guardianProfile]="studentProfile"
+        [studentProfile]="selectedStudentProfile"
+        (save)="onGuardianSave($event)"
+        (cancel)="hideGuardianDialog()">
       </app-guardian-dialog>
     
     }

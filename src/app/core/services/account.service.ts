@@ -6,7 +6,7 @@ import { catchError, map, shareReplay, tap } from 'rxjs/operators';
 import { Account } from '../model/auth';
 import { ApplicationConfigService } from './application-config.service';
 import { environment } from '../../../environments/environment';
-import { loadUserProfile } from '../store/user-profile/user-profile.actions';
+import { addBranch, loadUserProfile } from '../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
 import { Store } from '@ngrx/store';
 
@@ -32,7 +32,13 @@ export class AccountService {
       this.accountCache$ = this.fetch().pipe(
         map((account: any) => {
           this.http.get<any>(this.applicationConfigService.getEndpointFor( environment.ServerUrl + environment.ADMIN_BASE_URL + 'api/config/'+ account.id)).subscribe(result=>{
-              this.store.dispatch(loadUserProfile({ userConfig: result }));
+            let branch = null;
+            for(let department of result.departments){
+              branch = JSON.parse(JSON.stringify(department.branch));
+              delete department.branch;
+            }
+            this.store.dispatch(addBranch({branch:branch}));
+            this.store.dispatch(loadUserProfile({ userConfig: result }));
           })
             return account;
         }),

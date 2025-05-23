@@ -1,16 +1,16 @@
-<p-dialog [(visible)]="visible" [style]="{ width: '80vw' }" [header]="student && student.id ? 'Edit Staff' : 'Add Staff'" [modal]="true">
+<p-dialog [(visible)]="visible" [style]="{ width: '80vw' }" [header]="employee && employee.id ? 'Edit Staff' : 'Add Staff'" [modal]="true">
   <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
     <!-- Staff Form Section -->
     <div class="col-span-1 md:col-span-6">
       <h3 class="text-lg font-bold mb-4">Basic Information</h3>
-      <form [formGroup]="studentForm" class="flex flex-col gap-4">
+      <form [formGroup]="employeeForm" class="flex flex-col gap-4">
 
         <!-- Login details -->
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label for="login" class="block font-bold mb-2">Registration Id</label>
             <input type="text" pInputText id="login" formControlName="login" autofocus fluid />
-            <small class="text-red-500" *ngIf="studentForm.get('login')?.invalid && (submitted || studentForm.get('login')?.touched)">
+            <small class="text-red-500" *ngIf="employeeForm.get('login')?.invalid && (submitted || employeeForm.get('login')?.touched)">
               Registration ID is required.
             </small>
           </div>
@@ -37,14 +37,14 @@
           <div>
             <label for="firstName" class="block font-bold mb-2">First Name</label>
             <input type="text" pInputText id="firstName" formControlName="firstName" fluid />
-            <small class="text-red-500" *ngIf="studentForm.get('firstName')?.invalid && (submitted || studentForm.get('firstName')?.touched)">
+            <small class="text-red-500" *ngIf="employeeForm.get('firstName')?.invalid && (submitted || employeeForm.get('firstName')?.touched)">
               First Name is required.
             </small>
           </div>
           <div>
             <label for="lastName" class="block font-bold mb-2">Last Name</label>
             <input type="text" pInputText id="lastName" formControlName="lastName" fluid />
-            <small class="text-red-500" *ngIf="studentForm.get('lastName')?.invalid && (submitted || studentForm.get('lastName')?.touched)">
+            <small class="text-red-500" *ngIf="employeeForm.get('lastName')?.invalid && (submitted || employeeForm.get('lastName')?.touched)">
               Last Name is required.
             </small>
           </div>
@@ -55,12 +55,21 @@
           <div>
             <label for="email" class="block font-bold mb-2">Email</label>
             <input type="text" pInputText id="email" formControlName="email" fluid />
-            <small class="text-red-500" *ngIf="studentForm.get('email')?.invalid && (submitted || studentForm.get('email')?.touched)">
+            <small class="text-red-500" *ngIf="employeeForm.get('email')?.invalid && (submitted || employeeForm.get('email')?.touched)">
               Email is required.
             </small>
           </div>
         </div>
 
+          <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="contactNumber" class="block font-bold mb-2">Contact Number</label>
+            <input type="text" pInputText id="contactNumber"   [ngModelOptions]="{standalone: true}" [(ngModel)]="contactNumber" fluid />
+            <!-- <small class="text-red-500">
+              Contact Number is required.
+            </small> -->
+          </div>
+        </div>
         <!-- Address section title -->
         <div class="mt-2">
           <h3 class="text-lg font-bold">Address Details</h3>
@@ -83,7 +92,7 @@
           <div>
             <label for="locality" class="block font-bold mb-2">Locality</label>
             <input type="text" pInputText id="locality" formControlName="locality" fluid />
-            <small class="text-red-500" *ngIf="studentForm.get('locality')?.invalid && (submitted || studentForm.get('locality')?.touched)">
+            <small class="text-red-500" *ngIf="employeeForm.get('locality')?.invalid && (submitted || employeeForm.get('locality')?.touched)">
               Locality is required.
             </small>
           </div>
@@ -102,7 +111,7 @@
           <div>
             <label for="district" class="block font-bold mb-2">District</label>
             <input type="text" pInputText id="district" formControlName="district" fluid />
-            <small class="text-red-500" *ngIf="studentForm.get('district')?.invalid && (submitted || studentForm.get('district')?.touched)">
+            <small class="text-red-500" *ngIf="employeeForm.get('district')?.invalid && (submitted || employeeForm.get('district')?.touched)">
               District is required.
             </small>
           </div>
@@ -113,14 +122,14 @@
           <div>
             <label for="state" class="block font-bold mb-2">State</label>
             <input type="text" pInputText id="state" formControlName="state" fluid />
-            <small class="text-red-500" *ngIf="studentForm.get('state')?.invalid && (submitted || studentForm.get('state')?.touched)">
+            <small class="text-red-500" *ngIf="employeeForm.get('state')?.invalid && (submitted || employeeForm.get('state')?.touched)">
               State is required.
             </small>
           </div>
           <div>
             <label for="country" class="block font-bold mb-2">Country</label>
             <input type="text" pInputText id="country" formControlName="country" fluid />
-            <small class="text-red-500" *ngIf="studentForm.get('country')?.invalid && (submitted || studentForm.get('country')?.touched)">
+            <small class="text-red-500" *ngIf="employeeForm.get('country')?.invalid && (submitted || employeeForm.get('country')?.touched)">
               Country is required.
             </small>
           </div>
@@ -130,7 +139,7 @@
         <div>
           <label for="postalCode" class="block font-bold mb-2">Postal Code</label>
           <input type="text" pInputText id="postalCode" formControlName="postalCode" fluid />
-          <small class="text-red-500" *ngIf="studentForm.get('postalCode')?.invalid && (submitted || studentForm.get('postalCode')?.touched)">
+          <small class="text-red-500" *ngIf="employeeForm.get('postalCode')?.invalid && (submitted || employeeForm.get('postalCode')?.touched)">
             Postal Code is required.
           </small>
         </div>
@@ -140,7 +149,7 @@
     <!-- Profile Form Section -->
     <div class="col-span-1 md:col-span-6">
       <h3 class="text-lg font-bold mb-4">Academic Information</h3>
-      <form [formGroup]="studentProfileForm" class="flex flex-col gap-4">
+      <form [formGroup]="employeeProfileForm" class="flex flex-col gap-4">
         <!-- Gender Selection -->
         <div>
           <label class="block font-bold mb-2">Gender</label>
@@ -173,7 +182,6 @@
             Department is required.
           </small>
         </div>
-        
         <!-- Class Selection -->
         <!-- <div class="mt-2" *ngIf="selectedDepartment">
           <label class="block font-bold mb-2">Class</label>

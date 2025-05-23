@@ -1,5 +1,6 @@
 import { createReducer, on, Action, MetaReducer } from '@ngrx/store';
 import * as UserProfileActions from './user-profile.actions';
+import { IBranch } from '../../../pages/models/tenant.model';
 
 
 export interface UserProfileState {
@@ -7,6 +8,7 @@ export interface UserProfileState {
   loading: boolean;
   isAuthenticated: boolean;
   token: string | null;
+  branch:IBranch | null
 }
 
 export const localStorageKey = 'userProfileState';
@@ -18,6 +20,7 @@ export const initialState: UserProfileState = (() => {
     loading: false, 
     isAuthenticated: false, 
     token: null ,
+    branch:null
   };
 })();
 
@@ -38,11 +41,18 @@ export const userProfileReducer = createReducer(
     userConfig: null,
     loading: false,
     isAuthenticated: false,
-    token: null
+    token: null,
+    branch:null
   })),
   on(UserProfileActions.addToken, (state, { token }) => ({
     ...state,
     token,
+    loading: false,
+    isAuthenticated: true
+  })),
+    on(UserProfileActions.addBranch, (state, { branch }) => ({
+    ...state,
+    branch,
     loading: false,
     isAuthenticated: true
   }))

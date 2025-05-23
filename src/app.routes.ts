@@ -6,6 +6,7 @@ import { StudentListComponent } from './app/pages/students/student-list/student-
 import { AppLayout } from './app/core/layout/app.layout';
 import { ProfileComponent } from './app/pages/profile/profile.component';
 import { EmployeeListComponent } from './app/pages/employee/employee-list/employee-list.component';
+import { OrgTreeComponent } from './app/pages/org-tree/org-tree.component';
 
 export const appRoutes: Routes = [
     {
@@ -15,6 +16,7 @@ export const appRoutes: Routes = [
             { path: '', component: Dashboard },
             { path: 'students', component: StudentListComponent },
             { path: 'employees', component: EmployeeListComponent },
+            { path: 'org', component: OrgTreeComponent },
             { path: 'profile', component: ProfileComponent },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }

@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NotificationsWidget } from './components/notificationswidget';
 import { StatsWidget } from './components/statswidget';
 import { RecentSalesWidget } from './components/recentsaleswidget';
 import { BestSellingWidget } from './components/bestsellingwidget';
 import { RevenueStreamWidget } from './components/revenuestreamwidget';
+import { getBranch } from '../../core/store/user-profile/user-profile.selectors';
+import { Store } from '@ngrx/store';
+import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
 
 @Component({
     selector: 'app-dashboard',
@@ -22,4 +25,14 @@ import { RevenueStreamWidget } from './components/revenuestreamwidget';
         </div>
     `
 })
-export class Dashboard {}
+export class Dashboard {
+
+      private store = inject(Store<{ userProfile: UserProfileState }>);
+    
+    constructor(){
+        this.store.select(getBranch).subscribe(result=>{
+          console.log( result);
+        })
+     
+    }
+}
