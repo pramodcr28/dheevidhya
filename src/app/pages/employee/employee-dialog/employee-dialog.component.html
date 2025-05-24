@@ -4,7 +4,6 @@
     <div class="col-span-1 md:col-span-6">
       <h3 class="text-lg font-bold mb-4">Basic Information</h3>
       <form [formGroup]="employeeForm" class="flex flex-col gap-4">
-
         <!-- Login details -->
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -20,15 +19,14 @@
             [options]="availableAuthorities"
             name="authorities"
             formControlName="authorities"
-            
             required="true"
             optionLabel="name"
             placeholder="Select Authority"
             [style]="{ width: '100%' }">
           </p-multi-select>
-          <!-- <small class="text-red-500" *ngIf="submitted && !selectedDepartment">
+          <small class="text-red-500" *ngIf="submitted && employeeForm.get('authorities')?.invalid">
             Authority is required.
-          </small> -->
+          </small>
         </div>
         </div>
 
@@ -170,15 +168,15 @@
         <!-- Department Selection -->
         <div class="mt-2">
           <label class="block font-bold mb-2">Department</label>
-          <p-select
+          <p-multi-select
             [options]="associatedDepartments"
-            [(ngModel)]="selectedDepartment"
+            [(ngModel)]="selectedDepartments"
             [ngModelOptions]="{standalone: true}"
             optionLabel="name"
             placeholder="Select Department"
             [style]="{ width: '100%' }">
-          </p-select>
-          <small class="text-red-500" *ngIf="submitted && !selectedDepartment">
+          </p-multi-select>
+          <small class="text-red-500" *ngIf="submitted && !selectedDepartments">
             Department is required.
           </small>
         </div>

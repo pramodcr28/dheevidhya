@@ -32,6 +32,9 @@
                     Register Id
                     <p-sortIcon field="name" />
                 </th>
+                <th  style="min-width:12rem">
+                    Authorities
+                </th>
                 <th pSortableColumn="price" style="min-width: 8rem">
                     Location
                     <p-sortIcon field="price" />
@@ -43,6 +46,8 @@
             <tr>
                 <td style="min-width: 12rem">{{ employee.firstName  + ' ' + employee.lastName }}</td>
                 <td style="min-width: 12rem">{{ employee.login }}</td>
+                <td style="min-width: 12rem">{{ getAuthorityNames(employee.authorities) }}</td>
+
                 <td>{{ employee.locality }}</td>
 
                 <td class="">

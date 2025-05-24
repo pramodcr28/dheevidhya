@@ -69,17 +69,6 @@ export class EmployeeDialogComponent {
   @Input() set employeeProfile(profile: NewProfileConfig | IProfileConfig) {
     
     this._employeeProfile = profile;
-    if (this.employeeProfileForm && profile) {
-      this.profileConfigFormService.resetForm(this.employeeProfileForm, profile);
-      
-      if (profile.departments && profile.departments.length > 0) {
-        const departmentId = profile.departments[0];
-        const foundDepartment = this.associatedDepartments.find(dep => dep.id === departmentId);
-        if (foundDepartment) {
-          this.selectedDepartment = foundDepartment;
-        }
-      }
-    }
   }
   get employeeProfile(): NewProfileConfig | IProfileConfig {
     return this._employeeProfile;
@@ -97,7 +86,7 @@ export class EmployeeDialogComponent {
   availableAuthorities: any[] = [];
   associatedDepartments: any[] = [];
   associatedBranch: IBranch | undefined;
-  selectedDepartment: any;
+  selectedDepartments: any;
   selectedClass: any;
   selectedSection: any;
   selectedGender: Gender = Gender.MALE;
@@ -111,7 +100,7 @@ export class EmployeeDialogComponent {
   ngOnInit(): void {
     this.employeeForm = this.tenantUserFormService.createTenantUserFormGroup(this.employee);
     this.employeeProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.employeeProfile);
-    
+    this.contactNumber = this.employeeProfileForm.get('contactNumber').value;
     this.studentService.getAuthorities().subscribe((response: any) => {
       this.availableAuthorities = response.body.filter(((authority:any)=>authority.name != "STUDENT" && authority.name != "GUARDIAN")).map((authority:any)=> { return {name:authority.name}});
     });
@@ -121,15 +110,8 @@ export class EmployeeDialogComponent {
       this.associatedDepartments = departments.map((department: any) => {
         return { ...department, name: department.department?.name };
       });
-      
-      if (this._employeeProfile && this._employeeProfile.departments && this._employeeProfile.departments.length > 0) {
-        const departmentId = this._employeeProfile.departments[0];
-        const foundDepartment = this.associatedDepartments.find(dep => dep.id === departmentId);
-        if (foundDepartment) {
-          this.selectedDepartment = foundDepartment;
-          // this.setClassAndSectionFromProfile();
-        }
-      }
+      this.selectedDepartments = this.associatedDepartments
+      .filter(department=> this._employeeProfile.departments?.includes(department.id)) ;
     });
 
      this.store.select(getBranch).subscribe(branch => {
@@ -161,6 +143,7 @@ export class EmployeeDialogComponent {
   // }
 
   onSave() {
+    if(this.selectedDepartments.length){
     this.submitted = true;
     const updatedStudent = this.tenantUserFormService.getTenantUser(this.employeeForm);
     
@@ -170,6 +153,8 @@ export class EmployeeDialogComponent {
     }
 
     this.generateUserProfile(updatedStudent);
+    }
+   
   }
 
   async generateUserProfile(updatedStudent: ITenantUser | NewTenantUser) {
@@ -178,13 +163,13 @@ export class EmployeeDialogComponent {
       ...profileFormData,
       id: profileFormData.id ?? null,
       userId: updatedStudent.id?.toString(),
-      academicYear: this.selectedDepartment.academicYear,
+      academicYear: this.selectedDepartments[0]?.academicYear,
       username: updatedStudent.login,
       email: updatedStudent.email,
       contactNumber:this.contactNumber,
       fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
       gender: this.selectedGender,
-      departments: [this.selectedDepartment.id],
+      departments: [...this.selectedDepartments.map(deprt=>deprt.id)],
       roles: await this.generateRoleConfig(updatedStudent.authorities!,profileFormData.roles)
     };
 

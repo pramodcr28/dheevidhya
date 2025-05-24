@@ -1,3 +1,5 @@
+import { FormsModule } from '@angular/forms';
+import { IDepartmentConfig, IMasterDepartment } from './../models/org.model';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MenuItem, MessageService, TreeNode } from 'primeng/api';
@@ -10,6 +12,16 @@ import { UserProfileState } from '../../core/store/user-profile/user-profile.red
 import { getAssociatedDepartments, getBranch } from '../../core/store/user-profile/user-profile.selectors';
 import { IBranch } from '../models/tenant.model';
 import { DialogModule } from 'primeng/dialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
+import { UserService } from '../service/user.service';
+import { DepartmentConfigService } from '../../core/services/department-config.service';
+import { ApiLoaderService } from '../../core/services/loaderService';
+import { MessageModule } from 'primeng/message';
 
 
 export interface CustomTreeNode  extends TreeNode{
@@ -18,55 +30,59 @@ export interface CustomTreeNode  extends TreeNode{
 
 @Component({
   selector: 'app-org-tree',
-  imports: [OrganizationChartModule,CommonModule, ToastModule, SpeedDialModule,ButtonModule,DialogModule],
+  imports: [
+    OrganizationChartModule, 
+    CommonModule, 
+    ToastModule, 
+    SpeedDialModule,
+    ButtonModule,
+    DialogModule,
+    FormsModule,
+    InputTextModule,
+    TextareaModule,
+    InputIconModule,
+    IconFieldModule,
+    ConfirmDialogModule,
+    SelectModule,
+    MessageModule
+  ],
   templateUrl: './org-tree.component.html',
   styles: `.p-button-icon .pi .pi-upload{
     font-size:0.05rem !important;
-  }`,
+  }
+
+  `,
   providers:[MessageService]
 })
 export class OrgTreeComponent {
  selectedNodes!: CustomTreeNode[];
-
- items: MenuItem[] | any = [
-            {
-                icon: 'pi pi-pencil',
-                iconStyle:{'font-size':'3px'},
-                command: () => {
-                    this.messageService.add({ severity: 'info', summary: 'Add', detail: 'Data Added' });
-                }
-            },
-            {
-                icon: 'pi pi-info',
-                command: () => {
-                    this.messageService.add({ severity: 'error', summary: 'Delete', detail: 'Data Deleted' });
-                }
-            },
-            {
-                icon: 'pi pi-upload',
-                routerLink: ['/fileupload']
-            },
-        ];;
- branch:IBranch | any;
+ selectedDepartment!:IMasterDepartment | any;
+ selectedMasterDepartment!:IDepartmentConfig | null;
+ userService = inject(UserService);
+ departmentConfigService = inject(DepartmentConfigService);
+ users = [];
+ branch!:IBranch;
  associatedDepartments: any[] = [];
-  data:any = [];
- constructor(private messageService: MessageService) {}
+ data:any = [];
+    result: any;
+ 
+ constructor(private messageService: MessageService, public loader: ApiLoaderService,) {}
 
  private store = inject(Store<{ userProfile: UserProfileState }>);
- 
+ dialogVisible = false;
+
     ngOnInit() {
         this.store.select(getBranch).subscribe(branch=>{
-          this.branch = branch;
+          this.branch = branch!;
         })
         this.store.select(getAssociatedDepartments).subscribe(departments => {
             this.associatedDepartments = departments
             this.data = this.generateTreeData();});
-
     }
 
 generateTreeData() {
   let data: TreeNode<any> = {
-      label: "SSKC",
+      label:  this.branch.name! ,
       type: "branch",
       expanded: true,
       children: this.generateDepartmentData(this.associatedDepartments)
@@ -78,6 +94,7 @@ generateDepartmentData(departments: any) {
   return departments?.map((dept:any) => {
     return {
       label: dept.department.name, 
+      value:dept,
       type: "department",
       expanded: true,
       children: this.generateClassData(dept.department.classes)
@@ -89,6 +106,7 @@ generateClassData(classes: any) {
   return classes?.map((cls:any) => {
     return {
       label: cls.name,
+      value:cls,
       type: "class",
       expanded: true,
       children: this.generateSectionData(cls.sections)
@@ -100,6 +118,8 @@ generateSectionData(sections: any) {
   return sections?.map((section:any) => {
     return {
       label: section.name,
+      value:section,
+      styleClass: 'no-padding',
       type: "section",
       expanded: true,
       children: this.generateSubjectsData(section.subjects)
@@ -111,6 +131,7 @@ generateSubjectsData(subjects: any) {
   return subjects?.map((subject:any) => {
     return {
       label: subject.name,
+      value: subject,
       type: "subject",
       expanded: false,
       children: []
@@ -138,4 +159,38 @@ toggleNode(node: CustomTreeNode, event: MouseEvent) {
 
     this.data = [...this.data];
   }
+
+  openEditOrganizationDailogue(node:any){
+    this.loader.show("Fetching latest config");
+    this.departmentConfigService.find(node.value.id).subscribe(departmentConfig=>{
+        this.selectedMasterDepartment = departmentConfig.body;
+      if(this.selectedMasterDepartment){
+          this.userService.search(0,100,'id','ASC',{ 'departments.in': [this.selectedMasterDepartment!.id]})
+        .subscribe(result=>{
+          this.loader.hide();
+          this.selectedDepartment = this.selectedMasterDepartment?.department;
+              this.users = result.content;
+              this.dialogVisible = true;
+          })
+      }
+    })
+
+
+  }
+
+  saveDepartment() {
+    this.selectedMasterDepartment!['department'] = this.selectedDepartment;
+    this.loader.show("Updating Department Config...");
+    this.departmentConfigService.update(this.selectedMasterDepartment!).subscribe(departConf=>{
+
+      this.dialogVisible = false;
+      this.loader.hide();
+      this.messageService.add({ severity: 'success', summary: 'Success Message', detail: 'DepartmentConfig Updated Successful!!!' });
+    })
+
+  }
+
+
+
 }
+

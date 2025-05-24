@@ -28,6 +28,7 @@ import { NewTenantUser, ITenantUser, NewProfileConfig, IProfileConfig, ITenantAu
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantAuthorityService } from '../../service/tenant-authority.service';
 import { UserService, EntityArrayResponseType } from '../../service/user.service';
+import { ApiLoaderService } from '../../../core/services/loaderService';
 
 @Component({
   selector: 'app-employee-list',
@@ -61,6 +62,7 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
     ngZone = inject(NgZone);
     messageService = inject(MessageService);
     confirmationService = inject(ConfirmationService)
+    loader = inject(ApiLoaderService); 
     currentUser : any;
      ngOnInit() {
           this.authorityService.query().subscribe((result:any)=>{
@@ -75,10 +77,11 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
 
     
       load(): void {
+        this.loader.show("Fetching Staff Data");
         this.queryBackend().subscribe({
           next: (res: any) => {
             this.onResponseSuccess(res);
-            
+            this.loader.hide();
           },
         });
       }
@@ -122,7 +125,6 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
                           user['profile'] = searchResult.content?.find((config:any)=>{
                             return user.id  == config.userId
                           });
-  console.log(searchResult);
                           return user;
                         }), headers: normalResult.headers };
                     }),
@@ -156,17 +158,20 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
      hideDialog() {
          this.studentDialog = false;
          this.submitted = false;
+         this.loader.hide();
      }
  
      onStudentSave(employee: { employee: NewTenantUser | ITenantUser; employeeProfile: NewProfileConfig | IProfileConfig }| any) {
         this.submitted = true;
-  for (let role in employee.employeeProfile.roles) {
+  
+        for (let role in employee.employeeProfile.roles) {
           if (employee.employeeProfile.roles[role] == null) {
             delete employee.employeeProfile.roles[role];
           }
         }
 
         if(!employee.employee.id){
+          this.loader.show("Updating new Staff");
           let newStudent : NewTenantUser | any  = {...employee.employee};
           this.studentService.create(newStudent as NewTenantUser).subscribe(result=>{
             employee.employeeProfile.userId = result.body?.id.toString();
@@ -181,6 +186,7 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
          
           })
         }else{
+          this.loader.show("Adding new Record");
           this.studentService.update(employee.employee as ITenantUser).subscribe(result=>{
             this.profileService.update(employee.employeeProfile as IProfileConfig).subscribe(result=>{
               setTimeout(()=>{
@@ -202,6 +208,10 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
         })
       });
      }
+
+     getAuthorityNames(authorities: any): string {
+  return authorities?.map(auth => auth.name).join(', ') ?? '';
+}
 
      editStudent(employee:ITenantUser){
       console.log(employee);

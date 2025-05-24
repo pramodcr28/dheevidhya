@@ -26,10 +26,12 @@ import { SortService } from '../../../shared/sort';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { Store } from '@ngrx/store';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { selectUserConfig } from '../../../core/store/user-profile/user-profile.selectors';
+import { getBranch, selectUserConfig } from '../../../core/store/user-profile/user-profile.selectors';
 import dayjs from 'dayjs/esm';
 import { TenantAuthorityService } from '../../service/tenant-authority.service';
 import { GuardianDialogComponent } from '../guardian-dialog/guardian-dialog.component';
+import { ApiLoaderService } from '../../../core/services/loaderService';
+import { IBranch } from '../../models/tenant.model';
 
 @Component({
   selector: 'app-student-list',
@@ -66,7 +68,9 @@ export class StudentListComponent {
     ngZone = inject(NgZone);
     messageService = inject(MessageService);
     confirmationService = inject(ConfirmationService)
+    loader = inject(ApiLoaderService); 
     currentUser : any;
+    branch:IBranch;
      ngOnInit() {
           this.authorityService.query().subscribe((result:any)=>{
             this.tenantAuthorities.set(result.body);
@@ -75,15 +79,20 @@ export class StudentListComponent {
           this.store.select(selectUserConfig).subscribe(userConfig => {
            this.currentUser = userConfig.userId;
           });
+
+          this.store.select(getBranch).subscribe(branch => {
+           this.branch = branch;
+          });
          this.load();
      }
 
     
       load(): void {
+        this.loader.show("Fetching Staff Data");
         this.queryBackend().subscribe({
           next: (res: any) => {
             this.onResponseSuccess(res);
-            
+            this.loader.hide();
           },
         });
       }
@@ -160,7 +169,9 @@ export class StudentListComponent {
     }
 
      hideDialog() {
+        this.loader.hide();
          this.studentDialog = false;
+         this.guardianDialog = false;
          this.submitted = false;
      }
  
@@ -172,9 +183,11 @@ export class StudentListComponent {
             delete student.studentProfile.roles[role];
           }
         }
-
         if(!student.student.id){
+          this.loader.show("Adding new Student");
           let newStudent : NewTenantUser | any  = {...student.student};
+          newStudent.branch = this.branch;
+          // newStudent.email = null;
           this.studentService.create(newStudent as NewTenantUser).subscribe(result=>{
             student.studentProfile.userId = result.body?.id.toString();
         
@@ -188,12 +201,13 @@ export class StudentListComponent {
          
           })
         }else{
-          this.studentService.update(student.student as ITenantUser).subscribe(result=>{
+          this.loader.show("Updating new Student");
+          this.studentService.update(student.student as ITenantUser).subscribe(result=>{           
             this.profileService.update(student.studentProfile as IProfileConfig).subscribe(result=>{
               setTimeout(()=>{
               this.hideDialog();
               this.load();
-              this.messageService.add({text: "Congrats! Record updated!",closeIcon: "close"});
+              this.messageService.add({summary: "Congrats! Record updated!",detail: "close"});
               });  
             })
          
@@ -203,14 +217,46 @@ export class StudentListComponent {
      }
 
      deleteStudent(student:ITenantUser){
+         this.loader.show("Deleting Student");
       this.studentService.delete(student.id).subscribe(res=>{
         this.profileService.delete(student.profile?.id!).subscribe(result=>{
+         if(student.profile?.roles?.student?.guardianId){
+           this.deleteGuardian(student.profile?.roles?.student?.guardianId);
+         }else{
           this.load();
+          this.loader.hide();
+          this.messageService.add({ severity: 'worn', summary: 'Worn Message', detail: 'Student Deleted Successful!!!' });
+         }
+       
         })
       });
      }
 
+     deleteGuardian(guardianId:any){
+        this.loader.show("deleting Guardian");
+        this.studentService.delete(+guardianId).subscribe(res=>{
+
+          this.studentService.search(0,10,'id','ASC',{ 'user_id.in': [guardianId] }
+                ).subscribe(profiles=>{
+                  if(profiles.content){
+                     this.profileService.delete(profiles.content[0].id).subscribe(result=>{
+                      this.loader.hide();
+                      this.load();
+                      this.messageService.add({ severity: 'worn', summary: 'Worn Message', detail: 'Guardian Deleted Successful!!!' });
+                    })
+                  }else{
+                    this.loader.hide();
+                  }
+                })
+       
+        
+    
+   
+      });
+     }
+
      editStudent(student:ITenantUser){
+     
       this.studentService.find(student.id).subscribe((result:any)=>{
         this.studentProfile = student.profile;
         this.student = { ...result.body};
@@ -224,9 +270,17 @@ export class StudentListComponent {
       this.selectedStudentProfile = student.profile as any;
      if(gaurdianId){
           this.studentService.find(gaurdianId).subscribe((result:any)=>{ 
-            this.selectedGaurdianProfile = student.profile;
-            this.selectedGaurdian = { ...result.body};
-            this.guardianDialog = true;
+            this.studentService.search(0,10,'id','ASC',{ 'user_id.in': [gaurdianId] }
+                ).subscribe(profiles=>{
+                  if(profiles.content){
+                     this.selectedGaurdianProfile = profiles.content[0];
+                     this.selectedGaurdian = { ...result.body};
+                     this.guardianDialog = true;
+                  }else{
+                    this.loader.hide();
+                  }
+                })
+       
           });
      }else{
 
@@ -253,15 +307,13 @@ export class StudentListComponent {
      }
 
      onGuardianSave(gaurdian: { gaurdian: NewTenantUser|ITenantUser; guardianProfile: NewProfileConfig|IProfileConfig; }) {
-        console.log(gaurdian);
-
-        if(!gaurdian.gaurdian.id){
+       this.loader.show("Updating Guardian Info");
+        if(!gaurdian.gaurdian.id){      
           let newStudent : NewTenantUser | any  = {...gaurdian.gaurdian};
           this.studentService.create(newStudent as NewTenantUser).subscribe(result=>{
             gaurdian.guardianProfile.userId = result.body?.id.toString();
         
             this.profileService.create(gaurdian.guardianProfile as NewProfileConfig).subscribe(result2=>{
-              debugger
               if(this.selectedStudentProfile.roles?.student){
                 this.selectedStudentProfile.roles.student.guardianId = result.body?.id.toString();
               }

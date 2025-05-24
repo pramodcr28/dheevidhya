@@ -63,28 +63,31 @@ export class GuardianDialogComponent implements OnInit {
     return this._gaurdian;
   }
   @Input() studentProfile:IProfileConfig | any;
+
   @Input() set guardianProfile(value: NewProfileConfig | IProfileConfig) {
-    this._studentProfile = value;
+
+    this._guardianProfile = value;
+    this.contactNumber = value.contactNumber;
     if (this.guardianProfileForm && value) {
       this.profileConfigFormService.resetForm(this.guardianProfileForm, value);
     
     }
   }
   get guardianProfile(): NewProfileConfig | IProfileConfig {
-    return this._studentProfile;
+    return this._guardianProfile;
   }
 
   @Output() save = new EventEmitter<{ gaurdian: NewTenantUser | ITenantUser; guardianProfile: NewProfileConfig | IProfileConfig }>();
   @Output() cancel = new EventEmitter<void>();
 
   private _gaurdian!: NewTenantUser | ITenantUser;
-  private _studentProfile!: NewProfileConfig | IProfileConfig;
+  private _guardianProfile!: NewProfileConfig | IProfileConfig;
   
   guardianForm!: FormGroup;
   guardianProfileForm!: FormGroup;
   submitted: boolean = false;
   selectedGender: Gender = Gender.MALE;
-    contactNumber:any;
+  contactNumber:any;
   genderOptions: any[] = [
     { label: 'Female', value: 'FEMALE' },
     { label: 'Male', value: 'MALE' },
@@ -102,30 +105,30 @@ export class GuardianDialogComponent implements OnInit {
 
   onSave() {
     this.submitted = true;
-    const updatedStudent = this.tenantUserFormService.getTenantUser(this.guardianForm);
+    const updatedGuardian = this.tenantUserFormService.getTenantUser(this.guardianForm);
 
-    this.generateUserProfile(updatedStudent);
+    this.generateUserProfile(updatedGuardian);
   }
 
-  async generateUserProfile(updatedStudent: ITenantUser | NewTenantUser) {
+  async generateUserProfile(updatedGuardian: ITenantUser | NewTenantUser) {
     const profileFormData = this.profileConfigFormService.getProfileConfig(this.guardianProfileForm);
     this.guardianProfile = {
       ...profileFormData,
       id: profileFormData.id ?? null,
-      userId: updatedStudent.id?.toString(),
+      userId: updatedGuardian.id?.toString(),
       academicYear: "NA",
-      username: updatedStudent.login,
-      email: updatedStudent.email,
+      username: updatedGuardian.login,
+      email: updatedGuardian.email,
       contactNumber: this.contactNumber,
-      fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
+      fullName: `${updatedGuardian.firstName} ${updatedGuardian.lastName}`,
       departments:this.studentProfile.departments,
       gender: this.selectedGender,
-      roles: await this.generateRoleConfig(updatedStudent.authorities!,profileFormData.roles)
+      roles: await this.generateRoleConfig(updatedGuardian.authorities!,profileFormData.roles)
     };
-      updatedStudent.branch =  this.branch;
+      updatedGuardian.branch =  this.branch;
 
     this.save.emit({
-      gaurdian: updatedStudent,
+      gaurdian: updatedGuardian,
       guardianProfile: this.guardianProfile
     });
   }
