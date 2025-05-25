@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { IProfileConfig, NewProfileConfig } from '../models/user.model';
+import { IProfileConfig, NewProfileConfig, ProfileType } from '../models/user.model';
 
 /**
  * A partial Type with required key is used as form input.
@@ -25,6 +25,7 @@ type ProfileConfigFormGroupContent = {
   contactNumber: FormControl<IProfileConfig['contactNumber']>;
   reportsTo: FormControl<IProfileConfig['reportsTo']>;
   gender: FormControl<IProfileConfig['gender']>;
+  profileType:FormControl<IProfileConfig['profileType']>;
   departments: FormControl<IProfileConfig['departments']>;
   roles: FormControl<IProfileConfig['roles']>;
 };
@@ -64,6 +65,7 @@ export class ProfileConfigFormService {
       contactNumber: new FormControl(profileConfigRawValue.contactNumber),
       reportsTo: new FormControl(profileConfigRawValue.reportsTo),
       gender: new FormControl(profileConfigRawValue.gender),
+      profileType: new FormControl(profileConfigRawValue.profileType),
       departments: new FormControl(profileConfigRawValue.departments),
       roles: new FormControl(profileConfigRawValue.roles),
     });
@@ -85,7 +87,7 @@ export class ProfileConfigFormService {
 
   private getFormDefaults(): ProfileConfigFormDefaults {
     return {
-      id: null,
+      id: null
     };
   }
 }

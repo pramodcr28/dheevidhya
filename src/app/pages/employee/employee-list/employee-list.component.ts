@@ -49,7 +49,7 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
  
     tenantAuthorities =  signal<ITenantAuthority[]>([]);
     isLoading = false;
-    tenantUsers = signal<ITenantUser[] | null>([]);
+    employeeProfiles = signal<IProfileConfig[] | null>([]);
     itemsPerPage = ITEMS_PER_PAGE;
     totalItems = 0;
     page = 1;
@@ -64,6 +64,7 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
     confirmationService = inject(ConfirmationService)
     loader = inject(ApiLoaderService); 
     currentUser : any;
+
      ngOnInit() {
           this.authorityService.query().subscribe((result:any)=>{
             this.tenantAuthorities.set(result.body);
@@ -78,64 +79,16 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
     
       load(): void {
         this.loader.show("Fetching Staff Data");
-        this.queryBackend().subscribe({
+        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STAFF" }).subscribe({
           next: (res: any) => {
-            this.onResponseSuccess(res);
+            this.employeeProfiles.set(res.content);
             this.loader.hide();
           },
         });
       }
 
     
-      protected onResponseSuccess(response: EntityArrayResponseType): void {
-        let result:any = response.body?.filter((a:ITenantUser) =>{
-          return a.authorities?.find( authority=>authority.name != 'STUDENT') != null && a.authorities?.find( authority=>authority.name != 'GUARDIAN') != null;
-        });
-        this.tenantUsers.set(result);
-      }
 
-      protected queryBackend(): Observable<any> {
-        const { page } = this;
-        this.isLoading = true;
-        const pageToLoad: number = page;
-    
-        const queryObject: any = {
-            page: pageToLoad - 1,
-            size: this.itemsPerPage,
-            eagerload: true
-        };
-    
-        return this.studentService.query(queryObject).pipe(
-            tap(() => (this.isLoading = false)),
-            catchError(error => {
-                console.error('Error in normal query', error);
-                return of({ body: [], headers: null });
-            }),
-            switchMap(normalResult => {
-                const ids = (normalResult.body || []).map(item => item.id.toString());
-    
-                if (ids.length === 0) {
-                    return of(normalResult);
-                }
-    
-                return this.studentService.search(0,100,'id','ASC',{ 'user_id.in': ids }
-                ).pipe(
-                    map(searchResult => {
-                        return { body: normalResult.body?.map((user:any)=>{
-                          user['profile'] = searchResult.content?.find((config:any)=>{
-                            return user.id  == config.userId
-                          });
-                          return user;
-                        }), headers: normalResult.headers };
-                    }),
-                    catchError(error => {
-                        console.error('Error in search query', error);
-                        return of(normalResult);
-                    })
-                );
-            })
-        );
-    }
     openNew() {
       this.employee = { 
         authorities: [],
@@ -161,7 +114,7 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
          this.loader.hide();
      }
  
-     onStudentSave(employee: { employee: NewTenantUser | ITenantUser; employeeProfile: NewProfileConfig | IProfileConfig }| any) {
+     onEmployeeSave(employee: { employee: NewTenantUser | ITenantUser; employeeProfile: NewProfileConfig | IProfileConfig }| any) {
         this.submitted = true;
   
         for (let role in employee.employeeProfile.roles) {
@@ -172,10 +125,11 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
 
         if(!employee.employee.id){
           this.loader.show("Updating new Staff");
-          let newStudent : NewTenantUser | any  = {...employee.employee};
-          this.studentService.create(newStudent as NewTenantUser).subscribe(result=>{
+          let newEmployee : NewTenantUser | any = {...employee.employee};
+          
+          this.studentService.create(newEmployee as NewTenantUser).subscribe(result=>{
             employee.employeeProfile.userId = result.body?.id.toString();
-        
+            employee.employeeProfile.profileType = 'STAFF';
             this.profileService.create(employee.employeeProfile as NewProfileConfig).subscribe(result=>{
               setTimeout(()=>{
               this.hideDialog();
@@ -201,23 +155,29 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
       
      }
 
-     deleteStudent(employee:ITenantUser){
-      this.studentService.delete(employee.id).subscribe(res=>{
-        this.profileService.delete(employee.profile?.id!).subscribe(result=>{
+     deleteEmployee(employee:IProfileConfig){
+      this.studentService.delete(+employee.userId).subscribe(res=>{
+        this.profileService.delete(employee?.id!).subscribe(result=>{
           this.load();
         })
       });
      }
 
-     getAuthorityNames(authorities: any): string {
-  return authorities?.map(auth => auth.name).join(', ') ?? '';
-}
+    getAuthorityNames(authorities: any): string {
+      let result = " ";
+       for(let authority  in authorities){
+        if(authorities[authority] != null){
+          result += authority;
+        }
+       }
+      return result;
+    }
 
-     editStudent(employee:ITenantUser){
+     editEmployee(employee:IProfileConfig){
       console.log(employee);
-      this.studentService.find(employee.id).subscribe((result:any)=>{
+      this.studentService.find(+employee.userId).subscribe((result:any)=>{
         
-        this.employeeProfile = employee.profile;
+        this.employeeProfile = employee;
         this.employee = { ...result.body};
         this.studentDialog = true;
       })

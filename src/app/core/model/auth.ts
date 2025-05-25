@@ -46,19 +46,20 @@ export class Login {
     itadmin?: IITAdministratorProfile | null;
   }
 
-  export interface IProfileConfig {
-    id: number;
-    userId?: number | null;
-    academicYear?: string | null;
-    username?: string | null;
-    email?: string | null;
-    fullName?: string | null;
-    contactNumber?: string | null;
-    reportsTo?: string | null;
-    gender?: keyof typeof Gender | null;
-    departments?: Number[] | null;
-    roles?: IRoleConfigs | null;
-  }
+  // export interface IProfileConfig {
+  //   id: number;
+  //   userId?: number | null;
+  //   academicYear?: string | null;
+  //   username?: string | null;
+  //   email?: string | null;
+  //   fullName?: string | null;
+  //   contactNumber?: string | null;
+  //   reportsTo?: string | null;
+  //   gender?: keyof typeof Gender | null;
+  //   profileType?: keyof typeof ProfileType | null;
+  //   departments?: Number[] | null;
+  //   roles?: IRoleConfigs | null;
+  // }
   
 
 export interface PasswordChangeDTO {

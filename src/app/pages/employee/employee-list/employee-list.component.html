@@ -1,7 +1,7 @@
 
     <p-table
         #dt
-        [value]="tenantUsers()!"
+        [value]="employeeProfiles()!"
         [rows]="10"
         [columns]="cols"
         [paginator]="true"
@@ -29,14 +29,14 @@
             <tr>
                 <th style="min-width: 12rem">Name</th>
                 <th pSortableColumn="name" style="min-width:12rem">
-                    Register Id
+                    Contact Number
                     <p-sortIcon field="name" />
                 </th>
                 <th  style="min-width:12rem">
-                    Authorities
+                    User Name
                 </th>
                 <th pSortableColumn="price" style="min-width: 8rem">
-                    Location
+                    Authorities
                     <p-sortIcon field="price" />
                 </th>
                 <th style="min-width: 4rem"></th>
@@ -44,15 +44,13 @@
         </ng-template>
         <ng-template #body let-employee>
             <tr>
-                <td style="min-width: 12rem">{{ employee.firstName  + ' ' + employee.lastName }}</td>
-                <td style="min-width: 12rem">{{ employee.login }}</td>
-                <td style="min-width: 12rem">{{ getAuthorityNames(employee.authorities) }}</td>
-
-                <td>{{ employee.locality }}</td>
-
+                <td style="min-width: 12rem">{{ employee.fullName }}</td>
+                <td style="min-width: 12rem">{{ employee.contactNumber }}</td>
+                <td>{{ employee.username }}</td>
+                <td style="min-width: 12rem">{{ getAuthorityNames(employee.roles) }}</td>
                 <td class="">
-                    <i class="pi pi-user-edit hover:text-primary-600 px-3 cursor-pointer" (click)="editStudent(employee)" ></i>
-                    <i class="pi pi-trash hover:text-primary-600 px-3 cursor-pointer" (click)="deleteStudent(employee)" ></i>
+                    <i class="pi pi-user-edit hover:text-primary-600 px-3 cursor-pointer" (click)="editEmployee(employee)" ></i>
+                    <i class="pi pi-trash hover:text-primary-600 px-3 cursor-pointer" (click)="deleteEmployee(employee)" ></i>
                 </td>
             </tr>
         </ng-template>
@@ -63,7 +61,7 @@
         [visible]="studentDialog" 
         [employee]="employee" 
         [employeeProfile]="employeeProfile"
-        (save)="onStudentSave($event)"
+        (save)="onEmployeeSave($event)"
         (cancel)="hideDialog()">
       </app-employee-dialog>
     

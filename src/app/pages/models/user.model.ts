@@ -5,6 +5,15 @@ import { Gender } from "../../core/model/auth";
 export interface ITenantAuthority {
     name: string;
   }
+
+    export enum ProfileType {
+    STUDENT = 'STUDENT',
+  
+    GUARDIAN = 'GUARDIAN',
+  
+    STAFF = 'STAFF',
+  }
+
   
   export type NewTenantAuthority = Omit<ITenantAuthority, 'name'> & { name: null };
   
@@ -57,6 +66,7 @@ export interface IProfileConfig {
   contactNumber?: string | null;
   reportsTo?: string | null;
   gender?: keyof typeof Gender | null;
+  profileType?: keyof typeof ProfileType | null;
   departments?: string[] | null;
   roles?: IRoleConfigs | null;
 }
@@ -95,7 +105,9 @@ export interface IGuardianProfile {
 }
 
 
-export interface ITeacherProfile {}
+export interface ITeacherProfile {
+   subjectIds?:string[] | null;
+}
 
 
 export interface ISubstituteTeacherProfile {}
@@ -117,7 +129,9 @@ export interface IPrincipalProfile {
 }
 
 
-export interface ILecturerProfile {}
+export interface ILecturerProfile {
+  subjectIds?:string[] | null;
+}
 
 export interface IITAdministratorProfile {
   responsibilities?: string | null;

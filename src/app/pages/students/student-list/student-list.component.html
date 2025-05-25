@@ -1,7 +1,7 @@
 
     <p-table
         #dt
-        [value]="tenantUsers()!"
+        [value]="students()!"
         [rows]="10"
         [columns]="cols"
         [paginator]="true"
@@ -28,22 +28,21 @@
         <ng-template #header>
             <tr>
                 <th style="min-width: 12rem">Name</th>
-                <th pSortableColumn="name" style="min-width:12rem">
-                    Register Id
+                <!-- <th pSortableColumn="name" style="min-width:12rem">
+                    Contact Number
                     <p-sortIcon field="name" />
-                </th>
-                <th pSortableColumn="price" style="min-width: 8rem">
-                    Location
-                    <p-sortIcon field="price" />
+                </th> -->
+                <th  style="min-width:12rem">
+                    User Name
                 </th>
                 <th style="min-width: 4rem"></th>
             </tr>
         </ng-template>
         <ng-template #body let-student>
             <tr>
-                <td style="min-width: 12rem">{{ student.firstName  + ' ' + student.lastName }}</td>
-                <td style="min-width: 12rem">{{ student.login }}</td>
-                <td>{{ student.locality }}</td>
+               <td style="min-width: 12rem">{{ student.fullName }}</td>
+                <!-- <td style="min-width: 12rem">{{ student.contactNumber }}</td> -->
+                <td>{{ student.username }}</td>
 
                 <td class="">
                     <i class="pi pi-user-edit hover:text-primary-600 px-3 cursor-pointer" (click)="editStudent(student)" ></i>

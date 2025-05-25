@@ -55,7 +55,7 @@ export class StudentListComponent {
  
     tenantAuthorities =  signal<ITenantAuthority[]>([]);
     isLoading = false;
-    tenantUsers = signal<ITenantUser[] | null>([]);
+    students = signal<ITenantUser[] | null>([]);
     itemsPerPage = ITEMS_PER_PAGE;
     totalItems = 0;
     page = 1;
@@ -86,69 +86,17 @@ export class StudentListComponent {
          this.load();
      }
 
-    
-      load(): void {
+        load(): void {
         this.loader.show("Fetching Staff Data");
-        this.queryBackend().subscribe({
+        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STUDENT" }).subscribe({
           next: (res: any) => {
-            this.onResponseSuccess(res);
+            this.students.set(res.content);
             this.loader.hide();
           },
         });
       }
 
     
-      protected onResponseSuccess(response: EntityArrayResponseType): void {
-
-        let result:any = response.body?.filter((a:ITenantUser) =>{
-          return a.authorities?.find( authority=>authority.name == 'STUDENT') != null;
-        });
-        this.tenantUsers.set(result);
-      }
-
-      protected queryBackend(): Observable<any> {
-        const { page } = this;
-        this.isLoading = true;
-        const pageToLoad: number = page;
-    
-        const queryObject: any = {
-            page: pageToLoad - 1,
-            size: this.itemsPerPage,
-            eagerload: true
-        };
-    
-        return this.studentService.query(queryObject).pipe(
-            tap(() => (this.isLoading = false)),
-            catchError(error => {
-                console.error('Error in normal query', error);
-                return of({ body: [], headers: null });
-            }),
-            switchMap(normalResult => {
-                const ids = (normalResult.body || []).map(item => item.id.toString());
-    
-                if (ids.length === 0) {
-                    return of(normalResult);
-                }
-    
-                return this.studentService.search(0,10,'id','ASC',{ 'user_id.in': ids }
-                ).pipe(
-                    map(searchResult => {
-                        return { body: normalResult.body?.map((user:any)=>{
-                          user['profile'] = searchResult.content?.find((config:any)=>{
-                            return user.id  == config.userId
-                          });
-  
-                          return user;
-                        }), headers: normalResult.headers };
-                    }),
-                    catchError(error => {
-                        console.error('Error in search query', error);
-                        return of(normalResult);
-                    })
-                );
-            })
-        );
-    }
     openNew() {
       this.student = { 
         authorities: [ this.tenantAuthorities().find((a:any) => a.name === 'STUDENT')],
@@ -185,12 +133,12 @@ export class StudentListComponent {
         }
         if(!student.student.id){
           this.loader.show("Adding new Student");
-          let newStudent : NewTenantUser | any  = {...student.student};
+          let newStudent : NewTenantUser | any = {...student.student};
           newStudent.branch = this.branch;
-          // newStudent.email = null;
+          
           this.studentService.create(newStudent as NewTenantUser).subscribe(result=>{
             student.studentProfile.userId = result.body?.id.toString();
-        
+            student.studentProfile.profileType = 'STUDENT';
             this.profileService.create(student.studentProfile as NewProfileConfig).subscribe(result=>{
               setTimeout(()=>{
               this.hideDialog();
@@ -216,12 +164,12 @@ export class StudentListComponent {
       
      }
 
-     deleteStudent(student:ITenantUser){
+     deleteStudent(student:IProfileConfig){
          this.loader.show("Deleting Student");
-      this.studentService.delete(student.id).subscribe(res=>{
-        this.profileService.delete(student.profile?.id!).subscribe(result=>{
-         if(student.profile?.roles?.student?.guardianId){
-           this.deleteGuardian(student.profile?.roles?.student?.guardianId);
+      this.studentService.delete(+student.userId).subscribe(res=>{
+        this.profileService.delete(student.id!).subscribe(result=>{
+         if(student.roles?.student?.guardianId){
+           this.deleteGuardian(student.roles?.student?.guardianId);
          }else{
           this.load();
           this.loader.hide();
@@ -248,26 +196,22 @@ export class StudentListComponent {
                     this.loader.hide();
                   }
                 })
-       
-        
-    
-   
       });
      }
 
-     editStudent(student:ITenantUser){
+     editStudent(student:IProfileConfig){
      
-      this.studentService.find(student.id).subscribe((result:any)=>{
-        this.studentProfile = student.profile;
+      this.studentService.find(+student.userId).subscribe((result:any)=>{
+        this.studentProfile = student;
         this.student = { ...result.body};
         this.studentDialog = true;
       })
      
      }
 
-     addOrEditGuardian(student:ITenantUser){
-     let gaurdianId = student.profile?.roles?.student?.guardianId;
-      this.selectedStudentProfile = student.profile as any;
+     addOrEditGuardian(student:IProfileConfig){
+     let gaurdianId = student.roles?.student?.guardianId;
+      this.selectedStudentProfile = student as any;
      if(gaurdianId){
           this.studentService.find(gaurdianId).subscribe((result:any)=>{ 
             this.studentService.search(0,10,'id','ASC',{ 'user_id.in': [gaurdianId] }
@@ -298,7 +242,7 @@ export class StudentListComponent {
       } as NewTenantUser | any;
     
       this.selectedGaurdianProfile = {
-        departments:student.profile?.departments
+        departments:student.departments
       } as NewProfileConfig;
       this.guardianDialog = true;
 
@@ -309,10 +253,11 @@ export class StudentListComponent {
      onGuardianSave(gaurdian: { gaurdian: NewTenantUser|ITenantUser; guardianProfile: NewProfileConfig|IProfileConfig; }) {
        this.loader.show("Updating Guardian Info");
         if(!gaurdian.gaurdian.id){      
-          let newStudent : NewTenantUser | any  = {...gaurdian.gaurdian};
-          this.studentService.create(newStudent as NewTenantUser).subscribe(result=>{
+          let newGuardian : NewTenantUser | any  = {...gaurdian.gaurdian};
+          
+          this.studentService.create(newGuardian as NewTenantUser).subscribe(result=>{
             gaurdian.guardianProfile.userId = result.body?.id.toString();
-        
+            gaurdian.guardianProfile.profileType = 'GUARDIAN';
             this.profileService.create(gaurdian.guardianProfile as NewProfileConfig).subscribe(result2=>{
               if(this.selectedStudentProfile.roles?.student){
                 this.selectedStudentProfile.roles.student.guardianId = result.body?.id.toString();
