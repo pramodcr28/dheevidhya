@@ -172,6 +172,7 @@
             [options]="associatedDepartments"
             [(ngModel)]="selectedDepartments"
             [ngModelOptions]="{standalone: true}"
+            (onChange)="onDepartmentSelection()"
             optionLabel="name"
             placeholder="Select Department"
             [style]="{ width: '100%' }">
@@ -180,38 +181,25 @@
             Department is required.
           </small>
         </div>
-        <!-- Class Selection -->
-        <!-- <div class="mt-2" *ngIf="selectedDepartment">
-          <label class="block font-bold mb-2">Class</label>
-          <p-select
-            [options]="selectedDepartment?.department.classes"
-            [(ngModel)]="selectedClass"
-            [ngModelOptions]="{standalone: true}"
+        @if(selectedDepartments){
+       <div class="mt-2">
+          <label class="block font-bold mb-2">Subjects</label>
+          <p-multi-select
+            [options]="departmentSpecificSubjects"
             optionLabel="name"
-            placeholder="Select Class"
-            [style]="{ width: '100%' }">
-          </p-select>
-          <small class="text-red-500" *ngIf="submitted && !selectedClass">
-            Class is required.
-          </small>
-        </div> -->
-
-        <!-- Section Selection -->
-        <!-- <div class="mt-2" *ngIf="selectedClass">
-          <label class="block font-bold mb-2">Section</label>
-          <p-select
-            [options]="selectedClass.sections"
-            [(ngModel)]="selectedSection"
+            optionValue="id"
+            [(ngModel)]="selectedSubjects"
             [ngModelOptions]="{standalone: true}"
-            optionLabel="name" 
-            placeholder="Select Section"
+            placeholder="Select Subjects"
             [style]="{ width: '100%' }">
-          </p-select>
-          <small class="text-red-500" *ngIf="submitted && !selectedSection">
-            Section is required.
-          </small>
-        </div> -->
+          </p-multi-select>
+          <!-- <small class="text-red-500" *ngIf="submitted && !selectedDepartments">
+            Department is required.
+          </small> -->
+        </div>
 
+        }
+  
       </form>
     </div>
   </div>

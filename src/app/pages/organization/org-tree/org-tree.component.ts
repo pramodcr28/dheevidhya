@@ -1,16 +1,16 @@
 import { FormsModule } from '@angular/forms';
-import { IDepartmentConfig, IMasterDepartment } from './../models/org.model';
+import { IDepartmentConfig, IMasterDepartment } from '../../models/org.model';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { MenuItem, MessageService, TreeNode } from 'primeng/api';
+import { MessageService, TreeNode } from 'primeng/api';
 import { OrganizationChartModule } from 'primeng/organizationchart';
 import { ToastModule } from 'primeng/toast';
 import { SpeedDialModule } from 'primeng/speeddial';
 import { ButtonModule } from 'primeng/button';
 import { Store } from '@ngrx/store';
-import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments, getBranch } from '../../core/store/user-profile/user-profile.selectors';
-import { IBranch } from '../models/tenant.model';
+import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
+import { getAssociatedDepartments, getBranch } from '../../../core/store/user-profile/user-profile.selectors';
+import { IBranch } from '../../models/tenant.model';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -18,9 +18,9 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { UserService } from '../service/user.service';
-import { DepartmentConfigService } from '../../core/services/department-config.service';
-import { ApiLoaderService } from '../../core/services/loaderService';
+import { UserService } from '../../service/user.service';
+import { DepartmentConfigService } from '../../../core/services/department-config.service';
+import { ApiLoaderService } from '../../../core/services/loaderService';
 import { MessageModule } from 'primeng/message';
 
 
@@ -59,14 +59,14 @@ export class OrgTreeComponent {
  selectedDepartment!:IMasterDepartment | any;
  selectedMasterDepartment!:IDepartmentConfig | null;
  userService = inject(UserService);
- departmentConfigService = inject(DepartmentConfigService);
  users = [];
+ departmentConfigService = inject(DepartmentConfigService);
  branch!:IBranch;
  associatedDepartments: any[] = [];
  data:any = [];
     result: any;
  
- constructor(private messageService: MessageService, public loader: ApiLoaderService,) {}
+ constructor(private messageService: MessageService, public loader: ApiLoaderService) {}
 
  private store = inject(Store<{ userProfile: UserProfileState }>);
  dialogVisible = false;
@@ -186,11 +186,9 @@ toggleNode(node: CustomTreeNode, event: MouseEvent) {
       this.dialogVisible = false;
       this.loader.hide();
       this.messageService.add({ severity: 'success', summary: 'Success Message', detail: 'DepartmentConfig Updated Successful!!!' });
-    })
+    });
 
   }
-
-
 
 }
 

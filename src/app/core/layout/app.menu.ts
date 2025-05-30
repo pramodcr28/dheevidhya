@@ -24,9 +24,17 @@ export class AppMenu {
                 label: 'Home',
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
-                     { label: 'Organization ', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] },
+                    //  { label: 'Organization ', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] },
                     { label: 'Students', icon: 'pi pi-fw pi-users', routerLink: ['/students'] },
                     { label: 'Staff', icon: 'pi pi-fw pi-users', routerLink: ['/employees'] }
+                ]
+            },
+            {
+                label: 'Organization',
+                items: [   
+                    { label: 'Department Setup', icon: 'pi pi-fw pi-sitemap', routerLink: ['/department-setup'] },
+                    { label: 'Org Tree', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] },
+                    { label: 'Time Table Setup', icon: 'pi pi-fw pi-home', routerLink: ['/time-table-setup'] }
                 ]
             },
      

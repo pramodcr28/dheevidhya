@@ -47,6 +47,7 @@ export interface IMasterSection {
   sectionTeacher?:string | null;
   status?: boolean | null;
   subjects?: IMasterSubject[] | null;
+  classname?: string | null;
 }
 
 export type NewMasterSection = Omit<IMasterSection, 'id'> & { id: null };

@@ -1,0 +1,84 @@
+    <p-toolbar>
+        <ng-template #start>
+            <p-dropdown
+                [options]="commonService.associatedDepartments |async"
+                [(ngModel)]="selectedMasterDepartment"
+                optionLabel="name"
+                placeholder="Select Department"
+                class="w-full md:w-80"
+                (onChange)="onDepartmentChange()">
+            </p-dropdown>
+        </ng-template>
+     
+        <ng-template #end>
+             <button pButton type="button" label="Save Setup" icon="pi pi-save" (click)="saveSetup()"></button> 
+        </ng-template>
+    </p-toolbar>
+
+    <div class="card">
+      @if(selectedDepartment){
+    <form #orgForm="ngForm" class="space-y-6">
+      <!-- Department Level -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="col-span-2">
+          <label class="block font-bold mb-1">HOD</label>
+       
+          <p-select 
+            [options]="users" 
+            [(ngModel)]="selectedDepartment.hod" 
+            name="hod"
+            optionLabel="fullName" 
+            optionValue="userId"
+            placeholder="Select HOD"
+            class="w-full">
+          </p-select>
+        </div>
+      </div>
+
+      <!-- Class Loop -->
+      <div *ngFor="let classGroup of selectedDepartment.classes; let ci = index" class="border p-4 rounded-md">
+        <h4 class="text-md font-semibold mb-2 text-center">{{classGroup.name}}</h4>
+
+        <!-- Section Loop -->
+        <div *ngFor="let section of classGroup.sections; let si = index" class="  mb-4">
+ 
+          <div class="grid grid-cols-2 gap-4 space-y-6">
+            <div>
+              <label class="block font-bold my-4">{{section.name}}</label>
+              <p-select  
+                [options]="users" 
+                [(ngModel)]="section.sectionTeacher" 
+                name="sectionTeacher_{{ ci }}_{{ si }}"
+                optionLabel="fullName" 
+                optionValue="userId"
+                placeholder="Select Section Teacher"
+                class="w-full">
+              </p-select>
+            </div>
+          </div>
+
+          <!-- Subject Loop -->
+           <div class=" bg-gray-50 border mt-4">
+            <h5 class="text-md font-semibold py-2 text-center text-primary-500">Subjects</h5>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 my-4 rounded-md">
+        
+              <div *ngFor="let subject of section.subjects; let subi = index">
+                <label class="block font-bold mb-1">{{subject.name}}</label>
+                <p-select
+                  [options]="users | userFilter: subject.id.toString() "
+                  [(ngModel)]="subject.teacher"
+                  name="subjectTeacher_{{ ci }}_{{ si }}_{{ subi }}"
+                  optionLabel="fullName" 
+                  optionValue="userId"
+                  placeholder="Select Subject Teacher"
+                  class="w-full">
+                </p-select>
+              </div>
+            </div>
+           </div>
+        </div>
+      </div>
+    </form>
+  }
+    
+    </div>

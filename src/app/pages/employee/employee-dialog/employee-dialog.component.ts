@@ -16,7 +16,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments, getBranch } from '../../../core/store/user-profile/user-profile.selectors';
+import { getAssociatedDepartments, getBranch, getSubByDeptIds } from '../../../core/store/user-profile/user-profile.selectors';
 import { IBranch } from '../../models/tenant.model';
 import { NewTenantUser, ITenantUser, NewProfileConfig, IProfileConfig, IStudentProfile, ITenantAuthority, IRoleConfigs, IGuardianProfile, ITeacherProfile, ILecturerProfile, IProfessorProfile, IHeadOfDepartmentProfile, IHeadMasterProfile, IPrincipalProfile, IVicePrincipalProfile, ISportsCoachProfile, ISubstituteTeacherProfile, IITAdministratorProfile } from '../../models/user.model';
 import { ProfileConfigFormService } from '../../service/profile-config-form.service';
@@ -58,6 +58,7 @@ export class EmployeeDialogComponent {
   @Input() statuses: any[] = [];
   @Input() set employee(employee: NewTenantUser | ITenantUser) {
     this._employee = employee;
+    
     if (this.employeeForm) {
       this.tenantUserFormService.resetForm(this.employeeForm, employee);
     }
@@ -67,7 +68,14 @@ export class EmployeeDialogComponent {
   }
 
   @Input() set employeeProfile(profile: NewProfileConfig | IProfileConfig) {
-    
+
+
+    for(let role in profile.roles){
+      if(profile.roles[role]?.subjectIds){
+        this.selectedSubjects =[...this.selectedSubjects,...profile.roles[role]?.subjectIds];
+      }
+    }
+
     this._employeeProfile = profile;
   }
   get employeeProfile(): NewProfileConfig | IProfileConfig {
@@ -97,7 +105,13 @@ export class EmployeeDialogComponent {
   ];
   branch:IBranch | any;
   contactNumber:any;
+  departmentSpecificSubjects = [];
+  selectedSubjects = [];
   ngOnInit(): void {
+
+    if(  !this.employee.id)
+    this.employee = {houseNumber: '123', street: 'Main Street', locality: 'Greenwood', landmark: 'Near City Park', taluk: 'Central', district: 'Metro District', state: 'Karnataka', country: 'India', postalCode: '560001', latitude: 12.9716, longitude: 77.5946, ...this.employee 
+    }
     this.employeeForm = this.tenantUserFormService.createTenantUserFormGroup(this.employee);
     this.employeeProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.employeeProfile);
     this.contactNumber = this.employeeProfileForm.get('contactNumber').value;
@@ -107,40 +121,26 @@ export class EmployeeDialogComponent {
 
     this.store.select(getAssociatedDepartments).subscribe(departments => {
       
-      this.associatedDepartments = departments.map((department: any) => {
-        return { ...department, name: department.department?.name };
-      });
+      this.associatedDepartments = departments;
       this.selectedDepartments = this.associatedDepartments
       .filter(department=> this._employeeProfile.departments?.includes(department.id)) ;
     });
+      this.store.select(getSubByDeptIds([...this.selectedDepartments.map(deprt=>deprt.id)])).subscribe(subjects=>{
+          this.departmentSpecificSubjects = subjects;
+      })
 
      this.store.select(getBranch).subscribe(branch => {
        this.branch = branch;
     });
   }
 
-  // private setClassAndSectionFromProfile(): void {
-  //   if (this._employeeProfile?.roles && this.selectedDepartment?.department?.classes) {
-  //     const studentRole = this._employeeProfile.roles.employee as IStudentProfile;
-  //     if (studentRole.classId) {
-  //       const foundClass = this.selectedDepartment.department.classes.find(
-  //         (cls: any) => cls.id == studentRole.classId
-  //       );
-  //       if (foundClass) {
-  //         this.selectedClass = foundClass;
-          
-  //         if (studentRole.sectionId && this.selectedClass?.sections) {
-  //           const foundSection = this.selectedClass.sections.find(
-  //             (sec: any) => sec.id == studentRole.sectionId
-  //           );
-  //           if (foundSection) {
-  //             this.selectedSection = foundSection;
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+  onDepartmentSelection(){
+    this.selectedDepartments.map()
+    this.store.select(getSubByDeptIds([...this.selectedDepartments.map(deprt=>deprt.id)])).subscribe(subjects=>{
+      this.departmentSpecificSubjects = subjects;
+    })
+  }
+
 
   onSave() {
     if(this.selectedDepartments.length){
@@ -199,7 +199,7 @@ export class EmployeeDialogComponent {
         case 'GUARDIAN':
            if(!existingRoles?.[authority.name]){
              roleConfig.parent = {
-              studentIds:[],
+              studentIds: this.selectedSubjects ?? [],
 
              } as IGuardianProfile;
            }
@@ -207,7 +207,7 @@ export class EmployeeDialogComponent {
         case 'TEACHER':
            if(!existingRoles?.[authority.name]){
              roleConfig.teacher = {
-              subjectIds:[],
+              subjectIds: this.selectedSubjects ?? [],
 
              } as ITeacherProfile;
            }
@@ -216,14 +216,14 @@ export class EmployeeDialogComponent {
         case 'LECTURER':
             if(!existingRoles?.[authority.name]){
              roleConfig.lecturer = {
-              subjectIds:[]
+              subjectIds: this.selectedSubjects ?? []
              } as ILecturerProfile;
             }
           break;
         case 'PROFESSOR':
             if(!existingRoles?.[authority.name]){
              roleConfig.professor = {
-              subjectIds:[],
+              subjectIds: this.selectedSubjects ?? [],
 
              } as IProfessorProfile;
            }
@@ -232,7 +232,7 @@ export class EmployeeDialogComponent {
         case 'HEAD_OF_DEPARTMENT':
             if(!existingRoles?.[authority.name]){
             roleConfig.headofdepartment = {
-
+              subjectIds: this.selectedSubjects ?? [],
             } as IHeadOfDepartmentProfile;
            }
         
@@ -240,7 +240,7 @@ export class EmployeeDialogComponent {
         case 'HEAD_MASTER':
             if(!existingRoles?.[authority.name]){
              roleConfig.headmaster = {
-
+               subjectIds: this.selectedSubjects ?? [],
              } as IHeadMasterProfile;
            }
       
@@ -248,7 +248,7 @@ export class EmployeeDialogComponent {
         case 'PRINCIPAL':
             if(!existingRoles?.[authority.name]){
             roleConfig.principal = {
-
+               subjectIds: this.selectedSubjects ?? [],
             } as IPrincipalProfile;
            }
  
@@ -256,7 +256,7 @@ export class EmployeeDialogComponent {
         case 'VICE_PRINCIPAL':
             if(!existingRoles?.[authority.name]){
            roleConfig.viceprincipal = {
-
+               subjectIds: this.selectedSubjects ?? [],
            } as IVicePrincipalProfile;
            }
     
@@ -272,7 +272,7 @@ export class EmployeeDialogComponent {
         case 'SUBSTITUTE_TEACHER':
            if(!existingRoles?.[authority.name]){
             roleConfig.substituteteacher = {
-               subjectIds:[]
+               subjectIds: this.selectedSubjects ?? []
             } as ISubstituteTeacherProfile;
            }
 
