@@ -135,7 +135,9 @@ export class StudentDialogComponent implements OnInit {
     this.studentService.getAuthorities().subscribe((response: any) => {
       this.availableAuthorities = response.body;
     });
-
+  if(  !this.student.id)
+    this.student = {houseNumber: '123', street: 'Main Street', locality: 'Greenwood', landmark: 'Near City Park', taluk: 'Central', district: 'Metro District', state: 'Karnataka', country: 'India', postalCode: '560001', latitude: 12.9716, longitude: 77.5946, ...this.student 
+    }
     this.store.select(getAssociatedDepartments).subscribe(departments => {
       this.associatedDepartments = departments.map((department: any) => {
         return { ...department, name: department.department?.name };

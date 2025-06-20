@@ -9,6 +9,7 @@ import { EmployeeListComponent } from './app/pages/employee/employee-list/employ
 import { OrgTreeComponent } from './app/pages/organization/org-tree/org-tree.component';
 import { TimeTableSetupComponent } from './app/pages/organization/time-table-setup/time-table-setup.component';
 import { DepartmentSetupComponent } from './app/pages/organization/department-setup/department-setup.component';
+import { StudentAttendenceComponent } from './app/pages/organization/student-attendence/student-attendence.component';
 
 export const appRoutes: Routes = [
     {
@@ -20,6 +21,7 @@ export const appRoutes: Routes = [
             { path: 'employees', component: EmployeeListComponent },
             { path: 'org', component: OrgTreeComponent },
             { path: 'time-table-setup', component: TimeTableSetupComponent },
+            { path: 'student-attendence', component: StudentAttendenceComponent },
             { path: 'department-setup', component: DepartmentSetupComponent },
             { path: 'profile', component: ProfileComponent },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },

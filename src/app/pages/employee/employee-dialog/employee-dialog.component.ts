@@ -135,7 +135,7 @@ export class EmployeeDialogComponent {
   }
 
   onDepartmentSelection(){
-    this.selectedDepartments.map()
+    // this.selectedDepartments.map()
     this.store.select(getSubByDeptIds([...this.selectedDepartments.map(deprt=>deprt.id)])).subscribe(subjects=>{
       this.departmentSpecificSubjects = subjects;
     })

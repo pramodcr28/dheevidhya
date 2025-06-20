@@ -1,0 +1,98 @@
+   <!-- Controls Bar -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center space-x-4">
+            <p-dropdown 
+              [options]="attendenceService.sections" 
+              [(ngModel)]="attendenceService.selectedSection" 
+              optionLabel="sectionName"
+              placeholder="Select Course"
+              class="w-48"
+            ></p-dropdown>
+            <div class="text-sm text-gray-600">
+              Students: <span class="font-medium">{{ attendenceService.currentAttendence.length }}</span>
+            </div>
+          </div>
+          <div class="flex items-center space-x-3">
+            <button 
+              pButton 
+              type="button" 
+              label="Mark All PRESENT" 
+              icon="pi pi-check" 
+              class="p-button-success p-button-outlined"
+              (click)="markAllPresent()"
+            ></button>
+            <button 
+              pButton 
+              type="button" 
+              label="Save Attendance" 
+              icon="pi pi-save" 
+              class="p-button-primary"
+              (click)="saveAttendance()"
+            ></button>
+          </div>
+        </div>
+
+        <!-- Students Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div 
+            *ngFor="let student of filteredStudents" 
+
+          >
+          <p-card>
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div 
+                  class="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium text-lg"
+                  [ngClass]="{
+                    'bg-blue-500': student.status === 'PRESENT',
+                    'bg-red-500': student.status === 'ABSENT',
+                    'bg-orange-500': student.status === 'LATE'
+                  }"
+                >
+                  {{ student.studentName.charAt(0) }}
+                </div>
+                <div>
+                  <h3 class="font-medium text-gray-900">{{ student.studentName }}</h3>
+                  <p class="text-sm text-gray-500">ID: {{ student.studentId }}</p>
+                </div>
+              </div>
+              <p-tag 
+                [value]="student.status"
+                [severity]="getTagSeverity(student.status)"
+              ></p-tag>
+            </div>
+              <div class="flex space-x-2">
+              <button 
+                pButton 
+                type="button" 
+                label="PRESENT" 
+                class="flex-1 p-button-sm"
+                [class.p-button-success]="student.status === 'PRESENT'"
+                [class.p-button-outlined]="student.status !== 'PRESENT'"
+                (click)="updateAttendance(student, 'PRESENT')"
+              ></button>
+              <button 
+                pButton 
+                type="button" 
+                label="LATE" 
+                class="flex-1 p-button-sm"
+                [class.p-button-warning]="student.status === 'LATE'"
+                [class.p-button-outlined]="student.status !== 'LATE'"
+                (click)="updateAttendance(student, 'LATE')"
+              ></button>
+              <button 
+                pButton 
+                type="button" 
+                label="ABSENT" 
+                class="flex-1 p-button-sm"
+                [class.p-button-danger]="student.status === 'ABSENT'"
+                [class.p-button-outlined]="student.status !== 'ABSENT'"
+                (click)="updateAttendance(student, 'ABSENT')"
+              ></button>
+            </div>
+          </p-card>
+          
+            
+          
+          </div>
+        </div>

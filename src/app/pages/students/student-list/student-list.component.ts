@@ -55,7 +55,7 @@ export class StudentListComponent {
  
     tenantAuthorities =  signal<ITenantAuthority[]>([]);
     isLoading = false;
-    students = signal<ITenantUser[] | null>([]);
+    students = signal<any[] | null>([]);
     itemsPerPage = ITEMS_PER_PAGE;
     totalItems = 0;
     page = 1;
