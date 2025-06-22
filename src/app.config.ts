@@ -8,6 +8,7 @@ import { appRoutes } from './app.routes';
 import { provideAppStore } from './app/core/store/user-profile/store.providers';
 import { authInterceptor } from './app/core/interceptor/auth-cookie-interceptor.interceptor';
 import { tap, catchError, throwError, Observable } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 
 export const appConfig: ApplicationConfig = {
@@ -19,7 +20,8 @@ export const appConfig: ApplicationConfig = {
           ),
         provideAnimationsAsync(),
         providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } }),
-        ...provideAppStore
+        ...provideAppStore,
+         FormsModule
     ]
 };
 function errorHandlerInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {

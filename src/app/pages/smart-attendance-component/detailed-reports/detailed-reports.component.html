@@ -4,29 +4,33 @@
           <!-- Report Controls -->
           <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div class="flex items-center space-x-4">
-              <p-dropdown 
-                [options]="attendenceService.sections" 
-                [(ngModel)]="attendenceService.selectedSection" 
+              <p-multi-select 
+                [options]="commonService.associatedSections | async" 
+                [(ngModel)]="selectedSection" 
                 optionLabel="sectionName"
                 placeholder="Section Name"
                 class="w-48"
-              ></p-dropdown>
-              
-              <p-dropdown 
-                [options]="attendenceService.timePeriods" 
-                [(ngModel)]="selectedTimePeriod" 
-                optionLabel="label"
-                placeholder="Select Time Period"
+              >
+              <ng-template let-section pTemplate="item">
+                {{ section.className }} -  {{ section.sectionName }}
+              </ng-template>
+            </p-multi-select>
+
+                <p-multi-select 
+                [options]="commonService.associatedSubjects | async" 
+                [(ngModel)]="selectedSubject" 
+                optionLabel="name"
+                placeholder="subject"
                 class="w-48"
-              ></p-dropdown>
-              
-              <button 
+              >
+            </p-multi-select>
+             <button 
                 pButton 
                 type="button" 
-                label="Generate Report" 
-                icon="pi pi-refresh"
-                class="p-button-primary"
-                (click)="generateReport()"
+                label="Search" 
+                icon="pi pi-sync" 
+                class="p-button-danger"
+                (click)="getReports()"
               ></button>
             </div>
             
@@ -54,7 +58,7 @@
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-blue-50 rounded-lg p-4 border border-blue-100">
               <div class="text-sm font-medium text-blue-600 mb-1">Total Students</div>
-              <div class="text-2xl font-bold">{{ attendenceService.classAttendanceReport.length }}</div>
+              <div class="text-2xl font-bold">{{ classAttendanceReport.length }}</div>
             </div>
             <div class="bg-green-50 rounded-lg p-4 border border-green-100">
               <div class="text-sm font-medium text-green-600 mb-1">Average Attendance</div>
@@ -73,7 +77,7 @@
           <!-- Attendance Table -->
           <div class="overflow-x-auto">
             <p-table 
-              [value]="attendenceService.classAttendanceReport" 
+              [value]="classAttendanceReport" 
               [paginator]="true" 
               [rows]="10"
               [rowsPerPageOptions]="[5,10,25,50]"
@@ -92,8 +96,8 @@
               </ng-template>
               <ng-template pTemplate="body" let-report>
                 <tr>
-                  <td>{{ report.student.id }}</td>
-                  <td>{{ report.student.name }}</td>
+                  <td>{{ report.studentId }}</td>
+                  <td>{{ report.studentName }}</td>
                   <td>{{ report.totalPresent }}</td>
                   <td>{{ report.totalAbsent }}</td>
                   <td>{{ report.totalLate }}</td>

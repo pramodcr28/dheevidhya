@@ -35,3 +35,45 @@ export interface BreakPeriod {
   name?: string;
 }
 
+// ------------------------------------
+
+
+export interface TimeTableSettings {
+  academicYear: string;
+  semester: string;
+  department: string;
+  classSection: string;
+  workingDays: string[];
+  startTime: string;
+  endTime: string;
+  periodDuration: number;
+  breakDuration: number;
+}
+
+export interface Subject {
+  id: string;
+  name: string;
+  teacher: string;
+  hoursPerWeek: number;
+  color: string;
+}
+
+export interface TimeSlot {
+  id: string;
+  startTime: string;
+  endTime: string;
+  isBreak: boolean;
+  subject?: Subject;
+  day: string;
+}
+
+export interface TimeTable {
+  settings: TimeTableSettings;
+  subjects: Subject[];
+  schedule: { [day: string]: TimeSlot[] };
+}
+
+export interface GenericSelectItem {
+  label: string;
+  value: any;
+}

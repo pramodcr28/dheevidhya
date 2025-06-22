@@ -1,0 +1,56 @@
+ <div class="min-h-screen bg-gray-50">
+      <!-- Header -->
+      <div class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <i class="pi pi-clock text-2xl"></i>
+            <h1 class="text-2xl font-bold">Time Table Generator</h1>
+          </div>
+          <div class="flex gap-2">
+            <button 
+              pButton 
+              icon="pi pi-save" 
+              label="Save Time Table"
+              class="p-button-outlined p-button-sm"
+              (click)="saveTimeTable()">
+            </button>
+            <button 
+              pButton 
+              icon="pi pi-download" 
+              label="Publish"
+              class="p-button-success p-button-sm"
+              (click)="publishTimeTable()">
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Steps Navigation -->
+      <div class="container mx-auto py-6">
+        <p-steps 
+          [model]="items" 
+          [(activeIndex)]="activeIndex"
+          [readonly]="false"
+          class="mb-8">
+        </p-steps>
+
+        <!-- Step Content -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <app-setup-step 
+            *ngIf="activeIndex === 0"
+            (next)="nextStep()">
+          </app-setup-step>
+          
+          <app-create-step 
+            *ngIf="activeIndex === 1"
+            (next)="nextStep()"
+            (previous)="previousStep()">
+          </app-create-step>
+          
+          <app-review-step 
+            *ngIf="activeIndex === 2"
+            (previous)="previousStep()">
+          </app-review-step>
+        </div>
+      </div>
+    </div>

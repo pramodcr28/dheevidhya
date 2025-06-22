@@ -64,3 +64,13 @@ export interface IMasterSubject {
 }
 
 export type NewMasterSubject = Omit<IMasterSubject, 'id'> & { id: null };
+
+
+export interface Section { // this is the entity of induvidual section 
+  sectionId: string;
+  classId:string;
+  departmentId:string;
+  sectionName: string;
+  className: string;
+  departmentName:string;
+}

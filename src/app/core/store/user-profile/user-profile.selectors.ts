@@ -1,5 +1,6 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { UserProfileState } from './user-profile.reducer';
+import { Section } from '../../../pages/models/org.model';
 export const selectUserProfileState = createFeatureSelector<UserProfileState>('userProfile');
 
 export const selectUserConfig = createSelector(selectUserProfileState, (state) => state.userConfig);
@@ -13,15 +14,15 @@ export const getAssociatedDepartments = createSelector(selectUserProfileState,
         return { ...department, name: department.department?.name };
       }));
 
-export const getSubByDeptIds = (departmentIds: string[]) =>
+export const getSubByDeptIds = (departmentIds?: string[]) =>
   createSelector(
     selectUserProfileState,
     (state) => {
       const departments = state.userConfig?.departments ?? [];
 
-      const filteredDepartments = departments.filter(dep =>
-        departmentIds.includes(dep.id)
-      );
+      const filteredDepartments = !departmentIds || departmentIds.length === 0
+        ? departments
+        : departments.filter(dep => departmentIds.includes(dep.id));
 
       const allSubjects: any[] = [];
 
@@ -46,3 +47,36 @@ export const getSubByDeptIds = (departmentIds: string[]) =>
       return uniqueSubjects;
     }
   );
+
+
+export const getAllSectionEntities = createSelector(
+  selectUserProfileState,
+  (state): Section[] => {
+    const departments = state.userConfig?.departments ?? [];
+
+    const allSections: Section[] = [];
+
+    departments.forEach(dep => {
+      const departmentId = dep.id;
+      const departmentName = dep.name;
+
+      dep.department.classes?.forEach(cls => {
+        const classId = cls.id;
+        const className = cls.name;
+
+        cls.sections?.forEach(section => {
+          allSections.push({
+            sectionId: section.id,
+            sectionName: section.name,
+            classId,
+            className,
+            departmentId,
+            departmentName,
+          });
+        });
+      });
+    });
+
+    return allSections;
+  }
+);

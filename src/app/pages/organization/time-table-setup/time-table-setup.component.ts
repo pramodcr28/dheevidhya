@@ -19,11 +19,12 @@ import { CardModule } from 'primeng/card';
 import { AccordionModule } from 'primeng/accordion';
 import { TimetableViewComponentComponent } from '../timetable-view-component/timetable-view-component.component';
 import { TimeTableGeneratorService } from '../../service/time-table-generator.service';
+import { SmartTimetableComponentComponent } from '../../smart-timetable-component/smart-timetable-component.component';
 
 @Component({
   selector: 'app-time-table-setup',
-  imports: [CardModule, AccordionModule, TimetableViewComponentComponent,  ButtonModule, CommonModule, DropdownModule, DialogModule, FormsModule, Toolbar, InputTextModule, TabsModule, SelectModule],
-  templateUrl: './time-table-setup.component.html',
+  imports: [CardModule, AccordionModule, SmartTimetableComponentComponent,  ButtonModule, CommonModule, DropdownModule, DialogModule, FormsModule, InputTextModule, TabsModule, SelectModule],
+  template: `<app-smart-timetable-component></app-smart-timetable-component>`,
   styles: ``,
   providers:[MessageService]
 })

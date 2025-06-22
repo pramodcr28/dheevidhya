@@ -34,12 +34,7 @@ export interface AttendanceException {
   remarks?: string;
 }
 
-export interface Section { // this is the entity of induvidual section 
-  sectionId: string;
-  classId:string;
-  departmentId:string;
-  sectionName: string;
-}
+
 
 export interface LowAttendanceStudent {
   id: string;
@@ -55,14 +50,9 @@ export interface AttendanceStats {
   studentsAtRisk: number;
 }
 
-export interface AttendanceRecord {
-  date: string;
-  status: 'PRESENT' | 'ABSENT'  | 'LATE';
-}
-
-export interface ClassAttendanceReport {
-  student: AttendanceException;
-  attendanceRecords: AttendanceRecord[];
+export interface AttendanceReport {
+  studentId: string;
+  StudentName:string;
   totalPresent: number;
   totalAbsent: number;
   totalLate: number;

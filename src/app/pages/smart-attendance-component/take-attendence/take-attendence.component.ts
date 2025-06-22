@@ -47,8 +47,7 @@ export class TakeAttendenceComponent {
   }
 
     ngOninit(){
-      this.attendenceService.selectedSection = this.attendenceService.sections[0];
-      this.selectedTimePeriod = this.attendenceService.timePeriods[0];
+      
     }
        updateAttendance(student: AttendanceException, status: "PRESENT" | "ABSENT" | "LATE") {
           student.status = status;
