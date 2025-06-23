@@ -16,13 +16,12 @@
               </ng-template>
             </p-multi-select>
 
-                <p-multi-select 
+            <p-multi-select 
                 [options]="commonService.associatedSubjects | async" 
                 [(ngModel)]="selectedSubject" 
                 optionLabel="name"
                 placeholder="subject"
-                class="w-48"
-              >
+                class="w-48">
             </p-multi-select>
              <button 
                 pButton 

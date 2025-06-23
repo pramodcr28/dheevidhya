@@ -2,12 +2,26 @@
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center space-x-4">
             <p-dropdown 
-              [options]="attendenceService.sections" 
-              [(ngModel)]="attendenceService.selectedSection" 
+              [options]="commonService.associatedSections | async" 
+              [(ngModel)]="selectedSection" 
               optionLabel="sectionName"
-              placeholder="Select Course"
+              placeholder="Select Section"
               class="w-48"
-            ></p-dropdown>
+            >
+             <ng-template let-section pTemplate="item">
+                {{ section.className }} -  {{ section.sectionName }}
+              </ng-template>
+          </p-dropdown>
+           <p-dropdown 
+              [options]="commonService.associatedSubjects | async" 
+              [(ngModel)]="selectedSubject" 
+              optionLabel="name"
+              placeholder="Select Subject"
+              class="w-48"
+            >
+          </p-dropdown>
+          <p-datepicker [(ngModel)]="slotDate" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay" />
+
             <div class="text-sm text-gray-600">
               Students: <span class="font-medium">{{ attendenceService.currentAttendence.length }}</span>
             </div>

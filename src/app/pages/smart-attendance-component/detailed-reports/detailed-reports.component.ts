@@ -63,15 +63,13 @@ export class DetailedReportsComponent {
         "academicYear": "2025-2026",
         "departmentIds": this.selectedSection.map(sec=>sec.departmentId),
         "classIds":  this.selectedSection.map(sec=>sec.classId),
-        "sectionIds": this.selectedSection.map(sec=>sec.sectionId),
-        "classNames": this.selectedSection.map(sec=>sec.className),
-        "section":  this.selectedSection.map(sec=>sec.sectionName)
+        "sectionIds": this.selectedSection.map(sec=>sec.sectionId)
       }
     ).subscribe({
           next: (res: any) => {
             this.classAttendanceReport = res.content;
 
-            console.log(this.classAttendanceReport)
+            // console.log(this.classAttendanceReport)
           },
         });
   }

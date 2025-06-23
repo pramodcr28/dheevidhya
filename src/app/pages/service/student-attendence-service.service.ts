@@ -1,10 +1,10 @@
-import { IProfileConfig, ITenantUser } from './../models/user.model';
+import { IProfileConfig } from './../models/user.model';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { ApplicationConfigService } from '../../core/services/application-config.service';
 import { Observable } from 'rxjs';
-import { AttendanceReport, AttendanceStats, LowAttendanceStudent, AttendanceException } from '../models/attendence.model';
+import { AttendanceStats, LowAttendanceStudent, AttendanceException, AttendanceRequest } from '../models/attendence.model';
 import { UserService } from './user.service';
 
 
@@ -36,7 +36,7 @@ export class StudentAttendenceServiceService {
     
   ];
 
- protected readonly http = inject(HttpClient);
+  protected readonly http = inject(HttpClient);
   protected readonly applicationConfigService = inject(ApplicationConfigService);
 
   protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ACADEMICS_BASE_URL +'api/attendance');
@@ -55,6 +55,10 @@ export class StudentAttendenceServiceService {
 
     return this.http.post<any>(`${this.resourceUrl}/search`, searchRequest);
 }
+
+ create(attendence: AttendanceRequest) {
+    return this.http.post<AttendanceRequest>(this.resourceUrl, attendence, { observe: 'response' });
+  }
 
 getStudents(){
  this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STUDENT" }).subscribe({

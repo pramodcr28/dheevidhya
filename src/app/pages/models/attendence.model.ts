@@ -2,13 +2,15 @@
 
 export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'EXCUSED' | 'LATE';
 export interface AttendanceRequest {
+  id:string;
   academicYear: string;
   semester: string;
   departmentId: string;
-  className: string;
-  section: string;
+  classId: string;
+  sectionId: string;
   subjectCode: string;
   subjectName: string;
+  period:number;
   instructorName: string;
   instructorId: string;
   sessionDate: string;
@@ -18,16 +20,7 @@ export interface AttendanceRequest {
   exceptions?: AttendanceException[];
 }
 
-
-
-// export interface Student {
-//   id: string;
-//   name: string;
-//   initials: string;
-//   status: 'Present' | 'Absent' | 'Late';
-// }
 export interface AttendanceException {
-  id?: number;
   studentId: String;
   studentName: string;
   status: AttendanceStatus;

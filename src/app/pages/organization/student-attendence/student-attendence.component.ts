@@ -38,7 +38,6 @@ export class StudentAttendenceComponent {
 
         this.attendenceService.search(0, 100, 'sessionDate', 'ASC', {}).subscribe(res=>{
            this.attendendenceList.set(res.content);
-          console.log(res);
             this.loader.hide();
         });
       }

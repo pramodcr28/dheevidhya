@@ -7,13 +7,17 @@ import { IProfileConfig } from '../../pages/models/user.model';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
 import { Store } from '@ngrx/store';
 import { IBranch } from '../../pages/models/tenant.model';
-import { getAllSectionEntities, getAssociatedDepartments, getBranch, getSubByDeptIds } from '../store/user-profile/user-profile.selectors';
+import { getAllSectionEntities, getAssociatedDepartments, getBranch, getSubByDeptIds, selectUserConfig } from '../store/user-profile/user-profile.selectors';
 import { IDepartmentConfig, Section } from '../../pages/models/org.model';
 export type EntityResponseType = HttpResponse<IProfileConfig>;
 @Injectable({
   providedIn: 'root'
 })
 export class CommonService {
+
+  dateTimeFormate = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+  dateFormate = "yyyy-MM-dd";
+  TimeFormate = "HH:mm:ss.SSS";
 
   protected readonly http = inject(HttpClient);
   protected readonly applicationConfigService = inject(ApplicationConfigService);
@@ -26,7 +30,7 @@ export class CommonService {
   associatedDepartments: Observable<IDepartmentConfig[]>;
   associatedSections:Observable<Section[]>;
   associatedSubjects:Observable<any[]>;
-
+  currentUser:Observable<any>;
   findProfileConfig(id: number): Observable<EntityResponseType> {
     return this.http.get<IProfileConfig>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
@@ -36,5 +40,6 @@ export class CommonService {
     this.associatedDepartments = this.store.select(getAssociatedDepartments);
     this.associatedSections =  this.store.select(getAllSectionEntities);
     this.associatedSubjects = this.store.select(getSubByDeptIds([]));
+    this.currentUser = this.store.select(selectUserConfig)
   }
 }
