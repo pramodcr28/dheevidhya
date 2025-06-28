@@ -16,7 +16,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments, getBranch, getSubByDeptIds } from '../../../core/store/user-profile/user-profile.selectors';
+import { getAssociatedDepartments, getBranch, getSubjectsByFilters } from '../../../core/store/user-profile/user-profile.selectors';
 import { IBranch } from '../../models/tenant.model';
 import { NewTenantUser, ITenantUser, NewProfileConfig, IProfileConfig, IStudentProfile, ITenantAuthority, IRoleConfigs, IGuardianProfile, ITeacherProfile, ILecturerProfile, IProfessorProfile, IHeadOfDepartmentProfile, IHeadMasterProfile, IPrincipalProfile, IVicePrincipalProfile, ISportsCoachProfile, ISubstituteTeacherProfile, IITAdministratorProfile } from '../../models/user.model';
 import { ProfileConfigFormService } from '../../service/profile-config-form.service';
@@ -125,7 +125,7 @@ export class EmployeeDialogComponent {
       this.selectedDepartments = this.associatedDepartments
       .filter(department=> this._employeeProfile.departments?.includes(department.id)) ;
     });
-      this.store.select(getSubByDeptIds([...this.selectedDepartments.map(deprt=>deprt.id)])).subscribe(subjects=>{
+      this.store.select(getSubjectsByFilters([...this.selectedDepartments.map(deprt=>deprt.id)])).subscribe(subjects=>{
           this.departmentSpecificSubjects = subjects;
       })
 
@@ -136,7 +136,7 @@ export class EmployeeDialogComponent {
 
   onDepartmentSelection(){
     // this.selectedDepartments.map()
-    this.store.select(getSubByDeptIds([...this.selectedDepartments.map(deprt=>deprt.id)])).subscribe(subjects=>{
+    this.store.select(getSubjectsByFilters([...this.selectedDepartments.map(deprt=>deprt.id)])).subscribe(subjects=>{
       this.departmentSpecificSubjects = subjects;
     })
   }

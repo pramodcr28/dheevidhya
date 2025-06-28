@@ -48,11 +48,11 @@ export class DetailedReportsComponent {
           className: "SECOND_PUC",
           departmentName:""
         }]
-    this.attendenceService.currentDate = new Date().toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    // this.attendenceService.currentDate = new Date().toLocaleDateString('en-US', {
+    //   year: 'numeric',
+    //   month: 'long',
+    //   day: 'numeric'
+    // });
    this.getReports();
   
   }

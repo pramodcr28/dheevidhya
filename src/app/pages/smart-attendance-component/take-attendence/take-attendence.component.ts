@@ -1,10 +1,9 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -14,6 +13,13 @@ import { CommonService } from '../../../core/services/common.service';
 import { IMasterSubject, Section } from '../../models/org.model';
 import { DatePicker } from 'primeng/datepicker';
 import { MessageService } from 'primeng/api';
+import { SelectModule } from 'primeng/select';
+import { IProfileConfig } from '../../models/user.model';
+import { Store } from '@ngrx/store';
+import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
+import { getSubjectsByFilters } from '../../../core/store/user-profile/user-profile.selectors';
+import { ApiLoaderService } from '../../../core/services/loaderService';
+import { UserService } from '../../service/user.service';
 
 @Component({
   selector: 'app-take-attendence',
@@ -21,7 +27,7 @@ import { MessageService } from 'primeng/api';
       CommonModule,
       FormsModule,
       ButtonModule,
-      DropdownModule,
+      SelectModule,
       InputTextModule,
       CardModule,
       BadgeModule,
@@ -43,25 +49,53 @@ export class TakeAttendenceComponent {
    selectedSubject:IMasterSubject;
    slotDate: Date | undefined = new Date();
    messageService = inject(MessageService);
-    get filteredStudents(): AttendanceException[] {
-    if (!this.attendenceService.searchTerm) {
-      return this.attendenceService.currentAttendence;
-    }
-    return this.attendenceService.currentAttendence.filter(student =>
-      student.studentName.toLowerCase().includes(this.attendenceService.searchTerm.toLowerCase()) ||
-      student.studentId.includes(this.attendenceService.searchTerm)
-    );
-  }
+   currentAttendence: AttendanceException[] = [];
+   subjects:any[]=[];
+   private store = inject(Store<{ userProfile: UserProfileState }>);
+   studentService = inject(UserService);
+   loader = inject(ApiLoaderService); 
+    students = signal<any[] | null>([]);
+  //   get filteredStudents(): AttendanceException[] {
+  //   if (!this.attendenceService.searchTerm) {
+  //     return this.currentAttendence;
+  //   }
+  //   return this.currentAttendence.filter(student =>
+  //     student.studentName.toLowerCase().includes(this.attendenceService.searchTerm.toLowerCase()) ||
+  //     student.studentId.includes(this.attendenceService.searchTerm)
+  //   );
+  // }
 
-    ngOninit(){
-      
-    }
+
+
+  onSectionChange(){
+     this.store.select(
+      getSubjectsByFilters(
+        [this.selectedSection.departmentId],
+        [this.selectedSection.classId],
+        [this.selectedSection.sectionId])).subscribe(subjects=> {
+           this.subjects = subjects;
+     })
+     this.load();
+  }
+      load(): void {
+         this.currentAttendence = [];
+        this.loader.show("Fetching Student Data");
+        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STUDENT" }).subscribe({
+          next: (res: any) => {
+          res.content?.forEach((student:IProfileConfig)=>{
+                    this.currentAttendence.push({ studentName: student.fullName, studentId: student.userId, status: 'PRESENT' })
+                  }) ;
+            this.loader.hide();
+          },
+        });
+      }
+
        updateAttendance(student: AttendanceException, status: "PRESENT" | "ABSENT" | "LATE") {
           student.status = status;
         }
       
         markAllPresent() {
-          this.attendenceService.currentAttendence.forEach(student => {
+          this.currentAttendence.forEach(student => {
             student.status = "PRESENT";
           });
         }
@@ -86,7 +120,7 @@ export class TakeAttendenceComponent {
            "startTime": "10:00:00",
            "endTime": "11:00:00",
            "period": 0,
-           "exceptions": this.attendenceService.currentAttendence.filter(attendence => attendence.status != "PRESENT")
+           "exceptions": this.currentAttendence.filter(attendence => attendence.status != "PRESENT")
          }
 
         this.attendenceService.create(todayAttendence).subscribe(res=>{

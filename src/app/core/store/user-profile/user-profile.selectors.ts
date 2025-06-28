@@ -14,39 +14,62 @@ export const getAssociatedDepartments = createSelector(selectUserProfileState,
         return { ...department, name: department.department?.name };
       }));
 
-export const getSubByDeptIds = (departmentIds?: string[]) =>
-  createSelector(
-    selectUserProfileState,
-    (state) => {
-      const departments = state.userConfig?.departments ?? [];
+// export const getSubByDeptIds = (departmentIds?: string[]) =>
+//   createSelector(
+//     selectUserProfileState,
+//     (state) => {
+//       const departments = state.userConfig?.departments ?? [];
 
-      const filteredDepartments = !departmentIds || departmentIds.length === 0
-        ? departments
-        : departments.filter(dep => departmentIds.includes(dep.id));
+//       const filteredDepartments = !departmentIds || departmentIds.length === 0
+//         ? departments
+//         : departments.filter(dep => departmentIds.includes(dep.id));
 
-      const allSubjects: any[] = [];
+//       const allSubjects: any[] = [];
 
-      filteredDepartments.forEach(dep => {
-        dep.department.classes?.forEach(cls => {
-          cls.sections?.forEach(section => {
-            allSubjects.push(...(section.subjects ?? []));
-          });
-        });
-      });
+//       filteredDepartments.forEach(dep => {
+//         dep.department.classes?.forEach(cls => {
+//           cls.sections?.forEach(section => {
+//             allSubjects.push(...(section.subjects ?? []));
+//           });
+//         });
+//       });
 
-      // Deduplicate by subject.id
-      const uniqueSubjects = Object.values(
-        allSubjects.reduce((acc, subject) => {
-          if (!acc[subject.id]) {
-            acc[subject.id] = subject;
-          }
-          return acc;
-        }, {} as Record<string, any>)
-      );
+//       // Deduplicate by subject.id
+//       const uniqueSubjects = Object.values(
+//         allSubjects.reduce((acc, subject) => {
+//           if (!acc[subject.id]) {
+//             acc[subject.id] = subject;
+//           }
+//           return acc;
+//         }, {} as Record<string, any>)
+//       );
 
-      return uniqueSubjects;
-    }
-  );
+//       return uniqueSubjects;
+//     }
+//   );
+
+export const getSubjectsByFilters = (
+  departmentIds: string[] = [],
+  classIds: string[] = [],
+  sectionIds: string[] = []
+) =>
+  createSelector(selectUserProfileState, (state) => {
+    const departments = state.userConfig?.departments ?? [];
+
+    const filteredDepartments = departmentIds.length
+      ? departments.filter(dep => departmentIds.includes(dep.id))
+      : departments;
+
+    const subjects = filteredDepartments
+      .flatMap(dep => dep.department.classes ?? [])
+      .filter(cls => classIds.length === 0 || classIds.includes(cls.id))
+      .flatMap(cls => cls.sections ?? [])
+      .filter(sec => sectionIds.length === 0 || sectionIds.includes(sec.id))
+      .flatMap(sec => sec.subjects ?? []);
+
+    // Deduplicate by subject.id
+    return Array.from(new Map(subjects.map(s => [s.id, s])).values());
+  });
 
 
 export const getAllSectionEntities = createSelector(

@@ -1,7 +1,5 @@
-import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { ApiLoaderService } from './app/core/services/loaderService';
 import { CommonModule } from '@angular/common';
 import { ApiLoaderComponent } from './app/core/layout/loaderComponent';
 

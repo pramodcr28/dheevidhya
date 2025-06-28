@@ -7,7 +7,7 @@ import { IProfileConfig } from '../../pages/models/user.model';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
 import { Store } from '@ngrx/store';
 import { IBranch } from '../../pages/models/tenant.model';
-import { getAllSectionEntities, getAssociatedDepartments, getBranch, getSubByDeptIds, selectUserConfig } from '../store/user-profile/user-profile.selectors';
+import { getAllSectionEntities, getAssociatedDepartments, getBranch, getSubjectsByFilters, selectUserConfig } from '../store/user-profile/user-profile.selectors';
 import { IDepartmentConfig, Section } from '../../pages/models/org.model';
 export type EntityResponseType = HttpResponse<IProfileConfig>;
 @Injectable({
@@ -39,7 +39,7 @@ export class CommonService {
     this.branch = this.store.select(getBranch);
     this.associatedDepartments = this.store.select(getAssociatedDepartments);
     this.associatedSections =  this.store.select(getAllSectionEntities);
-    this.associatedSubjects = this.store.select(getSubByDeptIds([]));
+    this.associatedSubjects = this.store.select(getSubjectsByFilters([]));
     this.currentUser = this.store.select(selectUserConfig)
   }
 }

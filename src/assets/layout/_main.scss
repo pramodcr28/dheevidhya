@@ -1,7 +1,9 @@
 .layout-main-container {
     display: flex;
     flex-direction: column;
+    max-height: 100vh;
     min-height: 100vh;
+    overflow-y: auto;
     justify-content: space-between;
     padding: 6rem 2rem 0 2rem;
     transition: margin-left var(--layout-section-transition-duration);

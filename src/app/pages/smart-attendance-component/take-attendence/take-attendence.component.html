@@ -1,29 +1,34 @@
    <!-- Controls Bar -->
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center space-x-4">
-            <p-dropdown 
+            <p-select 
               [options]="commonService.associatedSections | async" 
               [(ngModel)]="selectedSection" 
               optionLabel="sectionName"
               placeholder="Select Section"
               class="w-48"
+              (onChange)="onSectionChange()"
             >
              <ng-template let-section pTemplate="item">
                 {{ section.className }} -  {{ section.sectionName }}
               </ng-template>
-          </p-dropdown>
-           <p-dropdown 
-              [options]="commonService.associatedSubjects | async" 
+                <!-- Selected item display -->
+              <ng-template let-section pTemplate="selectedItem">
+                {{ section?.className }} - {{ section?.sectionName }}
+              </ng-template>
+          </p-select>
+           <p-select 
+              [options]="subjects" 
               [(ngModel)]="selectedSubject" 
               optionLabel="name"
               placeholder="Select Subject"
               class="w-48"
             >
-          </p-dropdown>
+          </p-select>
           <p-datepicker [(ngModel)]="slotDate" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay" />
 
             <div class="text-sm text-gray-600">
-              Students: <span class="font-medium">{{ attendenceService.currentAttendence.length }}</span>
+              Students: <span class="font-medium">{{ currentAttendence?.length }}</span>
             </div>
           </div>
           <div class="flex items-center space-x-3">
@@ -49,7 +54,7 @@
         <!-- Students Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div 
-            *ngFor="let student of filteredStudents" 
+            *ngFor="let student of currentAttendence" 
 
           >
           <p-card>

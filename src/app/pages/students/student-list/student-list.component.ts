@@ -87,7 +87,7 @@ export class StudentListComponent {
      }
 
         load(): void {
-        this.loader.show("Fetching Staff Data");
+        this.loader.show("Fetching Student Data");
         this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STUDENT" }).subscribe({
           next: (res: any) => {
             this.students.set(res.content);

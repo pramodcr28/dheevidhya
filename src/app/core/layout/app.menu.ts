@@ -35,10 +35,10 @@ export class AppMenu {
                     { label: 'Department Setup', icon: 'pi pi-fw pi-sitemap', routerLink: ['/department-setup'] },
                     { label: 'Org Tree', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] },
                     { label: 'Time Table Setup', icon: 'pi pi-fw pi-home', routerLink: ['/time-table-setup'] },
-                    { label: 'Student Attendence', icon: 'pi pi-fw pi-home', routerLink: ['/student-attendence'] }
+                    { label: 'Student Attendence', icon: 'pi pi-fw pi-home', routerLink: ['/student-attendence'] },
+                    { label: 'Examination', icon:'pi pi-fw pi-sitemap', routerLink:['/examination']}
                 ]
             },
-     
             {
                 label: 'Pages',
                 icon: 'pi pi-fw pi-briefcase',
