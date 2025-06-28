@@ -11,7 +11,7 @@ import { ResultComponent } from './result/result.component';
 
 @Component({
   selector: 'app-examination',
-  imports: [CommonModule, TabsModule, BadgeModule, AvatarModule,AddExamComponent,QuessionPaperComponent,ReportsComponent,ResultComponent,ExamSlotsComponent],
+  imports: [CommonModule, TabsModule, BadgeModule, AvatarModule,AddExamComponent,QuessionPaperComponent,ReportsComponent,ResultComponent],
   templateUrl: './examination.component.html',
   styles: ``
 })

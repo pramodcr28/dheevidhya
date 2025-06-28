@@ -87,6 +87,7 @@
         [(ngModel)]="selectedSubjects"
         [ngModelOptions]="{ standalone: true }"
         [options]="treeNodes"
+        (onNodeSelect)="onSubjectChange()"
         selectionMode="checkbox"
         [fluid]="true"
         scrollHeight="200px"
@@ -141,18 +142,9 @@
       </button>
     </div>
   </ng-template>
+  <div class="py-6">
+  <app-exam-slots [subjects]="selectedSubjectsForTimeTable"></app-exam-slots>
+  </div>
+
 </p-dialog>
 </div>
-<p-dialog 
-  header="Exams Slots" 
-  [(visible)]="slotDailog" 
-  [modal]="true"
-  [style]="{ width: '90vw', height: '90vh' }"
-  [contentStyle]="{ 'overflow-y': 'auto', 'padding-bottom': '4rem' }"
-  [dismissableMask]="true"
-  [draggable]="false"
-  [resizable]="false"
-  [baseZIndex]="10000"
->
-<app-exam-slots></app-exam-slots>
-</p-dialog>

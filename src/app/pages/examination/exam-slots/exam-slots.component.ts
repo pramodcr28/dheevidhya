@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -54,9 +54,12 @@ export class ExamSlotsComponent {
   slotsPerDay: number = 2;
   slotDurationMinutes: number = 180;
   draggedSubject: any;
-
   defaultBreakMinutes: number = 15;
   breakDurations: number[] = [];
+  schedule: DaySchedule[] = [];
+  isDragOver = false;
+  dragOverDay = -1;
+  dragOverSlot = -1;
 
   slotOptions = [
     { label: '1 Slot', value: 1 },
@@ -76,22 +79,16 @@ export class ExamSlotsComponent {
     { label: '3.5 Hours', value: 210 },
     { label: '4 Hours', value: 240 }
   ];
+  private _subjects: Subject[];
 
-  subjects: Subject[] = [
-    { id: '1', name: 'Mathematics', color: '#3B82F6', teacher: '', hoursPerWeek: 0 },
-    { id: '2', name: 'Physics', color: '#EF4444', teacher: '', hoursPerWeek: 0 },
-    { id: '3', name: 'Chemistry', color: '#10B981', teacher: '', hoursPerWeek: 0 },
-    { id: '4', name: 'Biology', color: '#8B5CF6', teacher: '', hoursPerWeek: 0 },
-    { id: '5', name: 'Computer Science', color: '#F59E0B', teacher: '', hoursPerWeek: 0 },
-    { id: '6', name: 'English Literature', color: '#EC4899', teacher: '', hoursPerWeek: 0 },
-    { id: '7', name: 'History', color: '#6B7280', teacher: '', hoursPerWeek: 0 },
-    { id: '8', name: 'Geography', color: '#14B8A6', teacher: '', hoursPerWeek: 0 }
-  ];
+  @Input()
+set subjects(value: Subject[]) {
+  this._subjects = value || [];
+}
 
-  schedule: DaySchedule[] = [];
-  isDragOver = false;
-  dragOverDay = -1;
-  dragOverSlot = -1;
+get subjects(): Subject[] {
+  return this._subjects;
+}
 
   constructor(private messageService: MessageService) {}
 

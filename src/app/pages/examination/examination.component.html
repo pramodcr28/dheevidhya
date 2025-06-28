@@ -7,36 +7,28 @@
             </p-tab>
             <p-tab value="1" class="flex items-center !gap-2">
                 <i [class]="'pi pi-book'"></i>
-                <span>Slots</span>
-            </p-tab>
-            <p-tab value="2" class="flex items-center !gap-2">
-                <i [class]="'pi pi-book'"></i>
                 <span>Quession Papers</span>
             </p-tab>
-             <p-tab value="3" class="flex items-center !gap-2">
+             <p-tab value="2" class="flex items-center !gap-2">
                 <i [class]="'pi pi-book'"></i>
                 <span>Results</span>
             </p-tab>
-              <p-tab value="4" class="flex items-center !gap-2">
+              <p-tab value="3" class="flex items-center !gap-2">
                 <i [class]="'pi pi-book'"></i>
                 <span>Reports</span>
             </p-tab>
         </p-tablist>
         <p-tabpanels>
             <p-tabpanel value="0">
-             <app-add-exam></app-add-exam>
+              <app-add-exam></app-add-exam>
             </p-tabpanel>
-            <p-tabpanel value="1" header="Slot Allocation">
-              <app-exam-slots></app-exam-slots>
-            </p-tabpanel>
-  
-            <p-tabpanel class="px-0" value="2">
+            <p-tabpanel class="px-0" value="1">
               <app-quession-paper></app-quession-paper>
             </p-tabpanel>
-            <p-tabpanel value="3">
+            <p-tabpanel value="2">
               <app-result></app-result>
             </p-tabpanel>
-            <p-tabpanel value="4">
+            <p-tabpanel value="3">
               <app-reports></app-reports>
             </p-tabpanel>
         </p-tabpanels>

@@ -17,16 +17,13 @@ import { ChipModule } from 'primeng/chip';
 import { TreeNode } from 'primeng/api';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { SelectModule } from 'primeng/select';
-import {
-  ExaminationDTO,
-  ExamTypeLabels,
-  ExamStatusLabels,
-} from '../../models/examination.model';
+import { ExaminationDTO, ExamTypeLabels, ExamStatusLabels} from '../../models/examination.model';
 import { IDepartmentConfig } from '../../models/org.model';
 import { IBranch } from '../../models/tenant.model';
 import { ExaminationService } from '../../service/examination.service';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ExamSlotsComponent } from '../exam-slots/exam-slots.component';
+import { Subject } from '../../models/time-table';
 
 @Component({
   selector: 'app-add-exam',
@@ -67,7 +64,7 @@ export class AddExamComponent {
   private examinationService = inject(ExaminationService);
   examTypes = Object.entries(ExamTypeLabels).map(([value, label]) => ({ label, value }));
   examStatuses = Object.entries(ExamStatusLabels).map(([value, label]) => ({ label, value }));
-
+  selectedSubjectsForTimeTable: Subject[] = [];
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
@@ -104,7 +101,6 @@ export class AddExamComponent {
     if (this.selectedDepartment) {
       this.examForm.get('departmentId').setValue(this.selectedDepartment?.id);
       this.examForm.get('branchId').setValue(this.currentBranch.id);
-
       this.treeNodes = this.selectedDepartment?.department.classes?.map(cls => ({
         label: 'Class: ' + cls.name,
         key: cls.name,
@@ -113,7 +109,8 @@ export class AddExamComponent {
           label: 'Section: ' + sec.name,
           key: cls.name + ':' + sec.name,
           data: sec,
-          children: sec.subjects.map(sub => {
+          children: sec.subjects.map(sub => 
+            {
             let subject :IExaminationSubject = 
             {id:sub.id,name:sub.name,className:cls.name,sectionName:sec.name,departmentName:this.selectedDepartment.department.name};
             return {
@@ -126,6 +123,22 @@ export class AddExamComponent {
         }))
       }));
     }
+  }
+
+  onSubjectChange(){
+      let timeTableSubjects = [];
+       for(const subject of this.selectedSubjects){
+      const keyParts = subject.key?.split(':') ?? [];
+      if (keyParts.length !== 4) continue;
+
+         const [className, sectionName, _subName,_subId] = keyParts;
+          let timeTableSubject:Subject = {color:'#3B82F6',id:_subId,teacher:'',name:_subName,hoursPerWeek:0};
+
+          if(!timeTableSubjects.find(sub1=>sub1.name == timeTableSubject.name)){
+            timeTableSubjects.push(timeTableSubject);
+          }
+       }
+      this.selectedSubjectsForTimeTable = [...timeTableSubjects];
   }
 
   get groupedSelectedSubjects() {
@@ -183,15 +196,16 @@ export class AddExamComponent {
       if (keyParts.length !== 4) continue;
 
       const [className, sectionName, _subName,_subId] = keyParts;
-      let subject :IExaminationSubject = 
-            {id:_subId,name:_subName,className:className,sectionName:sectionName,departmentName:this.selectedDepartment.department.name};
-           subjects.push(subject);
+      let subject :IExaminationSubject = {id:_subId,name:_subName,className:className,sectionName:sectionName,departmentName:this.selectedDepartment.department.name};
+      subjects.push(subject);
+
     }
     return subjects;
   }
 
   saveExam() {
     if (this.examForm.valid) {
+      this.groupSubjectsFromTreeNodes(this.selectedSubjects);
       const finalExamData: ExaminationDTO = {
         ...this.examForm.value,
         subjects: this.groupSubjectsFromTreeNodes(this.selectedSubjects)

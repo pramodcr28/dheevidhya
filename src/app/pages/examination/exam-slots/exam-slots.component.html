@@ -70,22 +70,22 @@
             (onChange)="initBreakDurations()"
             [style]="{ width: '100%' }">
           </p-slider>
-    <div class="grid md:grid-cols-3 gap-6">
-      <div *ngFor="let breakMin of breakDurations; let i = index" class="bg-gray-50 p-2 rounded-md shadow-sm">
-        <!-- <div class="text-sm font-medium text-gray-700 mb-2"></div> -->
-        <div class="flex justify-center">
-          <p-knob 
-            [(ngModel)]="breakDurations[i]" 
-            [max]="180" 
-            [step]="5" 
-            size="80" 
-            [valueColor]="i % 2 === 0 ? '#f59e0b' : '#10b981'"
-            readonly="false">
-          </p-knob>
+        <div class="grid md:grid-cols-5 gap-2">
+          <div *ngFor="let breakMin of breakDurations; let i = index" class="bg-gray-50 p-2 rounded-md shadow-sm">
+            <!-- <div class="text-sm font-medium text-gray-700 mb-2"></div> -->
+            <div class="flex justify-center">
+              <p-knob 
+                [(ngModel)]="breakDurations[i]" 
+                [max]="180" 
+                [step]="5" 
+                size="80" 
+                [valueColor]="i % 2 === 0 ? '#f59e0b' : '#10b981'"
+                readonly="false">
+              </p-knob>
+            </div>
+            <div class="text-center text-xs text-primary-500 mt-2"><b>Slot {{ i + 1 }} </b> : {{ breakDurations[i] }} min</div>
+          </div>
         </div>
-        <div class="text-center text-xs text-primary-500 mt-2"><b>Slot {{ i + 1 }} </b> : {{ breakDurations[i] }} min</div>
-      </div>
-    </div>
   </div>
 
   <div *ngIf="slotsPerDay <= 1" class="text-gray-500 text-sm italic">
@@ -94,7 +94,7 @@
 </div>
    </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
+  <div class="grid grid-cols-1 lg:grid-cols-8 gap-6 mt-6">
     <!-- Subjects Panel -->
     <div class="lg:col-span-1">
       <div class="rounded-lg shadow-md">
@@ -115,7 +115,7 @@
 
 
     <!-- Time Table -->
-    <div class="lg:col-span-3">
+    <div class="lg:col-span-7">
       <div class="bg-white rounded-lg shadow-md overflow-hidden" *ngIf="schedule.length > 0">
         
         <div class="overflow-x-auto">
