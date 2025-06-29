@@ -10,7 +10,7 @@
       <th>Department</th>
       <th>Branch</th>
       <th>Status</th>
-      <th>Slot</th>
+      <!-- <th>Slot</th> -->
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-exam>
@@ -19,7 +19,7 @@
       <td>{{ exam.departmentId }}</td>
       <td>{{ exam.branchId }}</td>
       <td>{{ ExamStatusLabels[exam.status] || exam.status }}</td>
-      <td>
+      <!-- <td>
          <button 
         pButton 
         type="button" 
@@ -27,7 +27,7 @@
         class="p-button-primary" 
         (click)="openSlotDailog(exam)">
       </button>
-      </td>
+      </td> -->
     </tr>
   </ng-template>
 </p-table>
@@ -143,7 +143,7 @@
     </div>
   </ng-template>
   <div class="py-6">
-  <app-exam-slots [subjects]="selectedSubjectsForTimeTable"></app-exam-slots>
+  <app-exam-slots [subjects]="selectedSubjectsForTimeTable" [timeTable]="timeTable" ></app-exam-slots>
   </div>
 
 </p-dialog>

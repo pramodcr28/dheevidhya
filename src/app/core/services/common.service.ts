@@ -19,6 +19,21 @@ export class CommonService {
   dateFormate = "yyyy-MM-dd";
   TimeFormate = "HH:mm:ss.SSS";
 
+  themeGradients: string[] = [
+  'linear-gradient(180deg, #2196F3, #64B5F6)',  // Blue
+  'linear-gradient(135deg, #4CAF50, #81C784)',  // Green
+  'linear-gradient(135deg, #FF9800, #FFB74D)',  // Orange
+  'linear-gradient(135deg, #F44336, #EF9A9A)',  // Red
+  'linear-gradient(135deg, #9C27B0, #BA68C8)',  // Purple
+  'linear-gradient(135deg, #00BCD4, #4DD0E1)',  // Teal/Cyan
+  'linear-gradient(135deg, #FFC107, #FFD54F)',  // Amber
+  'linear-gradient(135deg, #E91E63, #F06292)',  // Pink
+  'linear-gradient(135deg, #8BC34A, #AED581)',  // Lime
+  'linear-gradient(135deg, #3F51B5, #7986CB)',  // Indigo
+  'linear-gradient(135deg, #607D8B, #90A4AE)'   // Blue Grey
+];
+
+
   protected readonly http = inject(HttpClient);
   protected readonly applicationConfigService = inject(ApplicationConfigService);
 

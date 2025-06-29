@@ -6,7 +6,7 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
         <p-calendar 
-          [(ngModel)]="startDate" 
+          [(ngModel)]="timeTable.settings.startDate" 
           [showIcon]="true"
           dateFormat="dd-mm-yy"
           class="w-full">
@@ -15,7 +15,7 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
         <p-calendar 
-          [(ngModel)]="endDate" 
+          [(ngModel)]="timeTable.settings.endDate" 
           [showIcon]="true"
           dateFormat="dd-mm-yy"
           class="w-full">
@@ -24,18 +24,17 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Slots Per Day</label>
         <p-dropdown 
-          [(ngModel)]="slotsPerDay" 
+          [(ngModel)]="timeTable.settings.slotsperday" 
           [options]="slotOptions"
           optionLabel="label"
           optionValue="value"
-          (onChange)="onSlotsChange()"
           class="w-full">
         </p-dropdown>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Slot Duration</label>
         <p-dropdown 
-          [(ngModel)]="slotDurationMinutes" 
+          [(ngModel)]="timeTable.settings.slotDuration" 
           [options]="durationOptions"
           optionLabel="label"
           optionValue="value"
@@ -58,24 +57,23 @@
     <i class="pi pi-clock text-yellow-600 mr-2"></i> Break Configuration
   </h3>
 
-  <div *ngIf="slotsPerDay > 1" class="space-y-6">
+  <div *ngIf="timeTable.settings.slotsperday" class="space-y-6">
  
           <div class="flex justify-between items-center mb-2">
             <label class="text-sm font-medium text-gray-700">Set Common Break for All</label>
-            <span class="text-sm text-gray-600">{{ defaultBreakMinutes }} min</span>
+            <span class="text-sm text-gray-600">{{ timeTable.settings.breakDuration }} min</span>
           </div>
           <p-slider
-            [(ngModel)]="defaultBreakMinutes"
+            [(ngModel)]="timeTable.settings.breakDuration"
             [max]="180"
-            (onChange)="initBreakDurations()"
             [style]="{ width: '100%' }">
           </p-slider>
         <div class="grid md:grid-cols-5 gap-2">
-          <div *ngFor="let breakMin of breakDurations; let i = index" class="bg-gray-50 p-2 rounded-md shadow-sm">
+          <div *ngFor="let slot of timeTable.schedules; let i = index" class="bg-gray-50 p-2 rounded-md shadow-sm">
             <!-- <div class="text-sm font-medium text-gray-700 mb-2"></div> -->
             <div class="flex justify-center">
               <p-knob 
-                [(ngModel)]="breakDurations[i]" 
+                [(ngModel)]="slot.breakDuration" 
                 [max]="180" 
                 [step]="5" 
                 size="80" 
@@ -83,12 +81,12 @@
                 readonly="false">
               </p-knob>
             </div>
-            <div class="text-center text-xs text-primary-500 mt-2"><b>Slot {{ i + 1 }} </b> : {{ breakDurations[i] }} min</div>
+            <div class="text-center text-xs text-primary-500 mt-2"><b>Slot {{ i + 1 }} </b> : {{ slot.breakDuration }} min</div>
           </div>
         </div>
   </div>
 
-  <div *ngIf="slotsPerDay <= 1" class="text-gray-500 text-sm italic">
+  <div *ngIf="timeTable.settings.slotsperday <= 1" class="text-gray-500 text-sm italic">
     No breaks needed for a single slot.
   </div>
 </div>
@@ -99,10 +97,11 @@
     <div class="lg:col-span-1">
       <div class="rounded-lg shadow-md">
         <div class="space-y-2  overflow-y-auto p-3">
+          
           <div 
             *ngFor="let subject of subjects"
             class="p-3 rounded-lg cursor-move transition-all duration-200 hover:shadow-md"
-            [style.background-color]="subject.color"
+            [style.background-image]="subject.color"
             pDraggable
             (onDragStart)="onDragStart(subject)"
             (onDragEnd)="onDragEnd($event)">
@@ -116,74 +115,61 @@
 
     <!-- Time Table -->
     <div class="lg:col-span-7">
-      <div class="bg-white rounded-lg shadow-md overflow-hidden" *ngIf="schedule.length > 0">
+      <div class="bg-white rounded-lg shadow-md overflow-hidden" *ngIf="timeTable.schedules.length > 0">
         
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead>
               <tr>
                 <th class="p-3 text-left font-medium bg-gray-100 text-gray-700 border-r">Date</th>
+
                 <th 
-                  *ngFor="let slot of getTimeSlots(); let i = index"
-                  class="p-3 bg-gray-100 text-center font-medium text-gray-700 border-r min-w-48">
-                  Slot {{ i + 1 }}
-                  <div class="text-xs text-gray-500 mt-1">{{ slot }}</div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let day of schedule; let dayIndex = index" class="border-b hover:bg-gray-50">
+                *ngFor="let slot of getTimeSlots(); let i = index"
+                class="p-3 bg-gray-100 text-center font-medium text-gray-700 border-r min-w-48">
+                Slot {{ i + 1 }}
+                <div class="text-xs text-gray-500 mt-1">{{ slot }}</div>
+              </th>
+
+                            </tr>
+                          </thead>
+                          <tbody>
+                        <tr *ngFor="let day of getDays()">
                 <td class="p-3 font-medium bg-gray-100 text-primary-600 w-20">
-                  {{ day.dateString }}
+                  {{ formatDate(day) }}
                 </td>
                 <td 
-                  *ngFor="let slot of day.slots; let slotIndex = index"
+                  *ngFor="let slot of getSlotsForDay(day); let slotIndex = index"
                   class="px-2 py-2 border-r h-20 align-top"
                   pDroppable
-                  (onDrop)="onDrop($event, dayIndex, slotIndex)"
-                  [ngClass]="{'bg-blue-50': isDragOver && dragOverDay === dayIndex && dragOverSlot === slotIndex}"
-                  >
+                  (onDrop)="onDrop($event, slot)">
                   
                   <div 
-                    *ngIf="slot.subject"
+                    *ngIf="slot.subjectName"
                     class="p-2 rounded-md text-white text-sm h-full flex flex-col justify-center cursor-pointer relative group"
-                    [style.background-color]="slot.subject.color"
-                    (click)="removeSubject(dayIndex, slotIndex)">
-                    <div class="font-medium">{{ slot.subject.name }}</div>
+                    [style.background-image]="slot.color"
+                    (click)="removeSubject(slot)">
+                    <div class="font-medium">{{ slot.subjectName }}</div>
                     <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <i class="pi pi-times text-xs"></i>
                     </div>
                   </div>
-                  
+
                   <div 
-                    *ngIf="!slot.subject"
+                    *ngIf="!slot.subjectName"
                     class="h-full flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-md">
+                    {{ getSlotTimeRange(slot) }} <br/>
                     Drop subject here
                   </div>
                 </td>
               </tr>
-            </tbody>
+         </tbody>
           </table>
         </div>
         
-        <div class="p-4 bg-gray-50 border-t flex justify-end space-x-3">
-          <p-button 
-            label="Reset" 
-            icon="pi pi-refresh"
-            severity="secondary"
-            (onClick)="resetSchedule()">
-          </p-button>
-          <p-button 
-            label="Save Time Table" 
-            icon="pi pi-save"
-            (onClick)="saveTimeTable()"
-            class="bg-primary-500 hover:bg-primary-600">
-          </p-button>
-        </div>
       </div>
       
       <!-- Placeholder when no schedule -->
-      <div *ngIf="schedule.length === 0" class="bg-white p-12 rounded-lg shadow-md text-center">
+      <div *ngIf="timeTable.schedules.length === 0" class="bg-white p-12 rounded-lg shadow-md text-center">
         <i class="pi pi-calendar text-6xl text-gray-300 mb-4"></i>
         <h3 class="text-xl font-semibold text-gray-600 mb-2">No Schedule Generated</h3>
         <p class="text-gray-500">Configure the dates and slots, then click "Generate Time Table" to create your schedule.</p>

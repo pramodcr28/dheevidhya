@@ -1,229 +1,193 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MessageService, ConfirmationService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { DropdownModule } from 'primeng/dropdown';
-import { TableModule } from 'primeng/table';
-import { ToastModule } from 'primeng/toast';
-import { CalendarModule } from 'primeng/calendar';
-import { DragDropModule } from 'primeng/dragdrop';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { Subject } from '../../models/time-table';
-import { SliderModule } from 'primeng/slider';
-import { KnobModule } from 'primeng/knob';
+  import { CommonModule, formatDate } from '@angular/common';
+  import { Component, inject, Input } from '@angular/core';
+  import { FormsModule } from '@angular/forms';
+  import { MessageService, ConfirmationService } from 'primeng/api';
+  import { ButtonModule } from 'primeng/button';
+  import { CardModule } from 'primeng/card';
+  import { DropdownModule } from 'primeng/dropdown';
+  import { TableModule } from 'primeng/table';
+  import { ToastModule } from 'primeng/toast';
+  import { CalendarModule } from 'primeng/calendar';
+  import { DragDropModule } from 'primeng/dragdrop';
+  import { InputNumberModule } from 'primeng/inputnumber';
+  import { Subject } from '../../models/time-table';
+  import { SliderModule } from 'primeng/slider';
+  import { KnobModule } from 'primeng/knob';
+  import { ExaminationTimeSlot, ExaminationTimeTable } from '../../models/examination.model';
+import { CommonService } from '../../../core/services/common.service';
 
-interface TimeSlot {
-  id: string;
-  time: string;
-  subject?: Subject;
-  breakMinutes: number;
-}
+  @Component({
+    selector: 'app-exam-slots',
+    standalone: true,
+    imports: [
+      CommonModule,
+      FormsModule,
+      CalendarModule,
+      DropdownModule,
+      ButtonModule,
+      TableModule,
+      DragDropModule,
+      CardModule,
+      ToastModule,
+      InputNumberModule,
+      SliderModule,
+      KnobModule
+    ],
+    templateUrl: './exam-slots.component.html',
+    styles: [],
+    providers: [MessageService, ConfirmationService]
+  })
+  export class ExamSlotsComponent {
+    draggedSubject: any;
+    isDragOver = false;
+    dragOverDay = -1;
+    dragOverSlot = -1;
 
-interface DaySchedule {
-  date: Date;
-  dateString: string;
-  slots: TimeSlot[];
-}
+    slotOptions = [
+      { label: '1 Slot', value: 1 },
+      { label: '2 Slots', value: 2 },
+      { label: '3 Slots', value: 3 },
+      { label: '4 Slots', value: 4 },
+      { label: '5 Slots', value: 5 },
+      { label: '6 Slots', value: 6 }
+    ];
 
-@Component({
-  selector: 'app-exam-slots',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CalendarModule,
-    DropdownModule,
-    ButtonModule,
-    TableModule,
-    DragDropModule,
-    CardModule,
-    ToastModule,
-    InputNumberModule,
-    SliderModule,
-    KnobModule
-  ],
-  templateUrl: './exam-slots.component.html',
-  styles: [],
-  providers: [MessageService, ConfirmationService]
-})
-export class ExamSlotsComponent {
-  startDate: Date = new Date();
-  endDate: Date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  slotsPerDay: number = 2;
-  slotDurationMinutes: number = 180;
-  draggedSubject: any;
-  defaultBreakMinutes: number = 15;
-  breakDurations: number[] = [];
-  schedule: DaySchedule[] = [];
-  isDragOver = false;
-  dragOverDay = -1;
-  dragOverSlot = -1;
+    durationOptions = [
+      { label: '1 Hour', value: 60 },
+      { label: '1.5 Hours', value: 90 },
+      { label: '2 Hours', value: 120 },
+      { label: '2.5 Hours', value: 150 },
+      { label: '3 Hours', value: 180 },
+      { label: '3.5 Hours', value: 210 },
+      { label: '4 Hours', value: 240 }
+    ];
+    private _subjects: Subject[];
+    @Input()
+    timeTable:ExaminationTimeTable;
 
-  slotOptions = [
-    { label: '1 Slot', value: 1 },
-    { label: '2 Slots', value: 2 },
-    { label: '3 Slots', value: 3 },
-    { label: '4 Slots', value: 4 },
-    { label: '5 Slots', value: 5 },
-    { label: '6 Slots', value: 6 }
-  ];
-
-  durationOptions = [
-    { label: '1 Hour', value: 60 },
-    { label: '1.5 Hours', value: 90 },
-    { label: '2 Hours', value: 120 },
-    { label: '2.5 Hours', value: 150 },
-    { label: '3 Hours', value: 180 },
-    { label: '3.5 Hours', value: 210 },
-    { label: '4 Hours', value: 240 }
-  ];
-  private _subjects: Subject[];
-
-  @Input()
-set subjects(value: Subject[]) {
-  this._subjects = value || [];
-}
-
-get subjects(): Subject[] {
-  return this._subjects;
-}
-
-  constructor(private messageService: MessageService) {}
-
-  ngOnInit() {
-    this.endDate = new Date(this.startDate);
-    this.endDate.setDate(this.startDate.getDate() + 2);
-    this.initBreakDurations();
+    @Input()
+  set subjects(value: Subject[]) {
+    this._subjects = value || [];
   }
 
-  getTimeSlots(): string[] {
-  const slots: string[] = [];
-
-  let currentTime = new Date();
-  currentTime.setHours(9, 0, 0, 0);
-
-  for (let i = 0; i < this.slotsPerDay; i++) {
-    const endTime = new Date(currentTime.getTime() + this.slotDurationMinutes * 60000);
-    slots.push(`${this.formatTime(currentTime)} - ${this.formatTime(endTime)}`);
-    currentTime = new Date(endTime.getTime() + (i < this.slotsPerDay - 1 ? this.breakDurations[i] * 60000 : 0));
+  get subjects(): Subject[] {
+    return this._subjects;
   }
 
-  return slots;
-}
+    constructor(private messageService: MessageService) {}
+    commonService = inject(CommonService);
+    ngOnInit() {
 
-  initBreakDurations() {
-    this.breakDurations = Array(this.slotsPerDay - 1).fill(this.defaultBreakMinutes);
-  }
-
-  onSlotsChange() {
-    this.initBreakDurations();
-  }
-
-  generateTimeTable() {
-    if (!this.startDate || !this.endDate) {
-      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please select both start and end dates' });
-      return;
+      this.timeTable.settings.endDate.setDate(this.timeTable.settings.startDate.getDate() + Math.round(this.subjects.length/this.timeTable.settings.slotsperday));
     }
 
-    if (this.endDate < this.startDate) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'End date must be after start date' });
-      return;
+    getTimeSlots(): string[] {
+    const slots: string[] = [];
+
+    let currentTime = new Date();
+    currentTime.setHours(9, 0, 0, 0);
+
+    for (let i = 0; i < this.timeTable.settings.slotsperday; i++) {
+      const endTime = new Date(currentTime.getTime() + this.timeTable.settings.slotDuration * 60000);
+      slots.push(`${this.formatTime(currentTime)} - ${this.formatTime(endTime)}`);
+      currentTime = new Date(endTime.getTime() + (i < this.timeTable.settings.slotsperday - 1 ? this.timeTable.settings.breakDuration * 60000 : 0));
     }
 
-    this.schedule = [];
-    const currentDate = new Date(this.startDate);
-
-    while (currentDate <= this.endDate) {
-      const daySchedule: DaySchedule = {
-        date: new Date(currentDate),
-        dateString: this.formatDate(currentDate),
-        slots: []
-      };
-
-      let currentTime = new Date(currentDate.setHours(9, 0, 0, 0));
-
-      for (let i = 0; i < this.slotsPerDay; i++) {
-        const endTime = new Date(currentTime.getTime() + this.slotDurationMinutes * 60000);
-        const timeLabel = `${this.formatTime(currentTime)} - ${this.formatTime(endTime)}`;
-
-        daySchedule.slots.push({
-          id: `${currentDate.getTime()}-${i}`,
-          time: timeLabel,
-          breakMinutes: i < this.slotsPerDay - 1 ? this.breakDurations[i] : 0
-        });
-
-        currentTime = new Date(endTime.getTime() + (i < this.slotsPerDay - 1 ? this.breakDurations[i] * 60000 : 0));
-      }
-
-      this.schedule.push(daySchedule);
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Time table generated successfully' });
+    return slots;
   }
 
-  formatTime(date: Date): string {
-    const hour = date.getHours();
-    const minute = date.getMinutes();
-    const period = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-    const displayMinute = minute.toString().padStart(2, '0');
-    return `${displayHour}:${displayMinute} ${period}`;
-  }
+generateTimeTable() {
+  this.timeTable.schedules.splice(0, this.timeTable.schedules.length); // Clear in-place
 
-  formatDate(date: Date): string {
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
-  }
+  let currentDate = new Date(this.timeTable.settings.startDate);
 
-  onDragStart(subject: any) {
-    this.draggedSubject = subject;
-  }
+  while (currentDate <= new Date(this.timeTable.settings.endDate)) {
+    let slotStart = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate(),
+      9, 0, 0, 0 
+    );
 
-  onDragEnd(event: any) {
-    this.isDragOver = false;
-    this.dragOverDay = -1;
-    this.dragOverSlot = -1;
-    this.draggedSubject = null;
-  }
+    for (let i = 0; i < this.timeTable.settings.slotsperday; i++) {
+      const slotEnd = new Date(slotStart.getTime() + this.timeTable.settings.slotDuration * 60000);
 
-  onDrop(event: any, dayIndex: number, slotIndex: number) {
-    this.isDragOver = false;
-    this.dragOverDay = -1;
-    this.dragOverSlot = -1;
-    if (this.draggedSubject) {
-      this.schedule[dayIndex].slots[slotIndex].subject = this.draggedSubject;
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: `${this.draggedSubject.name} assigned to ${this.schedule[dayIndex].dateString}` });
-    }
-  }
-
-  removeSubject(dayIndex: number, slotIndex: number) {
-    const subject = this.schedule[dayIndex].slots[slotIndex].subject;
-    this.schedule[dayIndex].slots[slotIndex].subject = undefined;
-    if (subject) {
-      this.messageService.add({ severity: 'info', summary: 'Removed', detail: `${subject.name} removed from schedule` });
-    }
-  }
-
-  resetSchedule() {
-    this.schedule.forEach(day => {
-      day.slots.forEach(slot => {
-        slot.subject = undefined;
+      this.timeTable.schedules.push({
+        startTime:  formatDate(slotStart,this.commonService.dateTimeFormate,'en-US'),
+        endTime: formatDate( slotEnd,this.commonService.dateTimeFormate,'en-US'),
+        day: formatDate(slotStart,this.commonService.dateFormate,'en-US'),
+        breakDuration: 15,
+        subjectName: '',
+        color: ''  
       });
-    });
-    this.messageService.add({ severity: 'info', summary: 'Reset', detail: 'All subjects removed from schedule' });
-  }
 
-  saveTimeTable() {
-    const hasAssignedSubjects = this.schedule.some(day => day.slots.some(slot => slot.subject));
-    if (!hasAssignedSubjects) {
-      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please assign at least one subject before saving' });
-      return;
+      if (i < this.timeTable.settings.slotsperday - 1) {
+        slotStart = new Date(slotEnd.getTime() + this.timeTable.settings.breakDuration * 60000);
+      }
     }
-    console.log('Saving schedule:', this.schedule);
-    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Time table saved successfully' });
+
+    currentDate.setDate(currentDate.getDate() + 1);
   }
 }
+
+getSlotTimeRange(slot: ExaminationTimeSlot): string {
+  const start = new Date(slot.startTime);
+  const end = new Date(slot.endTime);
+  return `${this.formatTime(start)} - ${this.formatTime(end)}`;
+}
+
+getDays(): string[] {
+  return Array.from(new Set(this.timeTable.schedules.map(slot => slot.day)));
+}
+
+getSlotsForDay(dayISO: string): ExaminationTimeSlot[] {
+  return this.timeTable.schedules.filter(slot => slot.day === dayISO);
+}
+
+    formatTime(date: Date): string {
+      const hour = date.getHours();
+      const minute = date.getMinutes();
+      const period = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+      const displayMinute = minute.toString().padStart(2, '0');
+      return `${displayHour}:${displayMinute} ${period}`;
+    }
+
+    formatDate(date: Date | string): string {
+      date = new Date(date);
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+    }
+
+    onDragStart(subject: any) {
+      this.draggedSubject = subject;
+    }
+
+    onDragEnd(event: any) {
+      this.isDragOver = false;
+      this.dragOverDay = -1;
+      this.dragOverSlot = -1;
+      this.draggedSubject = null;
+    }
+
+    onDrop(event: any, slot: ExaminationTimeSlot) {
+    this.isDragOver = false;
+    this.dragOverSlot = null;
+
+    if (this.draggedSubject) {
+      slot.subjectName = this.draggedSubject.name;
+      slot.color = this.draggedSubject.color
+      this.messageService.add({ severity: 'success', summary: 'Assigned', detail: `${this.draggedSubject.name} assigned to ${slot.day}` });
+    }
+  }
+
+  removeSubject(slot: ExaminationTimeSlot) {
+    const removed = slot.subjectName;
+    slot.subjectName = undefined;
+    if (removed) {
+      this.messageService.add({ severity: 'info', summary: 'Removed', detail: `${removed} removed` });
+    }
+  }
+
+  }

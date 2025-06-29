@@ -41,6 +41,26 @@ export interface ExaminationDTO {
   createdAt?: string;
   updatedAt?: string;
   subjects: IExaminationSubject[];
+  timeTable:ExaminationTimeTable
+}
+export interface ExaminationTimeSlot {
+  startTime: string;
+  endTime: string;
+  breakDuration: number;
+  subjectName: string;
+  day: string;
+  color:string;
+}
+export interface ExaminationTimeSlotSettings {
+  startDate: Date;
+  endDate: Date;
+  slotDuration: number;
+  slotsperday:number;
+  breakDuration: number;
+}
+export interface ExaminationTimeTable {
+  settings: ExaminationTimeSlotSettings;
+  schedules: ExaminationTimeSlot[];
 }
 
 // Label mappings

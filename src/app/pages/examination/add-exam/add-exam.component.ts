@@ -1,4 +1,5 @@
-import { IExaminationSubject } from './../../models/examination.model';
+import { CommonService } from './../../../core/services/common.service';
+import { ExaminationTimeTable, IExaminationSubject } from './../../models/examination.model';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -24,7 +25,6 @@ import { ExaminationService } from '../../service/examination.service';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ExamSlotsComponent } from '../exam-slots/exam-slots.component';
 import { Subject } from '../../models/time-table';
-
 @Component({
   selector: 'app-add-exam',
   standalone: true,
@@ -66,7 +66,18 @@ export class AddExamComponent {
   examStatuses = Object.entries(ExamStatusLabels).map(([value, label]) => ({ label, value }));
   selectedSubjectsForTimeTable: Subject[] = [];
   constructor(private fb: FormBuilder) {}
-
+  //  timeSlots: ExaminationTimeSlot[] = [];
+   timeTable:ExaminationTimeTable = {
+    settings: {
+        startDate:new Date(),
+        endDate:new Date(),
+        breakDuration:15,
+        slotDuration:60,
+        slotsperday:1
+      },
+    schedules: []
+   }
+   commonService:CommonService = inject(CommonService);
   ngOnInit(): void {
     this.store.select(getAssociatedDepartments).subscribe(departments => {
       this.associatedDepartments = departments;
@@ -84,11 +95,9 @@ export class AddExamComponent {
       resultDeclarationDate: [null]
     });
 
-    this.examinationService.search(0, 100, 'id', 'ASC', {'branchId.equals': this.currentBranch.id?.toString()}).subscribe({
-          next: (res: any) => {
-            this.exams = res.content;
-          },
-        });
+    this.examinationService.search(0, 100, 'id', 'ASC', {'branchId.equals': this.currentBranch.id?.toString()}).subscribe(res=>{
+           this.exams = res.content;
+    });
 
   }
 
@@ -125,21 +134,31 @@ export class AddExamComponent {
     }
   }
 
-  onSubjectChange(){
-      let timeTableSubjects = [];
-       for(const subject of this.selectedSubjects){
-      const keyParts = subject.key?.split(':') ?? [];
-      if (keyParts.length !== 4) continue;
+ onSubjectChange() {
+  const timeTableSubjects: Subject[] = [];
 
-         const [className, sectionName, _subName,_subId] = keyParts;
-          let timeTableSubject:Subject = {color:'#3B82F6',id:_subId,teacher:'',name:_subName,hoursPerWeek:0};
+  this.selectedSubjects.forEach((subject, index) => {
+    const keyParts = subject.key?.split(':') ?? [];
+    if (keyParts.length !== 4) return;
 
-          if(!timeTableSubjects.find(sub1=>sub1.name == timeTableSubject.name)){
-            timeTableSubjects.push(timeTableSubject);
-          }
-       }
-      this.selectedSubjectsForTimeTable = [...timeTableSubjects];
-  }
+    const [className, sectionName, _subName, _subId] = keyParts;
+
+    const timeTableSubject: Subject = {
+      color:this.commonService.themeGradients[index],
+      id: _subId,
+      teacher: '',
+      name: _subName,
+      hoursPerWeek: 0
+    };
+
+    if (!timeTableSubjects.find(sub => sub.name === timeTableSubject.name)) {
+      timeTableSubjects.push(timeTableSubject);
+    }
+  });
+
+  this.selectedSubjectsForTimeTable = [...timeTableSubjects];
+}
+
 
   get groupedSelectedSubjects() {
     const grouped = new Map();
@@ -204,10 +223,12 @@ export class AddExamComponent {
   }
 
   saveExam() {
-    if (this.examForm.valid) {
+    console.log(this.timeTable);
+    if (this.examForm.valid && this.timeTable.schedules.length == this.selectedSubjectsForTimeTable.length) {
       this.groupSubjectsFromTreeNodes(this.selectedSubjects);
       const finalExamData: ExaminationDTO = {
         ...this.examForm.value,
+        timeTable:this.timeTable,
         subjects: this.groupSubjectsFromTreeNodes(this.selectedSubjects)
       };
        this.examinationService.create(finalExamData).subscribe(result=>{
