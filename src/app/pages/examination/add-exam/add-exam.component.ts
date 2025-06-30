@@ -105,16 +105,31 @@ export class AddExamComponent {
   }
 
    openDialog() {
-   this.timeTable = {
-    settings: {
-        startDate:new Date(),
-        endDate:new Date(),
-        breakDuration:15,
-        slotDuration:60,
-        slotsPerDay:1
+    const now = new Date();
+    const startDate = new Date(now);
+    startDate.setDate(startDate.getDate() + 1); // Tomorrow
+
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 3); // 3 days after startDate
+
+    const dayStartTime = new Date();
+    dayStartTime.setHours(10, 0, 0, 0); // 10:00 AM
+
+    const dayEndTime = new Date();
+    dayEndTime.setHours(17, 0, 0, 0); // 5:00 PM
+
+    this.timeTable = {
+      settings: {
+        startDate: startDate,
+        endDate: endDate,
+        dayStartTime: dayStartTime,
+        dayEndTime: dayEndTime,
+        breakDuration: 15,     // 15 minutes break between slots
+        slotDuration: 60,      // Each slot is 60 minutes
+        slotsPerDay: 2         // 2 slots per day by default
       },
-    schedules: []
-   }
+      schedules: []
+    };
     this.displayDialog = true;
   }
 
