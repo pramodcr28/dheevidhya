@@ -42,6 +42,7 @@ export interface ExaminationDTO {
   updatedAt?: string;
   subjects: IExaminationSubject[];
   timeTable:ExaminationTimeTable
+  totalMarks:number;
 }
 export interface ExaminationTimeSlot {
   startTime: string;
@@ -52,10 +53,10 @@ export interface ExaminationTimeSlot {
   color:string;
 }
 export interface ExaminationTimeSlotSettings {
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | any;
+  endDate: Date | any;
   slotDuration: number;
-  slotsperday:number;
+  slotsPerDay:number;
   breakDuration: number;
 }
 export interface ExaminationTimeTable {

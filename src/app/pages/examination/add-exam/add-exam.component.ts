@@ -1,6 +1,6 @@
 import { CommonService } from './../../../core/services/common.service';
 import { ExaminationTimeTable, IExaminationSubject } from './../../models/examination.model';
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -61,22 +61,14 @@ export class AddExamComponent {
   exams: any[] = [];
   displayDialog = false;
   slotDailog = false;
+  selectedExam:ExaminationDTO;
   private examinationService = inject(ExaminationService);
   examTypes = Object.entries(ExamTypeLabels).map(([value, label]) => ({ label, value }));
   examStatuses = Object.entries(ExamStatusLabels).map(([value, label]) => ({ label, value }));
   selectedSubjectsForTimeTable: Subject[] = [];
   constructor(private fb: FormBuilder) {}
   //  timeSlots: ExaminationTimeSlot[] = [];
-   timeTable:ExaminationTimeTable = {
-    settings: {
-        startDate:new Date(),
-        endDate:new Date(),
-        breakDuration:15,
-        slotDuration:60,
-        slotsperday:1
-      },
-    schedules: []
-   }
+   timeTable:ExaminationTimeTable = null;
    commonService:CommonService = inject(CommonService);
   ngOnInit(): void {
     this.store.select(getAssociatedDepartments).subscribe(departments => {
@@ -94,6 +86,10 @@ export class AddExamComponent {
       examType: [null, Validators.required],
       resultDeclarationDate: [null]
     });
+   this.getExams();
+  }
+
+  getExams(){
 
     this.examinationService.search(0, 100, 'id', 'ASC', {'branchId.equals': this.currentBranch.id?.toString()}).subscribe(res=>{
            this.exams = res.content;
@@ -101,9 +97,49 @@ export class AddExamComponent {
 
   }
 
-  openSlotDailog(exam: any) {
-    this.slotDailog =true;
-    console.log(exam);
+  clearDailogCache(){
+     this.displayDialog = false;
+     this.selectedSubjectsForTimeTable =[];
+     this.timeTable = null;
+     this.selectedSubjects = [];
+  }
+
+   openDialog() {
+   this.timeTable = {
+    settings: {
+        startDate:new Date(),
+        endDate:new Date(),
+        breakDuration:15,
+        slotDuration:60,
+        slotsPerDay:1
+      },
+    schedules: []
+   }
+    this.displayDialog = true;
+  }
+
+  openSlotDailog(input: ExaminationDTO) {
+    
+    this.examinationService.find(input.examId).subscribe(result=>{
+      this.selectedExam = input;
+        let exam = result.body;
+        this.examForm.patchValue({
+          totalMarks: exam.totalMarks,
+          departmentId: exam.departmentId,
+          branchId: exam.branchId,
+          examType: exam.examType,
+          resultDeclarationDate: exam.resultDeclarationDate ?? null
+        });
+        this.timeTable = exam.timeTable;
+        this.timeTable.settings.startDate = new Date( this.timeTable.settings.startDate);
+        this.timeTable.settings.endDate = new Date( this.timeTable.settings.endDate);
+        this.selectedDepartment = this.associatedDepartments.find(dep=>dep.id ==  exam.departmentId);
+        this.onDepartmentChange();
+        this.selectedSubjects = this.getSelectedSubjectNodes(exam.subjects,this.treeNodes);
+        this.onSubjectChange();
+        this.displayDialog = true;
+    })
+
   }
 
   onDepartmentChange() {
@@ -201,11 +237,7 @@ export class AddExamComponent {
     this.selectedSubjects = this.selectedSubjects.filter(s => s.key !== subject.key);
   }
 
-  openDialog() {
-    this.selectedDepartment = null;
-    this.selectedSubjects = [];
-    this.displayDialog = true;
-  }
+ 
 
   groupSubjectsFromTreeNodes(nodes: TreeNode[]): any {
     let subjects = [];
@@ -222,20 +254,70 @@ export class AddExamComponent {
     return subjects;
   }
 
+
+    getSelectedSubjectNodes(subjects: IExaminationSubject[], allTreeNodes: TreeNode[]): TreeNode[] {
+      const subjectKeys = new Set(
+        subjects.map(sub => `${sub.className}:${sub.sectionName}:${sub.name}:${sub.id}`)
+      );
+
+      const selected: TreeNode[] = [];
+
+      function collectMatchesWithParentDetection(node: TreeNode): boolean {
+        if (!node.children || node.children.length === 0) {
+          // Leaf node
+          const isMatch = subjectKeys.has(node.key);
+          if (isMatch) selected.push(node);
+          return isMatch;
+        }
+
+        let allChildrenSelected = true;
+        for (const child of node.children) {
+          const childSelected = collectMatchesWithParentDetection(child);
+          if (!childSelected) {
+            allChildrenSelected = false;
+          }
+        }
+
+        if (allChildrenSelected) {
+          selected.push(node); 
+          return true;
+        }
+
+        return false;
+      }
+
+      for (const node of allTreeNodes) {
+        collectMatchesWithParentDetection(node);
+      }
+
+      return selected;
+    }
+
   saveExam() {
     console.log(this.timeTable);
     if (this.examForm.valid && this.timeTable.schedules.length == this.selectedSubjectsForTimeTable.length) {
-      this.groupSubjectsFromTreeNodes(this.selectedSubjects);
-      const finalExamData: ExaminationDTO = {
+      this.timeTable.settings.startDate = formatDate(this.timeTable.settings.startDate,this.commonService.dateTimeFormate,'en-US');
+            this.timeTable.settings.endDate = formatDate(this.timeTable.settings.endDate,this.commonService.dateTimeFormate,'en-US')
+      let finalExamData: ExaminationDTO = {
         ...this.examForm.value,
         timeTable:this.timeTable,
         subjects: this.groupSubjectsFromTreeNodes(this.selectedSubjects)
       };
-       this.examinationService.create(finalExamData).subscribe(result=>{
-        console.log(result);
-       });
 
-      this.displayDialog = false;
+      if(this.selectedExam){
+        finalExamData = {
+          ...this.selectedExam,
+          ...this.examForm.value,
+          timeTable:this.timeTable,
+          subjects: this.groupSubjectsFromTreeNodes(this.selectedSubjects)
+        }
+      }
+
+       this.examinationService.create(finalExamData).subscribe(result=>{
+        this.getExams();
+       });
+      this.clearDailogCache();
+      // this.displayDialog = false;
     }
   }
 
