@@ -64,18 +64,10 @@ export class ExamSlotsComponent {
     { label: '4 Hours', value: 240 }
   ];
 
-  private _subjects: Subject[];
   @Input()
   timeTable: ExaminationTimeTable;
 
-  @Input()
-  set subjects(value: Subject[]) {
-    this._subjects = value || [];
-  }
-
-  get subjects(): Subject[] {
-    return this._subjects;
-  }
+  @Input() subjects: Subject[];
 
   constructor(private messageService: MessageService) {}
   commonService = inject(CommonService);
@@ -86,6 +78,7 @@ export class ExamSlotsComponent {
       this.timeTable.settings.dayStartTime = new Date();
       this.timeTable.settings.dayStartTime.setHours(9, 0, 0, 0);
     }
+    
     if (!this.timeTable.settings.dayEndTime) {
       this.timeTable.settings.dayEndTime = new Date();
       this.timeTable.settings.dayEndTime.setHours(17, 0, 0, 0);
@@ -107,7 +100,7 @@ export class ExamSlotsComponent {
       this.validationErrors.push('End date is required');
     }
     if (this.timeTable.settings.startDate && this.timeTable.settings.endDate) {
-      if (this.timeTable.settings.startDate >= this.timeTable.settings.endDate) {
+      if (this.timeTable.settings.startDate > this.timeTable.settings.endDate) {
         this.validationErrors.push('End date must be after start date');
       }
     }
@@ -135,13 +128,14 @@ export class ExamSlotsComponent {
 
     // Check if slots fit within day
     if (this.timeTable.settings.dayStartTime && this.timeTable.settings.dayEndTime && 
-        this.timeTable.settings.slotsPerDay && this.timeTable.settings.slotDuration) {
+        this.timeTable.settings.slotsPerDay && this.timeTable.settings.slotDuration) {   
       const dayDurationMinutes = this.getDayDurationInMinutes();
       const totalSlotDuration = this.timeTable.settings.slotsPerDay * this.timeTable.settings.slotDuration;
-      const totalBreakDuration = (this.timeTable.settings.slotsPerDay - 1) * this.timeTable.settings.breakDuration;
+      const totalBreakDuration = (this.timeTable.settings.slotsPerDay - (this.timeTable.settings.slotsPerDay <=1 ? this.timeTable.settings.slotsPerDay:1) ) * this.timeTable.settings.breakDuration;
       const requiredTime = totalSlotDuration + totalBreakDuration;
 
-      if (requiredTime > dayDurationMinutes) {
+      let dayDifference = this.timeTable.settings.dayEndTime.getDate() - this.timeTable.settings.startDate.getDate();
+      if (requiredTime > dayDurationMinutes * (dayDifference >0 ? dayDifference:1)) {
         this.validationErrors.push(`Total time required (${requiredTime} min) exceeds available day time (${dayDurationMinutes} min)`);
       }
     }
@@ -153,10 +147,10 @@ export class ExamSlotsComponent {
 
     const startDate = new Date(this.timeTable.settings.startDate);
     const endDate = new Date(this.timeTable.settings.endDate);
-
+//   from date and end logic needs to change
     if (this.subjects?.length && startDate && endDate && this.timeTable.settings.slotsPerDay) {
-      const totalDays = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      const totalAvailableSlots = totalDays * this.timeTable.settings.slotsPerDay;
+      const totalDays = Math.floor((endDate.getDate() - startDate.getDate()));
+      const totalAvailableSlots = (1+ totalDays )* this.timeTable.settings.slotsPerDay;
 
       if (totalAvailableSlots < this.subjects.length) {
         this.validationErrors.push(
@@ -212,8 +206,7 @@ export class ExamSlotsComponent {
     this.timeTable.schedules.splice(0, this.timeTable.schedules.length); // Clear in-place
 
     let currentDate = new Date(this.timeTable.settings.startDate);
-
-    while (currentDate <= new Date(this.timeTable.settings.endDate)) {
+    while (currentDate.getDate() <= new Date(this.timeTable.settings.endDate).getDate()) {
       // Skip weekends if needed (optional)
       // if (currentDate.getDay() === 0 || currentDate.getDay() === 6) {
       //   currentDate.setDate(currentDate.getDate() + 1);
@@ -228,19 +221,17 @@ export class ExamSlotsComponent {
         this.timeTable.settings.dayStartTime.getMinutes(),
         0, 0
       );
-
       for (let i = 0; i < this.timeTable.settings.slotsPerDay; i++) {
         const slotEnd = new Date(slotStart.getTime() + this.timeTable.settings.slotDuration * 60000);
-
-        this.timeTable.schedules.push({
+         let slot = {
           startTime: formatDate(slotStart, this.commonService.dateTimeFormate, 'en-US'),
           endTime: formatDate(slotEnd, this.commonService.dateTimeFormate, 'en-US'),
           day: formatDate(slotStart, this.commonService.dateFormate, 'en-US'),
           breakDuration: this.timeTable.settings.breakDuration,
           subjectName: '',
           color: ''
-        });
-
+        };
+        this.timeTable.schedules.push(slot);
         // Add break time for next slot (except for last slot)
         if (i < this.timeTable.settings.slotsPerDay - 1) {
           slotStart = new Date(slotEnd.getTime() + this.timeTable.settings.breakDuration * 60000);
@@ -295,7 +286,7 @@ export class ExamSlotsComponent {
     this.isDragOver = false;
     this.draggedSubject = null;
   }
-onDrop(event: any, targetSlot: ExaminationTimeSlot) {
+  onDrop(event: any, targetSlot: ExaminationTimeSlot) {
   this.isDragOver = false;
 
   if (!this.draggedSubject) return;
@@ -330,20 +321,6 @@ onDrop(event: any, targetSlot: ExaminationTimeSlot) {
     detail: `${this.draggedSubject.name} assigned to ${targetSlot.day}` 
   });
 }
-
-  // onDrop(event: any, slot: ExaminationTimeSlot) {
-  //   this.isDragOver = false;
-  //   if (this.draggedSubject) {
-  //     slot.subjectName = this.draggedSubject.name;
-  //     slot.color = this.draggedSubject.color;
-  //     this.messageService.add({ 
-  //       severity: 'success', 
-  //       summary: 'Assigned', 
-  //       detail: `${this.draggedSubject.name} assigned to ${slot.day}` 
-  //     });
-  //   }
-  // }
-
   removeSubject(slot: ExaminationTimeSlot) {
     const removed = slot.subjectName;
     slot.subjectName = undefined;

@@ -139,26 +139,30 @@
    </div>
    
 @if(this.timeTable.schedules.length){
-  <div class="grid grid-cols-1 lg:grid-cols-8 gap-6 mt-6">
+  <div class="grid grid-cols-1 lg:grid-cols-8 gap-6 mt-6 h-[50vh]">
     <!-- Subjects Panel -->
-    <div class="lg:col-span-1">
-      <div class="rounded-lg shadow-md">
-        <div class="space-y-2  overflow-y-auto p-3">
+  <!-- Subjects Panel -->
+<div class="lg:col-span-1">
+  <div class="sticky top-20 h-full">
+    <div class="rounded-lg shadow-md h-full flex flex-col justify-center">
+      <div class="space-y-2 overflow-y-auto p-3 max-h-[70vh]">
+        @for (subject of subjects; track $index) {
           <div 
-            *ngFor="let subject of subjects"
             class="p-3 rounded-lg cursor-move transition-all duration-200 hover:shadow-md"
             [style.background-image]="subject.color"
             pDraggable
             (onDragStart)="onDragStart(subject)"
             (onDragEnd)="onDragEnd($event)">
-            <div class="font-medium text-white">{{ subject.name }}</div>
+            <div class="font-medium text-white text-center">{{ subject.name }}</div>
           </div>
-        </div>
+        }
       </div>
     </div>
+  </div>
+</div>
 
     <!-- Time Table -->
-    <div class="lg:col-span-7">
+    <div class="lg:col-span-7 overflow-y-auto max-h-[50vh]">
       <div class="bg-white rounded-lg shadow-md overflow-hidden" *ngIf="timeTable.schedules.length > 0">
         <div class="overflow-x-auto">
           <table class="w-full">

@@ -110,7 +110,7 @@ export class AddExamComponent {
     startDate.setDate(startDate.getDate() + 1); // Tomorrow
 
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 3); // 3 days after startDate
+    endDate.setDate(endDate.getDate());
 
     const dayStartTime = new Date();
     dayStartTime.setHours(10, 0, 0, 0); // 10:00 AM
@@ -126,7 +126,7 @@ export class AddExamComponent {
         dayEndTime: dayEndTime,
         breakDuration: 15,     // 15 minutes break between slots
         slotDuration: 60,      // Each slot is 60 minutes
-        slotsPerDay: 2         // 2 slots per day by default
+        slotsPerDay: 1         // 2 slots per day by default
       },
       schedules: []
     };
@@ -206,7 +206,6 @@ export class AddExamComponent {
       timeTableSubjects.push(timeTableSubject);
     }
   });
-
   this.selectedSubjectsForTimeTable = [...timeTableSubjects];
 }
 
@@ -250,6 +249,7 @@ export class AddExamComponent {
 
   removeSubject(subject: any): void {
     this.selectedSubjects = this.selectedSubjects.filter(s => s.key !== subject.key);
+    this.onSubjectChange();
   }
 
  
