@@ -46,6 +46,7 @@ export class CommonService {
   associatedSections:Observable<Section[]>;
   associatedSubjects:Observable<any[]>;
   currentUser:Observable<any>;
+  
   findProfileConfig(id: number): Observable<EntityResponseType> {
     return this.http.get<IProfileConfig>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
@@ -57,4 +58,5 @@ export class CommonService {
     this.associatedSubjects = this.store.select(getSubjectsByFilters([]));
     this.currentUser = this.store.select(selectUserConfig)
   }
+  
 }

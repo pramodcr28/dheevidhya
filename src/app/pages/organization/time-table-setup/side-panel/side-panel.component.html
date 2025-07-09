@@ -1,0 +1,43 @@
+<!-- side-panel.component.html -->
+<!-- Tips & Tricks -->
+<div class="bg-white p-6 rounded-lg shadow-sm border mb-6">
+  <h4 class="font-medium text-gray-900 mb-4 flex items-center">
+    <i class="pi pi-lightbulb mr-2 text-yellow-500"></i>
+    Tips & Tricks
+  </h4>
+  <ul class="space-y-2 text-sm text-gray-600">
+    <li *ngFor="let tip of getCurrentTips()" class="flex items-start">
+      <i class="pi pi-check text-green-500 mr-2 mt-1 text-xs"></i>
+      {{tip}}
+    </li>
+  </ul>
+</div>
+
+<!-- Demo Video -->
+<div class="bg-white p-6 rounded-lg shadow-sm border mb-6">
+  <div class="flex items-center mb-3">
+    <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
+      <i class="pi pi-video text-white text-sm"></i>
+    </div>
+    <div>
+      <h4 class="font-medium text-gray-900">Demo Video Tutorial</h4>
+      <p class="text-sm text-gray-600">Click to watch in a new tab</p>
+    </div>
+  </div>
+</div>
+
+<!-- Help Section -->
+<div class="bg-white p-6 rounded-lg shadow-sm border">
+  <div class="flex items-center mb-3">
+    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
+      <i class="pi pi-question text-white text-sm"></i>
+    </div>
+    <div>
+      <h4 class="font-medium text-gray-900">Need help?</h4>
+      <p class="text-sm text-gray-600">A timetable assistant will be there to answer your questions.</p>
+    </div>
+  </div>
+  <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">
+    Schedule a Call
+  </button>
+</div>

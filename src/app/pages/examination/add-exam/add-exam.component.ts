@@ -197,7 +197,7 @@ export class AddExamComponent {
     const timeTableSubject: Subject = {
       color:this.commonService.themeGradients[index],
       id: _subId,
-      teacher: '',
+      teacher: null,
       name: _subName,
       hoursPerWeek: 0
     };

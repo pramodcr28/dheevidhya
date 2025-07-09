@@ -53,8 +53,8 @@ export interface IMasterSection {
 export type NewMasterSection = Omit<IMasterSection, 'id'> & { id: null };
 
 
-export interface IMasterSubject {
-  id: number;
+export interface    IMasterSubject {
+  id: string;
   name?: string | null;
   code?: string | null;
   description?: string | null;

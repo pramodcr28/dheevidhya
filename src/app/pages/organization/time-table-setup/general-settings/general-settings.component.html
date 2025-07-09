@@ -1,0 +1,138 @@
+<div class="space-y-6">
+
+  <!-- Days Configuration -->
+  <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <h4 class="font-medium text-gray-900 mb-4 flex items-center">
+      <i class="pi pi-calendar mr-2"></i>
+      Days Configuration
+    </h4>
+    <div class="flex justify-between items-center mb-4">
+      <span class="text-sm text-gray-700">
+        Select which days are school days. Others will be considered off.
+      </span>
+    </div>
+
+    <div class="grid grid-cols-7 gap-2 mb-6">
+      <div *ngFor="let day of timeTableService.timeTable?.settings.workingDays" 
+           (click)="toggleDaySelection(day)"
+           class="text-center p-3 rounded-lg border-2 cursor-pointer transition"
+           [class.border-green-500]="day.selected"
+           [class.bg-green-50]="day.selected"
+           [class.border-red-500]="!day.selected"
+           [class.bg-red-50]="!day.selected">
+        <div class="font-medium text-sm text-gray-700">{{day.name}}</div>
+        <div class="mt-1">
+          <i class="pi pi-check-circle text-green-500" *ngIf="day.selected"></i>
+          <i class="pi pi-times-circle text-red-500" *ngIf="!day.selected"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Combined Department + Time Settings -->
+  <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <h4 class="font-medium text-gray-900 mb-4 flex items-center">
+      <i class="pi pi-cog mr-2"></i>
+      Timetable Settings
+    </h4>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Department -->
+      <div>
+        <label class="block font-bold mb-2">Department</label>
+        <p-select
+          [options]="commonService.associatedDepartments |async"
+          [(ngModel)]="timeTableService.selectedDepartment"
+          [ngModelOptions]="{standalone: true}"
+          (onChange)="timeTableService.onDepartmentChange()"
+          optionLabel="name"
+          placeholder="Select Department"
+          [style]="{ width: '100%' }">
+        </p-select>
+        <small class="text-red-500" *ngIf="submitted && !timeTableService.selectedDepartment">
+          Department is required.
+        </small>
+      </div>
+
+      <!-- Periods Per Day -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Periods Per Day</label>
+        <p-inputNumber 
+          [(ngModel)]="timeTableService.timeTable.settings.periodsPerDay" 
+          [min]="1" 
+          [max]="12"
+          styleClass="w-full">
+        </p-inputNumber>
+           <!-- (ngModelChange)="adjustPeriodArray()" -->
+      </div>
+
+      <!-- Master Period Duration -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Default Period Duration (min)</label>
+        <p-inputNumber 
+          [(ngModel)]="timeTableService.timeTable.settings.periodDuration"
+          [min]="10" [max]="90"
+          styleClass="w-full" />
+      </div>
+
+      <!-- Master Break Duration -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Default Break Duration (min)</label>
+        <p-inputNumber 
+          [(ngModel)]="timeTableService.timeTable.settings.breakDuration"
+          [min]="0" [max]="60"
+          styleClass="w-full" />
+      </div>
+    </div>
+
+    <!-- Toggle Period Details -->
+    <!-- <div class="mt-4">
+      <button (click)="showPeriodDetails = !showPeriodDetails"
+              class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+        <i [class.pi-chevron-down]="!showPeriodDetails" 
+           [class.pi-chevron-up]="showPeriodDetails" 
+           class="pi mr-1"></i>
+        {{ showPeriodDetails ? 'Hide' : 'Show' }} Period & Break Timings
+      </button>
+    </div> -->
+
+    <!-- Period Grid -->
+    <!-- <div *ngIf="showPeriodDetails" class="mt-4">
+      <div class="text-sm font-medium text-gray-700 mb-2">Configure Each Period</div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full table-auto text-sm text-left text-gray-700 border border-gray-200 rounded-lg">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2 border-r">#</th>
+              <th class="px-4 py-2 border-r">Duration (min)</th>
+              <th class="px-4 py-2">Break After (min)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let period of periodDurations; let i = index" class="border-t">
+              <td class="px-4 py-2 font-semibold border-r">Period {{ i + 1 }}</td>
+              <td class="px-4 py-2 border-r">
+                <p-inputNumber 
+                  [(ngModel)]="periodDurations[i].duration"
+                  [min]="10" [max]="90"
+                  inputStyleClass="w-full text-sm"
+                  styleClass="w-full"
+                  [placeholder]="defaultPeriodDuration.toString()" />
+              </td>
+              <td class="px-4 py-2">
+                <p-inputNumber 
+                  [(ngModel)]="periodDurations[i].breakAfter"
+                  [min]="0" [max]="60"
+                  inputStyleClass="w-full text-sm"
+                  styleClass="w-full"
+                  [placeholder]="defaultBreakDuration.toString()" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div> -->
+  </div>
+
+</div>

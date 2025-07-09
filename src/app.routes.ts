@@ -7,7 +7,7 @@ import { AppLayout } from './app/core/layout/app.layout';
 import { ProfileComponent } from './app/pages/profile/profile.component';
 import { EmployeeListComponent } from './app/pages/employee/employee-list/employee-list.component';
 import { OrgTreeComponent } from './app/pages/organization/org-tree/org-tree.component';
-import { TimeTableSetupComponent } from './app/pages/organization/time-table-setup/time-table-setup.component';
+import { TimetableGeneratorComponent } from './app/pages/organization/time-table-setup/time-table-setup.component';
 import { DepartmentSetupComponent } from './app/pages/organization/department-setup/department-setup.component';
 import { StudentAttendenceComponent } from './app/pages/organization/student-attendence/student-attendence.component';
 import { ExaminationComponent } from './app/pages/examination/examination.component';
@@ -21,7 +21,7 @@ export const appRoutes: Routes = [
             { path: 'students', component: StudentListComponent },
             { path: 'employees', component: EmployeeListComponent },
             { path: 'org', component: OrgTreeComponent },
-            { path: 'time-table-setup', component: TimeTableSetupComponent },
+            { path: 'time-table-setup', component: TimetableGeneratorComponent },
             { path: 'student-attendence', component: StudentAttendenceComponent },
             { path: 'examination', component: ExaminationComponent},
             { path: 'department-setup', component: DepartmentSetupComponent },

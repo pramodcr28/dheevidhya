@@ -14,40 +14,6 @@ export const getAssociatedDepartments = createSelector(selectUserProfileState,
         return { ...department, name: department.department?.name };
       }));
 
-// export const getSubByDeptIds = (departmentIds?: string[]) =>
-//   createSelector(
-//     selectUserProfileState,
-//     (state) => {
-//       const departments = state.userConfig?.departments ?? [];
-
-//       const filteredDepartments = !departmentIds || departmentIds.length === 0
-//         ? departments
-//         : departments.filter(dep => departmentIds.includes(dep.id));
-
-//       const allSubjects: any[] = [];
-
-//       filteredDepartments.forEach(dep => {
-//         dep.department.classes?.forEach(cls => {
-//           cls.sections?.forEach(section => {
-//             allSubjects.push(...(section.subjects ?? []));
-//           });
-//         });
-//       });
-
-//       // Deduplicate by subject.id
-//       const uniqueSubjects = Object.values(
-//         allSubjects.reduce((acc, subject) => {
-//           if (!acc[subject.id]) {
-//             acc[subject.id] = subject;
-//           }
-//           return acc;
-//         }, {} as Record<string, any>)
-//       );
-
-//       return uniqueSubjects;
-//     }
-//   );
-
 export const getSubjectsByFilters = (
   departmentIds: string[] = [],
   classIds: string[] = [],

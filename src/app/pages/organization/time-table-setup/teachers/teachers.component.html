@@ -1,0 +1,87 @@
+<div class="space-y-6">
+  <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <!-- Header -->
+    <div class="flex items-center mb-4">
+      <i class="pi pi-users mr-2 text-blue-600"></i>
+      <h4 class="font-medium text-gray-900">Teachers</h4>
+    </div>
+    <p class="text-sm text-gray-600 mb-6">
+      Add teachers who will be teaching the subjects. You can also set their time off preferences.
+    </p>
+
+    <!-- Teachers Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b">
+            <th class="text-left py-3 px-4 font-medium text-gray-700">NAME</th>
+            <th class="text-left py-3 px-4 font-medium text-gray-700">AVAILABILITY</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let teacher of timeTableService.employeeProfiles"
+              class="border-b hover:bg-gray-50 cursor-pointer"
+              >
+            <td class="py-3 px-4">{{ teacher.name }}</td>
+            <td class="py-3 px-4">
+              <span (click)="selectedTeacher = teacher; showDialog = true" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                {{ teacher.timeOn.length }} Available
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PrimeNG Dialog for Availability -->
+   @if(showDialog){
+<p-dialog
+  [header]="'Availability for ' + selectedTeacher?.name"
+  [(visible)]="showDialog"
+  [modal]="true"
+  [style]="{ width: '70vw' }"
+  [closable]="true"
+  (onHide)="selectedTeacher = null">
+  
+  <ng-container *ngIf="selectedTeacher">
+    <div class="overflow-x-auto">
+      <table class="table-auto w-full border text-center">
+        <thead>
+          <tr>
+            <th class="p-2 border">Period / Day</th>
+            <th *ngFor="let slot of workingDays()" class="p-2 border">
+              {{ slot.name }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let periodIndex of getPeriodCountArray(timeTableService.timeTable.settings.periodsPerDay); let rowIndex = index">
+            <td class="p-2 border">{{ timeTableService.periods[periodIndex] }}</td>
+            <td *ngFor="let slot of workingDays(); let dayIndex = index"
+                (click)="timeTableService.togglePeriodAvailability(selectedTeacher.id, dayIndex, periodIndex)"
+                [ngClass]="{
+                  'bg-green-100 text-green-800': timeTableService.isAvailable(selectedTeacher, dayIndex, periodIndex),
+                  'bg-red-100 text-red-800': !timeTableService.isAvailable(selectedTeacher, dayIndex, periodIndex)
+                }"
+                class="p-2 border cursor-pointer">
+              <i class="pi"
+                [ngClass]="{
+                  'pi-check': timeTableService.isAvailable(selectedTeacher, dayIndex, periodIndex),
+                  'pi-times': !timeTableService.isAvailable(selectedTeacher, dayIndex, periodIndex)
+                }"></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-right mt-4">
+      <button pButton type="button" label="Done" icon="pi pi-check" (click)="showDialog = false"></button>
+    </div>
+  </ng-container>
+</p-dialog>
+
+   }
+
+</div>

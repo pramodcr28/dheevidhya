@@ -13,17 +13,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     take(1),
     switchMap(token => {
       let modifiedReq = req;
-      if (token) {
+      if (token &&  !req.url.includes('/generate-timetable')) {
         modifiedReq = req.clone({
           setHeaders: {
             Authorization: `Bearer ${token}`
           }
         });
       }else{
-        if (!req.url.includes('/api/authenticate')) {
-          router.navigate(['/auth/login']);
-           throwError(() => new Error('No token, redirecting to login'));
-        }
+        // if (!req.url.includes('/api/authenticate')) {
+        //   router.navigate(['/auth/login']);
+        //    throwError(() => new Error('No token, redirecting to login'));
+        // }
       }
       
       return next(modifiedReq);

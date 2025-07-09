@@ -1,0 +1,132 @@
+<!-- review.component.html -->
+<div class="space-y-6">
+
+  <!-- General Settings Overview -->
+  <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <div class="flex items-center mb-4">
+      <i class="pi pi-cog mr-2 text-blue-600"></i>
+      <h4 class="font-medium text-gray-900">General Settings</h4>
+    </div>
+    
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">School Hours</label>
+        <p class="text-sm text-gray-900">{{timeTableService.timeTable.settings.startTime}} - {{timeTableService.timeTable.settings.endTime}}</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+        <p class="text-sm text-gray-900">{{timeTableService.selectedDepartment?.name || 'Not Selected'}}</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Periods Per Day</label>
+        <p class="text-sm text-gray-900">{{timeTableService.timeTable.settings.periodsPerDay}}</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Working Days</label>
+        <p class="text-sm text-gray-900">{{getWorkingDays()}}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setup Overview -->
+  <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <div class="flex items-center mb-4">
+      <i class="pi pi-chart-bar mr-2 text-blue-600"></i>
+      <h4 class="font-medium text-gray-900">Setup Overview</h4>
+    </div>
+    
+    <div class="grid grid-cols-3 gap-6">
+      <div class="text-center">
+        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+          <i class="pi pi-book text-blue-600"></i>
+        </div>
+        <div class="text-2xl font-bold text-blue-600">{{timeTableService.timeTable.subjects.length}}</div>
+        <div class="text-sm text-gray-600">Subjects/Courses</div>
+      </div>
+      <div class="text-center">
+        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+          <i class="pi pi-users text-purple-600"></i>
+        </div>
+        <div class="text-2xl font-bold text-purple-600">{{timeTableService.employeeProfiles.length}}</div>
+        <div class="text-sm text-gray-600">Teachers</div>
+      </div>
+      <div class="text-center">
+        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+          <i class="pi pi-home text-green-600"></i>
+        </div>
+        <div class="text-2xl font-bold text-green-600">0</div>
+        <div class="text-sm text-gray-600">Rooms</div>
+      </div>
+      <div class="text-center">
+        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+          <i class="pi pi-clock text-orange-600"></i>
+        </div>
+        <div class="text-2xl font-bold text-orange-600">0</div>
+        <div class="text-sm text-gray-600">Lessons</div>
+      </div>
+      <div class="text-center">
+        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+          <i class="pi pi-calendar text-red-600"></i>
+        </div>
+        <div class="text-2xl font-bold text-red-600">0</div>
+        <div class="text-sm text-gray-600">Classes/Groups</div>
+      </div>
+      <div class="text-center">
+        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+          <i class="pi pi-list text-indigo-600"></i>
+        </div>
+        <div class="text-2xl font-bold text-indigo-600">0</div>
+        <div class="text-sm text-gray-600">Total Lesson Periods</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate Button -->
+  <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+    <h4 class="font-medium text-gray-900 mb-2">Ready to Generate Your Timetable?</h4>
+    <p class="text-sm text-gray-600 mb-4">All your data is ready. Click the button to create your timetable.</p>
+    <button (click)="generateTimetable()" 
+            class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium">
+      <i class="pi pi-plus mr-2"></i>
+      Generate Timetable
+    </button>
+  </div>
+</div>
+
+
+<!-- Timetable View Dialog -->
+<p-dialog [(visible)]="showTimetableDialog" [modal]="true" header="Generated Timetable"
+          [style]="{ width: '90vw' }" [breakpoints]="{ '960px': '100vw' }" class="p-4 rounded-xl shadow-xl">
+
+  <div class="space-y-8">
+    <div *ngFor="let classId of classIds" class="bg-white p-4 rounded-lg border">
+      <h3 class="text-lg font-bold mb-4 text-blue-700">{{ classId }}</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border text-sm text-left">
+          <thead class="bg-gray-100 text-gray-700">
+            <tr>
+              <th class="border px-4 py-2">Day</th>
+              <th *ngFor="let slot of getSlotKeys(classId, '0')" class="border px-4 py-2">Slot {{ slot }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let day of getDayKeys(classId)">
+              <td class="border px-4 py-2 font-medium">Day {{ day }}</td>
+              <td *ngFor="let slot of getSlotKeys(classId, day)" class="border px-4 py-2">
+                <ng-container *ngIf="timetableJson.class_timetables[classId][day][slot] as slotData">
+                  <div *ngIf="slotData.subject_name !== 'FREE'; else freeSlot">
+                    <div class="font-semibold">{{ slotData.subject_name }}</div>
+                    <div class="text-xs text-gray-500">{{ slotData.teacher_name }}</div>
+                  </div>
+                  <ng-template #freeSlot>
+                    <div class="italic text-gray-400">Free</div>
+                  </ng-template>
+                </ng-container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</p-dialog>

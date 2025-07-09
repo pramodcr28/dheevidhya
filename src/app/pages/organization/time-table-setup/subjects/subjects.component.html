@@ -1,0 +1,53 @@
+<!-- subjects.component.html -->
+<div class="space-y-6">
+
+  <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <div class="flex items-center mb-4">
+      <i class="pi pi-book mr-2 text-blue-600"></i>
+      <h4 class="font-medium text-gray-900">Subjects/Courses</h4>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b">
+            <th class="text-left py-3 px-4 font-medium text-gray-700">NAME</th>
+            <th class="text-left py-3 px-4 font-medium text-gray-700">TEACHER</th>
+            <th class="text-left py-3 px-4 font-medium text-gray-700">HOURS/WEEK</th>
+            <th class="text-left py-3 px-4 font-medium text-gray-700">COLOR</th>
+            <th class="text-left py-3 px-4 font-medium text-gray-700">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let subject of timeTableService.timeTable.subjects; let i = index" class="border-b hover:bg-gray-50">
+            <td class="py-3 px-4">
+              {{subject.name}}
+            </td>
+            <td class="py-3 px-4">
+              {{subject.teacher.name}}
+            </td>
+            <td class="py-3 px-4">
+              <p-inputNumber 
+                [(ngModel)]="subject.hoursPerWeek" 
+                [min]="1" 
+                [max]="40"
+                styleClass="w-full">
+              </p-inputNumber>
+            </td>
+            <td class="py-3 px-4">
+              <input 
+                type="color" 
+                [(ngModel)]="subject.color"
+                class="w-8 h-8 border border-gray-300 rounded cursor-pointer">
+            </td>
+            <td class="py-3 px-4">
+              <button (click)="removeSubject(i)" 
+                      class="text-red-500 hover:text-red-700">
+                <i class="pi pi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
