@@ -14,7 +14,7 @@ import { DialogModule } from 'primeng/dialog';
   templateUrl: './teachers.component.html'
 })
 export class TeachersComponent {
-[x: string]: any;
+// [x: string]: any;
    timeTableService = inject(TimeTableService);
    selectedTeacher: Teacher | null = null;
    showDialog: boolean = false;
@@ -25,5 +25,10 @@ workingDays() {
 
 getPeriodCountArray(count: number): number[] {
   return Array.from({ length: count }, (_, i) => i);
+}
+
+saveAvailability(): void {
+  // this.timeTableService.saveTeacherAvailability(this.selectedTeacher);
+  this.showDialog = false; // Optionally close the dialog on save
 }
 }

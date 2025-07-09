@@ -2,7 +2,7 @@ import dayjs from "dayjs/esm";
 import { IBranch } from "./tenant.model";
 
 export interface IDepartmentConfig {
-  id: number;
+  id: string;
   academicYear?: string | null;
   academicStart?: dayjs.Dayjs | null;
   academicEnd?: dayjs.Dayjs | null;

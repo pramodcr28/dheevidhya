@@ -1,3 +1,6 @@
+import { filter } from 'rxjs';
+import { CommonService } from './../../../../core/services/common.service';
+import { getAssociatedDepartments } from './../../../../core/store/user-profile/user-profile.selectors';
 // review.component.ts
 import { Component, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -54,23 +57,24 @@ getSlotKeys(classId: string, day: string) {
   return Object.keys(this.timetableJson.class_timetables[classId][day] || {});
 }
 
-
+ commonService = inject(CommonService);
  timeTableService = inject(TimeTableService);
 
  generateTimetable() {
-  const teachers = this.timeTableService.employeeProfiles.map(t => ({
+  const teachers = this.timeTableService.getTeachersList().map(t => ({
     id: t.id,
     name: t.name,
     preferred_periods: t.timeOn
   }));
 
-  const department = this.timeTableService.selectedDepartment?.department;
-
   let classes: ExportClass[] = [];
   let classCounter = 1;
 
-  department?.classes?.forEach(cls => {
-    cls.sections.forEach(section => {
+  this.commonService.associatedDepartments.subscribe(departments=>{
+   const department =  departments.find(department=>department.id == this.timeTableService.timeTable.departmentId);
+
+  department?.department.classes?.forEach(cls => {
+    cls.sections.forEach((section:any) => {
       const subjects = section.subjects.map(sub => ({
         id: sub.id,
         name: sub.name,
@@ -100,6 +104,8 @@ getSlotKeys(classId: string, day: string) {
    .subscribe((response:any)=>{
     this.timetableJson = response.timetable;
     this.showTimetableDialog = true;
+  })
+
   })
 }
 

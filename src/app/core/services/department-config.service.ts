@@ -89,7 +89,7 @@ export class DepartmentConfigService {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
-  getDepartmentConfigIdentifier(departmentConfig: Pick<IDepartmentConfig, 'id'>): number {
+  getDepartmentConfigIdentifier(departmentConfig: Pick<IDepartmentConfig, 'id'>): string {
     return departmentConfig.id;
   }
 

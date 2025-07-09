@@ -1,3 +1,4 @@
+
 import { IMasterSubject } from "./org.model";
 
 // export interface Timetable {
@@ -76,7 +77,9 @@ export interface TimeSlot {
 }
 
 export interface TimeTable {
+  departmentId: string;
   settings: TimeTableSettings;
+  // teachers: Teacher [];
   subjects: Subject[];
   schedule: { [day: string]: TimeSlot[] };
 }

@@ -11,7 +11,8 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class TimeTableService {
- timeTable : TimeTable = {
+ public timeTable : TimeTable = {
+    departmentId:null,
     settings: {
       academicYear: '2023-2024',
       semester: 'fall',
@@ -54,24 +55,22 @@ export class TimeTableService {
   readonly periods = ['Period 1', 'Period 2', 'Period 3', 'Period 4', 'Period 5', 'Period 6','Period 7','Period 8','Period 9'];
 
   private store = inject(Store<{ userProfile: UserProfileState }>);
-  // departmentSpecificSubjects = [];
-  selectedDepartment: any | null = null;
   studentService = inject(UserService);
-  employeeProfiles:Teacher[] = [];
+  // employeeProfiles:Teacher[] = [];
   onDepartmentChange() {
-  this.store.select(getSubjectsByFilters([this.selectedDepartment.id.toString()])).subscribe(subjects => {
+  this.store.select(getSubjectsByFilters([this.timeTable.departmentId])).subscribe(subjects => {
        this.studentService.search(0, 100, 'id', 'ASC', 
     { 'profileType.equals': "STAFF", 
-      'departments.in':[this.selectedDepartment.id.toString()],
+      'departments.in':[this.timeTable.departmentId],
       'user_id.in':[...subjects.map((sub:any)=>sub.teacher)] })
         .subscribe((res: any) => {
-              this.employeeProfiles = res.content.map(profile=>{
+              let teachers = res.content.map(profile=>{
                 let teacher:Teacher = { name: profile.username, id: profile.userId, timeOff: [], timeOn: [] };
                 return teacher;
               });
 
                this.timeTable.subjects = subjects.map((sub: IMasterSubject, index: number) => {
-        const subject:Subject = { id: sub.id, name: sub.name, teacher: this.employeeProfiles.find(teacher=>teacher.id == sub.teacher), hoursPerWeek: 4, color: this.availableColors[index % this.availableColors.length] };
+        const subject:Subject = { id: sub.id, name: sub.name, teacher: teachers.find(teacher=>teacher.id == sub.teacher), hoursPerWeek: 4, color: this.availableColors[index % this.availableColors.length] };
         return subject;
       });
       });
@@ -79,10 +78,14 @@ export class TimeTableService {
     });
   }
 
-togglePeriodAvailability(teacherId: string, dayIndex: number, periodIndex: number) {
-  const teacher = this.employeeProfiles.find(t => t.id === teacherId);
-  if (!teacher) return;
+  getTeachersList(){
+    return this.timeTable.subjects.map(sub=>sub.teacher);
+  }
 
+togglePeriodAvailability(teacherId: string, dayIndex: number, periodIndex: number) {
+  const teacher = this.timeTable.subjects.find(sub => sub.teacher.id === teacherId).teacher;
+  
+  if (!teacher) return;
   const key: [number, number] = [dayIndex, periodIndex];
   const keyStr = key.toString();
 

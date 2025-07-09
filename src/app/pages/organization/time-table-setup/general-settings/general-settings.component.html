@@ -42,14 +42,15 @@
         <label class="block font-bold mb-2">Department</label>
         <p-select
           [options]="commonService.associatedDepartments |async"
-          [(ngModel)]="timeTableService.selectedDepartment"
+          [(ngModel)]="timeTableService.timeTable.departmentId"
           [ngModelOptions]="{standalone: true}"
           (onChange)="timeTableService.onDepartmentChange()"
           optionLabel="name"
+          optionValue="id"
           placeholder="Select Department"
           [style]="{ width: '100%' }">
         </p-select>
-        <small class="text-red-500" *ngIf="submitted && !timeTableService.selectedDepartment">
+        <small class="text-red-500" *ngIf="submitted && !timeTableService.timeTable.departmentId">
           Department is required.
         </small>
       </div>
