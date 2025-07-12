@@ -1,11 +1,16 @@
+import { DepartmentTimetable } from './../models/time-table';
 import { inject, Injectable } from '@angular/core';
 import { Subject, Teacher, TimeTable} from '../models/time-table';
 import { IMasterSubject } from '../models/org.model';
 import { Store } from '@ngrx/store';
 import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
 import { getSubjectsByFilters } from '../../core/store/user-profile/user-profile.selectors';
-import { UserService } from './user.service';
+import { EntityResponseType, UserService } from './user.service';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { ApplicationConfigService } from '../../core/services/application-config.service';
+import { NewProfileConfig, IProfileConfig } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -56,7 +61,19 @@ export class TimeTableService {
 
   private store = inject(Store<{ userProfile: UserProfileState }>);
   studentService = inject(UserService);
-  // employeeProfiles:Teacher[] = [];
+
+    protected readonly applicationConfigService = inject(ApplicationConfigService);
+  
+    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ADMIN_BASE_URL +'api/timetables');
+  
+    create(timeTable: DepartmentTimetable) {
+      return this.http.post<DepartmentTimetable>(this.resourceUrl, timeTable);
+    }
+
+    fetchTimeTables(){
+      return this.http.get(this.resourceUrl)
+    }
+  
   onDepartmentChange() {
   this.store.select(getSubjectsByFilters([this.timeTable.departmentId])).subscribe(subjects => {
        this.studentService.search(0, 100, 'id', 'ASC', 

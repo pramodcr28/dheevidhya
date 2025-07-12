@@ -1,0 +1,169 @@
+<!-- timetable-cards.component.html -->
+<div class="container mx-auto p-4 max-w-7xl">
+    <p-toast />
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+    <h1 class="text-2xl font-semibold text-gray-800">Timetables</h1>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="flex flex-col lg:flex-row gap-4 mb-12">
+    <!-- Search Input -->
+    <!-- <div class="flex-1 min-w-0">
+      <span class="p-input-icon-left w-full">
+        <i class="pi pi-search"></i>
+        <input 
+          type="text" 
+          pInputText 
+          [(ngModel)]="searchText" 
+          (input)="filterTimetables()" 
+          placeholder="Search timetables..."
+          class="w-full">
+      </span>
+    </div> -->
+
+    <!-- Department Filter -->
+    <div class="w-full lg:w-64">
+      <p-dropdown 
+        [options]="departments" 
+        [(ngModel)]="departmentFilter" 
+        optionLabel="label" 
+        optionValue="value"
+        (onChange)="filterTimetables()"
+        placeholder="Select Department"
+        class="w-full">
+      </p-dropdown>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="w-full lg:w-48">
+      <p-dropdown 
+        [options]="statusOptions" 
+        [(ngModel)]="statusFilter" 
+        optionLabel="label" 
+        optionValue="value"
+        (onChange)="filterTimetables()"
+        placeholder="Select Status"
+        class="w-full">
+      </p-dropdown>
+    </div>
+
+    <button 
+      pButton
+      icon="pi pi-plus"
+      label="New Timetable"
+      [routerLink]="['/time-table-setup']"
+      class="bg-orange-500 hover:bg-orange-600 border-orange-500 whitespace-nowrap ms-auto">
+    </button>
+  </div>
+
+  <!-- No Results Message -->
+  <div *ngIf="filteredTimetables.length === 0" class="text-center py-12 text-gray-500">
+    <i class="pi pi-search text-4xl mb-4 text-gray-300"></i>
+    <p class="text-lg">No timetables found matching your criteria.</p>
+  </div>
+
+  <!-- Timetable Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+    <div *ngFor="let timetable of filteredTimetables" 
+         class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-100 relative">
+      
+      <!-- Status Ribbon -->
+      <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-orange-300"></div>
+      
+      <!-- Card Header -->
+      <div class="p-4 pb-3">
+        <div class="flex justify-between items-start mb-2">
+          <div class="flex-1 min-w-0">
+            <h3 class="text-lg font-semibold text-gray-800 truncate">
+              {{ getDepartmentName(timetable.departmentId) }} - {{ timetable.academicYear }}
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">Academic Year {{ timetable.academicYear }}</p>
+          </div>
+          <span 
+            [ngClass]="{
+              'bg-green-100 text-green-800': timetable.isActive,
+              'bg-yellow-100 text-yellow-800': !timetable.isActive && timetable.status === 'draft',
+              'bg-gray-100 text-gray-800': !timetable.isActive && timetable.status !== 'draft'
+            }"
+            class="px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider whitespace-nowrap ml-2">
+            {{ timetable.isActive ? 'Active' : (timetable.status === 'draft' ? 'Draft' : 'Archived') }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Meta Information -->
+      <div class="px-4 pb-3">
+        <div class="flex flex-row gap-1 justify-between">
+          <div class="flex items-center gap-2 text-sm text-gray-600">
+            <i class="pi pi-building text-orange-500"></i>
+            <span class="truncate">{{ getDepartmentName(timetable.departmentId) }}</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 text-sm text-gray-600">
+              <i class="pi pi-calendar text-orange-500"></i>
+              <span>{{ 9 }} Periods/Day</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-gray-600">
+              <i class="pi pi-clock text-orange-500"></i>
+              <span>{{ 20 }} min periods</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      <div class="px-4">
+        <div class=" py-2 rounded-md bg-gray-50 border-t border-gray-100 flex justify-between text-center">
+          <div class="flex-1">
+            <div class="text-2xl font-bold text-gray-800">{{ getUniqueSubjectsCount(timetable) }}</div>
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-medium">Subjects</div>
+          </div>
+          <div class="flex-1">
+            <div class="text-2xl font-bold text-gray-800">{{ getUniqueTeachersCount(timetable) }}</div>
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-medium">Teachers</div>
+          </div>
+          <div class="flex-1">
+            <div class="text-2xl font-bold text-gray-800">{{ getClassSectionsCount(timetable) }}</div>
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-medium">Classes</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="px-4 py-3 border-t border-gray-100 bg-white">
+        <div class="flex gap-2 flex-wrap">
+          <button 
+            pButton 
+            icon="pi pi-eye" 
+            label="View" 
+            (click)="viewTimeTable(timetable)"
+            class="p-button-sm bg-orange-500 hover:bg-orange-600 border-orange-500 text-white flex-1 min-w-0">
+          </button>
+          <button 
+            pButton 
+            icon="pi pi-pencil" 
+            label="Edit" 
+            class="p-button-sm p-button-outlined p-button-secondary flex-1 min-w-0">
+          </button>
+         
+          <button 
+            pButton 
+            icon="pi pi-trash" 
+            label="Delete" 
+            class="p-button-sm p-button-outlined p-button-danger flex-1 min-w-0">
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog [visible]="seletedTimeTable != null" (onHide)="cancel()" [modal]="true" header="Timetable Preview" [style]="{width: '85vw'}">
+  <app-timetable-view 
+    [timetableJson]="seletedTimeTable"
+    (publish)="saveTimetable()"
+    (cancel)="cancel()"
+    >
+  </app-timetable-view>
+</p-dialog>

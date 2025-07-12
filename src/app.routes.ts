@@ -11,6 +11,7 @@ import { TimetableGeneratorComponent } from './app/pages/organization/time-table
 import { DepartmentSetupComponent } from './app/pages/organization/department-setup/department-setup.component';
 import { StudentAttendenceComponent } from './app/pages/organization/student-attendence/student-attendence.component';
 import { ExaminationComponent } from './app/pages/examination/examination.component';
+import { TimetableListComponent } from './app/pages/organization/timetable-list/timetable-list.component';
 
 export const appRoutes: Routes = [
     {
@@ -22,6 +23,7 @@ export const appRoutes: Routes = [
             { path: 'employees', component: EmployeeListComponent },
             { path: 'org', component: OrgTreeComponent },
             { path: 'time-table-setup', component: TimetableGeneratorComponent },
+            { path: 'time-table-list', component: TimetableListComponent },
             { path: 'student-attendence', component: StudentAttendenceComponent },
             { path: 'examination', component: ExaminationComponent},
             { path: 'department-setup', component: DepartmentSetupComponent },

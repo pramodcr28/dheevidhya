@@ -34,7 +34,7 @@ export class AppMenu {
                 items: [   
                     { label: 'Department Setup', icon: 'pi pi-fw pi-sitemap', routerLink: ['/department-setup'] },
                     { label: 'Org Tree', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] },
-                    { label: 'Time Table Setup', icon: 'pi pi-fw pi-home', routerLink: ['/time-table-setup'] },
+                    { label: 'Time Table', icon: 'pi pi-fw pi-sitemap', routerLink: ['/time-table-list'] },
                     { label: 'Student Attendence', icon: 'pi pi-fw pi-home', routerLink: ['/student-attendence'] },
                     { label: 'Examination', icon:'pi pi-fw pi-sitemap', routerLink:['/examination']}
                 ]

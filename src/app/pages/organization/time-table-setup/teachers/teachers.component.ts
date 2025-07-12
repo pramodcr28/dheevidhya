@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { TimeTableService } from '../../../service/time-table.service';
 import { Teacher } from '../../../models/time-table';
 import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
 
 
 
 @Component({
   selector: 'app-teachers',
   standalone: true,
-  imports: [CommonModule, FormsModule,DialogModule],
+  imports: [CommonModule, FormsModule,DialogModule,ButtonModule],
   templateUrl: './teachers.component.html'
 })
 export class TeachersComponent {
@@ -27,7 +28,7 @@ getPeriodCountArray(count: number): number[] {
   return Array.from({ length: count }, (_, i) => i);
 }
 
-saveAvailability(): void {
+  saveAvailability(): void {
   // this.timeTableService.saveTeacherAvailability(this.selectedTeacher);
   this.showDialog = false; // Optionally close the dialog on save
 }

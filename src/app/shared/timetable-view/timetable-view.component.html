@@ -1,0 +1,50 @@
+   <p-toast />
+   
+<div *ngIf="timetableJson" class="relative pb-20">
+  <div class="space-y-8">
+    <div *ngFor="let classSec of timetableJson.classSections" class="bg-white p-4 rounded-lg border">
+      <h3 class="text-lg font-bold mb-4 text-blue-700">
+        {{ classSec.classId }} - {{ classSec.sectionId }}
+      </h3>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full border text-sm text-left">
+          <thead class="bg-gray-100 text-gray-700">
+            <tr>
+              <th class="border px-4 py-2">Day</th>
+              <th *ngFor="let slot of getSlotIndexes(classSec)" class="border px-4 py-2">Slot {{ slot + 1 }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let schedule of classSec.schedules">
+              <td class="border px-4 py-2 font-medium">Day {{ schedule.day }}</td>
+              <td *ngFor="let period of schedule.periods" class="border px-4 py-2">
+                <div *ngIf="period.type !== 'break'; else freeSlot">
+                  <div class="font-semibold">{{ period.name }}</div>
+                  <div class="text-xs text-gray-500">{{ period.instructor?.name }}</div>
+                </div>
+                <ng-template #freeSlot>
+                  <div class="italic text-gray-400">Free</div>
+                </ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fixed footer -->
+  <div class="fixed bottom-0 left-0 w-full bg-white border-t p-4 flex justify-end space-x-4">
+    <button 
+      class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+      (click)="onCancel()">
+      Cancel
+    </button>
+    <button 
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      (click)="onPublish()">
+      Publish Timetable
+    </button>
+  </div>
+</div>

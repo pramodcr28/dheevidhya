@@ -1,44 +1,3 @@
-
-import { IMasterSubject } from "./org.model";
-
-// export interface Timetable {
-//   _id?: string;
-//   academicYear?: string;
-//   semester?: string;
-//   department?: string;
-//   year?: number;
-//   section?: string;
-//   schedule?: DaySchedule[];
-//   createdAt?: string;
-//   updatedAt?: string; 
-//   isActive?: boolean;
-// }
-
-// export interface DaySchedule {
-//   day?: string;
-//   periods?: Period[];
-// }
-
-// export type Period = ClassPeriod | BreakPeriod;
-
-// export interface ClassPeriod {
-//   startTime?: string; 
-//   endTime?: string;  
-//   type?: 'class';
-//   subject?: IMasterSubject;
-//   teacher?:string;
-// }
-
-// export interface BreakPeriod {
-//   startTime?: string; 
-//   endTime?: string;  
-//   type?: 'break';
-//   name?: string;
-// }
-
-// ------------------------------------
-
-
 export interface TimeTableSettings {
   academicYear: string;
   semester: string;
@@ -79,12 +38,46 @@ export interface TimeSlot {
 export interface TimeTable {
   departmentId: string;
   settings: TimeTableSettings;
-  // teachers: Teacher [];
   subjects: Subject[];
   schedule: { [day: string]: TimeSlot[] };
 }
 
-export interface GenericSelectItem {
-  label: string;
-  value: any;
+
+// ----------------------    export timetable     ---------------------------------
+
+
+interface Period {
+  startTime: string;
+  endTime: string;
+  type: string;
+  name: string;
+  subject: {
+    id: string;
+    name: string;
+  };
+  instructor: {
+    id: string;
+    name: string;
+  };
+}
+
+interface Schedule {
+  day: string; // or number, depends how you map it
+  periods: Period[];
+}
+
+export interface ClassSection {
+  classId: string;
+  sectionId: string;
+  schedules: Schedule[];
+}
+
+export interface DepartmentTimetable {
+  id:string;
+  academicYear: string;
+  status: string;
+  semester: string;
+  departmentId: string;
+  isActive: boolean;
+  classSections: ClassSection[];
 }
