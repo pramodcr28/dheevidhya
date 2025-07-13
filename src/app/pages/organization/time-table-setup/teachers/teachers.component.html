@@ -1,32 +1,54 @@
+<!-- Clean Teacher Availability Template -->
 <div class="space-y-6">
   <div class="bg-white p-6 rounded-lg shadow-sm border">
     <!-- Header -->
     <div class="flex items-center mb-4">
       <i class="pi pi-users mr-2 text-blue-600"></i>
-      <h4 class="font-medium text-gray-900">Teachers</h4>
+      <h4 class="font-medium text-gray-900">Teacher Availability</h4>
     </div>
     <p class="text-sm text-gray-600 mb-6">
-      Add teachers who will be teaching the subjects. You can also set their time off preferences.
+      Manage teacher availability preferences for scheduling.
     </p>
 
     <!-- Teachers Table -->
     <div class="overflow-x-auto">
       <table class="w-full">
         <thead>
-          <tr class="border-b">
-            <th class="text-left py-3 px-4 font-medium text-gray-700">NAME</th>
-            <th class="text-left py-3 px-4 font-medium text-gray-700">AVAILABILITY</th>
+          <tr class="border-b bg-gray-50">
+            <th class="text-left py-3 px-4 font-medium text-gray-700">Teacher</th>
+            <th class="text-left py-3 px-4 font-medium text-gray-700">Availability</th>
+            <th class="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let teacher of timeTableService.getTeachersList()"
-              class="border-b hover:bg-gray-50 cursor-pointer"
-              >
-            <td class="py-3 px-4">{{ teacher.name }}</td>
+          <tr *ngFor="let teacher of getTeachers()" 
+              class="border-b hover:bg-gray-50">
             <td class="py-3 px-4">
-              <span (click)="selectedTeacher = teacher; showDialog = true" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                {{ teacher.timeOn.length }} Available
-              </span>
+              <div class="flex items-center">
+                <i class="pi pi-user text-gray-400 mr-2"></i>
+                <span class="font-medium">{{ teacher.name }}</span>
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex gap-2">
+                <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  {{ getSummary(teacher).available }} Available
+                </span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  {{ getSummary(teacher).unavailable }} Unavailable
+                </span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  {{ getSummary(teacher).neutral }} Neutral
+                </span>
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <button 
+                (click)="openDialog(teacher)"
+                class="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md">
+                <i class="pi pi-calendar mr-1"></i>
+                Edit Schedule
+              </button>
             </td>
           </tr>
         </tbody>
@@ -34,54 +56,99 @@
     </div>
   </div>
 
-  <!-- PrimeNG Dialog for Availability -->
-   @if(showDialog){
-    <p-dialog
-  [header]="'Availability for ' + selectedTeacher?.name"
-  [(visible)]="showDialog"
-  [modal]="true"
-  [style]="{ width: '70vw' }"
-  [closable]="true"
-  (onHide)="selectedTeacher = null">
+  <!-- Dialog -->
+  <p-dialog 
+    [header]="'Availability - ' + selectedTeacher?.name"
+    [(visible)]="showDialog"
+    [modal]="true"
+    [style]="{ width: '90vw', maxWidth: '1200px' }"
+    [closable]="true">
 
-  <ng-container *ngIf="selectedTeacher">
-    <div class="overflow-x-auto">
-      <table class="table-auto w-full border text-center">
-        <thead>
-          <tr>
-            <th class="p-2 border">Period / Day</th>
-            <th *ngFor="let slot of workingDays()" class="p-2 border">
-              {{ slot.name }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let periodIndex of getPeriodCountArray(timeTableService.timeTable.settings.periodsPerDay); let rowIndex = index">
-            <td class="p-2 border">{{ timeTableService.periods[periodIndex] }}</td>
-            <td *ngFor="let slot of workingDays(); let dayIndex = index"
-                (click)="timeTableService.togglePeriodAvailability(selectedTeacher.id, dayIndex, periodIndex)"
-                [ngClass]="{
-                  'bg-green-100 text-green-800': timeTableService.isAvailable(selectedTeacher, dayIndex, periodIndex),
-                  'bg-red-100 text-red-800': !timeTableService.isAvailable(selectedTeacher, dayIndex, periodIndex)
-                }"
-                class="p-2 border cursor-pointer">
-              <i class="pi"
-                [ngClass]="{
-                  'pi-check': timeTableService.isAvailable(selectedTeacher, dayIndex, periodIndex),
-                  'pi-times': !timeTableService.isAvailable(selectedTeacher, dayIndex, periodIndex)
-                }"></i>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <ng-container *ngIf="selectedTeacher">
+      <!-- Quick Actions -->
+      <div class="mb-6">
+        <div class="flex flex-wrap gap-2 justify-center p-4 bg-gray-50 rounded-lg">
+          <button 
+            (click)="setBulkStatus('available')"
+            class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 border">
+            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+            Set All Available
+          </button>
+          <button 
+            (click)="setBulkStatus('unavailable')"
+            class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 border">
+            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+            Set All Unavailable
+          </button>
+          <button 
+            (click)="setBulkStatus('neutral')"
+            class="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 border">
+            <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
+            Reset All
+          </button>
+        </div>
+      </div>
 
-    <div class="flex justify-end gap-2 mt-4">
-      <button pButton type="button" label="Save" icon="pi pi-save" class="p-button-success" (click)="saveAvailability()"></button>
-    </div>
-  </ng-container>
-</p-dialog>
+      <!-- Schedule Grid -->
+      <div class="bg-white rounded-lg border">
+        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+          <table class="w-full border-collapse">
+            <thead class="sticky top-0 bg-white z-10">
+              <tr class="bg-gray-50">
+                <th class="p-3 text-left font-medium text-gray-700 border-b w-24">Period</th>
+                <th *ngFor="let day of getWorkingDays()" 
+                    class="p-3 text-center font-medium text-gray-700 border-b w-20">
+                  {{ day.name }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let period of getPeriods(); let periodIndex = index" 
+                  class="hover:bg-gray-25">
+                <td class="p-3 font-medium text-gray-700 border-b bg-gray-50">
+                  {{ period }}
+                </td>
+                <td *ngFor="let day of getWorkingDays(); let dayIndex = index"
+                    (click)="toggleAvailability(dayIndex, periodIndex)"
+                    [class]="getCellClass(dayIndex, periodIndex)"
+                    class="p-2 border-b cursor-pointer text-center w-20 h-12">
+                  
+                    <div class="flex items-center justify-center h-full">
+                    <i  
+                          [class]="getIconClass(dayIndex, periodIndex)"></i>
+                    </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-   }
-
+      <!-- Fixed Footer -->
+      <div class="mt-6 pt-4 border-t bg-white">
+        <div class="flex justify-between items-center">
+          <div class="text-sm text-gray-600">
+            <i class="pi pi-info-circle mr-1"></i>
+            Click cells to cycle: Available → Unavailable → Neutral
+          </div>
+          <div class="flex gap-2">
+            <button 
+              pButton 
+              type="button" 
+              label="Cancel" 
+              class="p-button-text" 
+              (click)="showDialog = false">
+            </button>
+            <button 
+              pButton 
+              type="button" 
+              label="Save" 
+              class="p-button-success" 
+              (click)="saveChanges()">
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </p-dialog>
 </div>

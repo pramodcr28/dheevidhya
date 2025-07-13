@@ -28,7 +28,8 @@ export class ReviewComponent {
   const teachers = this.timeTableService.getTeachersList().map(t => ({
     id: t.id,
     name: t.name,
-    preferred_periods: t.timeOn
+    preferred_periods: t.timeOn,
+    avoided_periods:t.timeOff
   }));
 
   let classes: any[] = [];
@@ -73,20 +74,20 @@ this.timeTableService.generateTimeTable(exportData).subscribe((response: any) =>
   for (const key of Object.keys(rawTimetable)) {
     const [classId, sectionId] = key.split('-');
 
-    const dayEntries = rawTimetable[key]; // { "0": {...}, "1": {...}, ... }
+    const dayEntries = rawTimetable[key];
 
     const schedules: any[] = [];
 
     for (const dayIndex of Object.keys(dayEntries)) {
       const periods: any[] = [];
 
-      const periodEntries = dayEntries[dayIndex]; // { "0": {...}, "1": {...}, ... }
+      const periodEntries = dayEntries[dayIndex]; 
 
       for (const periodIndex of Object.keys(periodEntries)) {
         const period = periodEntries[periodIndex];
         periods.push({
-          startTime: '08:00', // or calculate based on index!
-          endTime: '08:45',   // or calculate
+          startTime: '08:00', 
+          endTime: '08:45',   
           type: period.subject_name === 'FREE' ? 'break' : 'lecture',
           name: period.subject_name,
           subject: {
@@ -101,7 +102,7 @@ this.timeTableService.generateTimeTable(exportData).subscribe((response: any) =>
       }
 
       schedules.push({
-        day: dayIndex, // Or map to day name!
+        day: dayIndex, 
         periods
       });
     }
@@ -113,7 +114,6 @@ this.timeTableService.generateTimeTable(exportData).subscribe((response: any) =>
     });
   }
 
-  // Final timetable
   const departmentTimetable = {
     id:null,
     status:"",
