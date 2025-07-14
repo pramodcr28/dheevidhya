@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -13,6 +12,8 @@ import { RouterLink } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { SelectModule } from 'primeng/select';
+import { CommonService } from '../../../core/services/common.service';
 
 @Component({
   selector: 'app-timetable-list',
@@ -22,7 +23,7 @@ import { MessageService } from 'primeng/api';
     TableModule,
     ButtonModule,
     InputTextModule,
-    DropdownModule,
+    SelectModule,
     TagModule,
     FormsModule,
     RouterLink,
@@ -40,15 +41,12 @@ export class TimetableListComponent implements OnInit {
   departmentFilter: string = '';
   statusFilter: string = '';
   timeTableService = inject(TimeTableService);
+  commonService = inject(CommonService);
+  selectedDepartment: any;
   timetables: DepartmentTimetable[] = [];
   seletedTimeTable: DepartmentTimetable;
-   departments = [
-    { label: 'All Departments', value: '' },
-    { label: 'PUC Science', value: 'PUC_SCIENCE' },
-    { label: 'PUC Commerce', value: 'PUC_COMMERCE' },
-    { label: 'PUC Arts', value: 'PUC_ARTS' }
-  ];
-
+  dailogeType: 'Edit' | 'View';
+  showTimetableDialog = false;
   statusOptions = [
     { label: 'All Status', value: '' },
     { label: 'Active', value: 'active' },
@@ -56,17 +54,21 @@ export class TimetableListComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.getTimeTableList();
+  }
+
+  getTimeTableList(){
+
     this.timeTableService.fetchTimeTables().subscribe((result:any)=>{
       this.timetables = result;
       this.filteredTimetables = [...this.timetables];
     })
-
   }
 
   filterTimetables() {
     this.filteredTimetables = this.timetables.filter(timetable => {
-      const matchesSearch = timetable.academicYear.toLowerCase().includes(this.searchText.toLowerCase()) ||
-                           timetable.semester.toLowerCase().includes(this.searchText.toLowerCase());
+      const matchesSearch = timetable.settings.academicYear.toLowerCase().includes(this.searchText.toLowerCase()) ||
+                           timetable.settings.semester.toLowerCase().includes(this.searchText.toLowerCase());
       
       const matchesDepartment = !this.departmentFilter || 
                               timetable.departmentId === this.departmentFilter;
@@ -79,50 +81,27 @@ export class TimetableListComponent implements OnInit {
     });
   }
 
-  getDepartmentName(departmentId: string): string {
-    switch(departmentId) {
-      case 'PUC_SCIENCE': return 'PUC Science';
-      case 'PUC_COMMERCE': return 'PUC Commerce';
-      case 'PUC_ARTS': return 'PUC Arts';
-      default: return departmentId;
-    }
-  }
-
-  getUniqueSubjectsCount(timetable: DepartmentTimetable): number {
-    // In a real app, you would calculate this from the actual data
-    switch(timetable.departmentId) {
-      case 'PUC_SCIENCE': return 15;
-      case 'PUC_COMMERCE': return 12;
-      case 'PUC_ARTS': return 10;
-      default: return 0;
-    }
-  }
-
-  getUniqueTeachersCount(timetable: DepartmentTimetable): number {
-    // In a real app, you would calculate this from the actual data
-    switch(timetable.departmentId) {
-      case 'PUC_SCIENCE': return 8;
-      case 'PUC_COMMERCE': return 6;
-      case 'PUC_ARTS': return 5;
-      default: return 0;
-    }
-  }
-
-  getClassSectionsCount(timetable: DepartmentTimetable): number {
-    // In a real app, you would calculate this from the actual data
-    switch(timetable.departmentId) {
-      case 'PUC_SCIENCE': return 5;
-      case 'PUC_COMMERCE': return 3;
-      case 'PUC_ARTS': return 2;
-      default: return 0;
-    }
-  }
 
   viewTimeTable(timetable){
+    this.dailogeType = 'View';
     this.seletedTimeTable = timetable;
+    this.showTimetableDialog = true;
+  }
+
+  editTimeTable(timetable){
+    this.dailogeType = 'Edit';
+    this.seletedTimeTable = timetable;
+    this.showTimetableDialog = true;
+  }
+  deleteTimeTable(timetable){
+    this.timeTableService.deleteTimeTable(timetable.id).subscribe(result=>{
+      this.getTimeTableList();
+    })
+   
   }
 
   cancel(){
+    this.showTimetableDialog = false;
      this.seletedTimeTable = null;
   }
 

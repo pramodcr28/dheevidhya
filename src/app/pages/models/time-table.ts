@@ -1,8 +1,8 @@
+import { IDepartmentConfig } from "./org.model";
+
 export interface TimeTableSettings {
   academicYear: string;
   semester: string;
-  department: string;
-  classSection: string;
   workingDays: any[];
   startTime: string;
   endTime: string;
@@ -36,7 +36,7 @@ export interface TimeSlot {
 }
 
 export interface TimeTable {
-  departmentId: string;
+  department: IDepartmentConfig;
   settings: TimeTableSettings;
   subjects: Subject[];
   schedule: { [day: string]: TimeSlot[] };
@@ -68,16 +68,18 @@ interface Schedule {
 
 export interface ClassSection {
   classId: string;
+  className: string;
   sectionId: string;
+  sectionName: string;
   schedules: Schedule[];
 }
 
 export interface DepartmentTimetable {
   id:string;
-  academicYear: string;
   status: string;
-  semester: string;
   departmentId: string;
+  departmentName: string;
   isActive: boolean;
   classSections: ClassSection[];
+  settings: TimeTableSettings
 }

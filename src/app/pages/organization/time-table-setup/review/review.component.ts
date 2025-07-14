@@ -36,7 +36,7 @@ export class ReviewComponent {
   let classCounter = 1;
 
   this.commonService.associatedDepartments.subscribe(departments=>{
-   const department =  departments.find(department=>department.id == this.timeTableService.timeTable.departmentId);
+   const department =  departments.find(department=>department.id == this.timeTableService.timeTable.department.id);
 
   department?.department.classes?.forEach(cls => {
     cls.sections.forEach((section:any) => {
@@ -73,7 +73,14 @@ this.timeTableService.generateTimeTable(exportData).subscribe((response: any) =>
   // rawTimetable keys are like: "classId-sectionId"
   for (const key of Object.keys(rawTimetable)) {
     const [classId, sectionId] = key.split('-');
+    const classEntry = classes.find(cls => cls.id === key);
 
+  let className = '';
+  let sectionName = '';
+
+  if (classEntry) {
+    [className, sectionName] = classEntry.name.split('-');
+  }
     const dayEntries = rawTimetable[key];
 
     const schedules: any[] = [];
@@ -109,26 +116,30 @@ this.timeTableService.generateTimeTable(exportData).subscribe((response: any) =>
 
     classSections.push({
       classId,
+      className,
       sectionId,
+      sectionName,
       schedules
     });
   }
 
-  const departmentTimetable = {
+  this.timetableJson = {
     id:null,
-    status:"",
-    academicYear: this.timeTableService.timeTable.settings.academicYear,
-    semester: this.timeTableService.timeTable.settings.semester,
-    departmentId: this.timeTableService.timeTable.departmentId,
+    status:"Draft",
+    departmentId: this.timeTableService.timeTable.department.id,
+    departmentName: this.timeTableService.timeTable.department.department.name,
+    settings: {...this.timeTableService.timeTable.settings },
     classSections,
     isActive: true,
   };
-
-  this.timetableJson = departmentTimetable;
   this.showTimetableDialog = true;
 });
   })
 }
+
+
+
+
 saveTimetable() {
   this.timeTableService.create(this.timetableJson)
   .subscribe((result:any)=>{
@@ -137,10 +148,10 @@ saveTimetable() {
      });
 }
 
- cancel(){
-     this.showTimetableDialog = false;
-     this.timetableJson = null;
-  }
+cancel(){
+  this.showTimetableDialog = false;
+  this.timetableJson = null;
+}
 
 getSlotIndexes(classSec: ClassSection): number[] {
   const slots = classSec.schedules[0]?.periods.length || 0;

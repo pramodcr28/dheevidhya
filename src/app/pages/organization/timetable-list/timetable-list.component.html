@@ -8,36 +8,22 @@
 
   <!-- Filters Section -->
   <div class="flex flex-col lg:flex-row gap-4 mb-12">
-    <!-- Search Input -->
-    <!-- <div class="flex-1 min-w-0">
-      <span class="p-input-icon-left w-full">
-        <i class="pi pi-search"></i>
-        <input 
-          type="text" 
-          pInputText 
-          [(ngModel)]="searchText" 
-          (input)="filterTimetables()" 
-          placeholder="Search timetables..."
-          class="w-full">
-      </span>
-    </div> -->
 
-    <!-- Department Filter -->
-    <div class="w-full lg:w-64">
-      <p-dropdown 
-        [options]="departments" 
-        [(ngModel)]="departmentFilter" 
-        optionLabel="label" 
-        optionValue="value"
-        (onChange)="filterTimetables()"
-        placeholder="Select Department"
-        class="w-full">
-      </p-dropdown>
-    </div>
+    <!-- Department Selection -->
+        <div class="w-full lg:w-64">
+          <p-select
+            [options]="commonService.associatedDepartments | async"
+            [(ngModel)]="selectedDepartment"
+            [ngModelOptions]="{standalone: true}"
+            optionLabel="name"
+            placeholder="Select Department"
+            [style]="{ width: '100%' }">
+          </p-select>
+        </div>
 
     <!-- Status Filter -->
     <div class="w-full lg:w-48">
-      <p-dropdown 
+      <p-select 
         [options]="statusOptions" 
         [(ngModel)]="statusFilter" 
         optionLabel="label" 
@@ -45,7 +31,7 @@
         (onChange)="filterTimetables()"
         placeholder="Select Status"
         class="w-full">
-      </p-dropdown>
+      </p-select>
     </div>
 
     <button 
@@ -76,9 +62,9 @@
         <div class="flex justify-between items-start mb-2">
           <div class="flex-1 min-w-0">
             <h3 class="text-lg font-semibold text-gray-800 truncate">
-              {{ getDepartmentName(timetable.departmentId) }} - {{ timetable.academicYear }}
+              {{ timetable.departmentName }} 
             </h3>
-            <p class="text-sm text-gray-500 mt-1">Academic Year {{ timetable.academicYear }}</p>
+            <p class="text-sm text-gray-500 mt-1">Academic Year {{ timetable.settings.academicYear }}</p>
           </div>
           <span 
             [ngClass]="{
@@ -97,16 +83,16 @@
         <div class="flex flex-row gap-1 justify-between">
           <div class="flex items-center gap-2 text-sm text-gray-600">
             <i class="pi pi-building text-orange-500"></i>
-            <span class="truncate">{{ getDepartmentName(timetable.departmentId) }}</span>
+            <span class="truncate">{{ timetable.departmentName }}</span>
           </div>
           <div class="flex items-center gap-3">
             <div class="flex items-center gap-2 text-sm text-gray-600">
               <i class="pi pi-calendar text-orange-500"></i>
-              <span>{{ 9 }} Periods/Day</span>
+              <span>{{ timetable.settings.periodsPerDay }} Periods/Day</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
               <i class="pi pi-clock text-orange-500"></i>
-              <span>{{ 20 }} min periods</span>
+              <span>{{ timetable.settings.periodDuration }} min periods</span>
             </div>
           </div>
         </div>
@@ -116,16 +102,12 @@
       <div class="px-4">
         <div class=" py-2 rounded-md bg-gray-50 border-t border-gray-100 flex justify-between text-center">
           <div class="flex-1">
-            <div class="text-2xl font-bold text-gray-800">{{ getUniqueSubjectsCount(timetable) }}</div>
+            <div class="text-2xl font-bold text-gray-800">{{ 6 }}</div>
             <div class="text-xs text-gray-500 uppercase tracking-wider font-medium">Subjects</div>
           </div>
           <div class="flex-1">
-            <div class="text-2xl font-bold text-gray-800">{{ getUniqueTeachersCount(timetable) }}</div>
+            <div class="text-2xl font-bold text-gray-800">{{6}}</div>
             <div class="text-xs text-gray-500 uppercase tracking-wider font-medium">Teachers</div>
-          </div>
-          <div class="flex-1">
-            <div class="text-2xl font-bold text-gray-800">{{ getClassSectionsCount(timetable) }}</div>
-            <div class="text-xs text-gray-500 uppercase tracking-wider font-medium">Classes</div>
           </div>
         </div>
       </div>
@@ -143,13 +125,15 @@
           <button 
             pButton 
             icon="pi pi-pencil" 
+            (click)="editTimeTable(timetable)"
             label="Edit" 
             class="p-button-sm p-button-outlined p-button-secondary flex-1 min-w-0">
           </button>
          
           <button 
             pButton 
-            icon="pi pi-trash" 
+            icon="pi pi-trash"
+            (click)="deleteTimeTable(timetable)" 
             label="Delete" 
             class="p-button-sm p-button-outlined p-button-danger flex-1 min-w-0">
           </button>
@@ -159,11 +143,16 @@
   </div>
 </div>
 
-<p-dialog [visible]="seletedTimeTable != null" (onHide)="cancel()" [modal]="true" header="Timetable Preview" [style]="{width: '85vw'}">
+<p-dialog 
+  [(visible)]="showTimetableDialog"
+  (onHide)="cancel()"
+  [modal]="true"
+  header="Timetable Preview"
+  [style]="{width: '85vw'}">
   <app-timetable-view 
     [timetableJson]="seletedTimeTable"
     (publish)="saveTimetable()"
-    (cancel)="cancel()"
-    >
+    [dailogeType]="dailogeType"
+    (cancel)="cancel()">
   </app-timetable-view>
 </p-dialog>

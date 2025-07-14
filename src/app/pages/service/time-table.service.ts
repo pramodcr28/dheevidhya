@@ -18,12 +18,10 @@ export class TimeTableService {
   private applicationConfigService = inject(ApplicationConfigService);
 
   public timeTable: TimeTable = {
-    departmentId: null,
+    department: null,
     settings: {
-      academicYear: '2023-2024',
+      academicYear: null,
       semester: 'fall',
-      department: 'cs',
-      classSection: 'cs101-a',
       workingDays: [
         { name: 'Sun', selected: false },
         { name: 'Mon', selected: true },
@@ -38,7 +36,7 @@ export class TimeTableService {
       periodDuration: 45,
       breakDuration: 10,
       periodsPerDay: 7
-    },
+    },  
     subjects: [],
     schedule: {}
   };
@@ -66,6 +64,10 @@ export class TimeTableService {
     return this.http.get(this.resourceUrl);
   }
 
+  deleteTimeTable(id: string) {
+  return this.http.delete(`${this.resourceUrl}/${id}`);
+  }
+
   generateTimeTable(request: any) {
     return this.http.post('http://127.0.0.1:8000/generate-timetable', request);
   }
@@ -76,10 +78,11 @@ export class TimeTableService {
   }
 
   onDepartmentChange() {
-    this.store.select(getSubjectsByFilters([this.timeTable.departmentId])).subscribe(subjects => {
+    this.timeTable.settings.academicYear = this.timeTable.department.academicYear;
+    this.store.select(getSubjectsByFilters([this.timeTable.department.id])).subscribe(subjects => {
       this.userService.search(0, 100, 'id', 'ASC', {
         'profileType.equals': "STAFF",
-        'departments.in': [this.timeTable.departmentId],
+        'departments.in': [this.timeTable.department.id],
         'user_id.in': [...subjects.map((sub: any) => sub.teacher)]
       }).subscribe((res: any) => {
         const teachers = res.content.map((profile: any) => ({

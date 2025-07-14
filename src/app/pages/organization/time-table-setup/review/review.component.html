@@ -32,7 +32,7 @@
     </div>
     <div>
       <label class="block text-xs font-medium text-gray-600 mb-0.5">Department</label>
-      <p class="text-sm text-gray-900">{{ timeTableService.timeTable.departmentId }}</p>
+      <p class="text-sm text-gray-900">{{ timeTableService.timeTable.department?.department?.name }}</p>
     </div>
     <div>
       <label class="block text-xs font-medium text-gray-600 mb-0.5">Periods Per Day</label>
@@ -58,13 +58,8 @@
       
     </div>
   </div>
-
-
 </div>
-
-
 </div>
-
 
 <p-dialog 
   [(visible)]="showTimetableDialog"
@@ -75,6 +70,7 @@
   <app-timetable-view 
     [timetableJson]="timetableJson"
     (publish)="saveTimetable()"
+    [dailogeType]="'Edit'"
     (cancel)="cancel()">
   </app-timetable-view>
 </p-dialog>

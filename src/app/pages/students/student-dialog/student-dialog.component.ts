@@ -116,8 +116,8 @@ export class StudentDialogComponent implements OnInit {
   studentProfileForm!: FormGroup;
   submitted: boolean = false;
   availableAuthorities: any[] = [];
-  associatedDepartments: any[] = [];
   associatedBranch: IBranch | undefined;
+  associatedDepartments: any[] = [];
   selectedDepartment: any;
   selectedClass: any;
   selectedSection: any;
