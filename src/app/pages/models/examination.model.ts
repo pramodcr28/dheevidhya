@@ -90,62 +90,52 @@ export const ExamStatusLabels: Record<ExamStatus, string> = {
   [ExamStatus.POSTPONED]: 'Postponed'
 };
 
-// import { IMasterSubject } from "./org.model";
 
-// export interface IExaminationSection {
-//   name: string;
-//   subjects: IMasterSubject[];
-// }
+export interface ResultData {
+  studentId: string;
+  studentName: string;
+  className: string;
+  section: string;
+  subjects: SubjectResult[];
+  totalMarks: number;
+  obtainedMarks: number;
+  percentage: number;
+  grade: string;
+  status: 'PASS' | 'FAIL';
+}
 
-// export interface IExaminationClass {
-//   name: string;
-//   sections: IExaminationSection[];
-// }
+export interface SubjectResult {
+  subjectId: string;
+  subjectName: string;
+  maxMarks: number;
+  obtainedMarks: number;
+  grade: string;
+}
 
-// // export interface IExamStructure {
-  
-// // }
-// export enum ExamType {
-//   UNIT_TEST = 'UNIT_TEST',
-//   SEMISTER_EXAM = 'SEMISTER_EXAM',
-//   MID_TERM = 'MID_TERM',
-//   PRE_FINAL = 'PRE_FINAL',
-//   FINAL = 'FINAL',
-//   PRACTICAL = 'PRACTICAL',
-//   INTERNAL = 'INTERNAL',
-//   SUPPLEMENTARY = 'SUPPLEMENTARY',
-//   RE_EXAM = 'RE_EXAM'
-// }
-// export enum ExamStatus {
-//   DRAFT = 'DRAFT',
-//   SCHEDULED = 'SCHEDULED',
-//   RESCHEDULED = 'RESCHEDULED',
-//   ONGOING = 'ONGOING',
-//   COMPLETED = 'COMPLETED',
-//   RESULT_DECLARED = 'RESULT_DECLARED',
-//   CANCELLED = 'CANCELLED',
-//   POSTPONED = 'POSTPONED'
-// }
+export interface ExamStats {
+  totalStudents: number;
+  passedStudents: number;
+  failedStudents: number;
+  averagePercentage: number;
+  highestScore: number;
+  lowestScore: number;
+}
 
+export interface StudentResult {
+  userId: string;
+  fullName: string;
+  academicYear: string;
+  examResults: ExamResult[];
+}
 
-// export interface ExaminationDTO {
-//   examId?: string; // Optional if it's generated later
-
-//   status: ExamStatus;
-
-//   departmentId: string;
-
-//   branchId: string;
-
-//   examType: ExamType;
-
-//   resultDeclarationDate?: string; // ISO format date
-
-//   createdBy?: string;
-
-//   createdAt?: string;
-
-//   updatedAt?: string;
-
-//   classes: IExaminationClass[];
-// }
+export interface ExamResult {
+  id?: string;
+  examId: string;
+  studentId: string;
+  subjectId: string;
+  subjectName: string;
+  obtainedMarks: number | null;
+  totalMarks: number;
+  notes?: string;
+  resultDeclaredAt?: Date;
+}

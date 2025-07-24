@@ -1,36 +1,44 @@
-<div class="rounded-md p-2 overflow-y-scroll">
-    <p-tabs value="0" scrollable>
-        <p-tablist>
-            <p-tab value="0" class="flex items-center !gap-2">
-                <i [class]="'pi pi-book'"></i>
-                <span>Examination</span>
-            </p-tab>
-            <p-tab value="1" class="flex items-center !gap-2">
-                <i [class]="'pi pi-book'"></i>
-                <span>Quession Papers</span>
-            </p-tab>
-             <p-tab value="2" class="flex items-center !gap-2">
-                <i [class]="'pi pi-book'"></i>
-                <span>Results</span>
-            </p-tab>
-              <p-tab value="3" class="flex items-center !gap-2">
-                <i [class]="'pi pi-book'"></i>
-                <span>Reports</span>
-            </p-tab>
-        </p-tablist>
-        <p-tabpanels>
-            <p-tabpanel value="0">
-              <app-add-exam></app-add-exam>
-            </p-tabpanel>
-            <p-tabpanel class="px-0" value="1">
-              <app-quession-paper></app-quession-paper>
-            </p-tabpanel>
-            <p-tabpanel value="2">
-              <app-result></app-result>
-            </p-tabpanel>
-            <p-tabpanel value="3">
-              <app-reports></app-reports>
-            </p-tabpanel>
-        </p-tabpanels>
-    </p-tabs>
+<div class="rounded-md p-2 h-[85vh] flex flex-col">
+  <p-tabs value="0" scrollable class="flex flex-col h-full">
+    <p-tablist class="flex-shrink-0">
+      <p-tab value="0" class="flex items-center !gap-2">
+        <i [class]="'pi pi-book'"></i>
+        <span>Examination</span>
+      </p-tab>
+      <p-tab value="1" class="flex items-center !gap-2">
+        <i [class]="'pi pi-book'"></i>
+        <span>Quession Papers</span>
+      </p-tab>
+       <p-tab value="2" class="flex items-center !gap-2">
+        <i [class]="'pi pi-upload'"></i>
+        <span>Upload Result</span>
+      </p-tab>
+      <p-tab value="3" class="flex items-center !gap-2">
+        <i [class]="'pi pi-book'"></i>
+        <span>Results</span>
+      </p-tab>
+      <p-tab value="4" class="flex items-center !gap-2">
+        <i [class]="'pi pi-book'"></i>
+        <span>Reports</span>
+      </p-tab>
+    </p-tablist>
+
+    <p-tabpanels class="overflow-y-auto flex-grow">
+      <p-tabpanel value="0">
+        <app-add-exam></app-add-exam>
+      </p-tabpanel>
+      <p-tabpanel value="1">
+        <app-quession-paper></app-quession-paper>
+      </p-tabpanel>
+       <p-tabpanel value="2">
+        <app-upload-result></app-upload-result>
+      </p-tabpanel>
+      <p-tabpanel value="3">
+        <app-result></app-result>
+      </p-tabpanel>
+      <p-tabpanel value="4">
+        <app-reports></app-reports>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
 </div>

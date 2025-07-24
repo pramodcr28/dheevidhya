@@ -13,7 +13,10 @@ export const getAssociatedDepartments = createSelector(selectUserProfileState,
       (state) => state.userConfig?.departments.map((department: any) => {
         return { ...department, name: department.department?.name };
       }));
-
+export const getDepartmentById = (id: string) => createSelector(
+  getAssociatedDepartments,
+  (departments) => departments?.find(department => department.id === id)
+);
 export const getSubjectsByFilters = (
   departmentIds: string[] = [],
   classIds: string[] = [],

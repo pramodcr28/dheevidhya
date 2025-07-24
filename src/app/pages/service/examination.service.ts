@@ -13,6 +13,7 @@ export class ExaminationService {
   protected readonly applicationConfigService = inject(ApplicationConfigService);
 
   protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ADMIN_BASE_URL +'api/exams');
+  examResultUrl: any = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ADMIN_BASE_URL +'api/exam-results');
 
    create(attendence: ExaminationDTO) {
       return this.http.post<ExaminationDTO>(this.resourceUrl, attendence, { observe: 'response' });
@@ -35,4 +36,13 @@ export class ExaminationService {
 
     return this.http.post<any>(`${this.resourceUrl}/search`, searchRequest);
 }
+
+getResults(searchRequest: any): Observable<any[]> {
+    return this.http.post<any[]>(`${this.examResultUrl}/get-result`, searchRequest);
+  }
+
+  saveResults(payload: any): Observable<any> {
+    return this.http.post<any>(`${this.examResultUrl}/save-result`, payload);
+  }
+
 }

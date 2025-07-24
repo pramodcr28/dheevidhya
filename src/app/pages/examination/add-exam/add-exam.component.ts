@@ -309,8 +309,7 @@ export class AddExamComponent {
     }
 
   saveExam() {
-    console.log(this.timeTable);
-    if (this.examForm.valid && this.timeTable.schedules.length == this.selectedSubjectsForTimeTable.length) {
+    if (this.examForm.valid && this.timeTable.schedules.length >= this.selectedSubjectsForTimeTable.length) {
       this.timeTable.settings.startDate = formatDate(this.timeTable.settings.startDate,this.commonService.dateTimeFormate,'en-US');
             this.timeTable.settings.endDate = formatDate(this.timeTable.settings.endDate,this.commonService.dateTimeFormate,'en-US')
       let finalExamData: ExaminationDTO = {

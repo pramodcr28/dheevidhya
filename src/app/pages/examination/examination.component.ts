@@ -8,10 +8,11 @@ import { AddExamComponent } from './add-exam/add-exam.component';
 import { QuessionPaperComponent } from './quession-paper/quession-paper.component';
 import { ReportsComponent } from './reports/reports.component';
 import { ResultComponent } from './result/result.component';
+import { UploadResultComponent } from './upload-result/upload-result.component';
 
 @Component({
   selector: 'app-examination',
-  imports: [CommonModule, TabsModule, BadgeModule, AvatarModule,AddExamComponent,QuessionPaperComponent,ReportsComponent,ResultComponent],
+  imports: [CommonModule, TabsModule, BadgeModule, AvatarModule,AddExamComponent,QuessionPaperComponent,ReportsComponent,ResultComponent,UploadResultComponent],
   templateUrl: './examination.component.html',
   styles: ``
 })

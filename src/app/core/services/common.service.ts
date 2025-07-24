@@ -58,5 +58,9 @@ export class CommonService {
     this.associatedSubjects = this.store.select(getSubjectsByFilters([]));
     this.currentUser = this.store.select(selectUserConfig)
   }
+
+  post<T>(url: string, body: any): Observable<T> {
+    return this.http.post<T>(url, body);
+  }
   
 }
