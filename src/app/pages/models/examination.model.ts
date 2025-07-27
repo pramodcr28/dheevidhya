@@ -90,36 +90,8 @@ export const ExamStatusLabels: Record<ExamStatus, string> = {
   [ExamStatus.POSTPONED]: 'Postponed'
 };
 
+// upload result entity
 
-export interface ResultData {
-  studentId: string;
-  studentName: string;
-  className: string;
-  section: string;
-  subjects: SubjectResult[];
-  totalMarks: number;
-  obtainedMarks: number;
-  percentage: number;
-  grade: string;
-  status: 'PASS' | 'FAIL';
-}
-
-export interface SubjectResult {
-  subjectId: string;
-  subjectName: string;
-  maxMarks: number;
-  obtainedMarks: number;
-  grade: string;
-}
-
-export interface ExamStats {
-  totalStudents: number;
-  passedStudents: number;
-  failedStudents: number;
-  averagePercentage: number;
-  highestScore: number;
-  lowestScore: number;
-}
 
 export interface StudentResult {
   userId: string;
@@ -139,3 +111,43 @@ export interface ExamResult {
   notes?: string;
   resultDeclaredAt?: Date;
 }
+
+
+//  reports related result 
+
+
+export interface ExamReport{
+  results: ResultData[];
+  stats:ExamStats;
+}
+export interface ResultData {
+  studentId: string;
+  studentName: string;
+  className: string;
+  section: string;
+  subjects: SubjectResult[];
+  totalMarks: number;
+  obtainedMarks: number;
+  percentage: number;
+  grade: string;
+  status: 'PASS' | 'FAIL';
+}
+
+ interface SubjectResult {
+  subjectId: string;
+  subjectName: string;
+  maxMarks: number;
+  obtainedMarks: number;
+  grade: string;
+}
+
+ interface ExamStats {
+  totalStudents: number;
+  passedStudents: number;
+  failedStudents: number;
+  notFoundStudents: number;
+  averagePercentage: number;
+  highestScore: number;
+  lowestScore: number;
+}
+

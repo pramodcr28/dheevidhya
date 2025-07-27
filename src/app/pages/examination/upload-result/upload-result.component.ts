@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { SelectModule } from 'primeng/select';
-import { ExaminationDTO, ExamResult, StudentResult } from '../../models/examination.model';
+import { ExaminationDTO, ExamResult, StudentResult} from '../../models/examination.model';
 import { ExaminationService } from '../../service/examination.service';
 import { FormsModule } from '@angular/forms';
 import { IBranch } from '../../models/tenant.model';

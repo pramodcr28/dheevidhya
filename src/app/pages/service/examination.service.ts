@@ -41,6 +41,10 @@ getResults(searchRequest: any): Observable<any[]> {
     return this.http.post<any[]>(`${this.examResultUrl}/get-result`, searchRequest);
   }
 
+  getReports(searchRequest: any): Observable<any[]> {
+    return this.http.post<any[]>(`${this.examResultUrl}/get-report`, searchRequest);
+  }
+
   saveResults(payload: any): Observable<any> {
     return this.http.post<any>(`${this.examResultUrl}/save-result`, payload);
   }
