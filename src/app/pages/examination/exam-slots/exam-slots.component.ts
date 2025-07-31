@@ -204,13 +204,9 @@ export class ExamSlotsComponent {
     this.timeTable.schedules.splice(0, this.timeTable.schedules.length); // Clear in-place
 
     let currentDate = new Date(this.timeTable.settings.startDate);
-    while (currentDate.getDate() <= new Date(this.timeTable.settings.endDate).getDate()) {
-      // Skip weekends if needed (optional)
-      // if (currentDate.getDay() === 0 || currentDate.getDay() === 6) {
-      //   currentDate.setDate(currentDate.getDate() + 1);
-      //   continue;
-      // }
+    const endDate = new Date(this.timeTable.settings.endDate);
 
+    while (currentDate <= endDate) {
       let slotStart = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
@@ -221,7 +217,8 @@ export class ExamSlotsComponent {
       );
       for (let i = 0; i < this.timeTable.settings.slotsPerDay; i++) {
         const slotEnd = new Date(slotStart.getTime() + this.timeTable.settings.slotDuration * 60000);
-         let slot = {
+
+        let slot = {
           startTime: formatDate(slotStart, this.commonService.dateTimeFormate, 'en-US'),
           endTime: formatDate(slotEnd, this.commonService.dateTimeFormate, 'en-US'),
           day: formatDate(slotStart, this.commonService.dateFormate, 'en-US'),
@@ -230,7 +227,7 @@ export class ExamSlotsComponent {
           color: ''
         };
         this.timeTable.schedules.push(slot);
-        // Add break time for next slot (except for last slot)
+
         if (i < this.timeTable.settings.slotsPerDay - 1) {
           slotStart = new Date(slotEnd.getTime() + this.timeTable.settings.breakDuration * 60000);
         }

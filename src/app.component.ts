@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ApiLoaderComponent } from './app/core/layout/loaderComponent';
 import { ToastModule } from 'primeng/toast';
+import { WebSocketService } from './app/core/services/websocket.service';
+import { AccountService } from './app/core/services/account.service';
 
 @Component({
     selector: 'app-root',
@@ -16,5 +18,16 @@ import { ToastModule } from 'primeng/toast';
 })
 export class AppComponent {
 
+  private wsService = inject(WebSocketService);
+  private accountService = inject(AccountService);
   
+  ngOnInit() {
+    this.wsService.getMessages().subscribe(
+      (message) => {
+        console.log("Department configId" + message);
+        this.accountService.identity(true).subscribe(result=>{
+        });
+      }
+    );
+  }
 }
