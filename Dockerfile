@@ -11,7 +11,7 @@ RUN npm run build -- --configuration production
 FROM nginx:alpine
 
 # Remove default
-RUN rm /etc/nginx/conf.d/default.conf
+# RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy built app
 COPY --from=build /app/dist/dheevidhya/browser /usr/share/nginx/html
@@ -19,7 +19,9 @@ COPY --from=build /app/dist/dheevidhya/browser /usr/share/nginx/html
 # Copy custom Nginx config if needed (optional)
 # COPY nginx.conf /etc/nginx/nginx.conf
 
+ADD nginx.conf .
+
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD [“/bin/sh”, “-c”, “envsubst < nginx.conf > /etc/nginx/conf.d/default.conf && nginx -g ‘daemon off;’”]
  
