@@ -24,7 +24,7 @@ export class AppComponent {
   ngOnInit() {
     this.wsService.getMessages().subscribe(
       (message) => {
-        console.log("Department configId" + message);
+        console.log("Web socket trigger ID" + message);
         this.accountService.identity(true).subscribe(result=>{
         });
       }

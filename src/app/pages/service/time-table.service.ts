@@ -69,7 +69,10 @@ export class TimeTableService {
   }
 
   generateTimeTable(request: any) {
-    return this.http.post('http://127.0.0.1:8000/generate-timetable', request);
+    if(environment.stage != 'dev')
+      return this.http.post('https://dheevidhya.in/v3ai/generate-timetable', request);
+    else
+      return this.http.post('http://localhost:8084/generate-timetable', request);
   }
 
   // Teacher Methods
