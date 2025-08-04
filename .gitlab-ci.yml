@@ -41,7 +41,8 @@ deploy_dev_dheevidhya:
     - eval "$(ssh-agent -s)"
     - ssh-add ~/.secure_files/id_rsa
     - mkdir -p ~/.ssh
-    - ssh-keyscan -H 150.241.246.148 >> ~/.ssh/known_hosts
+    - ssh-keyscan -H 150.241.246.148 >> ~/.ssh/known_hosts || true
+    
 
   script:
     - ssh root@150.241.246.148 "
