@@ -12,7 +12,8 @@ docker-build-dheevidhya:
   services:
     - docker:dind
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    # Secure login without exposing password in history
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
   script:
     - docker build --pull -t "$DOCKER_IMAGE_NAME" -f Dockerfile .
     - docker push "$DOCKER_IMAGE_NAME"
@@ -28,12 +29,13 @@ docker-build-dheevidhya:
 deploy_dev_dheevidhya:
   stage: deploy
   tags:
-    - vm-deploy  # 👈 must match the tag you set when registering the runner
+    - vm-deploy  # 👈 Must match your GitLab Runner's tag
   script:
     - cd /opt
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - docker compose pull dheevidhya
-    - docker compose up -d dheevidhya
+    # Force recreate to avoid "container already in use" error
+    - docker compose up -d --force-recreate --remove-orphans dheevidhya
     - docker image prune -f
   only:
     - master
