@@ -29,13 +29,14 @@ docker-build-dheevidhya:
 deploy_dev_dheevidhya:
   stage: deploy
   tags:
-    - vm-deploy  # 👈 Must match your GitLab Runner's tag
+    - vm-deploy  # Must match your GitLab Runner's tag
   script:
     - cd /opt
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - docker compose pull dheevidhya
-    # Force recreate to avoid "container already in use" error
-    - docker compose up -d --force-recreate --remove-orphans dheevidhya
+    # Remove existing container if it exists to avoid "name already in use"
+    - docker rm -f dheevidhya || true
+    - docker compose up -d dheevidhya
     - docker image prune -f
   only:
     - master
