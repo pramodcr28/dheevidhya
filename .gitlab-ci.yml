@@ -12,7 +12,8 @@ docker-build-dheevidhya:
   services:
     - docker:dind
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    # Secure login without exposing password in history
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
   script:
     - docker build --pull -t "$DOCKER_IMAGE_NAME" -f Dockerfile .
     - docker push "$DOCKER_IMAGE_NAME"
@@ -24,38 +25,21 @@ docker-build-dheevidhya:
   only:
     - master
 
-# 2️⃣ Deploy dheevidhya container
+# 2️⃣ Deploy dheevidhya container (runner inside VM)
 deploy_dev_dheevidhya:
   stage: deploy
-  image: alpine:latest
-
-  before_script:
-    - apk add --no-cache openssh-client bash curl
-    - mkdir -p ~/.secure_files
-    - chmod 700 ~/.secure_files
-    - |
-      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-      "$CI_API_V4_URL/projects/$CI_PROJECT_ID/secure_files/3267775/download" \
-      --output ~/.secure_files/id_rsa
-    - chmod 400 ~/.secure_files/id_rsa
-    - eval "$(ssh-agent -s)"
-    - ssh-add ~/.secure_files/id_rsa
-    - mkdir -p ~/.ssh
-    - ssh-keyscan -H 150.241.246.148 >> ~/.ssh/known_hosts
-    
-
+  tags:
+    - vm-deploy  # Must match your GitLab Runner's tag
   script:
-    - ssh root@150.241.246.148 "
-        cd /opt/dheevidhya/devops/docker &&
-        docker login -u '$CI_REGISTRY_USER' -p '$CI_REGISTRY_PASSWORD' '$CI_REGISTRY' &&
-        docker compose pull dheevidhya &&
-        docker compose up -d dheevidhya &&
-        docker image prune -f
-      "
-
+    - cd /opt
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - docker compose pull dheevidhya
+    # Remove existing container if it exists to avoid "name already in use"
+    - docker rm -f dheevidhya || true
+    - docker compose up -d dheevidhya
+    - docker image prune -f
   only:
     - master
-
   retry:
     max: 2
     when: runner_system_failure
