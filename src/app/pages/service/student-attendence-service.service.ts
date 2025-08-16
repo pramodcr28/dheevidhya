@@ -12,11 +12,6 @@ import { UserService } from './user.service';
 })
 export class StudentAttendenceServiceService {
 
-    // searchTerm: string = '';
-    // currentDate: string = '';
-    // students = signal<any[]>([]);
-
-
   protected readonly http = inject(HttpClient);
   protected readonly applicationConfigService = inject(ApplicationConfigService);
 
@@ -42,7 +37,7 @@ export class StudentAttendenceServiceService {
   }
 
 getStudents(){
-return  this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STUDENT" });
+    return  this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STUDENT" });
 }
 
 getReports<T>(page: number = 0, size: number = 10, sortBy: string = 'id', 
@@ -58,10 +53,6 @@ getReports<T>(page: number = 0, size: number = 10, sortBy: string = 'id',
 
     return this.http.post<any>(`${this.resourceUrl}/report`, searchRequest);
 }
-  //  query(req?: any): Observable<HttpResponse<AttendanceStatus[]>> {
-  //     const options = createRequestOption(req);
-  //     return this.http.get<AttendanceStatus[]>(this.resourceUrl, { params: options, observe: 'response' });
-  //   }
 
 }
 

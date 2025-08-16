@@ -12,6 +12,7 @@ import { DepartmentSetupComponent } from './app/pages/organization/department-se
 import { StudentAttendenceComponent } from './app/pages/organization/student-attendence/student-attendence.component';
 import { ExaminationComponent } from './app/pages/examination/examination.component';
 import { TimetableListComponent } from './app/pages/organization/timetable-list/timetable-list.component';
+import { AssignmentManagementComponent } from './app/pages/organization/assignment-management/assignment-management.component';
 
 export const appRoutes: Routes = [
     {
@@ -26,6 +27,8 @@ export const appRoutes: Routes = [
             { path: 'time-table-list', component: TimetableListComponent },
             { path: 'student-attendence', component: StudentAttendenceComponent },
             { path: 'examination', component: ExaminationComponent},
+            { path: 'assignment', component: AssignmentManagementComponent},
+            
             { path: 'department-setup', component: DepartmentSetupComponent },
             { path: 'profile', component: ProfileComponent },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },

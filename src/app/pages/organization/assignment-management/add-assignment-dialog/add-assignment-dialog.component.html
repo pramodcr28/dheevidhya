@@ -1,0 +1,79 @@
+<p-dialog header="Add New Task"
+          [(visible)]="visible"
+          [modal]="true">
+
+  <div class="grid grid-cols-1 gap-4">
+    <!-- Title -->
+    <div>
+      <input pInputText
+             [(ngModel)]="newAssignment.title"
+             placeholder="Enter task title here"
+             class="w-full" />
+    </div>
+
+    <!-- Department / Subject / DueDate / Type -->
+    <div class="grid grid-cols-2 gap-4">
+
+      <!-- Department -->
+      <p-select
+        [options]="associatedDepartments"
+        [(ngModel)]="selectedDepartment"
+        (ngModelChange)="onSelectedDepartmentModelChange($event)"
+        [ngModelOptions]="{ standalone: true }"
+        (onChange)="departmentChange.emit()"
+        optionLabel="name"
+        placeholder="Select Department"
+        [style]="{ width: '100%' }">
+      </p-select>
+
+      <!-- Subject (Tree) -->
+      <p-treeSelect
+        [(ngModel)]="selectedSubject"
+        (ngModelChange)="onSelectedSubjectModelChange($event)"
+        [ngModelOptions]="{ standalone: true }"
+        [options]="treeNodes"
+        selectionMode="single"
+        [fluid]="true"
+        scrollHeight="200px"
+        placeholder="Select Subjects">
+      </p-treeSelect>
+
+      <!-- Due Date -->
+      <div>
+        <p-datepicker
+          [(ngModel)]="newAssignment.dueDate"
+          showIcon="true"
+          placeholder="Submition Date"
+          [fluid]="true"
+          dateFormat="yy-mm-dd">
+        </p-datepicker>
+      </div>
+
+      <!-- Type -->
+      <div>
+        <p-dropdown
+          [options]="typeOptions"
+          placeholder="Select task type"
+          [(ngModel)]="newAssignment.type"
+          class="w-full">
+        </p-dropdown>
+      </div>
+
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Description</label>
+      <p-editor [(ngModel)]="newAssignment.description"
+                [style]="{'height':'250px'}">
+      </p-editor>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <p-button label="Cancel" [text]="true" (onClick)="close()"></p-button>
+      <p-button label="submit" severity="primary" (onClick)="save()"></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
