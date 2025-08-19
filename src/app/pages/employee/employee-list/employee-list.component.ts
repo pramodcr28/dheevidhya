@@ -29,6 +29,7 @@ import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantAuthorityService } from '../../service/tenant-authority.service';
 import { UserService, EntityArrayResponseType } from '../../service/user.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
+import { CommonService } from '../../../core/services/common.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -64,7 +65,8 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
     confirmationService = inject(ConfirmationService)
     loader = inject(ApiLoaderService); 
     currentUser : any;
-
+    commonService = inject(CommonService);
+    associatedDepartments = [];
      ngOnInit() {
           this.authorityService.query().subscribe((result:any)=>{
             this.tenantAuthorities.set(result.body);
@@ -73,13 +75,16 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
           this.store.select(selectUserConfig).subscribe(userConfig => {
            this.currentUser = userConfig.userId;
           });
-         this.load();
+            this.commonService.associatedDepartments.subscribe(depts=>{
+             this.associatedDepartments = depts.map(dpt=>dpt.id);
+             this.load();
+          })
      }
 
     
       load(): void {
         this.loader.show("Fetching Staff Data");
-        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STAFF" }).subscribe({
+        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STAFF" , 'departments.in':this.associatedDepartments  }).subscribe({
           next: (res: any) => {
             this.employeeProfiles.set(res.content);
             this.loader.hide();

@@ -32,6 +32,7 @@ import { TenantAuthorityService } from '../../service/tenant-authority.service';
 import { GuardianDialogComponent } from '../guardian-dialog/guardian-dialog.component';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { IBranch } from '../../models/tenant.model';
+import { CommonService } from '../../../core/services/common.service';
 
 @Component({
   selector: 'app-student-list',
@@ -71,6 +72,8 @@ export class StudentListComponent {
     loader = inject(ApiLoaderService); 
     currentUser : any;
     branch:IBranch;
+    commonService = inject(CommonService);
+    associatedDepartments = [];
      ngOnInit() {
           this.authorityService.query().subscribe((result:any)=>{
             this.tenantAuthorities.set(result.body);
@@ -83,12 +86,16 @@ export class StudentListComponent {
           this.store.select(getBranch).subscribe(branch => {
            this.branch = branch;
           });
-         this.load();
+          this.commonService.associatedDepartments.subscribe(depts=>{
+             this.associatedDepartments = depts.map(dpt=>dpt.id);
+             this.load();
+          })
+         
      }
 
         load(): void {
         this.loader.show("Fetching Student Data");
-        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STUDENT" }).subscribe({
+        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STUDENT", 'departments.in':this.associatedDepartments }).subscribe({
           next: (res: any) => {
             this.students.set(res.content);
             this.loader.hide();
