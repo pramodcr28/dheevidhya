@@ -31,7 +31,11 @@ function errorHandlerInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn)
   return next(req).pipe(
     catchError(err => {
       if (err.status === 401 || err.status === 403) {
-        router.navigate(['/auth/login']);
+          const currentUrl = this.router.url;
+
+          if (!currentUrl.includes('/auth/login') && !currentUrl.includes('/auth/reset')) {
+            this.router.navigate(['/auth/login']);
+          }
       }
       return throwError(() => err);
     })

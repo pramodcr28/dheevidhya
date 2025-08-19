@@ -39,4 +39,9 @@ export class AuthServerProvider {
   changePassword(passwordChangeDTO: PasswordChangeDTO): Observable<any> {
     return this.http.post(`${environment.ServerUrl}api/account/change-password`, passwordChangeDTO);
   }
+
+  save(key: string, newPassword: string): Observable<{}> {
+    return this.http.post(`${environment.ServerUrl}api/account/reset-password/finish`, { key, newPassword });
+  }
+  
 }
