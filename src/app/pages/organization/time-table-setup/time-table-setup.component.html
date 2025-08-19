@@ -33,13 +33,13 @@
           <p-tabPanel header="General Settings">
             <app-general-settings></app-general-settings>
           </p-tabPanel>
-          <p-tabPanel header="Subjects/Courses">
+          <p-tabPanel header="Subjects/Courses" [disabled]="!timeTableService.timeTable?.department">
             <app-subjects></app-subjects>
           </p-tabPanel>
-          <p-tabPanel header="Teachers/Instructors">
+          <p-tabPanel header="Teachers/Instructors" [disabled]="!timeTableService.timeTable?.department">
             <app-teachers></app-teachers>
           </p-tabPanel>
-          <p-tabPanel header="Review & Generate">
+          <p-tabPanel header="Review & Generate" [disabled]="!timeTableService.timeTable?.department">
             <app-review></app-review>
           </p-tabPanel>
         </p-tabView>
@@ -53,7 +53,7 @@
   </div>
 
   <!-- Navigation Footer -->
-  <div class="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
+  <!-- <div class="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center py-4">
         <button (click)="previousTab()" 
@@ -71,5 +71,5 @@
         </button>
       </div>
     </div>
-  </div>
+  </div> -->
 </div>

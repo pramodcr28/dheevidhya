@@ -143,9 +143,36 @@ export class TimeTableService {
     const totalSlots = workingDays.length * this.timeTable.settings.periodsPerDay;
 
     return {
-      available: teacher.timeOn.length,
-      unavailable: teacher.timeOff.length,
-      neutral: totalSlots - teacher.timeOn.length - teacher.timeOff.length
+      available: teacher?.timeOn.length,
+      unavailable: teacher?.timeOff.length,
+      neutral: totalSlots - teacher?.timeOn.length - teacher?.timeOff.length
     };
+  }
+
+
+  resetTimeTable(){
+    this.timeTable = {
+    department: null,
+    settings: {
+      academicYear: null,
+      semester: 'fall',
+      workingDays: [
+        { name: 'Sun', selected: false },
+        { name: 'Mon', selected: true },
+        { name: 'Tue', selected: true },
+        { name: 'Wed', selected: true },
+        { name: 'Thu', selected: true },
+        { name: 'Fri', selected: true },
+        { name: 'Sat', selected: false }
+      ],
+      startTime: '08:00',
+      endTime: '16:00',
+      periodDuration: 45,
+      breakDuration: 10,
+      periodsPerDay: 7
+    },  
+    subjects: [],
+    schedule: {}
+  };
   }
 }

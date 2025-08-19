@@ -1,10 +1,7 @@
-<!-- review.component.html -->
 <div class="space-y-6">
    <p-toast />
    
-
-  <!-- Generate Button -->
-  <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+  <!-- <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
     <h4 class="font-medium text-gray-900 mb-2">Ready to Generate Your Timetable?</h4>
     <p class="text-sm text-gray-600 mb-4">All your data is ready. Click the button to create your timetable.</p>
     <div class="flex justify-end">
@@ -14,15 +11,35 @@
       Generate Timetable
     </button>
     </div>
+  </div> -->
+  <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+  <h4 class="font-medium text-gray-900 mb-2">Ready to Generate Your Timetable?</h4>
+  <p class="text-sm text-gray-600 mb-4">All your data is ready. Click the button to create your timetable.</p>
+
+  <!-- 🔴 Error messages shown here -->
+  <div *ngIf="validationErrors?.length" class="mb-4">
+    <div *ngFor="let error of validationErrors"
+         class="flex items-start text-sm text-red-600 mb-1">
+      <i class="pi pi-exclamation-circle mr-2 mt-0.5"></i>
+      <span>{{ error }}</span>
+    </div>
   </div>
+
+  <div class="flex justify-end">
+    <button (click)="generateTimetable()" 
+      class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium ms-auto">
+      <i class="pi pi-plus mr-2"></i>
+      Generate Timetable
+    </button>
+  </div>
+</div>
+
   
 <div class="bg-white p-4 rounded-lg shadow-sm border">
-  <!-- Header -->
   <div class="flex items-center mb-3">
     <h4 class="font-medium text-gray-900 text-base">Timetable Configuration Overview</h4>
   </div>
 
-  <!-- General Settings -->
   <div class="grid grid-cols-3 gap-4 mb-4">
     <div>
       <label class="block text-xs font-medium text-gray-600 mb-0.5">School Hours</label>
@@ -75,47 +92,5 @@
   </app-timetable-view>
 </p-dialog>
 
-
-<!-- <div *ngIf="showTimetableDialog && timetableJson">
-  <div class="space-y-8">
-    <div *ngFor="let classSec of timetableJson.classSections" class="bg-white p-4 rounded-lg border">
-      <h3 class="text-lg font-bold mb-4 text-blue-700">
-        {{ classSec.classId }} - {{ classSec.sectionId }}
-      </h3>
-
-      <div class="overflow-x-auto">
-        <table class="min-w-full border text-sm text-left">
-          <thead class="bg-gray-100 text-gray-700">
-            <tr>
-              <th class="border px-4 py-2">Day</th>
-              <th *ngFor="let slot of getSlotIndexes(classSec)" class="border px-4 py-2">Slot {{ slot + 1 }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let schedule of classSec.schedules">
-              <td class="border px-4 py-2 font-medium">Day {{ schedule.day }}</td>
-              <td *ngFor="let period of schedule.periods" class="border px-4 py-2">
-                <div *ngIf="period.type !== 'break'; else freeSlot">
-                  <div class="font-semibold">{{ period.name }}</div>
-                  <div class="text-xs text-gray-500">{{ period.instructor?.name }}</div>
-                </div>
-                <ng-template #freeSlot>
-                  <div class="italic text-gray-400">Free</div>
-                </ng-template>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <div class="mt-6">
-  <button 
-    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-    (click)="saveTimetable()">
-    Publish Timetable
-  </button>
-</div>
-</div> -->
 
 

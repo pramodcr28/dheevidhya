@@ -46,6 +46,7 @@
         (onChange)="timeTableService.onDepartmentChange()"
         optionLabel="name"
         placeholder="Select Department"
+        [pAutoFocus]="true"
         [style]="{ width: '100%' }">
       </p-select>
       <small class="text-red-500" *ngIf="submitted && !timeTableService.timeTable.department">

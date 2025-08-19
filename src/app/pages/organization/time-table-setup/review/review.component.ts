@@ -24,7 +24,18 @@ export class ReviewComponent {
  commonService = inject(CommonService);
  timeTableService = inject(TimeTableService);
  router = inject(Router);
+ validationErrors: string[];
  generateTimetable() {
+
+const errors = this.validateTimetable();
+  if (errors.length) {
+    this.validationErrors = errors;
+    return;
+  }
+
+  // ✅ If no errors, proceed
+  this.validationErrors = [];
+
   const teachers = this.timeTableService.getTeachersList().map(t => ({
     id: t.id,
     name: t.name,
@@ -164,4 +175,37 @@ getSlotIndexes(classSec: ClassSection): number[] {
       settings.workingDays.filter((slot)=>slot.selected).
       map(slot=>slot.name).join(',');
   }
+  validateTimetable(): string[] {
+  const errors: string[] = [];
+
+  // ✅ Department selection check
+  if (!this.timeTableService.timeTable.department) {
+    errors.push("Please select a department.");
+  }
+
+  // ✅ At least one subject required
+  if (!this.timeTableService.timeTable.subjects.length) {
+    errors.push("No subjects found for this department.");
+  }
+
+  // ✅ Every subject must have a teacher
+  const unassigned = this.timeTableService.timeTable.subjects.filter(s => !s.teacher);
+  if (unassigned.length) {
+    errors.push(`${unassigned.length} subject(s) do not have a teacher assigned.`);
+  }
+
+  // ✅ Working days validation
+  const workingDays = this.timeTableService.timeTable.settings.workingDays.filter(d => d.selected);
+  if (!workingDays.length) {
+    errors.push("Please select at least one working day.");
+  }
+
+  // ✅ Periods per day check
+  if (this.timeTableService.timeTable.settings.periodsPerDay <= 0) {
+    errors.push("Invalid number of periods per day.");
+  }
+
+  return errors;
+}
+
 }
