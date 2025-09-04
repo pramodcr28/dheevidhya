@@ -16,12 +16,26 @@ import { UserFilterPipePipe } from "../../../core/pipe/user-filter-pipe.pipe";
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { firstValueFrom } from 'rxjs';
+import { AccordionModule, AccordionPanel } from 'primeng/accordion';
 
 @Component({
   selector: 'app-department-setup',
-  imports: [ButtonModule, CommonModule, DropdownModule, DialogModule, FormsModule, Toolbar, InputTextModule, TabsModule, SelectModule, UserFilterPipePipe],
+  imports: [
+    FormsModule,
+    ButtonModule,
+    DropdownModule,
+    DialogModule,
+    InputTextModule,
+    TabsModule,
+    SelectModule,
+    AccordionModule,
+    UserFilterPipePipe,
+    AccordionPanel
+],
   templateUrl: './department-setup.component.html',
-  styles: ``,
+  styles: `
+
+  `,
   providers:[MessageService]
 })
 export class DepartmentSetupComponent {

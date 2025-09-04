@@ -26,7 +26,6 @@ export interface IMasterDepartment {
 
 export type NewMasterDepartment = Omit<IMasterDepartment, 'id'> & { id: null };
 
-
 export interface IMasterClass {
   id: number;
   name?: string | null;
@@ -53,7 +52,7 @@ export interface IMasterSection {
 export type NewMasterSection = Omit<IMasterSection, 'id'> & { id: null };
 
 
-export interface    IMasterSubject {
+export interface IMasterSubject {
   id: string;
   name?: string | null;
   code?: string | null;
@@ -66,7 +65,7 @@ export interface    IMasterSubject {
 export type NewMasterSubject = Omit<IMasterSubject, 'id'> & { id: null };
 
 
-export interface Section { // this is the entity of induvidual section 
+export interface Section { 
   sectionId: string;
   classId:string;
   departmentId:string;
