@@ -1,11 +1,9 @@
 import { DropdownModule } from 'primeng/dropdown';
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { CommonService } from '../../../core/services/common.service';
 import { FormsModule } from '@angular/forms';
-import { Toolbar } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuItem, MessageService } from 'primeng/api';
 import { TabsModule } from 'primeng/tabs';
@@ -17,6 +15,7 @@ import { ApiLoaderService } from '../../../core/services/loaderService';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { firstValueFrom } from 'rxjs';
 import { AccordionModule, AccordionPanel } from 'primeng/accordion';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-department-setup',
@@ -30,7 +29,8 @@ import { AccordionModule, AccordionPanel } from 'primeng/accordion';
     SelectModule,
     AccordionModule,
     UserFilterPipePipe,
-    AccordionPanel
+    AccordionPanel,
+    ToastModule
 ],
   templateUrl: './department-setup.component.html',
   styles: `

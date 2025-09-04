@@ -1,11 +1,12 @@
 <!-- Modern Department Setup Template -->
-<div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
+ <p-toast></p-toast>
+<div class="min-h-screen ">
   <div>
     @if(selectedDepartment){
     <!-- Top Navigation Bar -->
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl mb-6 overflow-hidden">
 
-      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-800 dark:to-indigo-800 p-6">
+      <div class="bg-gradient-to-r from-primary-600 to-primary-500 dark:from-primary-800 dark:to-indigo-800 p-6">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
           <div class="flex items-center space-x-4">
             <div class="p-3 bg-white/20 rounded-xl">
@@ -13,7 +14,7 @@
             </div>
             <div>
               <h1 class="text-2xl font-bold text-white">Department Setup</h1>
-              <p class="text-blue-100">Configure your academic structure</p>
+              <p class="text-primary-100">Configure your academic structure</p>
             </div>
               
           </div>
@@ -57,7 +58,7 @@
               <!-- Placeholder for additional department info -->
               <div class="space-y-2">
                 <label class="flex items-center space-x-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  <i class="pi pi-info-circle text-blue-500"></i>
+                  <i class="pi pi-info-circle text-primary-500"></i>
                   <span>Department Contact</span>
                 </label>
                 <input 
@@ -101,116 +102,121 @@
 
       <!-- Sections Container -->
       <div class="p-6">
-        <p-accordion [multiple]="false" [activeIndex]="0">
-          <!-- Section Cards -->
-          @for (section of classGroup.sections; track section; let si = $index) {
-            <p-accordioncontent>
-              <ng-template pTemplate="header">
-                <div class="flex items-center w-full">
-                  <div class="flex items-center space-x-3 flex-1">
-                    <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                      <i class="pi pi-users text-blue-600 dark:text-blue-400"></i>
-                    </div>
-                    <div>
-                      <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{section.name}}</h4>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Section Management</p>
-                    </div>
-                  </div>
+   <p-accordion value="0" [multiple]="false">
+  <!-- Section Cards -->
+  @for (section of classGroup.sections; track section.id; let si = $index) {
+    <p-accordion-panel [value]="si">
+      
+      <!-- Accordion Header -->
+      <p-accordion-header>
+        <div class="flex items-center w-full">
+          <div class="flex items-center space-x-3 flex-1">
+            <div class="p-2 bg-primary-100 dark:bg-primary-900 rounded-lg">
+              <i class="pi pi-users text-primary-600 dark:text-primary-400"></i>
+            </div>
+            <div>
+              <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ section.name }}</h4>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Section Management</p>
+            </div>
+          </div>
+        </div>
+      </p-accordion-header>
+
+      <!-- Accordion Content -->
+      <p-accordion-content>
+        <!-- Section Teacher Assignment -->
+        <div class="mb-4">
+          <label class="flex items-center space-x-2 text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+            <i class="pi pi-user text-green-500"></i>
+            <span>Section Teacher</span>
+          </label>
+          <p-select
+            [options]="users"
+            [(ngModel)]="section.sectionTeacher"
+            name="sectionTeacher_{{ ci }}_{{ si }}"
+            optionLabel="fullName"
+            optionValue="userId"
+            placeholder="Assign Section Teacher"
+            class="w-full modern-select">
+          </p-select>
+        </div>
+
+        <!-- Additional Section Info Row -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-100 dark:border-gray-600">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Capacity</label>
+            <input type="number" pInputText placeholder="Max students" 
+                   class="w-full p-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Room Number</label>
+            <input type="text" pInputText placeholder="Room/Hall" 
+                   class="w-full p-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Schedule</label>
+            <input type="text" pInputText placeholder="Time slot" 
+                   class="w-full p-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
+          </div>
+        </div>
+
+        <!-- Subjects Section -->
+        <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
+          <div class="flex items-center space-x-2 mb-4">
+            <div class="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+              <i class="pi pi-book text-orange-600 dark:text-orange-400"></i>
+            </div>
+            <h5 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Subject Assignments</h5>
+          </div>
+          
+          <!-- Subjects Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            @for (subject of section.subjects; track subject.id; let subi = $index) {
+              <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
+                
+                <!-- Subject Header -->
+                <div class="flex items-center space-x-2 mb-3">
+                  <div class="w-3 h-3 bg-gradient-to-r from-primary-400 to-purple-400 rounded-full"></div>
+                  <span class="font-medium text-gray-800 dark:text-gray-200">{{ subject.name }}</span>
                 </div>
-              </ng-template>
-              
-              <ng-template pTemplate="content">
-                <!-- Section Teacher Assignment -->
-                <div class="mb-4">
-                  <label class="flex items-center space-x-2 text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                    <i class="pi pi-user text-green-500"></i>
-                    <span>Section Teacher</span>
-                  </label>
+                
+                <!-- Teacher Assignment -->
+                <div class="space-y-2">
+                  <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Subject Teacher</label>
                   <p-select
-                    [options]="users"
-                    [(ngModel)]="section.sectionTeacher"
-                    name="sectionTeacher_{{ ci }}_{{ si }}"
+                    [options]="users | userFilter: subject.id.toString()"
+                    [(ngModel)]="subject.teacher"
+                    name="subjectTeacher_{{ ci }}_{{ si }}_{{ subi }}"
                     optionLabel="fullName"
                     optionValue="userId"
-                    placeholder="Assign Section Teacher"
-                    class="w-full modern-select">
+                    placeholder="Assign Teacher"
+                    class="w-full compact-select">
                   </p-select>
                 </div>
                 
-                <!-- Additional Section Info Row -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-100 dark:border-gray-600">
+                <!-- Additional Subject Info -->
+                <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-600">
                   <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Capacity</label>
-                    <input type="number" pInputText placeholder="Max students" 
-                           class="w-full p-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
+                    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Credits</label>
+                    <input type="number" pInputText placeholder="3" 
+                           class="w-full p-1 text-xs rounded border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Room Number</label>
-                    <input type="text" pInputText placeholder="Room/Hall" 
-                           class="w-full p-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
-                  </div>
-                  <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Schedule</label>
-                    <input type="text" pInputText placeholder="Time slot" 
-                           class="w-full p-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
+                    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Hours/Week</label>
+                    <input type="number" pInputText placeholder="4" 
+                           class="w-full p-1 text-xs rounded border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
                   </div>
                 </div>
+              </div>
+            }
+          </div>
+        </div>
+      </p-accordion-content>
 
-                <!-- Subjects Section -->
-                <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
-                  <div class="flex items-center space-x-2 mb-4">
-                    <div class="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-                      <i class="pi pi-book text-orange-600 dark:text-orange-400"></i>
-                    </div>
-                    <h5 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Subject Assignments</h5>
-                  </div>
-                  
-                  <!-- Subjects Grid -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                    @for (subject of section.subjects; track subject; let subi = $index) {
-                      <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
-                        
-                        <!-- Subject Header -->
-                        <div class="flex items-center space-x-2 mb-3">
-                          <div class="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"></div>
-                          <span class="font-medium text-gray-800 dark:text-gray-200">{{subject.name}}</span>
-                        </div>
-                        
-                        <!-- Teacher Assignment -->
-                        <div class="space-y-2">
-                          <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Subject Teacher</label>
-                          <p-select
-                            [options]="users | userFilter: subject.id.toString()"
-                            [(ngModel)]="subject.teacher"
-                            name="subjectTeacher_{{ ci }}_{{ si }}_{{ subi }}"
-                            optionLabel="fullName"
-                            optionValue="userId"
-                            placeholder="Assign Teacher"
-                            class="w-full compact-select">
-                          </p-select>
-                        </div>
-                        
-                        <!-- Additional Subject Info -->
-                        <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-600">
-                          <div>
-                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Credits</label>
-                            <input type="number" pInputText placeholder="3" 
-                                   class="w-full p-1 text-xs rounded border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
-                          </div>
-                          <div>
-                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Hours/Week</label>
-                            <input type="number" pInputText placeholder="4" 
-                                   class="w-full p-1 text-xs rounded border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
-              </ng-template>
-            </p-accordioncontent>
-          }
-        </p-accordion>
+    </p-accordion-panel>
+  }
+</p-accordion>
+
       </div>
     </div>
   }
