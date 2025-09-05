@@ -39,15 +39,9 @@ export class DetailedReportsComponent {
    classAttendanceReport: AttendanceReport[] = [];
    selectedSection: Section[] | null = [];
    selectedSubject:any[] = [];
+   today: Date = new Date();
      ngOnInit() {
-      this.selectedSection = [
-        { sectionId: "68282c6489869816a4108492",
-          classId:"682b567577794f7170f3d743",
-          departmentId:"682b574a77794f7170f3d747",
-          sectionName: "SECTION_A",
-          className: "SECOND_PUC",
-          departmentName:""
-        }]
+      this.selectedSection = []
     // this.attendenceService.currentDate = new Date().toLocaleDateString('en-US', {
     //   year: 'numeric',
     //   month: 'long',

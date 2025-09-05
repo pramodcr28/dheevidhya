@@ -1,117 +1,163 @@
-   <!-- Controls Bar -->
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center space-x-4">
-            <p-select 
-              [options]="commonService.associatedSections | async" 
-              [(ngModel)]="selectedSection" 
-              optionLabel="sectionName"
-              placeholder="Select Section"
-              class="w-48"
-              (onChange)="onSectionChange()"
-            >
-             <ng-template let-section pTemplate="item">
-                {{ section.className }} -  {{ section.sectionName }}
-              </ng-template>
-                <!-- Selected item display -->
-              <ng-template let-section pTemplate="selectedItem">
-                {{ section?.className }} - {{ section?.sectionName }}
-              </ng-template>
-          </p-select>
-           <p-select 
-              [options]="subjects" 
-              [(ngModel)]="selectedSubject" 
-              optionLabel="name"
-              placeholder="Select Subject"
-              class="w-48"
-            >
-          </p-select>
-          <p-datepicker [(ngModel)]="slotDate" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay" />
+<p-toast></p-toast>
 
-            <div class="text-sm text-gray-600">
-              Students: <span class="font-medium">{{ currentAttendence?.length }}</span>
-            </div>
-          </div>
+<!-- Controls Bar -->
+<div class="flex items-center justify-between mb-6">
+  <div class="flex items-center space-x-4">
+    <p-select 
+      [options]="commonService.associatedSections | async" 
+      [(ngModel)]="selectedSection" 
+      optionLabel="sectionName"
+      placeholder="Select Section"
+      class="w-48"
+      (onChange)="onSectionChange(); selectionChange()"
+    >
+      <ng-template let-section pTemplate="item">
+        {{ section.className }} -  {{ section.sectionName }}
+      </ng-template>
+      <ng-template let-section pTemplate="selectedItem">
+        {{ section?.className }} - {{ section?.sectionName }}
+      </ng-template>
+    </p-select>
+
+    <p-select 
+      [options]="subjects" 
+      [(ngModel)]="selectedSubject" 
+      optionLabel="name"
+      placeholder="Select Subject"
+      class="w-48"
+      (onChange)="selectionChange()"
+    ></p-select>
+
+    <p-datepicker 
+      [(ngModel)]="slotDate" 
+      [maxDate]="today" 
+      (onSelect)="selectionChange()" 
+      [iconDisplay]="'input'" 
+      [showIcon]="true" 
+      inputId="icondisplay" 
+    />
+
+    <div class="text-sm text-gray-600">
+      Students: <span class="font-medium">{{ currentAttendence?.length }}</span>
+    </div>
+  </div>
+
+  <div class="flex items-center space-x-3">
+    <button 
+      pButton 
+      type="button" 
+      label="Mark All PRESENT" 
+      icon="pi pi-check" 
+      class="p-button-success p-button-outlined"
+      [disabled]="
+      !selectedSection || 
+      !selectedSubject || 
+      !(takeAttandence || isSelectedDateToday())"
+      (click)="markAllPresent()"
+    ></button>
+    <button 
+      pButton 
+      type="button" 
+      label="Save Attendance" 
+      icon="pi pi-save" 
+      class="p-button-primary"
+      [disabled]="
+        !selectedSection || 
+        !selectedSubject || 
+        !(takeAttandence || isSelectedDateToday())
+"
+      (click)="saveAttendance()"
+    ></button>
+
+  </div>
+</div>
+
+<!-- Students Grid -->
+@if(selectedSection && selectedSubject && (takeAttandence || isSelectedDateToday())){
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    @for (student of currentAttendence; track $index) {
+      <p-card>
+        <div class="flex items-center justify-between mb-4">
           <div class="flex items-center space-x-3">
-            <button 
-              pButton 
-              type="button" 
-              label="Mark All PRESENT" 
-              icon="pi pi-check" 
-              class="p-button-success p-button-outlined"
-              (click)="markAllPresent()"
-            ></button>
-            <button 
-              pButton 
-              type="button" 
-              label="Save Attendance" 
-              icon="pi pi-save" 
-              class="p-button-primary"
-              (click)="saveAttendance()"
-            ></button>
-          </div>
-        </div>
-
-        <!-- Students Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div 
-            *ngFor="let student of currentAttendence" 
-
-          >
-          <p-card>
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center space-x-3">
-                <div 
-                  class="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium text-lg"
-                  [ngClass]="{
-                    'bg-blue-500': student.status === 'PRESENT',
-                    'bg-red-500': student.status === 'ABSENT',
-                    'bg-orange-500': student.status === 'LATE'
-                  }"
-                >
-                  {{ student.studentName.charAt(0) }}
-                </div>
-                <div>
-                  <h3 class="font-medium text-gray-900">{{ student.studentName }}</h3>
-                  <p class="text-sm text-gray-500">ID: {{ student.studentId }}</p>
-                </div>
-              </div>
-              <p-tag 
-                [value]="student.status"
-                [severity]="getTagSeverity(student.status)"
-              ></p-tag>
+            <div 
+              class="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium text-lg"
+              [ngClass]="{
+                'bg-blue-500': student.status === 'PRESENT',
+                'bg-red-500': student.status === 'ABSENT',
+                'bg-orange-500': student.status === 'LATE'
+              }"
+            >
+              {{ student.studentName.charAt(0) }}
             </div>
-              <div class="flex space-x-2">
-              <button 
-                pButton 
-                type="button" 
-                label="PRESENT" 
-                class="flex-1 p-button-sm"
-                [class.p-button-success]="student.status === 'PRESENT'"
-                [class.p-button-outlined]="student.status !== 'PRESENT'"
-                (click)="updateAttendance(student, 'PRESENT')"
-              ></button>
-              <button 
-                pButton 
-                type="button" 
-                label="LATE" 
-                class="flex-1 p-button-sm"
-                [class.p-button-warning]="student.status === 'LATE'"
-                [class.p-button-outlined]="student.status !== 'LATE'"
-                (click)="updateAttendance(student, 'LATE')"
-              ></button>
-              <button 
-                pButton 
-                type="button" 
-                label="ABSENT" 
-                class="flex-1 p-button-sm"
-                [class.p-button-danger]="student.status === 'ABSENT'"
-                [class.p-button-outlined]="student.status !== 'ABSENT'"
-                (click)="updateAttendance(student, 'ABSENT')"
-              ></button>
+            <div>
+              <h3 class="font-medium text-gray-900">{{ student.studentName }}</h3>
+              <p class="text-sm text-gray-500">ID: {{ student.studentId }}</p>
             </div>
-          </p-card>
-          
-            
-          
           </div>
+          <p-tag 
+            [value]="student.status"
+            [severity]="getTagSeverity(student.status)"
+          ></p-tag>
         </div>
+        <div class="flex space-x-2">
+          <button 
+            pButton 
+            type="button" 
+            label="PRESENT" 
+            class="flex-1 p-button-sm"
+            [class.p-button-success]="student.status === 'PRESENT'"
+            [class.p-button-outlined]="student.status !== 'PRESENT'"
+            (click)="updateAttendance(student, 'PRESENT')"
+          ></button>
+          <button 
+            pButton 
+            type="button" 
+            label="LATE" 
+            class="flex-1 p-button-sm"
+            [class.p-button-warning]="student.status === 'LATE'"
+            [class.p-button-outlined]="student.status !== 'LATE'"
+            (click)="updateAttendance(student, 'LATE')"
+          ></button>
+          <button 
+            pButton 
+            type="button" 
+            label="ABSENT" 
+            class="flex-1 p-button-sm"
+            [class.p-button-danger]="student.status === 'ABSENT'"
+            [class.p-button-outlined]="student.status !== 'ABSENT'"
+            (click)="updateAttendance(student, 'ABSENT')"
+          ></button>
+        </div>
+      </p-card>
+    }
+  </div>
+} 
+@else if (selectedSection && selectedSubject && !isSelectedDateToday()) {
+  <!-- Past Date Attendance Block -->
+  <div class="flex flex-col items-center justify-center my-40 space-y-4">
+    <p class="text-gray-600 text-sm">
+      Click below if you want to take attendance for that day.
+    </p>
+    <button 
+      pButton 
+      type="button" 
+      label="Take Attendance" 
+      icon="pi pi-calendar-plus" 
+      class="p-button-warning"
+      (click)="takeAttandence = true;"
+    ></button>
+  </div>
+} 
+@else {
+  <!-- Mandatory Fields Info Message -->
+  <div  class="flex justify-center items-center my-40">
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center max-w-md">
+      <div class="flex items-center justify-center">
+        <h4 class="text-yellow-800 font-medium">Selection Required</h4>
+      </div>
+      <p class="text-yellow-700 text-sm">
+        Please select both <strong>Section</strong> and <strong>Subject</strong> to take attendance.
+      </p>
+    </div>
+  </div>
+}

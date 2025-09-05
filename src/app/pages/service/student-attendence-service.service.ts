@@ -36,9 +36,9 @@ export class StudentAttendenceServiceService {
     return this.http.post<AttendanceRequest>(this.resourceUrl, attendence, { observe: 'response' });
   }
 
-getStudents(){
-    return  this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STUDENT" });
-}
+// getStudents(){
+//     return  this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STUDENT" });
+// }
 
 getReports<T>(page: number = 0, size: number = 10, sortBy: string = 'id', 
     sortDirection: string = 'ASC', filters: any = {}): Observable<any> {
