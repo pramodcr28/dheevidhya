@@ -16,10 +16,10 @@ import { TimeTableService } from '../../service/time-table.service';
 })
 export class TimetableGeneratorComponent implements OnInit{
 
-    timeTableService = inject(TimeTableService);
+  timeTableService = inject(TimeTableService);
+  
   ngOnInit(): void {
     this.timeTableService.resetTimeTable(); 
-    // throw new Error('Method not implemented.');
   }
   activeIndex = 0;
   

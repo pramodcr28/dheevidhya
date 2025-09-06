@@ -61,6 +61,7 @@ export class TimetableListComponent implements OnInit {
 
     this.timeTableService.fetchTimeTables().subscribe((result:any)=>{
       this.timetables = result;
+      console.log(   this.timetables );
       this.filteredTimetables = [...this.timetables];
     })
   }

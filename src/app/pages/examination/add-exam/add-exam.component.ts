@@ -104,7 +104,7 @@ export class AddExamComponent {
 
   }
 
-  clearDailogCache(){
+  clearDailogCache(){ 
      this.displayDialog = false;
      this.selectedSubjectsForTimeTable =[];
      this.timeTable = null;

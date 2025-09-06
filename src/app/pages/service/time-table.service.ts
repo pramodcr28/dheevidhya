@@ -89,7 +89,7 @@ export class TimeTableService {
         'user_id.in': [...subjects.map((sub: any) => sub.teacher)]
       }).subscribe((res: any) => {
         const teachers = res.content.map((profile: any) => ({
-          name: profile.username,
+          name: profile.fullName,
           id: profile.userId,
           timeOff: [],
           timeOn: []

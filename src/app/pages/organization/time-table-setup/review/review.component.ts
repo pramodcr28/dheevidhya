@@ -55,7 +55,7 @@ const errors = this.validateTimetable();
         id: sub.id,
         name: sub.name,
         teacher_id: sub.teacher,
-        hours_per_week: 5
+        hours_per_week: this.timeTableService.timeTable.subjects.find(subject=>subject.id == sub.id)?.hoursPerWeek ??  5
       }));
 
       classes.push({
