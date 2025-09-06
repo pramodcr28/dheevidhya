@@ -1,10 +1,12 @@
-<p-dialog [(visible)]="visible" [style]="{ width: '80vw' }" [header]="student && student.id ? 'Edit Student' : 'Add Student'" [modal]="true">
+<p-dialog [(visible)]="visible" [style]="{ width: '80vw' }"  (onHide)="onCancel()"
+          [header]="student && student.id ? 'Edit Student' : 'Add Student'" [modal]="true">
   <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
     <!-- Student Form Section -->
     <div class="col-span-1 md:col-span-6">
       <h3 class="text-lg font-bold mb-4">Basic Information</h3>
       <form [formGroup]="studentForm" class="flex flex-col gap-4">
-        <!-- Login details -->
+
+        <!-- Registration Id -->
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label for="login" class="block font-bold mb-2">Registration Id</label>
@@ -15,7 +17,7 @@
           </div>
         </div>
 
-        <!-- Personal details -->
+        <!-- Name -->
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label for="firstName" class="block font-bold mb-2">First Name</label>
@@ -33,7 +35,7 @@
           </div>
         </div>
 
-        <!-- Address section title -->
+        <!-- Address Section -->
         <div class="mt-2">
           <h3 class="text-lg font-bold">Address Details</h3>
         </div>
@@ -43,10 +45,16 @@
           <div>
             <label for="houseNumber" class="block font-bold mb-2">House Number</label>
             <input type="text" pInputText id="houseNumber" formControlName="houseNumber" fluid />
+            <small class="text-red-500" *ngIf="studentForm.get('houseNumber')?.invalid && (submitted || studentForm.get('houseNumber')?.touched)">
+              House Number is required.
+            </small>
           </div>
           <div>
             <label for="street" class="block font-bold mb-2">Street</label>
             <input type="text" pInputText id="street" formControlName="street" fluid />
+            <small class="text-red-500" *ngIf="studentForm.get('street')?.invalid && (submitted || studentForm.get('street')?.touched)">
+              Street is required.
+            </small>
           </div>
         </div>
 
@@ -62,6 +70,9 @@
           <div>
             <label for="landmark" class="block font-bold mb-2">Landmark</label>
             <input type="text" pInputText id="landmark" formControlName="landmark" fluid />
+            <small class="text-red-500" *ngIf="studentForm.get('landmark')?.invalid && (submitted || studentForm.get('landmark')?.touched)">
+              Landmark is required.
+            </small>
           </div>
         </div>
 
@@ -70,6 +81,9 @@
           <div>
             <label for="taluk" class="block font-bold mb-2">Taluk</label>
             <input type="text" pInputText id="taluk" formControlName="taluk" fluid />
+            <small class="text-red-500" *ngIf="studentForm.get('taluk')?.invalid && (submitted || studentForm.get('taluk')?.touched)">
+              Taluk is required.
+            </small>
           </div>
           <div>
             <label for="district" class="block font-bold mb-2">District</label>
@@ -106,6 +120,7 @@
             Postal Code is required.
           </small>
         </div>
+
       </form>
     </div>
 
@@ -113,7 +128,8 @@
     <div class="col-span-1 md:col-span-6">
       <h3 class="text-lg font-bold mb-4">Academic Information</h3>
       <form [formGroup]="studentProfileForm" class="flex flex-col gap-4">
-        <!-- Gender Selection -->
+
+        <!-- Gender -->
         <div>
           <label class="block font-bold mb-2">Gender</label>
           <p-select
@@ -130,7 +146,7 @@
           </small>
         </div>
 
-        <!-- Department Selection -->
+        <!-- Department -->
         <div class="mt-2">
           <label class="block font-bold mb-2">Department</label>
           <p-select
@@ -145,8 +161,8 @@
             Department is required.
           </small>
         </div>
-        
-        <!-- Class Selection -->
+
+        <!-- Class -->
         <div class="mt-2" *ngIf="selectedDepartment">
           <label class="block font-bold mb-2">Class</label>
           <p-select
@@ -162,7 +178,7 @@
           </small>
         </div>
 
-        <!-- Section Selection -->
+        <!-- Section -->
         <div class="mt-2" *ngIf="selectedClass">
           <label class="block font-bold mb-2">Section</label>
           <p-select
@@ -180,10 +196,23 @@
 
       </form>
     </div>
+
   </div>
 
   <ng-template pTemplate="footer">
-    <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text" (click)="onCancel()"></p-button>
-    <p-button label="Save" icon="pi pi-check" (click)="onSave()"></p-button>
-  </ng-template>
+  <p-button 
+    label="Cancel" 
+    icon="pi pi-times" 
+    styleClass="p-button-text" 
+    (click)="onCancel()">
+  </p-button>
+
+  <p-button 
+    label="Save" 
+    icon="pi pi-check" 
+    [disabled]="!studentForm.valid || !selectedGender || !selectedDepartment || !selectedClass || !selectedSection"
+    (click)="onSave()">
+  </p-button>
+</ng-template>
+
 </p-dialog>

@@ -15,7 +15,7 @@ import { getAssociatedDepartments, getBranch } from '../../../core/store/user-pr
 import { AccordionModule } from 'primeng/accordion';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ChipModule } from 'primeng/chip';
-import { TreeNode } from 'primeng/api';
+import { MessageService, TreeNode } from 'primeng/api';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { SelectModule } from 'primeng/select';
 import { ExaminationDTO, ExamTypeLabels, ExamStatusLabels} from '../../models/examination.model';
@@ -25,6 +25,8 @@ import { ExaminationService } from '../../service/examination.service';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ExamSlotsComponent } from '../exam-slots/exam-slots.component';
 import { Subject } from '../../models/time-table';
+import { ApiLoaderService } from '../../../core/services/loaderService';
+import { ToastModule } from 'primeng/toast';
 @Component({
   selector: 'app-add-exam',
   standalone: true,
@@ -44,10 +46,12 @@ import { Subject } from '../../models/time-table';
     CommonModule,
     SelectModule,
     InputNumberModule,
-    ExamSlotsComponent
+    ExamSlotsComponent,
+    ToastModule
   ],
   templateUrl: './add-exam.component.html',
-  styles: ``
+  styles: ``,
+  providers:[MessageService]
 })
 export class AddExamComponent {
   private store = inject(Store<{ userProfile: UserProfileState }>);
@@ -68,8 +72,10 @@ export class AddExamComponent {
   selectedSubjectsForTimeTable: Subject[] = [];
   constructor(private fb: FormBuilder) {}
   //  timeSlots: ExaminationTimeSlot[] = [];
-   timeTable:ExaminationTimeTable = null;
-   commonService:CommonService = inject(CommonService);
+  timeTable:ExaminationTimeTable = null;
+  commonService:CommonService = inject(CommonService);
+  loader = inject(ApiLoaderService); 
+  messageService = inject(MessageService);
   ngOnInit(): void {
     this.store.select(getAssociatedDepartments).subscribe(departments => {
       this.associatedDepartments = departments;
@@ -80,7 +86,7 @@ export class AddExamComponent {
     });
 
     this.examForm = this.fb.group({
-      totalMarks: [100, Validators.required],
+      totalMarks: [null, Validators.required],
       departmentId: [null, Validators.required],
       branchId: [null, Validators.required],
       examType: [null, Validators.required],
@@ -90,9 +96,10 @@ export class AddExamComponent {
   }
 
   getExams(){
-
+    this.loader.show("Fetching Exams List");
     this.examinationService.search(0, 100, 'id', 'ASC', {'branchId.equals': this.currentBranch.id?.toString()}).subscribe(res=>{
-           this.exams = res.content;
+        this.exams = res.content;
+        this.loader.hide();
     });
 
   }
@@ -102,6 +109,10 @@ export class AddExamComponent {
      this.selectedSubjectsForTimeTable =[];
      this.timeTable = null;
      this.selectedSubjects = [];
+     this.selectedExam = null;
+     this.examForm.reset();
+     this.selectedDepartment = null;
+     this.getExams();
   }
 
    openDialog() {
@@ -329,6 +340,11 @@ export class AddExamComponent {
 
        this.examinationService.create(finalExamData).subscribe(result=>{
         this.getExams();
+         this.messageService.add({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: `Congrats! exam uplished` 
+          });
        });
       this.clearDailogCache();
       // this.displayDialog = false;

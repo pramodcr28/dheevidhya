@@ -92,7 +92,10 @@ export class TenantUserFormService {
       passwordHash: new FormControl(tenantUserRawValue.passwordHash, {
         validators: [Validators.required],
       }),
-      firstName: new FormControl(tenantUserRawValue.firstName),
+      firstName: new FormControl(tenantUserRawValue.firstName, {
+        validators: [Validators.required],
+      }
+      ),
       lastName: new FormControl(tenantUserRawValue.lastName),
       email: new FormControl(tenantUserRawValue.email, {
         validators: [Validators.required],

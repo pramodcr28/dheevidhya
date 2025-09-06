@@ -53,7 +53,7 @@
   </div>
 
   <!-- Navigation Footer -->
-  <!-- <div class="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
+  <div class="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center py-4">
         <button (click)="previousTab()" 
@@ -64,12 +64,12 @@
         </button>
         <span class="text-sm text-gray-600">Step {{activeIndex + 1}} of 4</span>
         <button (click)="nextTab()" 
-                [disabled]="activeIndex === 3"
+                [disabled]="activeIndex === 3 || !timeTableService.timeTable?.department"
                 class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50">
           Next
           <i class="pi pi-arrow-right ml-2"></i>
         </button>
       </div>
     </div>
-  </div> -->
+  </div>
 </div>
