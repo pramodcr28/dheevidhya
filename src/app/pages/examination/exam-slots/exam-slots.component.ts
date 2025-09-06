@@ -204,8 +204,9 @@ export class ExamSlotsComponent {
     this.timeTable.schedules.splice(0, this.timeTable.schedules.length); // Clear in-place
 
     let currentDate = new Date(this.timeTable.settings.startDate);
-    const endDate = new Date(this.timeTable.settings.endDate);
-
+    let endDate = new Date(this.timeTable.settings.endDate);
+    currentDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
     while (currentDate <= endDate) {
       let slotStart = new Date(
         currentDate.getFullYear(),

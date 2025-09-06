@@ -1,3 +1,4 @@
+import { Loader } from './../../../../../node_modules/esbuild/lib/main.d';
 import { TimetableViewComponent } from './../../../shared/timetable-view/timetable-view.component';
 import { TimeTableService } from './../../service/time-table.service';
 import { CommonModule } from '@angular/common';
@@ -14,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { CommonService } from '../../../core/services/common.service';
+import { ApiLoaderService } from '../../../core/services/loaderService';
 
 @Component({
   selector: 'app-timetable-list',
@@ -52,16 +54,17 @@ export class TimetableListComponent implements OnInit {
     { label: 'Active', value: 'active' },
     { label: 'Archived', value: 'archived' }
   ];
+   loader = inject(ApiLoaderService); 
 
   ngOnInit() {
     this.getTimeTableList();
   }
 
   getTimeTableList(){
-
+  this.loader.show("Fetching Timetables");
     this.timeTableService.fetchTimeTables().subscribe((result:any)=>{
       this.timetables = result;
-      console.log(   this.timetables );
+      this.loader.hide();
       this.filteredTimetables = [...this.timetables];
     })
   }
