@@ -13,6 +13,7 @@ import { StudentAttendenceServiceService } from '../../service/student-attendenc
 import { CommonService } from '../../../core/services/common.service';
 import { MultiSelect } from 'primeng/multiselect';
 import { AttendanceReport} from '../../models/attendence.model';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-detailed-reports',
@@ -26,7 +27,8 @@ import { AttendanceReport} from '../../models/attendence.model';
         BadgeModule,
         TagModule,
         TableModule,
-        MultiSelect
+        MultiSelect,
+        DatePickerModule,
   ],
   templateUrl: './detailed-reports.component.html',
   styles: ``
@@ -40,7 +42,8 @@ export class DetailedReportsComponent {
    selectedSection: Section[] | null = [];
    selectedSubject:any[] = [];
    today: Date = new Date();
-     ngOnInit() {
+   attendanceDateRange: Date[] = [];
+  ngOnInit() {
       this.selectedSection = []
     // this.attendenceService.currentDate = new Date().toLocaleDateString('en-US', {
     //   year: 'numeric',
@@ -52,18 +55,34 @@ export class DetailedReportsComponent {
   }
 
   getReports(){
-      this.attendenceService.getReports(0, 100, 'id', 'ASC', 
-      {
+    console.log()
+    let reqBody = {
         "academicYear": "2025-2026",
         "departmentIds": this.selectedSection.map(sec=>sec.departmentId),
         "classIds":  this.selectedSection.map(sec=>sec.classId),
-        "sectionIds": this.selectedSection.map(sec=>sec.sectionId)
+        "sectionIds": this.selectedSection.map(sec=>sec.sectionId),
+        // "subjectIds": [...this.selectedSubject.map(sub=>sub.code)],  // match subjectCode
+        // "attendanceDateRange": [
+        //   "2025-08-01",  // start date (ISO string or yyyy-MM-dd)
+        //   "2025-08-31"   // end date
+        // ]
+      };
+      if(this.selectedSubject.length){
+        reqBody["subjectIds"] = [...this.selectedSubject.map(sub=>sub.code)];
       }
+
+      if (this.attendanceDateRange?.length === 2) {
+        reqBody['attendanceDateRange'] = this.attendanceDateRange.map(d =>
+          d.toISOString().split('T')[0]
+        );
+      }
+
+      this.attendenceService.getReports(0, 100, 'id', 'ASC', 
+      reqBody
     ).subscribe({
           next: (res: any) => {
             this.classAttendanceReport = res.content;
-
-            // console.log(this.classAttendanceReport)
+            // console.log(this.classAttendanceReport);
           },
         });
   }

@@ -4,34 +4,48 @@
           <!-- Report Controls -->
           <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div class="flex items-center space-x-4">
-              <p-multi-select 
-                [options]="commonService.associatedSections | async" 
-                [(ngModel)]="selectedSection" 
-                optionLabel="sectionName"
-                placeholder="Section Name"
-                class="w-48"
-              >
-              <ng-template let-section pTemplate="item">
-                {{ section.className }} -  {{ section.sectionName }}
-              </ng-template>
-            </p-multi-select>
+                <!-- Section Filter -->
+                <p-multi-select 
+                  [options]="commonService.associatedSections | async" 
+                  [(ngModel)]="selectedSection"
+                  optionLabel="sectionName"
+                  placeholder="Section Name"
+                  class="w-48">
+                  <ng-template let-section pTemplate="item">
+                    {{ section.className }} - {{ section.sectionName }}
+                  </ng-template>
+                </p-multi-select>
 
-            <p-multi-select 
-                [options]="commonService.associatedSubjects | async" 
-                [(ngModel)]="selectedSubject" 
-                optionLabel="name"
-                placeholder="subject"
-                class="w-48">
-            </p-multi-select>
-             <button 
-                pButton 
-                type="button" 
-                label="Search" 
-                icon="pi pi-sync" 
-                class="p-button-danger"
-                (click)="getReports()"
-              ></button>
-            </div>
+                <!-- Subject Filter -->
+                <p-multi-select 
+                  [options]="commonService.associatedSubjects | async" 
+                  [(ngModel)]="selectedSubject"
+                  optionLabel="name"
+                  placeholder="Subject"
+                  class="w-48">
+                </p-multi-select>
+
+                <!-- Replaced Date Range Picker -->
+                <p-datepicker
+                  [(ngModel)]="attendanceDateRange"
+                  selectionMode="range"
+                  dateFormat="yy-mm-dd"
+                  [showClear]="true"
+                  placeholder="Select Date Range"
+                  class="w-60">
+                </p-datepicker>
+
+                <!-- Search Button -->
+                <button 
+                  pButton 
+                  type="button" 
+                  label="Search" 
+                  icon="pi pi-sync" 
+                  class="p-button-danger"
+                  (click)="getReports()">
+                </button>
+              </div>
+
             
             <div class="flex items-center space-x-2">
               <button 

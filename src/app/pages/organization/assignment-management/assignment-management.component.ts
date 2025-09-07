@@ -16,6 +16,7 @@ import { CommonService } from '../../../core/services/common.service';
 import { AddAssignmentDialogComponent } from './add-assignment-dialog/add-assignment-dialog.component';
 import { SubmitAssignmentDialogComponent } from './submit-assignment-dialog/submit-assignment-dialog.component';
 import { TooltipModule } from 'primeng/tooltip';
+import { ApiLoaderService } from '../../../core/services/loaderService';
 
 @Component({
     selector: 'app-assignment-management',
@@ -51,6 +52,7 @@ export class AssignmentManagementComponent implements OnInit {
     selectedAssignment: any = null;
     assignmentSubmission: AssignmentSubmission = null;
     isStudentView = true;
+    loader = inject(ApiLoaderService); 
     ngOnInit(): void {
         this.apiCall();
         this.store.select(getAssociatedDepartments).subscribe((departments) => {
@@ -59,8 +61,10 @@ export class AssignmentManagementComponent implements OnInit {
     }
 
     apiCall() {
+        this.loader.show("Fetching Assignments");
         this.assignmentService.search().subscribe((result) => {
             this.assignments = result.content;
+            this.loader.hide();
         });
     }
     onDepartmentChange() {
@@ -164,7 +168,7 @@ export class AssignmentManagementComponent implements OnInit {
             }else{
               this.isStudentView = false;
             }
-
+            this.loader.show("Fetching Assignments");
          this.assignmentService.searchSubmission(searchRequest).subscribe(response=>{
            if (user.roles?.student) {
                if(response?.content.length){
