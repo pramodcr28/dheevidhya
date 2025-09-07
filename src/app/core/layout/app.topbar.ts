@@ -64,16 +64,16 @@ import { LayoutService } from '../services/layout.service';
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
+                    <!-- <button type="button" class="layout-topbar-action">
                         <i class="pi pi-calendar"></i>
                         <span>Calendar</span>
-                    </button>
-                    <a [routerLink]="'/auth/login'">
+                    </button> -->
+                    <!-- <a [routerLink]="'/auth/login'">
                         <button type="button" class="layout-topbar-action">
                             <i class="pi pi-fw pi-sign-out"></i>
                             <span>Logout</span>         
                         </button>
-                    </a>
+                    </a> -->
                    <a [routerLink]="'/profile'">
                         <button type="button"  class="layout-topbar-action">
                             <i class="pi pi-user"></i>
