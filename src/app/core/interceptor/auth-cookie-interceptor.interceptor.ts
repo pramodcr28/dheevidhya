@@ -20,10 +20,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           }
         });
       }else{
-        // if (!req.url.includes('/api/authenticate')) {
-        //   router.navigate(['/auth/login']);
-        //    throwError(() => new Error('No token, redirecting to login'));
-        // }
+        if (!req.url.includes('/api/authenticate')) {
+          router.navigate(['/auth/login']);
+           throwError(() => new Error('No token, redirecting to login'));
+        }
       }
       
       return next(modifiedReq);
