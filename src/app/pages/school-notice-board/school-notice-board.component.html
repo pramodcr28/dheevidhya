@@ -1,0 +1,151 @@
+<div class="min-h-screen  bg-white dark:bg-gray-900 shadow-xl ">
+  <p-toast position="top-right"></p-toast>
+<!-- Header -->
+<div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-2xl mb-6">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <!-- Title -->
+    <div class="flex items-center space-x-4">
+      <div class="p-3 bg-white/20 rounded-xl">
+        <i class="pi pi-bell text-2xl text-white"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold text-white">Notification Management</h1>
+        <p class="text-white/80">Manage and publish notices for your institute</p>
+      </div>
+    </div>
+
+    <!-- Add Notice Button -->
+    <div>
+      <p-button 
+        label="Add Notice" 
+        icon="pi pi-plus"
+        (click)="showAddDialog()" 
+       >
+      </p-button>
+    </div>
+  </div>
+</div>
+
+<!-- Category Scroll Row with Custom Arrows -->
+<div class="relative mb-6 px-6">
+  <!-- Left Arrow -->
+  <button 
+    class="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 shadow rounded-full p-2"
+    (click)="scrollLeft()">
+    <i class="pi pi-chevron-left"></i>
+  </button>
+
+  <!-- Scrollable Row -->
+  <div #scrollContainer 
+       class="flex flex-nowrap gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-10">
+       @for (category of categoryOptions; track $index) {
+        <div 
+      class="cursor-pointer flex-shrink-0"
+      (click)="selectCategory(category.value)">
+      
+      <div 
+        class="flex flex-col items-center justify-center w-32 h-32 rounded-xl shadow border text-center p-3"
+        [ngClass]="{
+          'border-blue-500 bg-blue-50 dark:bg-blue-900/30': selectedCategory === category.value,
+          'border-gray-200 dark:border-gray-700 hover:border-gray-300': selectedCategory !== category.value
+        }">
+        
+        <div 
+          class="w-10 h-10 rounded-full flex items-center justify-center text-white mb-2"
+          [ngClass]="category.colorClass">
+          <i [class]="category.icon" class="text-base"></i>
+        </div>
+        
+        <!-- Wrapping Label -->
+        <span class="text-sm font-semibold text-gray-700 dark:text-white text-center break-words">
+          {{category.label}}
+        </span>
+      </div>
+    </div>
+       }
+    
+  </div>
+
+  <!-- Right Arrow -->
+  <button 
+    class="absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-transparent dark:bg-gray-800 shadow rounded-full p-2"
+    (click)="scrollRight()">
+    <i class="pi pi-chevron-right"></i>
+  </button>
+</div>
+
+
+<div class="space-y-4 px-6">
+    <div class="flex items-center justify-between">
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+        {{selectedCategory === 'ALL' ? 'All Notices' : getSelectedCategoryName()}}
+        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">
+          ({{filteredNotices.length}} total)
+        </span>
+      </h3>
+    </div>
+
+    <!-- Notice Cards -->
+    <!-- Notice Cards Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6">
+      <div *ngFor="let notice of filteredNotices">
+        <p-card 
+          class="shadow-md border-0 rounded-2xl hover:shadow-xl transition-all duration-200 h-full flex flex-col"
+          [ngClass]="getPriorityBorderClass(notice.priority)">
+
+          <div  class="flex flex-col md:flex-row gap-4 h-full">
+            <!-- Icon -->
+            <div 
+              class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white shadow-md"
+              [ngClass]="getCategoryColorClass(notice.categoryType)">
+              <i [class]="getCategoryIcon(notice.categoryType)" class="text-lg"></i>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0 flex flex-col justify-between">
+              <div>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <h3 class="text-lg font-bold m-0 text-gray-900 dark:text-white">{{notice.title}}</h3>
+                  <p-tag [value]="notice.priority" [severity]="getPrioritySeverity(notice.priority)"></p-tag>
+                </div>
+
+                <!-- Content (truncate single line with ...) -->
+                <p class="text-gray-500 text-md dark:text-gray-300 p-3 pt-1 ps-0 truncate "  [innerHTML]="notice.content || 'No content added'">>
+                </p>
+              </div>
+
+              <!-- Footer Info -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-gray-500 dark:text-gray-400 mt-auto">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-calendar text-blue-500"></i> {{notice.academicYear}}
+                </div>
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-users text-green-500"></i> {{notice.targetAudience.type}}
+                </div>
+                <div class="flex items-center gap-2" *ngIf="notice.attachments?.length">
+                  <i class="pi pi-paperclip text-orange-500"></i> {{notice.attachments.length}} attachment(s)
+                </div>
+              </div>
+            </div>
+          </div>
+        </p-card>
+      </div>
+    </div>
+
+
+
+    <!-- Empty State -->
+    <p-card *ngIf="filteredNotices.length === 0" class="text-center p-10 rounded-2xl">
+      <i class="pi pi-info-circle text-4xl text-gray-400 mb-4"></i>
+      <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">No notices found</h3>
+      <p class="text-gray-500 dark:text-gray-400">Try selecting a different category or add a new notice.</p>
+    </p-card>
+  </div>
+<app-notice-add 
+  [visible]="addDialogVisible"
+  [priorityOptions]="priorityOptions"
+  (save)="createNotice($event)"
+  (cancel)="addDialogVisible=false">
+</app-notice-add>
+
+</div>

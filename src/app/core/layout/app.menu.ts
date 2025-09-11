@@ -25,23 +25,24 @@ export class AppMenu {
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
                     { label: 'Students', icon: 'pi pi-fw pi-users', routerLink: ['/students'] },
-                    { label: 'Staff', icon: 'pi pi-fw pi-users', routerLink: ['/employees'] }
+                    { label: 'Staff', icon: 'pi pi-fw pi-graduation-cap', routerLink: ['/employees'] }
                 ]
             },
             {
                 label: 'Organization',
                 items: [   
-                    { label: 'Department Setup', icon: 'pi pi-fw pi-sitemap', routerLink: ['/department-setup'] },
+                    { label: 'Department Setup', icon: 'pi pi-fw pi-building-columns', routerLink: ['/department-setup'] },
                     { label: 'Org Tree', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] },
                 ]
             },
             {
                 label: 'Academics',
                 items: [   
-                    { label: 'Time Table', icon: 'pi pi-fw pi-sitemap', routerLink: ['/time-table-list'] },
+                    { label: 'Time Table', icon: 'pi pi-fw pi-table', routerLink: ['/time-table-list'] },
                     { label: 'Student Attendence', icon: 'pi pi-fw pi-home', routerLink: ['/student-attendence'] },
-                    { label: 'Examination', icon:'pi pi-fw pi-sitemap', routerLink:['/examination']},
-                    { label: 'Assignment', icon:'pi pi-fw pi-book', routerLink:['/assignment']}
+                    { label: 'Examination', icon:'pi pi-fw pi-verified', routerLink:['/examination']},
+                    { label: 'Assignment', icon:'pi pi-fw pi-book', routerLink:['/assignment']},
+                    { label: 'Notification', icon:'pi pi-fw pi-bell', routerLink:['/notice-board']}
                 ]
             }
         ];

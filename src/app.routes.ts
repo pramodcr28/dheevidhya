@@ -12,6 +12,7 @@ import { StudentAttendenceComponent } from './app/pages/organization/student-att
 import { ExaminationComponent } from './app/pages/examination/examination.component';
 import { TimetableListComponent } from './app/pages/organization/timetable-list/timetable-list.component';
 import { AssignmentManagementComponent } from './app/pages/organization/assignment-management/assignment-management.component';
+import { SchoolNoticeBoardComponent } from './app/pages/school-notice-board/school-notice-board.component';
 
 export const appRoutes: Routes = [
     {
@@ -27,6 +28,7 @@ export const appRoutes: Routes = [
             { path: 'student-attendence', component: StudentAttendenceComponent },
             { path: 'examination', component: ExaminationComponent},
             { path: 'assignment', component: AssignmentManagementComponent},
+            { path: 'notice-board', component: SchoolNoticeBoardComponent},
             
             { path: 'department-setup', component: DepartmentSetupComponent },
             { path: 'profile', component: ProfileComponent },
