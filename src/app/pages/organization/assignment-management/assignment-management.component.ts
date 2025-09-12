@@ -163,7 +163,7 @@ export class AssignmentManagementComponent implements OnInit {
           this.commonService.currentUser.subscribe((user) => {
             searchRequest.filters['assignmentId'] = this.selectedAssignment.id;
             if (user.roles?.student) {
-              searchRequest.filters['studentId'] = user.userId;
+              searchRequest.filters['studentId.like'] = user.userId;
                this.isStudentView = true;
             }else{
               this.isStudentView = false;

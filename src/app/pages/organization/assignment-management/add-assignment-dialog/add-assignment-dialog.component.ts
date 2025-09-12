@@ -22,7 +22,7 @@ import { TreeNode } from 'primeng/api';
     ButtonModule,
     InputTextModule,
     EditorModule,
-    DropdownModule,
+    SelectModule,
     DatePickerModule,
     TreeSelectModule,
     SelectModule
@@ -63,6 +63,7 @@ export class AddAssignmentDialogComponent {
   }
 
   close() {
+    debugger
     this.visibleChange.emit(false);
     this.cancel.emit();
   }

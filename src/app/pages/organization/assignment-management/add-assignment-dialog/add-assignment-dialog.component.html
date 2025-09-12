@@ -1,6 +1,8 @@
 <p-dialog header="Add New Task"
           [(visible)]="visible"
-          [modal]="true">
+          [modal]="true"
+          (onHide)=" close()"
+          >
 
   <div class="grid grid-cols-1 gap-4">
     <!-- Title -->
@@ -51,12 +53,12 @@
 
       <!-- Type -->
       <div>
-        <p-dropdown
+        <p-select
           [options]="typeOptions"
           placeholder="Select task type"
           [(ngModel)]="newAssignment.type"
           class="w-full">
-        </p-dropdown>
+        </p-select>
       </div>
 
     </div>

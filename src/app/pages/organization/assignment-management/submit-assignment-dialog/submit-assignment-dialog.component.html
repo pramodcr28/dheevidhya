@@ -4,6 +4,7 @@
   [modal]="true" 
   [draggable]="false"
   [resizable]="false"
+  (onHide)="close()"
   [style]="{width: '85vw', maxWidth: '1200px'}" >
  
   <ng-container *ngIf="studentResponse && selectedAssignment; else noData"> 
@@ -127,35 +128,21 @@
  
   <ng-template pTemplate="footer"> 
     <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-      <div class="text-sm text-gray-500">
-        @if(isStudentView) {
-          <span class="flex items-center">
-            <i class="pi pi-info-circle mr-1"></i>
-            Make sure to review your response before submitting
-          </span>
-        } @else {
-          <span class="flex items-center">
-            <i class="pi pi-info-circle mr-1"></i>
-            Your feedback will be visible to the student
-          </span>
-        }
-      </div>
-      
       <div class="flex gap-3">
         <p-button 
           label="Cancel" 
           icon="pi pi-times"
           [text]="true" 
           severity="secondary"
-          size="large"
+          size="small"
           class="hover:bg-gray-100 transition-colors duration-200"
           (onClick)="close()">
         </p-button>
         <p-button 
-          [label]="isStudentView ? 'Submit Assignment' : 'Save Feedback'" 
+          [label]="isStudentView ? 'Submit' : 'Save'" 
           [icon]="isStudentView ? 'pi pi-send' : 'pi pi-check'"
           severity="primary"
-          size="large"
+          size="small"
           class="hover:bg-blue-600 transition-colors duration-200"
           (onClick)="save()">
         </p-button>
