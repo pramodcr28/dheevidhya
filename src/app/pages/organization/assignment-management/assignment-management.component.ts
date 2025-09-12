@@ -170,6 +170,7 @@ export class AssignmentManagementComponent implements OnInit {
             }
             this.loader.show("Fetching Assignments");
          this.assignmentService.searchSubmission(searchRequest).subscribe(response=>{
+             this.loader.hide();
            if (user.roles?.student) {
                if(response?.content.length){
                   this.assignmentSubmission = response?.content[0];
