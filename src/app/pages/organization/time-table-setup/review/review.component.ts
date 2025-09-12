@@ -42,7 +42,7 @@ const errors = this.validateTimetable();
     preferred_periods: t.timeOn,
     avoided_periods:t.timeOff
   }));
-
+  console.log(teachers);
   let classes: any[] = [];
   let classCounter = 1;
 
@@ -189,10 +189,10 @@ getSlotIndexes(classSec: ClassSection): number[] {
   }
 
   // ✅ Every subject must have a teacher
-  const unassigned = this.timeTableService.timeTable.subjects.filter(s => !s.teacher);
-  if (unassigned.length) {
-    errors.push(`${unassigned.length} subject(s) do not have a teacher assigned.`);
-  }
+  // const unassigned = this.timeTableService.timeTable.subjects.filter(s => !s.teacher);
+  // if (unassigned.length) {
+  //   errors.push(`${unassigned.length} subject(s) do not have a teacher assigned.`);
+  // }
 
   // ✅ Working days validation
   const workingDays = this.timeTableService.timeTable.settings.workingDays.filter(d => d.selected);

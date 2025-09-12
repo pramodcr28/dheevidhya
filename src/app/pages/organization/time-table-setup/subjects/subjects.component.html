@@ -11,7 +11,7 @@
         <thead>
           <tr class="border-b">
             <th class="text-left py-3 px-4 font-medium text-gray-700">NAME</th>
-            <th class="text-left py-3 px-4 font-medium text-gray-700">TEACHER</th>
+            <!-- <th class="text-left py-3 px-4 font-medium text-gray-700">TEACHER</th> -->
             <th class="text-left py-3 px-4 font-medium text-gray-700">HOURS/WEEK</th>
             <th class="text-left py-3 px-4 font-medium text-gray-700">COLOR</th>
             <th class="text-left py-3 px-4 font-medium text-gray-700">ACTIONS</th>
@@ -22,9 +22,9 @@
             <td class="py-3 px-4">
               {{subject.name}}
             </td>
-            <td class="py-3 px-4">
+            <!-- <td class="py-3 px-4">
               {{subject.teacher?.name}}
-            </td>
+            </td> -->
             <td class="py-3 px-4">
               <p-inputNumber 
                 [(ngModel)]="subject.hoursPerWeek" 

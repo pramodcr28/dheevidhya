@@ -16,7 +16,7 @@ export class TimeTableService {
   private store = inject(Store<{ userProfile: UserProfileState }>);
   private userService = inject(UserService);
   private applicationConfigService = inject(ApplicationConfigService);
-
+  public teachers: Teacher[] = [];
   public timeTable: TimeTable = {
     department: null,
     settings: {
@@ -77,7 +77,7 @@ export class TimeTableService {
 
   // Teacher Methods
   getTeachersList(): Teacher[] {
-    return this.timeTable.subjects.map(sub => sub.teacher);
+    return this.teachers;
   }
 
   onDepartmentChange() {
@@ -86,19 +86,19 @@ export class TimeTableService {
       this.userService.search(0, 100, 'id', 'ASC', {
         'profileType.equals': "STAFF",
         'departments.in': [this.timeTable.department.id],
-        'user_id.in': [...subjects.map((sub: any) => sub.teacher)]
+        'roles.teacher.subject_ids.in': [...subjects.map((sub: any) => sub.id)]
       }).subscribe((res: any) => {
-        const teachers = res.content.map((profile: any) => ({
+        this.teachers = res.content.map((profile: any) => ({
           name: profile.fullName,
           id: profile.userId,
           timeOff: [],
           timeOn: []
         }));
-
+// teachers.find((teacher: Teacher) => teacher.id === sub.teacher)
         this.timeTable.subjects = subjects.map((sub: any, index: number) => ({
           id: sub.id,
           name: sub.name,
-          teacher: teachers.find((teacher: Teacher) => teacher.id === sub.teacher),
+          teacher: null,
           hoursPerWeek: 4,
           color: this.availableColors[index % this.availableColors.length]
         }));
@@ -108,7 +108,7 @@ export class TimeTableService {
 
   // Availability Methods
   togglePeriodAvailability(teacherId: string, dayIndex: number, periodIndex: number) {
-    const teacher = this.timeTable.subjects.find(sub => sub.teacher.id === teacherId)?.teacher;
+    const teacher = this.teachers.find(teacher => teacher.id === teacherId);
     if (!teacher) return;
 
     const key: [number, number] = [dayIndex, periodIndex];
