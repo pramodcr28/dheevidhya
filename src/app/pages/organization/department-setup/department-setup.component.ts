@@ -75,8 +75,9 @@ export class DepartmentSetupComponent {
 
   onDepartmentChange(){
 
-     this.loader.show("Fetching latest config");
+    
      this.departmentConfigService.find(this.selectedMasterDepartment.id).subscribe(departmentConfig=>{
+       this.loader.show("Fetching latest config");
       this.selectedMasterDepartment.academicStart = departmentConfig.body?.academicStart;
       this.selectedMasterDepartment.academicEnd = departmentConfig.body?.academicEnd
       if(this.selectedMasterDepartment){
@@ -89,10 +90,10 @@ export class DepartmentSetupComponent {
       }
     })
       
-    this.userService.search(0,100,'id','ASC',{ 'departments.in': [this.selectedMasterDepartment!.id]})
-        .subscribe(result=>{
-        this.users = result.content;
-    })
+    // this.userService.search(0,100,'id','ASC',{ 'departments.in': [this.selectedMasterDepartment!.id]})
+    //     .subscribe(result=>{
+    //     this.users = result.content;
+    // })
   
   }
 

@@ -69,6 +69,7 @@ export interface IProfileConfig {
   profileType?: keyof typeof ProfileType | null;
   departments?: string[] | null;
   roles?: IRoleConfigs | null;
+  subjectIds?:string[] | null;
 }
 
 export type NewProfileConfig = Omit<IProfileConfig, 'id'> & { id: null };

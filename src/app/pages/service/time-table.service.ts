@@ -86,7 +86,7 @@ export class TimeTableService {
       this.userService.search(0, 100, 'id', 'ASC', {
         'profileType.equals': "STAFF",
         'departments.in': [this.timeTable.department.id],
-        'roles.teacher.subject_ids.in': [...subjects.map((sub: any) => sub.id)]
+        'subject_ids.in': [...subjects.map((sub: any) => sub.id)]
       }).subscribe((res: any) => {
         this.teachers = res.content.map((profile: any) => ({
           name: profile.fullName,

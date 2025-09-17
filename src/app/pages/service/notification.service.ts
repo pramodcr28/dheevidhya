@@ -5,8 +5,6 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApplicationConfigService } from '../../core/services/application-config.service';
 import { UserService } from './user.service';
-import { Assignment, AssignmentSubmission } from '../models/assignment.model';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -32,7 +30,7 @@ export class NotificationService {
   }
 
  create(attendence: Notice) {
-    return this.http.post<Assignment>(this.resourceUrl, attendence, { observe: 'response' });
+    return this.http.post<Notice>(this.resourceUrl, attendence, { observe: 'response' });
   }
 
 

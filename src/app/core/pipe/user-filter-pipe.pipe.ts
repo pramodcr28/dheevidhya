@@ -13,10 +13,15 @@ export class UserFilterPipePipe implements PipeTransform {
    
     return users.filter(user => {
       let selectedSubjects = [];
-       for(let role in user.roles){
-          if(user.roles[role]?.subjectIds){
-            selectedSubjects =[...selectedSubjects,...user.roles[role]?.subjectIds];
-          }
+      //  for(let role in user.roles){
+      //     if(user.roles[role]?.subjectIds){
+      //       selectedSubjects =[...selectedSubjects,...user.roles[role]?.subjectIds];
+      //     }
+      // }
+      if(user.subjectIds){
+        selectedSubjects =[...selectedSubjects,...user.subjectIds];
+      }else{
+        selectedSubjects =[...selectedSubjects];
       }
 
     return selectedSubjects.includes(subjectId);

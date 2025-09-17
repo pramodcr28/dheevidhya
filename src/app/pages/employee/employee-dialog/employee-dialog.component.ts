@@ -69,12 +69,15 @@ export class EmployeeDialogComponent {
 
   @Input() set employeeProfile(profile: NewProfileConfig | IProfileConfig) {
 
-
-    for(let role in profile.roles){
-      if(profile.roles[role]?.subjectIds){
-        this.selectedSubjects =[...this.selectedSubjects,...profile.roles[role]?.subjectIds];
-      }
+    if(profile.subjectIds){
+      this.selectedSubjects =[...this.selectedSubjects,...profile.subjectIds];
     }
+
+    // for(let role in profile.roles){
+    //   if(profile.roles[role]?.subjectIds){
+    //     this.selectedSubjects =[...this.selectedSubjects,...profile.roles[role]?.subjectIds];
+    //   }
+    // }
 
     this._employeeProfile = profile;
   }
@@ -169,6 +172,7 @@ export class EmployeeDialogComponent {
       contactNumber:this.contactNumber,
       fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
       gender: this.selectedGender,
+      subjectIds: this.selectedSubjects ?? [],
       departments: [...this.selectedDepartments.map(deprt=>deprt.id)],
       roles: await this.generateRoleConfig(updatedStudent.authorities!,profileFormData.roles)
     };
@@ -199,7 +203,7 @@ export class EmployeeDialogComponent {
         case 'GUARDIAN':
            if(!existingRoles?.[authority.name]){
              roleConfig.parent = {
-              studentIds: this.selectedSubjects ?? [],
+              studentIds: [],
 
              } as IGuardianProfile;
            }

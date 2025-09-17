@@ -33,7 +33,6 @@ const errors = this.validateTimetable();
     return;
   }
 
-  // ✅ If no errors, proceed
   this.validationErrors = [];
 
   const teachers = this.timeTableService.getTeachersList().map(t => ({
@@ -42,7 +41,6 @@ const errors = this.validateTimetable();
     preferred_periods: t.timeOn,
     avoided_periods:t.timeOff
   }));
-  console.log(teachers);
   let classes: any[] = [];
   let classCounter = 1;
 
@@ -194,13 +192,11 @@ getSlotIndexes(classSec: ClassSection): number[] {
   //   errors.push(`${unassigned.length} subject(s) do not have a teacher assigned.`);
   // }
 
-  // ✅ Working days validation
   const workingDays = this.timeTableService.timeTable.settings.workingDays.filter(d => d.selected);
   if (!workingDays.length) {
     errors.push("Please select at least one working day.");
   }
 
-  // ✅ Periods per day check
   if (this.timeTableService.timeTable.settings.periodsPerDay <= 0) {
     errors.push("Invalid number of periods per day.");
   }
