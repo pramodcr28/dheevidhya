@@ -1,0 +1,85 @@
+
+export interface InventoryCategory {
+  id: string;
+  name: string;
+  academicYearDependent: boolean;
+  propertyDefinitions: PropertyDefinition[];
+}
+
+export interface PropertyDefinition {
+  fieldName?: string;
+  label?: string;
+  fieldType?: FieldType;
+  options?: Option[];
+  required?: boolean;
+}
+
+export interface InventoryItem {
+  id: string;
+  category?: InventoryCategory;
+  academicYear?: string;
+  properties?: Map<String,any>;
+  status?: ItemStatus;
+  // location?: string;
+  name?: string;
+  totalQuantity?: number;
+  availableQuantity?: number;
+}
+
+export interface InventoryTransaction {
+  notes?: any;
+  id: string;
+  item?: InventoryItem;
+  action: TransactionType;
+  assignedToType: AssignedToType;
+  assignedToId: string;
+  quantity: number;
+  date: Date;
+}
+
+export interface Option {
+    title:string;
+    value:string;
+}
+
+export enum FieldType {
+  TEXT = 'TEXT',
+  NUMBER = 'NUMBER',
+  DATE = 'DATE',
+  DROPDOWN = 'DROPDOWN',
+  CHECKBOX = 'CHECKBOX',
+  RADIO = 'RADIO',
+  TEXTAREA = 'TEXTAREA'
+}
+
+export enum ItemStatus {
+  AVAILABLE = 'AVAILABLE',
+  ASSIGNED = 'ASSIGNED',
+  IN_USE = 'IN_USE',
+  UNDER_MAINTENANCE = 'UNDER_MAINTENANCE',
+  DAMAGED = 'DAMAGED',
+  RETIRED = 'RETIRED',
+  DISPOSED = 'DISPOSED',
+  RESERVED = 'RESERVED'
+}
+
+export enum TransactionType {
+  ISSUE = 'ISSUE',
+  RETURN = 'RETURN',
+  TRANSFER = 'TRANSFER',
+  MAINTENANCE = 'MAINTENANCE',
+  ADJUSTMENT = 'ADJUSTMENT',
+  DISPOSE = 'DISPOSE',
+  PURCHASE = 'PURCHASE',
+  LOST = 'LOST'
+}
+
+export enum AssignedToType {
+  STUDENT = 'STUDENT',
+  TEACHER = 'TEACHER',
+  CLASSROOM = 'CLASSROOM',
+  DEPARTMENT = 'DEPARTMENT',
+  VENDOR = 'VENDOR',
+  STORAGE_LOCATION = 'STORAGE_LOCATION',
+  OTHER = 'OTHER'
+}

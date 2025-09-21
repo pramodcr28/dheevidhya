@@ -13,6 +13,8 @@ import { ExaminationComponent } from './app/pages/examination/examination.compon
 import { TimetableListComponent } from './app/pages/organization/timetable-list/timetable-list.component';
 import { AssignmentManagementComponent } from './app/pages/organization/assignment-management/assignment-management.component';
 import { SchoolNoticeBoardComponent } from './app/pages/school-notice-board/school-notice-board.component';
+import { AssetsManagementComponent } from './app/pages/inventory-management/inventory-management.component';
+import { CategoryManagementComponent } from './app/pages/inventory-management/category-management/category-management.component';
 
 export const appRoutes: Routes = [
     {
@@ -29,7 +31,27 @@ export const appRoutes: Routes = [
             { path: 'examination', component: ExaminationComponent},
             { path: 'assignment', component: AssignmentManagementComponent},
             { path: 'notice-board', component: SchoolNoticeBoardComponent},
-            
+            // { path: 'inventory', component: InventoryManagementComponent},
+                 {
+                    path: 'inventory',
+                    children: [
+                    {
+                        path: '',
+                        redirectTo: 'assets',
+                        pathMatch: 'full'
+                    },
+                    {
+                        path: 'categories',
+                        component: CategoryManagementComponent,
+                        title: 'Category Management'
+                    },
+                    {
+                        path: 'assets',
+                        component: AssetsManagementComponent,
+                        title: 'Assets Management'
+                    }
+                    ]
+                },
             { path: 'department-setup', component: DepartmentSetupComponent },
             { path: 'profile', component: ProfileComponent },
             // { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },

@@ -1,0 +1,129 @@
+<div class="min-h-screen text-gray-800 dark:text-gray-100">
+
+  <!-- Statistics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div
+      class="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Total Items</p>
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{inventoryItems.length}}</h3>
+        </div>
+        <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+          <i class="pi pi-box text-blue-600 dark:text-blue-300 text-xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Low Stock</p>
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">3</h3>
+        </div>
+        <div class="bg-yellow-100 dark:bg-yellow-900 p-3 rounded-full">
+          <i class="pi pi-exclamation-triangle text-yellow-600 dark:text-yellow-300 text-xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Categories</p>
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ categories?.length }}</h3>
+        </div>
+        <div class="bg-green-100 dark:bg-green-900 p-3 rounded-full">
+          <i class="pi pi-tags text-green-600 dark:text-green-300 text-xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Value</p>
+          <!-- <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ totalValue | currency }}</h3> -->
+        </div>
+        <div class="bg-purple-100 dark:bg-purple-900 p-3 rounded-full">
+          <i class="pi pi-wallet text-purple-600 dark:text-purple-300 text-xl"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-bold">Inventory Items</h2>
+    <p-button label="Add New Item" icon="pi pi-plus"
+      (onClick)="showAddItemDialog = true" styleClass="p-button-raised p-button-primary"></p-button>
+  </div>
+
+  <!-- Items Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <ng-container *ngIf="inventoryItems && inventoryItems.length > 0; else noItems">
+      <div *ngFor="let item of inventoryItems"
+        class="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-3 hover:shadow-xl transition-all duration-300">
+        <div class="flex justify-between items-start mb-4">
+          <h3 class="text-lg font-bold">{{ item.name }}</h3>
+          <p-tag [severity]="item.availableQuantity < 2 ? 'danger' : 'success'"
+            [value]="item.availableQuantity < 2 ? 'Low Stock' : 'In Stock'"></p-tag>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Category: {{ item.category.name }}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Total Quantity: {{ item.totalQuantity ?? '-' }}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Available Quantity: {{ item.availableQuantity ?? '-' }}</p>
+        
+        <div class="flex justify-between">
+          <p-button  icon="pi pi-window-maximize" pTooltip="transactions"  styleClass="p-button-rounded"
+            (onClick)="viewItemTransactions(item)"></p-button>
+          <div>
+          <p-button icon="pi pi-pencil" styleClass="p-button-rounded p-button-text"
+            (onClick)="editItem(item)"></p-button>
+          <p-button icon="pi pi-trash" styleClass="p-button-rounded p-button-text p-button-danger"
+            (onClick)="deleteItem(item)"></p-button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- No Items Template -->
+  <ng-template #noItems>
+ <div class="flex w-full items-center justify-center">
+     <div class="text-center py-16 text-gray-500 dark:text-gray-400">
+      <i class="pi pi-inbox text-5xl mb-4"></i>
+      <p class="text-lg">No items found. Start by adding a new inventory item.</p>
+    </div>
+ </div>
+  </ng-template>
+
+<p-dialog [header]="isEditMode ? 'Edit Inventory Item' : 'Add New Inventory Item'" 
+          [(visible)]="showAddItemDialog"
+          [style]="{ width: '60vw' }" 
+          [modal]="true" 
+          styleClass="custom-dialog">
+  <app-add-inventory-item
+    [categories]="categories"
+    [addItemForm]="addItemForm"
+    [selectedCategoryForAdd]="selectedCategoryForForm"
+    [formSubmitted]="formSubmitted"
+    [isSubmitting]="isSubmitting"
+    [isEditMode]="isEditMode"
+    (saveItem)="saveItem()"
+    (cancelled)="closeDialog()">
+  </app-add-inventory-item>
+</p-dialog>
+</div>
+
+@if (showTransactionsDialog && selectedItem) {
+    <p-dialog [header]="'Transaction History - ' + (selectedItem?.name || 'Item')" 
+                [(visible)]="showTransactionsDialog" 
+                [style]="{ width: '80vw', maxWidth: '1200px' }" 
+                [modal]="true" 
+                styleClass="custom-dialog">
+<app-add-transaction [selectedItem]="selectedItem"></app-add-transaction>
+  </p-dialog> 
+}

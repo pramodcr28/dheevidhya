@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
+// import { CategoryManagementComponent } from '../../pages/inventory-management/category-management/category-management.component';
+// import { AssetsManagementComponent } from '../../pages/inventory-management/inventory-management.component';
 
 @Component({
     selector: 'app-menu',
@@ -28,13 +30,7 @@ export class AppMenu {
                     { label: 'Staff', icon: 'pi pi-fw pi-graduation-cap', routerLink: ['/employees'] }
                 ]
             },
-            {
-                label: 'Organization',
-                items: [   
-                    { label: 'Department Setup', icon: 'pi pi-fw pi-building-columns', routerLink: ['/department-setup'] },
-                    { label: 'Org Tree', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] },
-                ]
-            },
+         
             {
                 label: 'Academics',
                 items: [   
@@ -43,7 +39,29 @@ export class AppMenu {
                     { label: 'Examination', icon:'pi pi-fw pi-verified', routerLink:['/examination']},
                     { label: 'Assignment', icon:'pi pi-fw pi-book', routerLink:['/assignment']},
                     { label: 'Notification', icon:'pi pi-fw pi-bell', routerLink:['/notice-board']}
+                ] 
+            },
+               {
+                label: 'Organization',
+                items: [   
+                    { label: 'Department Setup', icon: 'pi pi-fw pi-building-columns', routerLink: ['/department-setup'] },
+                    { label: 'Org Tree', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] },
                 ]
+            },
+                    {
+            label: 'Inventory',
+            items: [
+                {
+                label: 'Categories',
+                icon: 'pi pi-fw pi-tags',
+                routerLink: ['/inventory/categories']
+                },
+                {
+                label: 'Items',
+                icon: 'pi pi-fw pi-box',
+                routerLink: ['/inventory/assets']
+                }
+            ]
             }
         ];
     }
