@@ -33,6 +33,7 @@ export interface InventoryTransaction {
   action: TransactionType;
   assignedToType: AssignedToType;
   assignedToId: string;
+  assignedToName: string;
   quantity: number;
   date: Date;
 }

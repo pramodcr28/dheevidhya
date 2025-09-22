@@ -183,6 +183,21 @@ export class AssetsManagementComponent implements OnInit {
     this.showAddItemDialog = true;
   }
 
+    /** ✅ Status Tag Colors */
+  getStatusSeverity(status: string): any {
+    const severityMap: { [key: string]: string } = {
+      AVAILABLE: 'success',
+      ASSIGNED: 'info',
+      IN_USE: 'warn',
+      UNDER_MAINTENANCE: 'warn',
+      DAMAGED: 'danger',
+      RETIRED: 'secondary',
+      DISPOSED: 'secondary',
+      RESERVED: 'info'
+    };
+    return severityMap[status] || 'secondary';
+  }
+
   private populateFormForEdit(item: InventoryItem): void {
     // First set the category to trigger dynamic controls creation
     this.addItemForm.patchValue({

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
@@ -19,6 +19,9 @@ import { TabViewModule } from 'primeng/tabview';
 import { TabsModule } from 'primeng/tabs';
 import { Login } from "../../../core/auth/login/login";
 import { ApiLoaderComponent } from '../../../core/layout/loaderComponent';
+import { CommonService } from '../../../core/services/common.service';
+import { EditorModule } from 'primeng/editor';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-add-transaction',
@@ -30,7 +33,7 @@ import { ApiLoaderComponent } from '../../../core/layout/loaderComponent';
     DropdownModule,
     InputTextModule,
     InputNumberModule,
-    CalendarModule,
+    DatePickerModule,
     TextareaModule,
     MessageModule,
     DividerModule,
@@ -39,7 +42,8 @@ import { ApiLoaderComponent } from '../../../core/layout/loaderComponent';
     TabViewModule,
     TabsModule,
     ApiLoaderComponent,
-    FormsModule
+    FormsModule,
+    EditorModule
 ],
   templateUrl: './add-transaction.component.html',
   styles: []
@@ -58,20 +62,21 @@ export class AddTransactionComponent implements OnInit {
   loader = inject(ApiLoaderService);
   showAssignedToType = false;
   showAssignedToId = false;
+  commonService = inject(CommonService);
 
-  onTransactionTypeChange(type: string) {
-    // Example: show assign fields only when issuing or transferring
-    this.showAssignedToType = ['ISSUE', 'TRANSFER'].includes(type);
-    if (!this.showAssignedToType) {
-      this.transactionForm.patchValue({ assignedToType: null, assignedToId: null });
-      this.showAssignedToId = false;
-    }
-  }
+  // onTransactionTypeChange(type: string) {
+  //   // Example: show assign fields only when issuing or transferring
+  //   this.showAssignedToType = ['ISSUE', 'TRANSFER'].includes(type);
+  //   if (!this.showAssignedToType) {
+  //     this.transactionForm.patchValue({ assignedToType: null, assignedToId: null });
+  //     this.showAssignedToId = false;
+  //   }
+  // }
 
-  onAssignedToTypeChange(value: string) {
-    // show input when user selects an assign type
-    this.showAssignedToId = !!value;
-  }
+  // onAssignedToTypeChange(value: string) {
+  //   // show input when user selects an assign type
+  //   this.showAssignedToId = !!value;
+  // }
   transactionTypeOptions = [
     { label: 'Issue Item', value: 'ISSUE', description: 'Issue item to someone' },
     { label: 'Return Item', value: 'RETURN', description: 'Return item back' },
@@ -115,7 +120,7 @@ export class AddTransactionComponent implements OnInit {
   /** ✅ API Call to fetch transactions of selected item */
   private loadItemTransactions(itemId: string): void {
     this.loader.show( "Fetching transactions");
-    this.inventoryService.searchInventoryTransaction(0, 100, 'id', 'ASC', {}).subscribe({
+    this.inventoryService.searchInventoryTransaction(0, 100, 'id', 'ASC', {"item_id.equals": itemId}).subscribe({
       next: (responce) => {
         this.itemTransactions = responce.content || [];
         this.loader.hide();
@@ -196,10 +201,10 @@ export class AddTransactionComponent implements OnInit {
   getAssignedToPlaceholder(): string {
     const type = this.transactionForm.get('assignedToType')?.value;
     const placeholderMap: { [key: string]: string } = {
-      STUDENT: 'Enter student ID or roll number',
-      TEACHER: 'Enter teacher ID or email',
-      CLASSROOM: 'Enter room number (e.g., Room-101)',
-      DEPARTMENT: 'Enter department code (e.g., CS, EEE)',
+      STUDENT: 'Add student',
+      TEACHER: 'Add teacher',
+      CLASSROOM: 'Add class number',
+      DEPARTMENT: 'Add department',
       VENDOR: 'Enter vendor name or ID',
       STORAGE_LOCATION: 'Enter storage location ID',
       OTHER: 'Enter identifier'
@@ -260,7 +265,8 @@ export class AddTransactionComponent implements OnInit {
 
     const newTransaction: InventoryTransaction = {
       ...this.transactionForm.value,
-      // item:this.selectedItem,  change just id and name 
+      item: this.selectedItem, 
+      date: this.commonService.formatDate(this.transactionForm.value['date'])
     };
 
     this.inventoryService.addTransaction(newTransaction).subscribe({

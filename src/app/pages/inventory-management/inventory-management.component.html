@@ -69,8 +69,8 @@
         class="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-3 hover:shadow-xl transition-all duration-300">
         <div class="flex justify-between items-start mb-4">
           <h3 class="text-lg font-bold">{{ item.name }}</h3>
-          <p-tag [severity]="item.availableQuantity < 2 ? 'danger' : 'success'"
-            [value]="item.availableQuantity < 2 ? 'Low Stock' : 'In Stock'"></p-tag>
+          <p-tag [severity]="getStatusSeverity(item.status)"
+            [value]="item.status"></p-tag>
         </div>
         <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Category: {{ item.category.name }}</p>
         <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Total Quantity: {{ item.totalQuantity ?? '-' }}</p>

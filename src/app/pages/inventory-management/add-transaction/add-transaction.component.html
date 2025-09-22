@@ -45,128 +45,7 @@
   <!-- Transactions Content -->
   <div class="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700">
     <p-tabView>
-      <p-tabPanel>
-        <ng-template pTemplate="header">
-          <div class="flex items-center gap-2">
-            <i class="pi pi-plus-circle"></i>
-            <span>Add Transaction</span>
-          </div>
-        </ng-template>
-        
-        <div >
-          <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- Transaction Type -->
-            <div class="col-span-1">
-              <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Transaction Type</label>
-              <p-dropdown
-                formControlName="action"
-                [options]="transactionTypeOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select transaction type"
-                styleClass="w-full"
-                [showClear]="true"
-                (onChange)="onTransactionTypeChange($event.value)"
-                [class.ng-invalid]="isFieldInvalid('action')"
-              ></p-dropdown>
-              <small *ngIf="isFieldInvalid('action')" class="text-red-500 text-xs mt-1">Required</small>
-            </div>
-
-            <!-- Quantity -->
-            <div class="col-span-1">
-              <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Quantity</label>
-              <p-inputNumber
-                formControlName="quantity"
-                [min]="1"
-                styleClass="w-full"
-                [class.ng-invalid]="isFieldInvalid('quantity')"
-              ></p-inputNumber>
-              <small *ngIf="isFieldInvalid('quantity')" class="text-red-500 text-xs mt-1">Required</small>
-            </div>
-
-            <!-- Assigned To Type -->
-            @if (showAssignedToType) {
-              <div class="col-span-1">
-                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Assign To</label>
-                <p-dropdown
-                  formControlName="assignedToType"
-                  [options]="assignedToTypeOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Select type"
-                  styleClass="w-full"
-                  [showClear]="true"
-                  (onChange)="onAssignedToTypeChange($event.value)"
-                  [class.ng-invalid]="isFieldInvalid('assignedToType')"
-                ></p-dropdown>
-                <small *ngIf="isFieldInvalid('assignedToType')" class="text-red-500 text-xs mt-1">Required</small>
-              </div>
-            }
-
-            <!-- Assigned To ID -->
-            @if (showAssignedToId) {
-              <div class="col-span-1">
-                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{{ getAssignedToLabel() }}</label>
-                <input
-                  pInputText
-                  formControlName="assignedToId"
-                  [placeholder]="getAssignedToPlaceholder()"
-                  class="w-full"
-                  [class.ng-invalid]="isFieldInvalid('assignedToId')"
-                />
-                <small *ngIf="isFieldInvalid('assignedToId')" class="text-red-500 text-xs mt-1">Required</small>
-              </div>
-            }
-
-            <!-- Date -->
-            <div class="col-span-1">
-              <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Date</label>
-              <p-calendar
-                formControlName="date"
-                [showIcon]="true"
-                dateFormat="yy-mm-dd"
-                styleClass="w-full"
-                [class.ng-invalid]="isFieldInvalid('date')"
-              ></p-calendar>
-              <small *ngIf="isFieldInvalid('date')" class="text-red-500 text-xs mt-1">Required</small>
-            </div>
-
-            <!-- Preview -->
-            <div class="col-span-1 md:col-span-2 p-4 bg-blue-50 dark:bg-gray-800 rounded-lg border border-blue-100 dark:border-gray-600">
-              <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                {{ getTransactionImpactMessage() }}
-              </p>
-              @if (getNewItemStatus()) {
-                <p-tag
-                  [value]="'New Status: ' + getNewItemStatus()"
-                  [severity]="getStatusSeverity(getNewItemStatus()!)"
-                ></p-tag>
-              }
-            </div>
-
-            <!-- Buttons -->
-            <div class="col-span-1 md:col-span-2 flex justify-end gap-3 pt-4">
-              <p-button
-                label="Cancel"
-                icon="pi pi-times"
-                severity="secondary"
-                [outlined]="true"
-                (onClick)="onCancel()"
-                [disabled]="isSubmitting"
-              ></p-button>
-              <p-button
-                [label]="getSubmitButtonLabel()"
-                icon="pi pi-check"
-                type="submit"
-                [loading]="isSubmitting"
-              ></p-button>
-            </div>
-          </form>
-        </div>
-      </p-tabPanel>
-
-      <p-tabPanel>
+    <p-tabPanel>
         <ng-template pTemplate="header">
           <div class="flex items-center gap-2">
             <i class="pi pi-history"></i>
@@ -214,8 +93,8 @@
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} transactions"
                 [sortField]="'date'"
                 [sortOrder]="-1"
-                styleClass="p-datatable-sm"
-              >
+                styleClass="p-datatable-sm">
+
                 <ng-template pTemplate="header">
                   <tr>
                     <th pSortableColumn="date" class="text-left font-semibold">
@@ -228,8 +107,7 @@
                     <th pSortableColumn="quantity" class="text-left font-semibold">
                       Quantity <p-sortIcon field="quantity"></p-sortIcon>
                     </th>
-                    <th class="text-left font-semibold">Notes</th>
-                    <th class="text-left font-semibold">Status After</th>
+                    <th class="text-left font-semibold">Comments</th>
                   </tr>
                 </ng-template>
 
@@ -255,19 +133,135 @@
                       <div class="text-sm text-gray-600 dark:text-gray-400">{{ transaction.assignedToId }}</div>
                     </td>
                     <td class="font-medium">{{ transaction.quantity }}</td>
-                    <td>{{ transaction.notes || '-' }}</td>
-                    <td>
-                      <p-tag
-                        [value]="transaction.statusAfter"
-                        [severity]="getStatusSeverity(transaction.statusAfter)"
-                        styleClass="text-xs"
-                      ></p-tag>
-                    </td>
+                    <td [innerHTML]="transaction.notes"></td>
                   </tr>
                 </ng-template>
               </p-table>
             </div>
           </div>
+        </div>
+    </p-tabPanel>
+          <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-plus-circle"></i>
+            <span>Add Transaction</span>
+          </div>
+        </ng-template>
+        
+        <div >
+          <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Transaction Type -->
+            <div class="col-span-1">
+              <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Transaction Type</label>
+              <p-dropdown
+                formControlName="action"
+                [options]="transactionTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select transaction type"
+                styleClass="w-full"
+                [showClear]="true"
+               
+                [class.ng-invalid]="isFieldInvalid('action')"
+              ></p-dropdown>
+              <small *ngIf="isFieldInvalid('action')" class="text-red-500 text-xs mt-1">Required</small>
+            </div>
+ <!-- (onChange)="onTransactionTypeChange($event.value)" -->
+            <!-- Quantity -->
+            <div class="col-span-1">
+              <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Quantity</label>
+              <p-inputNumber
+                formControlName="quantity"
+                [min]="1"
+                styleClass="w-full"
+                [class.ng-invalid]="isFieldInvalid('quantity')"
+              ></p-inputNumber>
+              <small *ngIf="isFieldInvalid('quantity')" class="text-red-500 text-xs mt-1">Required</small>
+            </div>
+
+            <!-- Assigned To Type -->
+            @if (showAssignedToType) {
+              <div class="col-span-1">
+                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Assign Type</label>
+                <p-dropdown
+                  formControlName="assignedToType"
+                  [options]="assignedToTypeOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select type"
+                  styleClass="w-full"
+                  [showClear]="true"
+                
+                  [class.ng-invalid]="isFieldInvalid('assignedToType')"
+                ></p-dropdown>
+                <small *ngIf="isFieldInvalid('assignedToType')" class="text-red-500 text-xs mt-1">Required</small>
+              </div>
+            } 
+            <!-- Assigned To ID -->
+            @if (showAssignedToId) {
+              <div class="col-span-1">
+                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{{ getAssignedToLabel() }}</label>
+                <input
+                  pInputText
+                  formControlName="assignedToId"
+                  [placeholder]="getAssignedToPlaceholder()"
+                  class="w-full"
+                  [class.ng-invalid]="isFieldInvalid('assignedToId')"
+                />
+                <small *ngIf="isFieldInvalid('assignedToId')" class="text-red-500 text-xs mt-1">Required</small>
+              </div>
+            }
+
+            <!-- Date -->
+            <div class="col-span-1">
+              <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Date</label>
+              <p-date-picker
+                formControlName="date"
+                [showIcon]="true"
+                dateFormat="yy-mm-dd"
+                styleClass="w-full"
+                [class.ng-invalid]="isFieldInvalid('date')"
+              ></p-date-picker>
+              <small *ngIf="isFieldInvalid('date')" class="text-red-500 text-xs mt-1">Required</small>
+            </div>
+
+            <div class="col-span-1">
+              <p-editor formControlName="notes" [style]="{ height: 'calc(20vh)' }" placeholder="add comments" class="w-full"> </p-editor>
+            </div>
+
+            <!-- Preview -->
+            <div class="col-span-1 md:col-span-2 p-4 bg-blue-50 dark:bg-gray-800 rounded-lg border border-blue-100 dark:border-gray-600">
+              <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                {{ getTransactionImpactMessage() }}
+              </p>
+              @if (getNewItemStatus()) {
+                <p-tag
+                  [value]="'New Status: ' + getNewItemStatus()"
+                  [severity]="getStatusSeverity(getNewItemStatus()!)"
+                ></p-tag>
+              }
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-span-1 md:col-span-2 flex justify-end gap-3 pt-4">
+              <p-button
+                label="Cancel"
+                icon="pi pi-times"
+                severity="secondary"
+                [outlined]="true"
+                (onClick)="onCancel()"
+                [disabled]="isSubmitting"
+              ></p-button>
+              <p-button
+                [label]="getSubmitButtonLabel()"
+                icon="pi pi-check"
+                type="submit"
+                [loading]="isSubmitting"
+              ></p-button>
+            </div>
+          </form>
         </div>
       </p-tabPanel>
     </p-tabView>

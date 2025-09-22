@@ -63,4 +63,9 @@ export class CommonService {
     return this.http.post<T>(url, body);
   }
   
+
+  formatDate(date: Date): string {
+  return date.toISOString().slice(0, -1); 
+  // produces yyyy-MM-ddTHH:mm:ss.SSS (without trailing Z)
+}
 }
