@@ -1,16 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { NotificationsWidget } from './components/notificationswidget';
-import { StatsWidget } from './components/statswidget';
-import { RecentSalesWidget } from './components/recentsaleswidget';
-import { BestSellingWidget } from './components/bestsellingwidget';
-import { RevenueStreamWidget } from './components/revenuestreamwidget';
 import { getBranch } from '../../core/store/user-profile/user-profile.selectors';
 import { Store } from '@ngrx/store';
 import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
 
 @Component({
     selector: 'app-dashboard',
-    imports: [StatsWidget, RecentSalesWidget, BestSellingWidget, RevenueStreamWidget, NotificationsWidget],
+    imports: [],
     template: `
         <div class="grid grid-cols-12 gap-8 items-center justify-center h-full">
            <span>   Dheevidhya</span>
