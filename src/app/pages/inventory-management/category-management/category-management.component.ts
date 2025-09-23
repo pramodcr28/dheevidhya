@@ -6,14 +6,11 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { MenuModule } from 'primeng/menu';
-import { DropdownModule } from 'primeng/dropdown';
 import { ToggleButtonModule } from 'primeng/togglebutton';
-import { MenuItem } from 'primeng/api';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { InventoryCategory, PropertyDefinition, FieldType, Option } from '../../models/inventory.model';
 import { InventoryService } from '../../service/inventory.service';
 import { SelectModule } from 'primeng/select';
-
 
 @Component({
   selector: 'app-category-management',
@@ -30,7 +27,7 @@ import { SelectModule } from 'primeng/select';
     ToggleButtonModule
   ],
   templateUrl: './category-management.component.html',
-  styles: `.p-dropdown-panel {
+  styles: `.p-select-panel {
   transform-origin: bottom center !important;
 }`
 })

@@ -155,7 +155,7 @@
             <!-- Transaction Type -->
             <div class="col-span-1">
               <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Transaction Type</label>
-              <p-dropdown
+              <p-select
                 formControlName="action"
                 [options]="transactionTypeOptions"
                 optionLabel="label"
@@ -165,7 +165,7 @@
                 [showClear]="true"
                
                 [class.ng-invalid]="isFieldInvalid('action')"
-              ></p-dropdown>
+              ></p-select>
               <small *ngIf="isFieldInvalid('action')" class="text-red-500 text-xs mt-1">Required</small>
             </div>
  <!-- (onChange)="onTransactionTypeChange($event.value)" -->
@@ -181,11 +181,9 @@
               <small *ngIf="isFieldInvalid('quantity')" class="text-red-500 text-xs mt-1">Required</small>
             </div>
 
-            <!-- Assigned To Type -->
-            @if (showAssignedToType) {
               <div class="col-span-1">
                 <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Assign Type</label>
-                <p-dropdown
+                <p-select
                   formControlName="assignedToType"
                   [options]="assignedToTypeOptions"
                   optionLabel="label"
@@ -193,14 +191,14 @@
                   placeholder="Select type"
                   styleClass="w-full"
                   [showClear]="true"
-                
+                  (onChange)="onAssignmentTypeChange($event)"
                   [class.ng-invalid]="isFieldInvalid('assignedToType')"
-                ></p-dropdown>
+                ></p-select>
                 <small *ngIf="isFieldInvalid('assignedToType')" class="text-red-500 text-xs mt-1">Required</small>
               </div>
-            } 
+ 
             <!-- Assigned To ID -->
-            @if (showAssignedToId) {
+            @if (this.transactionForm.get('assignedToType').value && textInputAssignTypeValues.includes(this.transactionForm.get('assignedToType').value) ) {
               <div class="col-span-1">
                 <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{{ getAssignedToLabel() }}</label>
                 <input
@@ -212,8 +210,22 @@
                 />
                 <small *ngIf="isFieldInvalid('assignedToId')" class="text-red-500 text-xs mt-1">Required</small>
               </div>
+            } @else if (this.transactionForm.get('assignedToType').value) {
+               <div class="col-span-1">
+                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Assigned To</label>
+                <p-select
+                  formControlName="assignedToId"
+                  [options]="targets"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="select target"
+                  styleClass="w-full"
+                  [showClear]="true"
+                  [class.ng-invalid]="isFieldInvalid('assignedToId')"
+                ></p-select>
+                <small *ngIf="isFieldInvalid('assignedToId')" class="text-red-500 text-xs mt-1">Required</small>
+              </div>
             }
-
             <!-- Date -->
             <div class="col-span-1">
               <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Date</label>

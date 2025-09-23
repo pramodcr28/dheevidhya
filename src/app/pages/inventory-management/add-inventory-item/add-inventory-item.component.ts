@@ -20,7 +20,7 @@ import { SelectModule } from 'primeng/select';
     CommonModule,
     ReactiveFormsModule,
     ButtonModule,
-    DropdownModule,
+    SelectModule,
     InputTextModule,
     InputNumberModule,
     CalendarModule,

@@ -16,14 +16,14 @@
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
             Category *
           </label>
-          <p-dropdown [options]="categories" 
+          <p-select [options]="categories" 
                       formControlName="categoryId" 
                       optionLabel="name" 
                       optionValue="id" 
                       placeholder="Select Category" 
                       styleClass="w-full"
                       [class.ng-invalid]="isFieldInvalid('categoryId')">
-          </p-dropdown>
+          </p-select>
           @if (isFieldInvalid('categoryId')) {
             <small class="text-red-500 mt-1 block">Category is required</small>
           }
@@ -65,13 +65,13 @@
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
             Status
           </label>
-          <p-dropdown [options]="statusOptions" 
+          <p-select [options]="statusOptions" 
                       formControlName="status" 
                       optionLabel="label" 
                       optionValue="value" 
                       placeholder="Select Status" 
                       styleClass="w-full">
-          </p-dropdown>
+          </p-select>
         </div>
 
         <!-- Academic Year Field (conditional) -->

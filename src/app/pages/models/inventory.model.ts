@@ -78,7 +78,8 @@ export enum TransactionType {
 export enum AssignedToType {
   STUDENT = 'STUDENT',
   TEACHER = 'TEACHER',
-  CLASSROOM = 'CLASSROOM',
+  CLASS = 'CLASS',
+  SECTION = 'SECTION',
   DEPARTMENT = 'DEPARTMENT',
   VENDOR = 'VENDOR',
   STORAGE_LOCATION = 'STORAGE_LOCATION',

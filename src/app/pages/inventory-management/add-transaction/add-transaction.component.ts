@@ -1,27 +1,24 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, inject, Input, OnInit} from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { CommonModule, formatDate } from '@angular/common';
+import { CommonModule} from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { CalendarModule } from 'primeng/calendar';
 import { TextareaModule } from 'primeng/textarea';
 import { MessageModule } from 'primeng/message';
 import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
-
-import { InventoryItem, InventoryTransaction, TransactionType, AssignedToType } from '../../models/inventory.model';
+import { InventoryItem, InventoryTransaction } from '../../models/inventory.model';
 import { InventoryService } from '../../service/inventory.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { TableModule } from 'primeng/table';
 import { TabViewModule } from 'primeng/tabview';
 import { TabsModule } from 'primeng/tabs';
-import { Login } from "../../../core/auth/login/login";
 import { ApiLoaderComponent } from '../../../core/layout/loaderComponent';
 import { CommonService } from '../../../core/services/common.service';
 import { EditorModule } from 'primeng/editor';
 import { DatePickerModule } from 'primeng/datepicker';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-add-transaction',
@@ -30,7 +27,7 @@ import { DatePickerModule } from 'primeng/datepicker';
     CommonModule,
     ReactiveFormsModule,
     ButtonModule,
-    DropdownModule,
+    SelectModule,
     InputTextModule,
     InputNumberModule,
     DatePickerModule,
@@ -56,27 +53,12 @@ export class AddTransactionComponent implements OnInit {
 
   // Holds the transactions for selected item
   itemTransactions: InventoryTransaction[] = [];
-
-  // Service injections
   inventoryService = inject(InventoryService);
   loader = inject(ApiLoaderService);
-  showAssignedToType = false;
-  showAssignedToId = false;
   commonService = inject(CommonService);
+  textInputAssignTypeValues = ["VENDOR","STORAGE_LOCATION","OTHER"];
+  targets = [];
 
-  // onTransactionTypeChange(type: string) {
-  //   // Example: show assign fields only when issuing or transferring
-  //   this.showAssignedToType = ['ISSUE', 'TRANSFER'].includes(type);
-  //   if (!this.showAssignedToType) {
-  //     this.transactionForm.patchValue({ assignedToType: null, assignedToId: null });
-  //     this.showAssignedToId = false;
-  //   }
-  // }
-
-  // onAssignedToTypeChange(value: string) {
-  //   // show input when user selects an assign type
-  //   this.showAssignedToId = !!value;
-  // }
   transactionTypeOptions = [
     { label: 'Issue Item', value: 'ISSUE', description: 'Issue item to someone' },
     { label: 'Return Item', value: 'RETURN', description: 'Return item back' },
@@ -180,6 +162,8 @@ export class AddTransactionComponent implements OnInit {
     return actionMap[action] || 'secondary';
   }
 
+
+
   getTransactionsByAction(action: string): number {
     return this.itemTransactions?.filter(t => t.action === action).length;
   }
@@ -203,14 +187,45 @@ export class AddTransactionComponent implements OnInit {
     const placeholderMap: { [key: string]: string } = {
       STUDENT: 'Add student',
       TEACHER: 'Add teacher',
-      CLASSROOM: 'Add class number',
+      CLASS: 'Add class',
+      SECTION: 'SECTION',
       DEPARTMENT: 'Add department',
       VENDOR: 'Enter vendor name or ID',
       STORAGE_LOCATION: 'Enter storage location ID',
-      OTHER: 'Enter identifier'
+      OTHER: 'Enter target'
     };
-    return placeholderMap[type] || 'Enter identifier';
+    return placeholderMap[type] || 'Enter target';
   }
+
+  
+ onAssignmentTypeChange(event: any) {
+  switch (event.value) {
+    case "STUDENT":
+      // logic for student
+      break;
+
+    case "TEACHER":
+      // logic for teacher
+      break;
+
+    case "CLASS":
+      // logic for class
+      break;
+
+    case "SECTION":
+      // logic for section
+      break;
+
+    case "DEPARTMENT":
+      // logic for department
+      break;
+
+    default:
+      // fallback if none matched
+      break;
+  }
+}
+
 
   /** ✅ Transaction preview helpers */
   getTransactionImpactMessage(): string {
@@ -254,6 +269,7 @@ export class AddTransactionComponent implements OnInit {
     };
     return labelMap[action] || 'Create Transaction';
   }
+
 
   /** ✅ Save Transaction */
   saveTransaction(): void {
