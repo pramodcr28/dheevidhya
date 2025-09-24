@@ -1,6 +1,6 @@
-import { Component, inject, Input, OnInit} from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { CommonModule} from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -13,12 +13,15 @@ import { InventoryService } from '../../service/inventory.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { TableModule } from 'primeng/table';
 import { TabViewModule } from 'primeng/tabview';
-import { TabsModule } from 'primeng/tabs';
 import { ApiLoaderComponent } from '../../../core/layout/loaderComponent';
 import { CommonService } from '../../../core/services/common.service';
 import { EditorModule } from 'primeng/editor';
+import { CalendarModule } from 'primeng/calendar';
+import { DropdownModule } from 'primeng/dropdown';
+import { TimelineModule } from 'primeng/timeline';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
+import { TabsModule } from 'primeng/tabs';
 
 @Component({
   selector: 'app-add-transaction',
@@ -37,17 +40,18 @@ import { SelectModule } from 'primeng/select';
     TagModule,
     TableModule,
     TabViewModule,
-    TabsModule,
     ApiLoaderComponent,
     FormsModule,
-    EditorModule
-],
+    EditorModule,
+    TimelineModule,
+    TabsModule
+  ],
   templateUrl: './add-transaction.component.html',
   styles: []
 })
 export class AddTransactionComponent implements OnInit {
   transactionForm: FormGroup;
-  @Input()  selectedItem: InventoryItem | null = null;
+  @Input() selectedItem: InventoryItem | null = null;
   formSubmitted = false;
   isSubmitting = false;
 
@@ -56,16 +60,13 @@ export class AddTransactionComponent implements OnInit {
   inventoryService = inject(InventoryService);
   loader = inject(ApiLoaderService);
   commonService = inject(CommonService);
-  textInputAssignTypeValues = ["VENDOR","STORAGE_LOCATION","OTHER"];
+  textInputAssignTypeValues = ["VENDOR", "STORAGE_LOCATION", "OTHER"];
+  actionTypeValuesForAssignTo = ["MAINTENANCE", "REMOVED","PURCHASE","LOST","FOUND"];
   targets = [];
-
   transactionTypeOptions = [
     { label: 'Issue Item', value: 'ISSUE', description: 'Issue item to someone' },
-    { label: 'Return Item', value: 'RETURN', description: 'Return item back' },
-    { label: 'Transfer Item', value: 'TRANSFER', description: 'Transfer to another location' },
     { label: 'Send for Maintenance', value: 'MAINTENANCE', description: 'Send item for maintenance' },
-    { label: 'Inventory Adjustment', value: 'ADJUSTMENT', description: 'Adjust inventory records' },
-    { label: 'Dispose Item', value: 'DISPOSE', description: 'Dispose or retire item' },
+    { label: 'Item Removed From Inventory', value: 'REMOVED', description: 'Item Removed' },
     { label: 'Purchase Record', value: 'PURCHASE', description: 'Record new purchase' },
     { label: 'Report Lost', value: 'LOST', description: 'Report item as lost' }
   ];
@@ -83,29 +84,44 @@ export class AddTransactionComponent implements OnInit {
   constructor(private fb: FormBuilder) {
     this.transactionForm = this.fb.group({
       id: null,
-      action: [],
+      action: [null, Validators.required],
       item: [null],
       assignedToType: ['OTHER'],
-      assignedToId: ['', [ Validators.minLength(2)]],
-      quantity: [0, [ Validators.min(0)]],
+      assignedToId: [null],
+      assignedToName: [null],
+      returnFromId: [null],
+      returnFromName: [null],
+      quantity: [1, [ Validators.min(1)]],
       date: [new Date(), Validators.required],
-      notes: ['']
+      notes: [''],
+      totalPrice:[0],
+      unitPrice:[0]
     });
   }
 
   ngOnInit() {
     if (this.selectedItem) {
       this.loadItemTransactions(this.selectedItem.id);
-    } 
+
+      if(this.selectedItem.availableQuantity< this.selectedItem.totalQuantity && !this.transactionTypeOptions.some(type=>type.value = 'RETURN')){
+        this.transactionTypeOptions.unshift({ label: 'Return Item', value: 'RETURN', description: 'Return item back' });
+        this.transactionTypeOptions.unshift({ label: 'Transfer Item', value: 'TRANSFER', description: 'Transfer to another location' });
+      }
+    }
   }
 
   /** ✅ API Call to fetch transactions of selected item */
   private loadItemTransactions(itemId: string): void {
-    this.loader.show( "Fetching transactions");
-    this.inventoryService.searchInventoryTransaction(0, 100, 'id', 'ASC', {"item_id.equals": itemId}).subscribe({
-      next: (responce) => {
-        this.itemTransactions = responce.content || [];
+    this.loader.show("Fetching transactions");
+    this.inventoryService.searchInventoryTransaction(0, 100, 'id', 'DESC', { "item_id.equals": itemId }).subscribe({
+      next: (response) => {
+        this.itemTransactions = response.content || [];
         this.loader.hide();
+  
+        if(this.itemTransactions.some(tras=>tras.action == "LOST") && !this.transactionTypeOptions.some(type=>type.value == 'FOUND')){
+          this.transactionTypeOptions.push({ label: 'Found Item', value: 'FOUND', description: 'Found item' });
+        }
+        
       },
       error: (err) => {
         console.error('Error loading transactions', err);
@@ -120,7 +136,6 @@ export class AddTransactionComponent implements OnInit {
     const field = this.transactionForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched || this.formSubmitted));
   }
-
 
   /** ✅ Helper: extract properties */
   getItemProperties(item: InventoryItem | any): Array<{ key: string; value: any }> {
@@ -162,8 +177,6 @@ export class AddTransactionComponent implements OnInit {
     return actionMap[action] || 'secondary';
   }
 
-
-
   getTransactionsByAction(action: string): number {
     return this.itemTransactions?.filter(t => t.action === action).length;
   }
@@ -171,15 +184,15 @@ export class AddTransactionComponent implements OnInit {
   getAssignedToLabel(): string {
     const type = this.transactionForm.get('assignedToType')?.value;
     const labelMap: { [key: string]: string } = {
-      STUDENT: 'Student ID',
-      TEACHER: 'Teacher ID',
+      STUDENT: 'Student',
+      TEACHER: 'Teacher',
       CLASSROOM: 'Room Number',
       DEPARTMENT: 'Department Code',
       VENDOR: 'Vendor Name',
-      STORAGE_LOCATION: 'Storage ID',
+      STORAGE_LOCATION: 'Storage',
       OTHER: 'Identifier'
     };
-    return labelMap[type] || 'Assigned To ID';
+    return labelMap[type] || 'Assigned To';
   }
 
   getAssignedToPlaceholder(): string {
@@ -187,8 +200,7 @@ export class AddTransactionComponent implements OnInit {
     const placeholderMap: { [key: string]: string } = {
       STUDENT: 'Add student',
       TEACHER: 'Add teacher',
-      CLASS: 'Add class',
-      SECTION: 'SECTION',
+      CLASSROOM: 'Add classroom',
       DEPARTMENT: 'Add department',
       VENDOR: 'Enter vendor name or ID',
       STORAGE_LOCATION: 'Enter storage location ID',
@@ -197,35 +209,26 @@ export class AddTransactionComponent implements OnInit {
     return placeholderMap[type] || 'Enter target';
   }
 
-  
- onAssignmentTypeChange(event: any) {
-  switch (event.value) {
-    case "STUDENT":
-      // logic for student
-      break;
-
-    case "TEACHER":
-      // logic for teacher
-      break;
-
-    case "CLASS":
-      // logic for class
-      break;
-
-    case "SECTION":
-      // logic for section
-      break;
-
-    case "DEPARTMENT":
-      // logic for department
-      break;
-
-    default:
-      // fallback if none matched
-      break;
+  onAssignmentTypeChange(event: any) {
+    this.targets = []; // Reset targets
+    switch (event.value) {
+      case "STUDENT":
+        // TODO: Load students from service and set to this.targets = [{label: '', value: ''}, ...]
+        break;
+      case "TEACHER":
+        // TODO: Load teachers
+        break;
+      case "CLASSROOM":
+        // TODO: Load classrooms
+        break;
+      case "DEPARTMENT":
+        // TODO: Load departments
+        break;
+      default:
+        // fallback if none matched
+        break;
+    }
   }
-}
-
 
   /** ✅ Transaction preview helpers */
   getTransactionImpactMessage(): string {
@@ -270,7 +273,6 @@ export class AddTransactionComponent implements OnInit {
     return labelMap[action] || 'Create Transaction';
   }
 
-
   /** ✅ Save Transaction */
   saveTransaction(): void {
     this.formSubmitted = true;
@@ -281,15 +283,20 @@ export class AddTransactionComponent implements OnInit {
 
     const newTransaction: InventoryTransaction = {
       ...this.transactionForm.value,
-      item: this.selectedItem, 
+      item: this.selectedItem,
       date: this.commonService.formatDate(this.transactionForm.value['date'])
     };
 
     this.inventoryService.addTransaction(newTransaction).subscribe({
       next: (saved) => {
+        this.selectedItem = saved.body;
         this.resetForm();
         this.isSubmitting = false;
-        this.loadItemTransactions(this.selectedItem.id);
+        this.loadItemTransactions(this.selectedItem!.id);
+        if(this.selectedItem.availableQuantity< this.selectedItem.totalQuantity  && !this.transactionTypeOptions.some(type=>type.value == 'RETURN')){
+          this.transactionTypeOptions.unshift({ label: 'Return Item', value: 'RETURN', description: 'Return item back' });
+          this.transactionTypeOptions.unshift({ label: 'Transfer Item', value: 'TRANSFER', description: 'Transfer to another location' });
+        }
       },
       error: (error: any) => {
         console.error('Error creating transaction:', error);
@@ -308,7 +315,8 @@ export class AddTransactionComponent implements OnInit {
   private resetForm(): void {
     this.transactionForm.reset({
       quantity: 1,
-      date: new Date()
+      date: new Date(),
+      assignedToType: 'OTHER'
     });
     this.formSubmitted = false;
     this.isSubmitting = false;

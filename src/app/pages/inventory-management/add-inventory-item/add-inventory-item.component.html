@@ -1,32 +1,38 @@
 <div class="space-y-6">
-  <!-- Form Validation Messages -->
-  @if (formSubmitted && addItemForm.invalid) {
-    <p-message severity="error" 
-               text="Please fill in all required fields correctly." 
-               styleClass="w-full">
-    </p-message>
-  }
+  <form #itemForm="ngForm" class="space-y-6">
+    
+    <!-- Form Validation Messages -->
+    <div *ngIf="itemForm.submitted && itemForm.invalid" class="mb-4">
+      <p-message severity="error" 
+                 text="Please fill in all required fields correctly." 
+                 styleClass="w-full">
+      </p-message>
+    </div>
 
-  <form [formGroup]="addItemForm" class="space-y-6">
     <!-- Basic Information -->
     <div class="rounded-lg p-4">
-      <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
         <!-- Category Field -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
             Category *
           </label>
           <p-select [options]="categories" 
-                      formControlName="categoryId" 
-                      optionLabel="name" 
-                      optionValue="id" 
-                      placeholder="Select Category" 
-                      styleClass="w-full"
-                      [class.ng-invalid]="isFieldInvalid('categoryId')">
+                    [(ngModel)]="itemFormModel.category"
+                    name="category"
+                    #categoryField="ngModel"
+                    optionLabel="name" 
+                    optionValue="id" 
+                    placeholder="Select Category" 
+                    styleClass="w-full"
+                    [class.ng-invalid]="categoryField.invalid && categoryField.touched"
+                    (onChange)="onCategoryChange()"
+                    required>
           </p-select>
-          @if (isFieldInvalid('categoryId')) {
-            <small class="text-red-500 mt-1 block">Category is required</small>
-          }
+          <small *ngIf="categoryField.invalid && categoryField.touched" class="text-red-500 mt-1 block">
+            Category is required
+          </small>
         </div>
         
         <!-- Item Name Field -->
@@ -35,13 +41,16 @@
             Item Name *
           </label>
           <input pInputText 
-                 formControlName="name" 
+                 [(ngModel)]="itemFormModel.name"
+                 name="name"
+                 #nameField="ngModel"
                  placeholder="Enter item name" 
                  class="w-full"
-                 [class.ng-invalid]="isFieldInvalid('name')">
-          @if (isFieldInvalid('name')) {
-            <small class="text-red-500 mt-1 block">Item name is required</small>
-          }
+                 [class.ng-invalid]="nameField.invalid && nameField.touched"
+                 required>
+          <small *ngIf="nameField.invalid && nameField.touched" class="text-red-500 mt-1 block">
+            Item name is required
+          </small>
         </div>
 
         <!-- Total Quantity Field -->
@@ -49,136 +58,183 @@
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
             Total Quantity *
           </label>
-          <p-inputNumber formControlName="totalQuantity" 
+          <p-inputNumber [(ngModel)]="itemFormModel.totalQuantity"
+                         name="totalQuantity"
+                         #quantityField="ngModel"
                          placeholder="Enter total quantity" 
                          styleClass="w-full"
                          [min]="0"
-                         [class.ng-invalid]="isFieldInvalid('totalQuantity')">
+                         [class.ng-invalid]="quantityField.invalid && quantityField.touched"
+                         required>
           </p-inputNumber>
-          @if (isFieldInvalid('totalQuantity')) {
-            <small class="text-red-500 mt-1 block">Total quantity is required</small>
-          }
+          <small *ngIf="quantityField.invalid && quantityField.touched" class="text-red-500 mt-1 block">
+            Total quantity is required
+          </small>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+            Total Spend *
+          </label>
+          <p-inputNumber [(ngModel)]="itemFormModel.totalSpend"
+                         name="totalSpend"
+                         #totalSpendField="ngModel"
+                         placeholder="Enter total Spend" 
+                         styleClass="w-full"
+                         [min]="0"
+                         [class.ng-invalid]="totalSpendField.invalid && totalSpendField.touched"
+                         required>
+          </p-inputNumber>
+          <small *ngIf="totalSpendField.invalid && totalSpendField.touched" class="text-red-500 mt-1 block">
+            Total Spend is required
+          </small>
         </div>
 
         <!-- Status Field -->
-        <div>
+        <!-- <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
             Status
           </label>
-          <p-select [options]="statusOptions" 
-                      formControlName="status" 
-                      optionLabel="label" 
-                      optionValue="value" 
-                      placeholder="Select Status" 
-                      styleClass="w-full">
+          <p-select [options]="[
+                      { label: 'Available', value: 'AVAILABLE' },
+                      { label: 'Reserved', value: 'RESERVED' },
+                      { label: 'Under Maintenance', value: 'UNDER_MAINTENANCE' },
+                      { label: 'Assigned', value: 'ASSIGNED' },
+                      { label: 'In Use', value: 'IN_USE' },
+                      { label: 'Damaged', value: 'DAMAGED' },
+                      { label: 'Retired', value: 'RETIRED' },
+                      { label: 'Disposed', value: 'DISPOSED' }
+                    ]" 
+                    [(ngModel)]="itemFormModel.status"
+                    name="status"
+                    optionLabel="label" 
+                    optionValue="value" 
+                    placeholder="Select Status" 
+                    styleClass="w-full">
           </p-select>
-        </div>
+        </div> -->
 
         <!-- Academic Year Field (conditional) -->
-        @if (selectedCategoryForAdd?.academicYearDependent) {
-          <div>
+        <div *ngIf="selectedCategory?.academicYearDependent">
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+            Academic Year
+          </label>
+          <input pInputText 
+                 [(ngModel)]="itemFormModel.academicYear"
+                 name="academicYear"
+                 placeholder="e.g., 2024-25" 
+                 class="w-full">
+        </div>
+
+         @if(selectedCategory && selectedCategory.propertyDefinitions.length > 0){
+ <ng-container>
+          <div *ngFor="let prop of selectedCategory.propertyDefinitions;" 
+               class="dynamic-property-field">
             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-              Academic Year
+              {{ prop.label }} 
+              <span *ngIf="prop.required" class="text-red-500">*</span>
             </label>
-            <input pInputText 
-                   formControlName="academicYear" 
-                   placeholder="e.g., 2024-25" 
-                   class="w-full">
-          </div>
-        }
 
-        <!-- Dynamic Properties -->
-        @if (selectedCategoryForAdd && selectedCategoryForAdd.propertyDefinitions.length > 0) {
-          @for (prop of selectedCategoryForAdd.propertyDefinitions; track prop.fieldName) {
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                {{ prop.label }} 
-                @if (prop.required) {
-                  <span class="text-red-500">*</span>
-                }
-              </label>
+            <!-- Text Input -->
+            <input *ngIf="prop.fieldType === 'TEXT'" 
+                   pInputText 
+                   [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                   [name]="'prop_' + prop.fieldName"
+                   #dynamicField="ngModel"
+                   [placeholder]="'Enter ' + prop.label.toLowerCase()" 
+                   class="w-full"
+                   [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
+                   [required]="prop.required">
 
-              <!-- Text Input -->
-              @if (prop.fieldType === 'TEXT') {
-                <input pInputText 
-                       [formControlName]="prop.fieldName"
-                       [placeholder]="'Enter ' + prop.label.toLowerCase()" 
-                       class="w-full"
-                       [class.ng-invalid]="isFieldInvalid(prop.fieldName)">
-              }
+            <!-- Textarea Input -->
+            <textarea *ngIf="prop.fieldType === 'TEXTAREA'" 
+                      pInputTextarea 
+                      [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                      [name]="'prop_' + prop.fieldName"
+                      #dynamicField="ngModel"
+                      [placeholder]="'Enter ' + prop.label.toLowerCase()" 
+                      class="w-full"
+                      rows="3"
+                      [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
+                      [required]="prop.required">
+            </textarea>
 
-              <!-- Textarea Input -->
-              @if (prop.fieldType === 'TEXTAREA') {
-                <textarea pInputTextarea 
-                          [formControlName]="prop.fieldName"
-                          [placeholder]="'Enter ' + prop.label.toLowerCase()" 
-                          class="w-full"
-                          rows="3">
-                </textarea>
-              }
+            <!-- Number Input -->
+            <p-inputNumber *ngIf="prop.fieldType === 'NUMBER'"
+                           [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                           [name]="'prop_' + prop.fieldName"
+                           #dynamicField="ngModel"
+                           [placeholder]="'Enter ' + prop.label.toLowerCase()" 
+                           styleClass="w-full"
+                           [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
+                           [required]="prop.required">
+            </p-inputNumber>
 
-              <!-- Number Input -->
-              @if (prop.fieldType === 'NUMBER') {
-                <p-inputNumber [formControlName]="prop.fieldName"
-                               [placeholder]="'Enter ' + prop.label.toLowerCase()" 
-                               styleClass="w-full">
-                </p-inputNumber>
-              }
+            <!-- Date Input -->
+            <p-date-picker *ngIf="prop.fieldType === 'DATE'"
+                        [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                        [name]="'prop_' + prop.fieldName"
+                        #dynamicField="ngModel"
+                        [placeholder]="'Select ' + prop.label.toLowerCase()" 
+                        styleClass="w-full"
+                        dateFormat="dd/mm/yy"
+                        [showIcon]="true"
+                        [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
+                        [required]="prop.required">
+            </p-date-picker>
 
-              <!-- Date Input -->
-              @if (prop.fieldType === 'DATE') {
-                <p-calendar [formControlName]="prop.fieldName"
-                            [placeholder]="'Select ' + prop.label.toLowerCase()" 
-                            styleClass="w-full"
-                            dateFormat="dd/mm/yy"
-                            [showIcon]="true">
-                </p-calendar>
-              }
+            <!-- Dropdown -->
+            <p-select *ngIf="prop.fieldType === 'DROPDOWN'" 
+                      [options]="prop.options" 
+                      optionLabel="title"
+                      optionValue="value"
+                      [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                      [name]="'prop_' + prop.fieldName"
+                      #dynamicField="ngModel"
+                      [placeholder]="'Select ' + prop.label.toLowerCase()" 
+                      styleClass="w-full"
+                      [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
+                      [required]="prop.required">
+            </p-select>
 
-              <!-- Dropdown -->
-              @if (prop.fieldType === 'DROPDOWN') {
-                <p-select [options]="prop.options" 
-                optionLabel="title"
-                optionValue="value"
-                [formControlName]="prop.fieldName"
-                [placeholder]="'Select ' + prop.label.toLowerCase()" 
-                styleClass="w-full">
-                </p-select>
-              }
-
-              <!-- Boolean/Checkbox -->
-              @if (prop.fieldType === 'CHECKBOX') {
-                <div class="flex items-center space-x-2">
-                  <p-checkbox [formControlName]="prop.fieldName"
-                              [binary]="true">
-                  </p-checkbox>
-                  <label class="text-sm text-gray-600 dark:text-gray-400">{{ prop.label }}</label>
-                </div>
-              }
-
-              @if (prop.required && isFieldInvalid(prop.fieldName)) {
-                <small class="text-red-500 mt-1 block">{{ prop.label }} is required</small>
-              }
+            <!-- Boolean/Checkbox -->
+            <div *ngIf="prop.fieldType === 'CHECKBOX'" class="flex items-center space-x-2">
+              <p-checkbox [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                          [name]="'prop_' + prop.fieldName"
+                          [binary]="true">
+              </p-checkbox>
+              <label class="text-sm text-gray-600 dark:text-gray-400">{{ prop.label }}</label>
             </div>
-          }
-        }
+
+            <!-- Validation Error -->
+            <small *ngIf="prop.required" 
+                   class="text-red-500 mt-1 block">
+              {{ prop.label }} is required
+            </small>
+          </div>
+        </ng-container>
+         }
+        <!-- Dynamic Properties -->
+       
+
       </div>
     </div>
-</form>
 
-  <!-- Action Buttons -->
-  <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-    <p-button label="Cancel" 
-              severity="secondary" 
-              icon="pi pi-times"
-              (onClick)="onCancel()">
-    </p-button>
-    
-    <p-button [label]="isEditMode ? 'Update Item' : 'Create Item'" 
-              icon="pi pi-check"
-              [loading]="isSubmitting"
-              loadingIcon="pi pi-spin pi-spinner"
-              (onClick)="onSave()">
-    </p-button>
-  </div>
+    <!-- Action Buttons -->
+    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <p-button label="Cancel" 
+                severity="secondary" 
+                icon="pi pi-times"
+                (onClick)="onCancel()">
+      </p-button>
+      
+      <p-button [label]="isEditMode ? 'Update Item' : 'Create Item'" 
+                icon="pi pi-check"
+                [loading]="isSubmitting"
+                loadingIcon="pi pi-spin pi-spinner"
+                (onClick)="onSave(itemForm)">
+      </p-button>
+    </div>
+
+  </form>
 </div>

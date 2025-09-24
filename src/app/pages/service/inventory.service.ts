@@ -69,7 +69,7 @@ export class InventoryService {
   }
 
   addTransaction(transaction: InventoryTransaction) {
-    return this.http.post<InventoryTransaction>(this.resourceInventoryTransactionUrl, transaction, { observe: 'response' });
+    return this.http.post<InventoryItem>(this.resourceInventoryTransactionUrl, transaction, { observe: 'response' });
   }
 
 }

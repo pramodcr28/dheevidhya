@@ -18,6 +18,7 @@ export class CommonService {
   dateTimeFormate = "yyyy-MM-dd'T'HH:mm:ss.SSS";
   dateFormate = "yyyy-MM-dd";
   TimeFormate = "HH:mm:ss.SSS";
+  displayDateTimeFormate = "dd MMMM yyyy, hh:mm a";
 
   themeGradients: string[] = [
   'linear-gradient(180deg, #2196F3, #64B5F6)',  // Blue

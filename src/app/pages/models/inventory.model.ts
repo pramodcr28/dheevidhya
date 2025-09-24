@@ -24,6 +24,8 @@ export interface InventoryItem {
   name?: string;
   totalQuantity?: number;
   availableQuantity?: number;
+  totalTransactions: number;
+  totalSpend: number;
 }
 
 export interface InventoryTransaction {
@@ -34,7 +36,11 @@ export interface InventoryTransaction {
   assignedToType: AssignedToType;
   assignedToId: string;
   assignedToName: string;
+  returnFromId: string;
+  returnFromName: string;
   quantity: number;
+  unitPrice: number;
+  totalPrice: number;
   date: Date;
 }
 
@@ -61,7 +67,8 @@ export enum ItemStatus {
   DAMAGED = 'DAMAGED',
   RETIRED = 'RETIRED',
   DISPOSED = 'DISPOSED',
-  RESERVED = 'RESERVED'
+  RESERVED = 'RESERVED',
+  EMPTY = 'EMPTY'
 }
 
 export enum TransactionType {
@@ -69,10 +76,10 @@ export enum TransactionType {
   RETURN = 'RETURN',
   TRANSFER = 'TRANSFER',
   MAINTENANCE = 'MAINTENANCE',
-  ADJUSTMENT = 'ADJUSTMENT',
-  DISPOSE = 'DISPOSE',
+  REMOVED = 'REMOVED',
   PURCHASE = 'PURCHASE',
-  LOST = 'LOST'
+  LOST = 'LOST',
+  FOUND = 'FOUND'       
 }
 
 export enum AssignedToType {
