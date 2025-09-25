@@ -63,7 +63,8 @@ export class AssetsManagementComponent implements OnInit {
   isEditMode = false;
   editingItemId: any = null;
   selectedItem: InventoryItem | null = null;
-  
+  totalItems = 0;
+  totalCategories = 0;
   inventoryService = inject(InventoryService);
   loader = inject(ApiLoaderService);
 
@@ -90,6 +91,7 @@ export class AssetsManagementComponent implements OnInit {
     this.inventoryService.searchCategory(0, 100, 'id', 'ASC', {}).subscribe({
       next: (res: any) => {
         this.categories = res.content;
+        this.totalCategories = res.totalElements;
       },
     });
   }
@@ -100,6 +102,7 @@ export class AssetsManagementComponent implements OnInit {
     this.inventoryService.searchInventoryItem(0, 100, 'id', 'ASC', {}).subscribe({
       next: (res: any) => {
         this.inventoryItems = res.content;
+        this.totalItems = res.totalElements;
         this.loader.hide();
       },
     });

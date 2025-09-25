@@ -1,146 +1,92 @@
 <div class="min-h-screen text-gray-800 dark:text-gray-100 p-4">
-
-  <!-- Statistics Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Total Items</p>
-          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ inventoryItems.length }}</h3>
+    <div class="bg-surface-0 dark:bg-surface-950 py-6 md:px-4 rounded mb-4">
+        <div class="flex items-center flex-col md:justify-between md:flex-row">
+            <div>
+                <h2 class="text-xl font-bold">Inventory Items</h2>
+                <div class="flex items-center text-surface-700 dark:text-surface-300 flex-wrap gap-8">
+                    <div class="flex items-center gap-2">
+                        <i class="pi pi-users text-primary"></i>
+                        <span>{{totalItems}} Total Items </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="pi pi-globe text-primary"></i>
+                        <span>{{totalCategories}} Total Categories</span>
+                    </div>
+                    <!-- <div class="flex items-center gap-2">
+                        <i class="pi pi-clock text-primary"></i>
+                        <span>2.32m Avg. Duration</span>
+                    </div> -->
+                </div>
+            </div>
+             <p-button label="Add New Item" icon="pi pi-plus" (onClick)="openAddDialog()"
+                 styleClass="p-button-raised p-button-primary"> </p-button>
         </div>
-        <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
-          <i class="pi pi-box text-blue-600 dark:text-blue-300 text-xl"></i>
-        </div>
-      </div>
     </div>
+    <p-table [value]="inventoryItems" [paginator]="true" [rows]="10" class="shadow-lg rounded-xl overflow-hidden">
+        <ng-template pTemplate="header">
+            <tr class="bg-gray-100 dark:bg-gray-800">
+                <th>Name</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Total Quantity</th>
+                <th>Available Quantity</th>
+                <th>Transactions</th>
+                <th>Total Spend</th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-900">
+                <td>{{ item?.name }}</td>
+                <td>{{ item?.category?.name }}</td>
+                <td>
+                    <p-tag [value]="item.status" [severity]="getStatusSeverity(item.status)"></p-tag>
+                </td>
+                <td>{{ item.totalQuantity ?? '-' }}</td>
+                <td>{{ item.availableQuantity ?? '-' }}</td>
+                <td>
+                    <span
+                        class="bg-blue-50 dark:bg-gray-800 text-blue-600 dark:text-blue-300 border px-4 py-1 border-blue-200 dark:border-gray-700 rounded-full shadow-sm cursor-pointer hover:shadow-md transition"
+                        (click)="viewItemTransactions(item)"
+                        pTooltip="View Transactions"
+                    >
+                        <span class="font-medium me-3"> count : {{ item.totalTransactions }}</span>
+                        <i class="pi pi-window-maximize text-primary-500 dark:text-primary-400"></i>
+                    </span>
+                </td>
+                <td>{{ item.totalSpend }}</td>
 
-    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Low Stock</p>
-          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">3</h3>
-        </div>
-        <div class="bg-yellow-100 dark:bg-yellow-900 p-3 rounded-full">
-          <i class="pi pi-exclamation-triangle text-yellow-600 dark:text-yellow-300 text-xl"></i>
-        </div>
-      </div>
-    </div>
+                <td>
+                    <div class="flex gap-2">
+                        <p-button icon="pi pi-pencil" styleClass="p-button-rounded p-button-text" (onClick)="editItem(item)"></p-button>
+                        <p-button icon="pi pi-trash" styleClass="p-button-rounded p-button-text p-button-danger" (onClick)="deleteItem(item)"></p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="70">
+                    <div class="flex flex-col items-center justify-center py-16 text-gray-500 dark:text-gray-400 gap-2">
+                        <i class="pi pi-inbox text-6xl text-primary"></i>
+                        <p class="text-xl font-medium m-0">No items found.</p>
+                        <p class="text-md text-gray-400 dark:text-gray-500">Start by adding a new inventory item.</p>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
 
-    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Categories</p>
-          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ categories?.length }}</h3>
-        </div>
-        <div class="bg-green-100 dark:bg-green-900 p-3 rounded-full">
-          <i class="pi pi-tags text-green-600 dark:text-green-300 text-xl"></i>
-        </div>
-      </div>
-    </div>
+    <!-- Add/Edit Dialog -->
+    @if (showAddItemDialog) {
+        <p-dialog [header]="isEditMode ? 'Edit Inventory Item' : 'Add New Inventory Item'" [(visible)]="showAddItemDialog" [style]="{ width: '60vw' }" [modal]="true" styleClass="custom-dialog">
+            <app-add-inventory-item [categories]="categories" [itemFormModel]="itemFormModel" [isEditMode]="isEditMode" (itemSaved)="onItemSaved()" (cancelled)="closeDialog()"> </app-add-inventory-item>
+        </p-dialog>
+    }
 
-    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Value</p>
-        </div>
-        <div class="bg-purple-100 dark:bg-purple-900 p-3 rounded-full">
-          <i class="pi pi-wallet text-purple-600 dark:text-purple-300 text-xl"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toolbar -->
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl font-bold">Inventory Items</h2>
-    <p-button label="Add New Item" icon="pi pi-plus"
-      (onClick)="openAddDialog()" styleClass="p-button-raised p-button-primary"></p-button>
-  </div>
-
-  <!-- Items Table -->
-  <p-table [value]="inventoryItems" [paginator]="true" [rows]="10" class="shadow-lg rounded-xl overflow-hidden">
-    <ng-template pTemplate="header">
-      <tr class="bg-gray-100 dark:bg-gray-800">
-        <th>Name</th>
-        <th>Category</th>
-        <th>Status</th>
-        <th>Total Quantity</th>
-        <th>Available Quantity</th>
-        <th>Transactions</th>
-        <th>Total Spend</th>
-        <th>Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-item>
-      <tr class="hover:bg-gray-50 dark:hover:bg-gray-900">
-        <td>{{ item?.name }}</td>
-        <td>{{ item?.category?.name }}</td>
-        <td>
-          <p-tag [value]="item.status" [severity]="getStatusSeverity(item.status)"></p-tag>
-        </td>
-        <td>{{ item.totalQuantity ?? '-' }}</td>
-        <td>{{ item.availableQuantity ?? '-' }}</td>
-        <td>
-          <span
-            class="bg-blue-50 dark:bg-gray-800 text-blue-600 dark:text-blue-300 border px-4 py-1 border-blue-200 dark:border-gray-700 rounded-full shadow-sm cursor-pointer hover:shadow-md transition"
-            (click)="viewItemTransactions(item)"
-            pTooltip="View Transactions">
-            <span class="font-medium me-3"> count : {{ item.totalTransactions }}</span>
-            <i class="pi pi-window-maximize text-primary-500 dark:text-primary-400"></i>
-          </span>
-        </td>
-        <td>{{item.totalSpend}}</td>
-
-        <td>
-          <div class="flex gap-2">
-            <p-button icon="pi pi-pencil" styleClass="p-button-rounded p-button-text" (onClick)="editItem(item)"></p-button>
-            <p-button icon="pi pi-trash" styleClass="p-button-rounded p-button-text p-button-danger" (onClick)="deleteItem(item)"></p-button>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="70">
-          <div class="flex flex-col items-center justify-center py-16 text-gray-500 dark:text-gray-400 gap-2">
-            <i class="pi pi-inbox text-6xl text-primary"></i>
-            <p class="text-xl font-medium m-0">No items found.</p>
-            <p class="text-md text-gray-400 dark:text-gray-500">Start by adding a new inventory item.</p>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-
-  <!-- Add/Edit Dialog -->
- @if(showAddItemDialog){
-  <p-dialog [header]="isEditMode ? 'Edit Inventory Item' : 'Add New Inventory Item'"
-          [(visible)]="showAddItemDialog"
-          [style]="{ width: '60vw' }"
-          [modal]="true"
-          styleClass="custom-dialog">
-  <app-add-inventory-item
-    [categories]="categories"
-    [itemFormModel]="itemFormModel"
-    [isEditMode]="isEditMode"
-    (itemSaved)="onItemSaved()"
-    (cancelled)="closeDialog()">
-  </app-add-inventory-item>
-</p-dialog>
- }
-
-    <p-dialog [header]="'Transaction History - ' + (selectedItem?.name || 'Item')"
-            [(visible)]="showTransactionsDialog"
-            [style]="{ width: '80vw', maxWidth: '1200px' }"
-            [modal]="true"
-            styleClass="custom-dialog"
-            (onHide)="fetchInventoryItem()"
-            >
-            
-            @if(selectedItem){
-                <app-add-transaction [selectedItem]="selectedItem"></app-add-transaction>
-            }
-  
-  </p-dialog>
-
+    <p-dialog [header]="'Transaction History - ' + (selectedItem?.name || 'Item')" [(visible)]="showTransactionsDialog" [style]="{ width: '80vw', maxWidth: '1200px' }" [modal]="true" styleClass="custom-dialog" (onHide)="fetchInventoryItem()">
+        @if (selectedItem) {
+            <app-add-transaction [selectedItem]="selectedItem"></app-add-transaction>
+        }
+    </p-dialog>
 </div>
