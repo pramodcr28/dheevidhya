@@ -54,7 +54,7 @@ export class Login {
   
     login(): void {
       this.authServerProvider.login(this.loginForm.getRawValue())
-      .pipe(mergeMap(()=>this.accountService.identity(true)))
+      .pipe(mergeMap(()=>this.accountService.identity()))
       .subscribe({
         next: () => {
           this.authenticationError.set(false);

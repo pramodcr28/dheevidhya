@@ -16,8 +16,6 @@ import { TabViewModule } from 'primeng/tabview';
 import { ApiLoaderComponent } from '../../../core/layout/loaderComponent';
 import { CommonService } from '../../../core/services/common.service';
 import { EditorModule } from 'primeng/editor';
-import { CalendarModule } from 'primeng/calendar';
-import { DropdownModule } from 'primeng/dropdown';
 import { TimelineModule } from 'primeng/timeline';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
@@ -230,7 +228,6 @@ export class AddTransactionComponent implements OnInit {
     }
   }
 
-  /** ✅ Transaction preview helpers */
   getTransactionImpactMessage(): string {
     const action = this.transactionForm.get('action')?.value;
     const messageMap: { [key: string]: string } = {
@@ -273,7 +270,6 @@ export class AddTransactionComponent implements OnInit {
     return labelMap[action] || 'Create Transaction';
   }
 
-  /** ✅ Save Transaction */
   saveTransaction(): void {
     this.formSubmitted = true;
     if (this.transactionForm.invalid) {

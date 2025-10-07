@@ -15,7 +15,7 @@ export class TenantAuthorityService {
   protected readonly http = inject(HttpClient);
   protected readonly applicationConfigService = inject(ApplicationConfigService);
 
-  protected resourceUrl = environment.ServerUrl + this.applicationConfigService.getEndpointFor('api/tenant-authorities');
+  protected resourceUrl = environment.ServerUrl + this.applicationConfigService.getEndpointFor('uaa/authorities');
 
   create(tenantAuthority: NewTenantAuthority): Observable<EntityResponseType> {
     return this.http.post<ITenantAuthority>(this.resourceUrl, tenantAuthority, { observe: 'response' });

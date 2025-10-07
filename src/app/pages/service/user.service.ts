@@ -34,7 +34,7 @@ export class UserService {
   protected readonly applicationConfigService = inject(ApplicationConfigService);
 
   protected userResourceUrl:any = environment.ServerUrl + this.applicationConfigService.getEndpointFor('api/tenant-users');
-  protected authorityResourceUrl = environment.ServerUrl + this.applicationConfigService.getEndpointFor('api/tenant-authorities');
+  protected authorityResourceUrl = environment.ServerUrl + this.applicationConfigService.getEndpointFor('uaa/authorities');
 
   create(tenantUser: NewTenantUser): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(tenantUser);

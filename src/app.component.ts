@@ -25,7 +25,7 @@ export class AppComponent {
     this.wsService.getMessages().subscribe(
       (message) => {
         console.log("Web socket trigger ID" + message);
-        this.accountService.identity(true).subscribe(result=>{
+        this.accountService.identity().subscribe(result=>{
         });
       }
     );

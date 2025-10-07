@@ -13,7 +13,7 @@ export class WebSocketService {
   private messageSubject = new BehaviorSubject<string>('');
     protected readonly applicationConfigService = inject(ApplicationConfigService);
 
-  protected resourceUrl = this.applicationConfigService.getEndpointFor( environment.ServerUrl + environment.NOTIFICATION_BASE_URL + 'ws-notifications');
+  protected resourceUrl = this.applicationConfigService.getEndpointFor( environment.NOTIFICATION_BASE_URL + 'ws-notifications');
 
   constructor() {
     this.initializeWebSocketConnection();

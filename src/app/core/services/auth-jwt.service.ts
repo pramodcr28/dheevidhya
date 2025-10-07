@@ -10,7 +10,7 @@ import { addToken } from '../store/user-profile/user-profile.actions';
 
 
 type JwtToken = {
-  id_token: string;
+  token: string;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -20,7 +20,7 @@ export class AuthServerProvider {
 
   login(credentials: Login): Observable<void> {
     return this.http
-      .post<JwtToken>(environment.ServerUrl + 'api/authenticate', credentials)
+      .post<JwtToken>(environment.ServerUrl + 'uaa/login', credentials)
       .pipe(map(response => this.authenticateSuccess(response, credentials.rememberMe)));
   }
 
@@ -33,7 +33,7 @@ export class AuthServerProvider {
   private authenticateSuccess(response: JwtToken, rememberMe: boolean): void {
     // const user: UserProfile = this.parseUserFromToken(response.token); // Extract user info from token
 
-    this.store.dispatch(addToken({ token: response.id_token }));
+    this.store.dispatch(addToken({ token: response.token }));
   }
 
   changePassword(passwordChangeDTO: PasswordChangeDTO): Observable<any> {
