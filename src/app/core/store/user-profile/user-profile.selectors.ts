@@ -17,6 +17,39 @@ export const getDepartmentById = (id: string) => createSelector(
   getAssociatedDepartments,
   (departments) => departments?.find(department => department.id === id)
 );
+
+export const getUserAssociatedSubjects = createSelector(
+  selectUserProfileState,
+  (state) => {
+    const userConfig = state.userConfig ?? {};
+    const subjectIds = userConfig.subjectIds ?? [];
+    const departments = userConfig.departments ?? [];
+    const studentRole = userConfig.roles?.student;
+
+    // Collect all subjects from all departments
+    const allSubjects = departments
+      .flatMap(dep => dep.department.classes ?? [])
+      .flatMap(cls => cls.sections ?? [])
+      .flatMap(sec => sec.subjects ?? []);
+
+    // 🧠 If user is a student → get all subjects for their class + section
+    if (studentRole?.sectionId && studentRole?.classId) {
+      const { classId, sectionId } = studentRole;
+
+      return departments
+        .flatMap(dep => dep.department.classes ?? [])
+        .filter(cls => cls.id === classId)
+        .flatMap(cls => cls.sections ?? [])
+        .filter(sec => sec.id === sectionId)
+        .flatMap(sec => sec.subjects ?? []);
+    }
+
+    // 🧑‍🏫 Otherwise → return only subjects mapped to their subjectIds (e.g. for teachers/admins)
+    return allSubjects.filter(sub => subjectIds.includes(sub.id));
+  }
+);
+
+
 export const getSubjectsByFilters = (
   departmentIds: string[] = [],
   classIds: string[] = [],

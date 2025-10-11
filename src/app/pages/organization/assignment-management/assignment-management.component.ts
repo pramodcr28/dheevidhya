@@ -1,31 +1,32 @@
-import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { TreeNode } from 'primeng/api';
+import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { AssignmentService } from '../../service/assignment.service';
-import { Assignment, AssignmentSubmission, SubmissionStatus } from '../../models/assignment.model';
-import { Store } from '@ngrx/store';
-import { TreeNode } from 'primeng/api';
-import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
-import { IExaminationSubject } from '../../models/examination.model';
-import { IDepartmentConfig } from '../../models/org.model';
-import { CommonService } from '../../../core/services/common.service';
-import { AddAssignmentDialogComponent } from './add-assignment-dialog/add-assignment-dialog.component';
-import { SubmitAssignmentDialogComponent } from './submit-assignment-dialog/submit-assignment-dialog.component';
 import { TooltipModule } from 'primeng/tooltip';
 import { ApiLoaderService } from '../../../core/services/loaderService';
+import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
+import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
+import { Assignment, AssignmentSubmission, SubmissionStatus } from '../../models/assignment.model';
+import { IExaminationSubject } from '../../models/examination.model';
+import { IDepartmentConfig } from '../../models/org.model';
+import { AssignmentService } from '../../service/assignment.service';
+import { CommonService } from './../../../core/services/common.service';
+import { AddAssignmentDialogComponent } from './add-assignment-dialog/add-assignment-dialog.component';
+import { SubmitAssignmentDialogComponent } from './submit-assignment-dialog/submit-assignment-dialog.component';
 
 @Component({
     selector: 'app-assignment-management',
     standalone: true,
-    imports: [CommonModule, ButtonModule, TableModule, CardModule, TagModule, AddAssignmentDialogComponent, SubmitAssignmentDialogComponent,TooltipModule],
+    imports: [CommonModule, ButtonModule, TableModule, CardModule, TagModule, AddAssignmentDialogComponent, SubmitAssignmentDialogComponent, TooltipModule, BadgeModule],
     templateUrl: './assignment-management.component.html'
 })
 export class AssignmentManagementComponent implements OnInit {
-    currentView: 'cards' | 'submissions' = 'cards';
+    // currentView: 'cards' | 'submissions' = 'cards';
     showAddDialog = false;
     treeNodes: TreeNode[] = [];
     selectedStatus: string = '';
@@ -37,8 +38,7 @@ export class AssignmentManagementComponent implements OnInit {
         { label: 'QUIZ', value: 'QUIZ' }
     ];
 
-    assignmentSubmissions = [
-    ];
+    assignmentSubmissions = [];
     assignments: Assignment[] = [];
     newAssignment: Partial<Assignment> = {};
     calendarDates: number[] = [];
@@ -52,21 +52,52 @@ export class AssignmentManagementComponent implements OnInit {
     selectedAssignment: any = null;
     assignmentSubmission: AssignmentSubmission = null;
     isStudentView = true;
-    loader = inject(ApiLoaderService); 
+    loader = inject(ApiLoaderService);
+    groupedAssignments: any[] = [];
+    currentView: 'cards' | 'submissions' | 'group' = 'group';
+    selectedGroup = null;
     ngOnInit(): void {
-        this.apiCall();
+        // this.apiCall();
         this.store.select(getAssociatedDepartments).subscribe((departments) => {
             this.associatedDepartments = departments;
         });
+        this.getGroupedAssignments();
     }
 
-    apiCall() {
-        this.loader.show("Fetching Assignments");
-        this.assignmentService.search().subscribe((result) => {
+    selectGroup(group) {
+        this.currentView = 'cards';
+        this.selectedGroup = group;
+        let reqBody: any = {};
+        this.commonService.currentUser.subscribe((user) => {
+            if (user?.roles?.student) {
+                reqBody = { subjectName: group.name, className: group.className, sectionName: group.sectionName, departmentId: group.departmentName };
+            } else {
+                reqBody = { subjectName: group.subjectName, className: group.className, sectionName: group.sectionName, departmentId: group.departmentId };
+            }
+        });
+
+        this.assignmentService.search(0, 100, 'id', 'ASC', reqBody).subscribe((result) => {
             this.assignments = result.content;
             this.loader.hide();
         });
     }
+
+    getGroupedAssignments() {
+        let reqBody: any = {};
+        this.commonService.currentUser.subscribe((user) => {
+            if (user?.roles?.student) {
+                reqBody = { departmentIds: [this.commonService.getStudentInfo.departmentId], classNames: [this.commonService.getStudentInfo.className], sectionNames: [this.commonService.getStudentInfo.sectionName] };
+            } else {
+                reqBody = { departmentIds: this.associatedDepartments.map((dept) => dept.id) };
+            }
+            this.loader.show('Fetching Assignments');
+            this.assignmentService.getGroupedAssignments(0, 100, 'id', 'ASC', reqBody).subscribe((result) => {
+                this.groupedAssignments = result.content;
+                this.loader.hide();
+            });
+        });
+    }
+
     onDepartmentChange() {
         if (this.selectedDepartment) {
             this.newAssignment.departmentId = this.selectedDepartment?.id;
@@ -152,56 +183,54 @@ export class AssignmentManagementComponent implements OnInit {
 
     viewAssignment(assignment: Assignment) {
         this.selectedAssignment = assignment;
-             const searchRequest = {
-                    page: 0,
-                    size: 100,
-                    sortBy: 'status',
-                    sortDirection: 'DESC',
-                    filters: {}
-                    };
+        const searchRequest = {
+            page: 0,
+            size: 100,
+            sortBy: 'status',
+            sortDirection: 'DESC',
+            filters: {}
+        };
 
-          this.commonService.currentUser.subscribe((user) => {
+        this.commonService.currentUser.subscribe((user) => {
             searchRequest.filters['assignmentId'] = this.selectedAssignment.id;
-            if (user.roles?.student) {
-              searchRequest.filters['studentId.like'] = user.userId;
-               this.isStudentView = true;
-            }else{
-              this.isStudentView = false;
+            if (user?.roles?.student) {
+                searchRequest.filters['studentId.like'] = user.userId;
+                this.isStudentView = true;
+            } else {
+                this.isStudentView = false;
             }
-            this.loader.show("Fetching Assignments");
-         this.assignmentService.searchSubmission(searchRequest).subscribe(response=>{
-             this.loader.hide();
-           if (user.roles?.student) {
-               if(response?.content.length){
-                  this.assignmentSubmission = response?.content[0];
-                  this.showSubmitDialog = true;
-               }else{
-                  this.newAssignmentSubmission(user);
-               }
-            }else{
-               this.currentView = 'submissions';  
-               this.assignmentSubmissions = response?.content;
-            }
-        })
+            this.loader.show('Fetching Assignments');
+            this.assignmentService.searchSubmission(searchRequest).subscribe((response) => {
+                this.loader.hide();
+                if (user?.roles?.student) {
+                    if (response?.content.length) {
+                        this.assignmentSubmission = response?.content[0];
+                        this.showSubmitDialog = true;
+                    } else {
+                        this.newAssignmentSubmission(user);
+                    }
+                } else {
+                    this.currentView = 'submissions';
+                    this.assignmentSubmissions = response?.content;
+                }
+            });
         });
-         
     }
 
-    viewAssignmentSubmition(submission :AssignmentSubmission){
-       this.assignmentSubmission = submission;
-       this.showSubmitDialog = true;
+    viewAssignmentSubmition(submission: AssignmentSubmission) {
+        this.assignmentSubmission = submission;
+        this.showSubmitDialog = true;
     }
 
-    backtoAssignmentList(){
-      this.currentView = 'cards';  
-      this.assignmentSubmissions = [];
-      this.assignmentSubmission = null;
+    backtoAssignmentList() {
+        this.currentView = 'cards';
+        this.assignmentSubmissions = [];
+        this.assignmentSubmission = null;
     }
 
-
-    newAssignmentSubmission(user){
-          this.showSubmitDialog = true;
-           this.assignmentSubmission = {
+    newAssignmentSubmission(user) {
+        this.showSubmitDialog = true;
+        this.assignmentSubmission = {
             id: null,
             departmentId: this.selectedAssignment.departmentId,
             assignmentId: this.selectedAssignment.id,
@@ -218,7 +247,6 @@ export class AssignmentManagementComponent implements OnInit {
             evaluatedOn: null
         };
     }
- 
 
     addAssignment() {
         if (this.newAssignment.title && this.newAssignment.dueDate) {
@@ -239,7 +267,8 @@ export class AssignmentManagementComponent implements OnInit {
             };
 
             this.assignmentService.create(assignment).subscribe((result) => {
-                this.apiCall();
+                this.getGroupedAssignments();
+                this.selectGroup(this.selectedGroup);
                 this.showAddDialog = false;
                 this.newAssignment = {};
             });
@@ -248,14 +277,14 @@ export class AssignmentManagementComponent implements OnInit {
 
     submitAssignment() {
         this.commonService.currentUser.subscribe((user) => {
-            if (user.roles?.student) {
+            if (user?.roles?.student) {
                 this.assignmentSubmission.studentName = user.fullName;
                 this.assignmentSubmission.studentId = user.userId;
-                this.assignmentSubmission.status = SubmissionStatus.SUBMITTED
+                this.assignmentSubmission.status = SubmissionStatus.SUBMITTED;
             } else {
                 this.assignmentSubmission.evaluatedBy = user.userId;
                 this.assignmentSubmission.evaluatedOn = new Date().toISOString();
-                this.assignmentSubmission.status = SubmissionStatus.REVIEWED
+                this.assignmentSubmission.status = SubmissionStatus.REVIEWED;
             }
             this.assignmentService.createSubmission(this.assignmentSubmission).subscribe((response) => {
                 // console.log(response);

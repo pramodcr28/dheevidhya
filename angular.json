@@ -42,7 +42,8 @@
                         "styles": [
                             "src/styles.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "allowedCommonJsDependencies": ["quill-delta","sockjs-client", "stompjs", "chart.js", "xlsx", "file-saver", "pdfmake", "jspdf", "html2canvas"]
                     },
                     "configurations": {
                         "production": {
@@ -53,7 +54,7 @@
                             "budgets": [
                                 {
                                     "type": "initial",
-                                    "maximumWarning": "1mb",
+                                    "maximumWarning": "3mb",
                                     "maximumError": "5mb"
                                 },
                                 {

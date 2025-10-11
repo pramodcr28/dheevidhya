@@ -74,19 +74,19 @@
 
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-            Total Spend *
+            Total Amount Spent *
           </label>
           <p-inputNumber [(ngModel)]="itemFormModel.totalSpend"
                          name="totalSpend"
                          #totalSpendField="ngModel"
-                         placeholder="Enter total Spend" 
+                         placeholder="Enter total Amount Spend" 
                          styleClass="w-full"
                          [min]="0"
                          [class.ng-invalid]="totalSpendField.invalid && totalSpendField.touched"
                          required>
           </p-inputNumber>
           <small *ngIf="totalSpendField.invalid && totalSpendField.touched" class="text-red-500 mt-1 block">
-            Total Spend is required
+            Total Amount Spent is required
           </small>
         </div>
 
