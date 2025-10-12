@@ -1,4 +1,3 @@
-
 <p-dialog 
   [header]="isStudentView ? 'Submit Assignment' : 'Review Submission'" 
   [(visible)]="visible" 
@@ -8,13 +7,15 @@
   (onHide)="close()"
   [style]="{width: '90vw', maxWidth: '1400px', maxHeight: '90vh'}"
   styleClass="modern-dialog">
- 
-  <ng-container *ngIf="studentResponse && selectedAssignment; else noData"> 
-    
-    <!-- Assignment Details Card -->
-    <div class="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6 shadow-sm">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex-1">
+
+  <ng-container *ngIf="studentResponse && selectedAssignment; else noData">
+
+    <!-- Assignment Details Card (Horizontal Layout) -->
+    <div class="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl shadow-sm">
+      <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
+        
+        <!-- Left Section: Title & Badges -->
+        <div class="flex-1 p-4">
           <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
               <i class="pi pi-book text-white text-lg"></i>
@@ -26,7 +27,7 @@
               <p class="text-sm text-gray-600 mt-0.5">Complete and submit your work below</p>
             </div>
           </div>
-          
+
           <div class="flex flex-wrap gap-2">
             <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-full text-sm shadow-sm">
               <i class="pi pi-building mr-2 text-purple-500"></i>
@@ -42,58 +43,102 @@
             </span>
           </div>
         </div>
-      </div>
-      
-      <!-- Assignment Description -->
-      <div class="mt-5 bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
-        <h4 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide flex items-center">
-          <div class="w-6 h-6 bg-indigo-100 rounded flex items-center justify-center mr-2">
-            <i class="pi pi-file-text text-indigo-600 text-xs"></i>
+
+        <!-- Right Section: Assignment Description -->
+        <div class="xl:max-w-lg w-full">
+          <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+            <h4 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide flex items-center">
+              <div class="w-6 h-6 bg-indigo-100 rounded flex items-center justify-center mr-2">
+                <i class="pi pi-file-text text-indigo-600 text-xs"></i>
+              </div>
+              Instructions
+            </h4>
+            <div class="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+                 [innerHTML]="selectedAssignment.description">
+            </div>
           </div>
-          Instructions
-        </h4>
-        <div class="prose prose-sm max-w-none text-gray-700 leading-relaxed" 
-             [innerHTML]="selectedAssignment.description">
         </div>
       </div>
-    </div> 
- 
+    </div>
+
     <!-- Response Section -->
     <div class="space-y-6">
-      @if(isStudentView) { 
-        <!-- Student Response Editor -->
-        <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm hover:border-blue-300 transition-colors">
-          <div class="flex items-center mb-5">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-              <i class="pi pi-pencil text-white text-lg"></i>
+
+      <!-- ✅ STUDENT VIEW -->
+      @if (isStudentView) {
+        @if (!studentResponse.feedback) {
+          <!-- No feedback yet → Only response editor -->
+          <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm hover:border-blue-300 transition-colors">
+            <div class="flex items-center mb-5">
+              <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+                <i class="pi pi-pencil text-white text-lg"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-gray-900">Your Response</h3>
+                <p class="text-sm text-gray-500 mt-0.5">Write your detailed answer below</p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-xl font-bold text-gray-900">Your Response</h3>
-              <p class="text-sm text-gray-500 mt-0.5">Write your detailed answer below</p>
+
+            <div class="border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm focus-within:border-blue-400 transition-colors">
+              <p-editor 
+                [(ngModel)]="studentResponse.response" 
+                (ngModelChange)="onResponseChange($event)" 
+                [style]="{'height':'320px'}"
+                placeholder="Start typing your answer here... Be clear and detailed in your response.">
+              </p-editor>
+            </div>
+
+            <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex gap-2">
+              <i class="pi pi-exclamation-triangle text-amber-600 text-sm flex-shrink-0 mt-0.5"></i>
+              <p class="text-xs text-amber-800">
+                <strong>Remember:</strong> Review your work before submitting. Once submitted, you may not be able to edit your response.
+              </p>
             </div>
           </div>
-          
-          <div class="border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm focus-within:border-blue-400 transition-colors">
-            <p-editor 
-              [(ngModel)]="studentResponse.response" 
-              (ngModelChange)="onResponseChange($event)" 
-              [style]="{'height':'320px'}"
-              placeholder="Start typing your answer here... Be clear and detailed in your response.">
-            </p-editor>
+        } @else {
+          <!-- ✅ Feedback exists → Show side-by-side -->
+          <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <!-- Student Response -->
+            <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm">
+              <div class="flex items-center mb-5">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+                  <i class="pi pi-user-edit text-white text-lg"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900">Your Submitted Response</h3>
+                  <p class="text-sm text-gray-500 mt-0.5">This is what you submitted</p>
+                </div>
+              </div>
+
+              <div class="prose prose-sm max-w-none bg-gray-50 border border-gray-200 p-5 rounded-lg min-h-[280px] overflow-auto"
+                   [innerHTML]="studentResponse.response">
+              </div>
+            </div>
+
+            <!-- Teacher Feedback -->
+            <div class="bg-white border-2 border-green-200 rounded-xl p-6 shadow-sm">
+              <div class="flex items-center mb-5">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+                  <i class="pi pi-comments text-white text-lg"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900">Teacher Feedback</h3>
+                  <p class="text-sm text-gray-500 mt-0.5">Reviewed by your teacher</p>
+                </div>
+              </div>
+
+              <div class="prose prose-sm max-w-none bg-green-50 border border-green-200 p-5 rounded-lg min-h-[280px] overflow-auto"
+                   [innerHTML]="studentResponse.feedback">
+              </div>
+            </div>
           </div>
-          
-          <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex gap-2">
-            <i class="pi pi-exclamation-triangle text-amber-600 text-sm flex-shrink-0 mt-0.5"></i>
-            <p class="text-xs text-amber-800">
-              <strong>Remember:</strong> Review your work before submitting. Once submitted, you may not be able to edit your response.
-            </p>
-          </div>
-        </div>
-        
-      } @else { 
-        <!-- Teacher View: Side by Side -->
+        }
+      }
+
+      <!-- ✅ TEACHER VIEW -->
+      @else {
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          
+
           <!-- Student Response Display -->
           <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm">
             <div class="flex items-center mb-5">
@@ -105,17 +150,17 @@
                 <p class="text-sm text-gray-500 mt-0.5">Submitted response for review</p>
               </div>
             </div>
-            
-            <div class="prose prose-sm max-w-none bg-gray-50 border border-gray-200 p-5 rounded-lg min-h-[280px] overflow-auto" 
+
+            <div class="prose prose-sm max-w-none bg-gray-50 border border-gray-200 p-5 rounded-lg min-h-[280px] overflow-auto"
                  [innerHTML]="studentResponse.response">
             </div>
-            
+
             <div class="mt-4 flex items-center gap-2 text-xs text-gray-500">
               <i class="pi pi-clock"></i>
               <span>Submitted on: {{ studentResponse.submissionDate | date:'MMM d, y - h:mm a' }}</span>
             </div>
           </div>
-          
+
           <!-- Teacher Feedback Editor -->
           <div class="bg-white border-2 border-green-200 rounded-xl p-6 shadow-sm hover:border-green-300 transition-colors">
             <div class="flex items-center mb-5">
@@ -127,7 +172,7 @@
                 <p class="text-sm text-gray-500 mt-0.5">Provide constructive comments and evaluation</p>
               </div>
             </div>
-            
+
             <div class="border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm focus-within:border-green-400 transition-colors">
               <p-editor 
                 [(ngModel)]="studentResponse.feedback" 
@@ -136,7 +181,7 @@
                 placeholder="Write your feedback here... Be specific and constructive to help the student improve.">
               </p-editor>
             </div>
-            
+
             <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 flex gap-2">
               <i class="pi pi-info-circle text-blue-600 text-sm flex-shrink-0 mt-0.5"></i>
               <p class="text-xs text-blue-800">
@@ -144,14 +189,14 @@
               </p>
             </div>
           </div>
-          
+
         </div>
-      } 
+      }
+
     </div>
-    
-  </ng-container> 
- 
-  <ng-template #noData> 
+  </ng-container>
+
+  <ng-template #noData>
     <div class="flex flex-col items-center justify-center py-16 text-center">
       <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-5 shadow-sm">
         <i class="pi pi-inbox text-3xl text-gray-400"></i>
@@ -161,10 +206,10 @@
         Please select an assignment from the list to view details and submit your response. 
         If you're having trouble, try refreshing the page.
       </p>
-    </div> 
-  </ng-template> 
- 
-  <ng-template pTemplate="footer"> 
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
     <div class="flex items-center justify-between pt-5 border-t-2 border-gray-200">
       <div class="text-sm text-gray-500 flex items-center gap-2">
         <i class="pi pi-info-circle"></i>
@@ -191,5 +236,5 @@
         </p-button>
       </div>
     </div>
-  </ng-template> 
+  </ng-template>
 </p-dialog>

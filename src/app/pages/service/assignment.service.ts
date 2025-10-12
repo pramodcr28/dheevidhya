@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -50,5 +50,9 @@ export class AssignmentService {
 
     searchSubmission<T>(searchRequest): Observable<any> {
         return this.http.post<any>(`${this.resourceUrl}/submissions/search`, searchRequest);
+    }
+
+    delete(id: string): Observable<HttpResponse<{}>> {
+        return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
     }
 }

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { TreeNode } from 'primeng/api';
+import { MessageService, TreeNode } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -56,6 +56,7 @@ export class AssignmentManagementComponent implements OnInit {
     groupedAssignments: any[] = [];
     currentView: 'cards' | 'submissions' | 'group' = 'group';
     selectedGroup = null;
+    messageService = inject(MessageService);
     ngOnInit(): void {
         // this.apiCall();
         this.store.select(getAssociatedDepartments).subscribe((departments) => {
@@ -275,6 +276,22 @@ export class AssignmentManagementComponent implements OnInit {
         }
     }
 
+    deleteAssignment(assignment: Assignment) {
+        if (assignment && assignment.id) {
+            this.assignmentService.delete(assignment.id).subscribe((result) => {
+                this.getGroupedAssignments();
+                this.selectGroup(this.selectedGroup);
+                this.showAddDialog = false;
+                this.newAssignment = {};
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Assignment Deleted Successfully!',
+                    life: 3000
+                });
+            });
+        }
+    }
     submitAssignment() {
         this.commonService.currentUser.subscribe((user) => {
             if (user?.roles?.student) {
