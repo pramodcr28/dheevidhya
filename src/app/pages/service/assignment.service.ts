@@ -28,7 +28,7 @@ export class AssignmentService {
         return this.http.post<any>(`${this.resourceUrl}/search`, searchRequest);
     }
 
-    create(attendence: Assignment) {
+    create(attendence: Assignment | any) {
         return this.http.post<Assignment>(this.resourceUrl, attendence, { observe: 'response' });
     }
 

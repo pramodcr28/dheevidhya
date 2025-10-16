@@ -25,7 +25,7 @@
 
                             <!-- Add Task Button -->
                             @if (!(commonService.currentUser | async)?.roles?.student && currentView === 'cards') {
-                                <p-button label="Add Task" icon="pi pi-plus" severity="primary" size="small" class="w-full sm:w-auto" (onClick)="showAddDialog = true"> </p-button>
+                                <p-button label="Add Task" icon="pi pi-plus" severity="primary" size="small" class="w-full sm:w-auto" (onClick)="selectedAssignment = {}; showAddDialog = true"> </p-button>
                             }
                         </div>
                         @if(currentView !== 'submissions') {
@@ -64,9 +64,24 @@
                                 <div class="flex items-center justify-between pt-3 border-t border-gray-100">
                                     <button pButton icon="pi pi-eye" label="View" class="p-button-text p-button-sm text-primary" (click)="viewAssignment(assignment)"></button>
 
-                                    @if (!(commonService.currentUser | async)?.roles?.student) {
-                                        <i class="pi pi-trash text-red-400 hover:text-red-600 cursor-pointer transition-colors" (click)="deleteAssignment(assignment)" pTooltip="Delete"></i>
-                                    }
+                               @if (!(commonService.currentUser | async)?.roles?.student) {
+  <div class="flex items-center gap-3">
+
+    <!-- ✅ Edit Icon -->
+    <i class="pi pi-pencil text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
+       (click)="editAssignment(assignment)"
+       pTooltip="Edit">
+    </i>
+
+    <!-- ✅ Delete Icon -->
+    <i class="pi pi-trash text-red-400 hover:text-red-600 cursor-pointer transition-colors"
+       (click)="deleteAssignment(assignment)"
+       pTooltip="Delete">
+    </i>
+
+  </div>
+}
+
                                 </div>
                             </div>
                         </div>
@@ -314,7 +329,7 @@
             [(selectedDepartment)]="selectedDepartment"
             [treeNodes]="treeNodes"
             [(selectedSubject)]="selectedSubject"
-            [newAssignment]="newAssignment"
+            [newAssignment]="selectedAssignment"
             (departmentChange)="onDepartmentChange()"
             (submit)="addAssignment()"
             (cancel)="showAddDialog = false"

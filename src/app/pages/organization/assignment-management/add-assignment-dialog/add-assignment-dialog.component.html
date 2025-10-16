@@ -17,7 +17,7 @@
     <div class="grid grid-cols-2 gap-4">
 
       <!-- Department -->
-      <p-select
+      <!-- <p-select
         [options]="associatedDepartments"
         [(ngModel)]="selectedDepartment"
         (ngModelChange)="onSelectedDepartmentModelChange($event)"
@@ -26,10 +26,10 @@
         optionLabel="name"
         placeholder="Select Department"
         [style]="{ width: '100%' }">
-      </p-select>
+      </p-select> -->
 
       <!-- Subject (Tree) -->
-      <p-treeSelect
+      <!-- <p-treeSelect
         [(ngModel)]="selectedSubject"
         (ngModelChange)="onSelectedSubjectModelChange($event)"
         [ngModelOptions]="{ standalone: true }"
@@ -38,7 +38,7 @@
         [fluid]="true"
         scrollHeight="200px"
         placeholder="Select Subjects">
-      </p-treeSelect>
+      </p-treeSelect> -->
 
       <!-- Due Date -->
       <div>
@@ -47,6 +47,7 @@
           showIcon="true"
           placeholder="Submition Date"
           [fluid]="true"
+          [minDate]="today"
           dateFormat="yy-mm-dd">
         </p-datepicker>
       </div>

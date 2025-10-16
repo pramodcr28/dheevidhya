@@ -37,16 +37,6 @@ export class AssignmentManagementComponent implements OnInit {
         { label: 'PROJECT', value: 'PROJECT' },
         { label: 'ASSIGNMENT', value: 'ASSIGNMENT' }
     ];
-    // colors = {
-    //     PUBLISHED: 'bg-yellow-400',
-    //     ONGOING: 'bg-blue-700',
-    //     Completed: 'bg-green-400',
-    //     Overdue: 'bg-red-400',
-    //     SUBMITTED: 'bg-purple-400',
-    //     REVIEWED: 'bg-green-800',
-    //     DRAFT: 'bg-gray-400',
-    //     REOPENED: 'bg-orange-500'
-    // };
 
     studentColors = {
         PUBLISHED: { bg: 'bg-yellow-400', text: 'text-yellow-800' },
@@ -65,7 +55,7 @@ export class AssignmentManagementComponent implements OnInit {
 
     assignmentSubmissions = [];
     assignments: Assignment[] = [];
-    newAssignment: Partial<Assignment> = {};
+    // newAssignment: Partial<Assignment> = {};
     calendarDates: number[] = [];
     assignmentService = inject(AssignmentService);
     selectedDepartment: IDepartmentConfig;
@@ -74,7 +64,8 @@ export class AssignmentManagementComponent implements OnInit {
     selectedSubject: TreeNode;
     showSubmitDialog = false;
     commonService = inject(CommonService);
-    selectedAssignment: any = null;
+    selectedAssignment: Partial<Assignment> = {};
+    subjectInfo: any = {};
     assignmentSubmission: AssignmentSubmission = null;
     isStudentView = true;
     loader = inject(ApiLoaderService);
@@ -83,6 +74,7 @@ export class AssignmentManagementComponent implements OnInit {
     selectedGroup = null;
     messageService = inject(MessageService);
     objectKeys = Object.keys;
+
     ngOnInit(): void {
         // this.apiCall();
         this.store.select(getAssociatedDepartments).subscribe((departments) => {
@@ -106,6 +98,7 @@ export class AssignmentManagementComponent implements OnInit {
             } else {
                 reqBody = { subjectName: group.subjectName, className: group.className, sectionName: group.sectionName, departmentId: group.departmentId };
             }
+            this.subjectInfo = { departmentId: group.departmentId, className: group.className, sectionName: group.sectionName, subjectName: group.subjectName };
         });
 
         this.assignmentService.search(0, 100, 'id', 'ASC', reqBody).subscribe((result) => {
@@ -132,7 +125,7 @@ export class AssignmentManagementComponent implements OnInit {
 
     onDepartmentChange() {
         if (this.selectedDepartment) {
-            this.newAssignment.departmentId = this.selectedDepartment?.id;
+            this.selectedAssignment.departmentId = this.selectedDepartment?.id;
             this.treeNodes = this.selectedDepartment?.department.classes?.map((cls) => ({
                 label: 'Class: ' + cls.name,
                 key: cls.name,
@@ -153,6 +146,7 @@ export class AssignmentManagementComponent implements OnInit {
             }));
         }
     }
+
     get filteredAssignments() {
         return this.assignments.filter((assignment) => {
             const statusMatch = !this.selectedStatus || assignment.status === this.selectedStatus;
@@ -176,7 +170,6 @@ export class AssignmentManagementComponent implements OnInit {
     getStatusColor(assignment: Assignment): string {
         let status: any = assignment.status;
 
-        // If student submission exists, override status
         if (assignment.submission) {
             status = assignment.submission.status;
         }
@@ -263,30 +256,31 @@ export class AssignmentManagementComponent implements OnInit {
     }
 
     addAssignment() {
-        if (this.newAssignment.title && this.newAssignment.dueDate) {
-            const assignment: Assignment = {
-                id: null,
-                departmentId: this.selectedDepartment.id,
-                className: this.selectedSubject.data.className,
-                sectionName: this.selectedSubject.data.sectionName,
-                subjectName: this.selectedSubject.data.name,
-                title: this.newAssignment.title,
-                description: this.newAssignment.description || '',
-                assignedDate: new Date().toISOString().split('T')[0],
-                dueDate: new Date(this.newAssignment.dueDate!).toISOString().split('T')[0],
-                type: (this.newAssignment.type as any) || 'HOMEWORK',
-                visibilityType: 'GROUP',
-                assignedStudentIds: [],
-                status: this.newAssignment.status || 'DRAFT'
-            };
+        // still pending functionality visibilityType assignedStudentIds
+        this.loader.show('updating Assignment');
 
-            this.assignmentService.create(assignment).subscribe((result) => {
-                this.getGroupedAssignments();
-                this.selectGroup(this.selectedGroup);
-                this.showAddDialog = false;
-                this.newAssignment = {};
-            });
+        if (this.selectedAssignment && !this.selectedAssignment.id && this.subjectInfo) {
+            this.selectedAssignment = { ...this.selectedAssignment, ...this.subjectInfo, visibilityType: 'GROUP', dueDate: new Date(this.selectedAssignment.dueDate!).toISOString().split('T')[0] };
         }
+        this.assignmentService.create(this.selectedAssignment).subscribe((result) => {
+            this.loader.hide();
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Assignment Added Successfully!',
+                life: 3000
+            });
+            this.getGroupedAssignments();
+            this.selectGroup(this.selectedGroup);
+            this.selectedAssignment = {};
+            this.showAddDialog = false;
+        });
+    }
+
+    editAssignment(assignment: Assignment) {
+        this.selectedAssignment = assignment;
+        this.showAddDialog = true;
+        // open dialog or navigate to edit page
     }
 
     deleteAssignment(assignment: Assignment) {
@@ -295,7 +289,7 @@ export class AssignmentManagementComponent implements OnInit {
                 this.getGroupedAssignments();
                 this.selectGroup(this.selectedGroup);
                 this.showAddDialog = false;
-                this.newAssignment = {};
+                this.selectedAssignment = {};
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
@@ -305,6 +299,7 @@ export class AssignmentManagementComponent implements OnInit {
             });
         }
     }
+
     submitAssignment() {
         if (this.commonService.getStudentInfo) {
             this.assignmentSubmission.studentName = this.commonService.getStudentInfo.fullName;
