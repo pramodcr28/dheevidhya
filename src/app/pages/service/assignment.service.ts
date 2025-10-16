@@ -45,7 +45,8 @@ export class AssignmentService {
     }
 
     createSubmission(submission: AssignmentSubmission): Observable<AssignmentSubmission> {
-        return this.http.post<AssignmentSubmission>(this.resourceUrl + '/submissions', submission);
+        let url = `${this.resourceUrl}/submissions` + (submission.id ? `/${submission.id}` : '');
+        return this.http.post<AssignmentSubmission>(url, submission);
     }
 
     searchSubmission<T>(searchRequest): Observable<any> {

@@ -88,12 +88,12 @@
               </p-editor>
             </div>
 
-            <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex gap-2">
+            <!-- <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex gap-2">
               <i class="pi pi-exclamation-triangle text-amber-600 text-sm flex-shrink-0 mt-0.5"></i>
               <p class="text-xs text-amber-800">
                 <strong>Remember:</strong> Review your work before submitting. Once submitted, you may not be able to edit your response.
               </p>
-            </div>
+            </div> -->
           </div>
         } @else {
           <!-- ✅ Feedback exists → Show side-by-side -->
@@ -210,31 +210,67 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <div class="flex items-center justify-between pt-5 border-t-2 border-gray-200">
-      <div class="text-sm text-gray-500 flex items-center gap-2">
-        <i class="pi pi-info-circle"></i>
-        <span *ngIf="isStudentView">Make sure to review before submitting</span>
-        <span *ngIf="!isStudentView">Your feedback will be visible to the student</span>
-      </div>
-      <div class="flex gap-3">
-        <p-button 
-          label="Cancel" 
-          icon="pi pi-times"
-          [text]="true" 
-          severity="secondary"
-          size="large"
-          class="hover:bg-gray-100 transition-colors duration-200"
-          (onClick)="close()">
-        </p-button>
-        <p-button 
-          [label]="isStudentView ? 'Submit Assignment' : 'Save Feedback'" 
-          [icon]="isStudentView ? 'pi pi-send' : 'pi pi-check'"
-          severity="primary"
-          size="large"
-          class="hover:bg-blue-700 transition-colors duration-200 shadow-md"
-          (onClick)="save()">
-        </p-button>
-      </div>
-    </div>
+<div class="flex justify-end items-center gap-4 pt-5 border-t-2 border-gray-200 w-full">
+  <p-button 
+    label="Cancel" 
+    icon="pi pi-times"
+    [text]="true" 
+    severity="secondary"
+    size="large"
+    class="hover:bg-gray-100 transition-colors duration-200"
+    (onClick)="close()">
+  </p-button>
+
+@if (isStudentView) {
+  <div class="flex gap-4">
+    
+    @if (studentResponse.status === SubmissionStatus.DRAFT) {
+      <p-button 
+        label="Save as Draft"
+        icon="pi pi-save"
+        severity="secondary"
+        size="large"
+        class="hover:bg-gray-200 transition-colors duration-200"
+        (onClick)="studentResponse.status = SubmissionStatus.DRAFT; save()">
+      </p-button>
+    }
+
+    <p-button 
+      label="Submit Assignment"
+      icon="pi pi-send"
+      severity="primary"
+      size="large"
+      class="hover:bg-blue-700 transition-colors duration-200 shadow-md"
+      (onClick)="studentResponse.status = SubmissionStatus.SUBMITTED; save()">
+    </p-button>
+
+  </div>
+} @else {
+  <div class="flex gap-4">
+
+    <p-button 
+      label="Mark as Reviewed"
+      icon="pi pi-check"
+      severity="primary"
+      size="large"
+      class="hover:bg-blue-700 transition-colors duration-200 shadow-md"
+      (onClick)="studentResponse.status = SubmissionStatus.REVIEWED; save()">
+    </p-button>
+
+    <p-button 
+      label="Reopen Submission"
+      icon="pi pi-refresh"
+      severity="secondary"
+      size="large"
+      class="hover:bg-gray-200 transition-colors duration-200"
+      (onClick)="studentResponse.status = SubmissionStatus.REOPENED; save()">
+    </p-button>
+
+  </div>
+}
+
+
+</div>
+
   </ng-template>
 </p-dialog>

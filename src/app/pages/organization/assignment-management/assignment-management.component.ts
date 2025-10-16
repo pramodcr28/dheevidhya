@@ -35,8 +35,33 @@ export class AssignmentManagementComponent implements OnInit {
     typeOptions = [
         { label: 'HOMEWORK', value: 'HOMEWORK' },
         { label: 'PROJECT', value: 'PROJECT' },
-        { label: 'QUIZ', value: 'QUIZ' }
+        { label: 'ASSIGNMENT', value: 'ASSIGNMENT' }
     ];
+    // colors = {
+    //     PUBLISHED: 'bg-yellow-400',
+    //     ONGOING: 'bg-blue-700',
+    //     Completed: 'bg-green-400',
+    //     Overdue: 'bg-red-400',
+    //     SUBMITTED: 'bg-purple-400',
+    //     REVIEWED: 'bg-green-800',
+    //     DRAFT: 'bg-gray-400',
+    //     REOPENED: 'bg-orange-500'
+    // };
+
+    studentColors = {
+        PUBLISHED: { bg: 'bg-yellow-400', text: 'text-yellow-800' },
+        DRAFT: { bg: 'bg-gray-400', text: 'text-gray-800' },
+        SUBMITTED: { bg: 'bg-purple-400', text: 'text-purple-800' },
+        REOPENED: { bg: 'bg-orange-500', text: 'text-orange-800' },
+        REVIEWED: { bg: 'bg-green-800', text: 'text-white' } // dark bg, light text
+    };
+
+    staffColors = {
+        DRAFT: { bg: 'bg-gray-400', text: 'text-gray-800' },
+        PUBLISHED: { bg: 'bg-yellow-400', text: 'text-yellow-800' },
+        ONGOING: { bg: 'bg-blue-700', text: 'text-blue-100' },
+        Completed: { bg: 'bg-green-400', text: 'text-green-800' }
+    };
 
     assignmentSubmissions = [];
     assignments: Assignment[] = [];
@@ -57,12 +82,18 @@ export class AssignmentManagementComponent implements OnInit {
     currentView: 'cards' | 'submissions' | 'group' = 'group';
     selectedGroup = null;
     messageService = inject(MessageService);
+    objectKeys = Object.keys;
     ngOnInit(): void {
         // this.apiCall();
         this.store.select(getAssociatedDepartments).subscribe((departments) => {
             this.associatedDepartments = departments;
         });
         this.getGroupedAssignments();
+        if (this.commonService.getStudentInfo) {
+            this.isStudentView = true;
+        } else {
+            this.isStudentView = false;
+        }
     }
 
     selectGroup(group) {
@@ -71,7 +102,7 @@ export class AssignmentManagementComponent implements OnInit {
         let reqBody: any = {};
         this.commonService.currentUser.subscribe((user) => {
             if (user?.roles?.student) {
-                reqBody = { subjectName: group.name, className: group.className, sectionName: group.sectionName, departmentId: group.departmentName };
+                reqBody = { subjectName: group.name, className: group.className, sectionName: group.sectionName, departmentId: group.departmentName, 'status.ne': 'DRAFT' };
             } else {
                 reqBody = { subjectName: group.subjectName, className: group.className, sectionName: group.sectionName, departmentId: group.departmentId };
             }
@@ -138,48 +169,33 @@ export class AssignmentManagementComponent implements OnInit {
         this.currentView = view;
     }
 
-    getStatusColor(status: string): string {
-        const colors = {
-            PUBLISHED: 'bg-yellow-400',
-            ONGOING: 'bg-blue-400',
-            Completed: 'bg-green-400',
-            Overdue: 'bg-red-400'
-        };
-        return colors[status as keyof typeof colors] || 'bg-gray-400';
+    getActiveColors() {
+        return this.isStudentView ? this.studentColors : this.staffColors;
     }
 
-    getStatusBorderColor(status: string): string {
-        const colors = {
-            Pending: 'border-yellow-400',
-            Completed: 'border-green-400',
-            Overdue: 'border-red-400'
-        };
-        return colors[status as keyof typeof colors] || 'border-gray-400';
+    getStatusColor(assignment: Assignment): string {
+        let status: any = assignment.status;
+
+        // If student submission exists, override status
+        if (assignment.submission) {
+            status = assignment.submission.status;
+        }
+        const colorMap = { ...this.studentColors, ...this.staffColors };
+        const colors = colorMap[status] || { bg: 'bg-gray-400', text: 'text-gray-800' };
+
+        return `${colors.bg} ${colors.text} p-1 rounded-md text-xs`;
     }
 
-    getTypeSeverity(type: string): any {
-        const severities = {
-            HOMEWORK: 'info',
-            PROJECT: 'success',
-            EXAM: 'danger',
-            QUIZ: 'warn'
-        };
-        return severities[type as keyof typeof severities] || 'secondary';
+    getSubmissionStatusClass(submission: AssignmentSubmission): string {
+        const status = submission?.status;
+        const colorMap = { ...this.studentColors, ...this.staffColors };
+        const colors = colorMap[status] || { bg: 'bg-gray-400', text: 'text-gray-800' };
+        return `${colors.bg} ${colors.text} px-2 py-1 rounded-md text-xs`;
     }
 
     getAssignmentsForDate(date: number): Assignment[] {
         const dateStr = `2025-02-${date.toString().padStart(2, '0')}`;
         return this.assignments.filter((assignment) => assignment.dueDate === dateStr);
-    }
-
-    getAssignmentColorClass(assignment: Assignment): string {
-        const typeColors = {
-            HOMEWORK: 'bg-blue-100 text-blue-800',
-            PROJECT: 'bg-green-100 text-green-800',
-            EXAM: 'bg-red-100 text-red-800',
-            QUIZ: 'bg-yellow-100 text-yellow-800'
-        };
-        return typeColors[assignment.type] || 'bg-gray-100 text-gray-800';
     }
 
     viewAssignment(assignment: Assignment) {
@@ -194,11 +210,8 @@ export class AssignmentManagementComponent implements OnInit {
 
         this.commonService.currentUser.subscribe((user) => {
             searchRequest.filters['assignmentId'] = this.selectedAssignment.id;
-            if (user?.roles?.student) {
+            if (this.isStudentView) {
                 searchRequest.filters['studentId.like'] = user.userId;
-                this.isStudentView = true;
-            } else {
-                this.isStudentView = false;
             }
             this.loader.show('Fetching Assignments');
             this.assignmentService.searchSubmission(searchRequest).subscribe((response) => {
@@ -237,7 +250,7 @@ export class AssignmentManagementComponent implements OnInit {
             assignmentId: this.selectedAssignment.id,
             studentId: user.userId,
             studentName: user.fullName,
-            status: SubmissionStatus.SUBMITTED,
+            status: SubmissionStatus.DRAFT,
             submissionDate: new Date().toISOString(),
             response: '',
             attachments: [],
@@ -264,7 +277,7 @@ export class AssignmentManagementComponent implements OnInit {
                 type: (this.newAssignment.type as any) || 'HOMEWORK',
                 visibilityType: 'GROUP',
                 assignedStudentIds: [],
-                status: 'PUBLISHED'
+                status: this.newAssignment.status || 'DRAFT'
             };
 
             this.assignmentService.create(assignment).subscribe((result) => {
@@ -293,20 +306,26 @@ export class AssignmentManagementComponent implements OnInit {
         }
     }
     submitAssignment() {
-        this.commonService.currentUser.subscribe((user) => {
-            if (user?.roles?.student) {
-                this.assignmentSubmission.studentName = user.fullName;
-                this.assignmentSubmission.studentId = user.userId;
-                this.assignmentSubmission.status = SubmissionStatus.SUBMITTED;
-            } else {
-                this.assignmentSubmission.evaluatedBy = user.userId;
-                this.assignmentSubmission.evaluatedOn = new Date().toISOString();
-                this.assignmentSubmission.status = SubmissionStatus.REVIEWED;
-            }
-            this.assignmentService.createSubmission(this.assignmentSubmission).subscribe((response) => {
-                // console.log(response);
+        if (this.commonService.getStudentInfo) {
+            this.assignmentSubmission.studentName = this.commonService.getStudentInfo.fullName;
+            this.assignmentSubmission.studentId = this.commonService.getStudentInfo.userId;
+            // this.assignmentSubmission.status = SubmissionStatus.SUBMITTED;
+        } else {
+            this.assignmentSubmission.evaluatedBy = this.commonService.getUserInfo.userId;
+            this.assignmentSubmission.evaluatedOn = new Date().toISOString();
+            // this.assignmentSubmission.status = SubmissionStatus.REVIEWED;
+        }
+
+        this.assignmentService.createSubmission(this.assignmentSubmission).subscribe((response) => {
+            this.getGroupedAssignments();
+            this.selectGroup(this.selectedGroup);
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Assignment Submitted Successfully!',
+                life: 3000
             });
-            this.showSubmitDialog = false;
         });
+        this.showSubmitDialog = false;
     }
 }

@@ -40,11 +40,16 @@ export class AppComponent {
                     classId: studentRole.classId,
                     sectionId: studentRole.sectionId,
                     departmentName: department.department.name,
-                    departmentId: department.id
+                    departmentId: department.id,
+                    fullName: user.fullName,
+                    userId: user.userId
                 };
             } else {
                 this.commonService.getUserInfo = {
-                    subjectsNames: subejcts.filter((sub) => user.subjectIds.includes(sub.id)).map((sub) => sub.name)
+                    subjectsNames: subejcts.filter((sub) => user.subjectIds.includes(sub.id)).map((sub) => sub.name),
+                    subjectIds: user.subjectIds,
+                    fullName: user.fullName,
+                    userId: user.userId
                 };
             }
             // this.commonService.getStudentInfo = {className: , sectionName: , classId: , sectionId:  , departmentName: , departmentId:  };
