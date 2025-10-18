@@ -1,6 +1,5 @@
 <div class="from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
 
-
     <!-- Statistics Cards -->
     <div class="flex items-center justify-between mb-5 px-5">
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-all duration-300">
@@ -141,6 +140,7 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category Name *</label>
           <input 
             type="text" 
+             [disabled]="categoryForm.id !== null"
             [(ngModel)]="categoryForm.name"
             class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             placeholder="Enter category name">
@@ -170,7 +170,6 @@
             (onClick)="addProperty()">
           </p-button>
         </div>
-
         <!-- Properties List -->
         @if (categoryForm.propertyDefinitions.length > 0) {
           <div class="space-y-4">
@@ -178,15 +177,25 @@
               <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <!-- Field Name -->
-                  <div>
-                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Field Name *</label>
-                    <input 
-                      type="text" 
-                      [(ngModel)]="property.fieldName"
-                      class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="e.g., serialNumber">
-                  </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    Field Name *
+                  </label>
 
+                  <input 
+                    type="text" 
+                    [(ngModel)]="property.fieldName"
+                    name="fieldName"
+                    #fieldNameCtrl="ngModel"
+                    [disabled]="categoryForm.id !== null"
+                    pattern="^[a-zA-Z]+$"
+                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    placeholder="e.g., serialNumber">
+
+                  <small *ngIf="fieldNameCtrl.invalid && fieldNameCtrl.touched" class="text-red-500">
+                    Only alphabets (A–Z) are allowed. No numbers, spaces, or special characters.
+                  </small>
+                </div>
                   <!-- Label -->
                   <div>
                     <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Label *</label>
@@ -206,6 +215,7 @@
                       optionLabel="title"
                       optionValue="value"
                       placeholder="Select type"
+                      [disabled]="categoryForm.id !== null"
                       styleClass="w-full text-sm"
                       [overlayOptions]="{responsive:{direction:'top'}}"
                       (onChange)="onFieldTypeChange(property, $index)">

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client/dist/sockjs.js';
 import { BehaviorSubject } from 'rxjs';
+import SockJS from 'sockjs-client/dist/sockjs.js';
 import { environment } from '../../../environments/environment';
 import { ApplicationConfigService } from './application-config.service';
 
@@ -12,8 +12,8 @@ export class WebSocketService {
     private client: Client;
     private messageSubject = new BehaviorSubject<string>('');
     protected readonly applicationConfigService = inject(ApplicationConfigService);
-
-    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.NOTIFICATION_BASE_URL + 'ws-notifications');
+    private baseUrl = window.location.origin + '/';
+    protected resourceUrl = this.applicationConfigService.getEndpointFor(this.baseUrl + environment.NOTIFICATION_BASE_URL + 'ws-notifications');
 
     constructor() {
         this.initializeWebSocketConnection();

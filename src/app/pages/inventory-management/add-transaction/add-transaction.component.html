@@ -142,21 +142,23 @@
                 placeholder="Select transaction type"
                 styleClass="w-full"
                 [showClear]="true"
+                (onChange)="onActionTypeChange($event)"
                 [class.ng-invalid]="isFieldInvalid('action')"
               ></p-select>
               <small *ngIf="isFieldInvalid('action')" class="text-red-500 text-xs mt-1">Required</small>
             </div>
-
+        
             <!-- Quantity -->
             <div class="col-span-1">
               <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Quantity</label>
               <p-inputNumber
                 formControlName="quantity"
                 [min]="1"
+                [max]="setMaxQuantityCount()"
                 styleClass="w-full"
                 [class.ng-invalid]="isFieldInvalid('quantity')"
               ></p-inputNumber>
-              <small *ngIf="isFieldInvalid('quantity')" class="text-red-500 text-xs mt-1">Required</small>
+              <small *ngIf="isFieldInvalid('quantity')" class="text-red-500 text-xs mt-1">Invalid Quantity</small>
             </div>
 
             @if(this.transactionForm.get('action').value == "PURCHASE"){

@@ -10,7 +10,7 @@
     </div>
 
     <!-- Basic Information -->
-    <div class="rounded-lg p-4">
+    <div class="rounded-lg p-4 min-h-[300px]">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         
         <!-- Category Field -->
@@ -18,18 +18,21 @@
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
             Category *
           </label>
-          <p-select [options]="categories" 
-                    [(ngModel)]="itemFormModel.category"
-                    name="category"
-                    #categoryField="ngModel"
-                    optionLabel="name" 
-                    optionValue="id" 
-                    placeholder="Select Category" 
-                    styleClass="w-full"
-                    [class.ng-invalid]="categoryField.invalid && categoryField.touched"
-                    (onChange)="onCategoryChange()"
-                    required>
-          </p-select>
+          <p-select 
+          [options]="categories" 
+          [(ngModel)]="itemFormModel.category"
+          name="category"
+          #categoryField="ngModel"
+          optionLabel="name" 
+          optionValue="id" 
+          placeholder="Select Category" 
+          styleClass="w-full"
+          [appendTo]="'body'"      
+          [class.ng-invalid]="categoryField.invalid && categoryField.touched"
+          (onChange)="onCategoryChange()"
+          required>
+        </p-select>
+
           <small *ngIf="categoryField.invalid && categoryField.touched" class="text-red-500 mt-1 block">
             Category is required
           </small>
