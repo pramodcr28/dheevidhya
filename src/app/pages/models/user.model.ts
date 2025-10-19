@@ -1,22 +1,19 @@
-import dayjs from "dayjs/esm";
-import { IBranch } from "./tenant.model";
-import { Gender } from "../../core/model/auth";
+import dayjs from 'dayjs/esm';
+import { Gender } from '../../core/model/auth';
 
 export interface ITenantAuthority {
     name: string;
-  }
+}
 
-    export enum ProfileType {
+export enum ProfileType {
     STUDENT = 'STUDENT',
-  
-    GUARDIAN = 'GUARDIAN',
-  
-    STAFF = 'STAFF',
-  }
 
-  
-  export type NewTenantAuthority = Omit<ITenantAuthority, 'name'> & { name: null };
-  
+    GUARDIAN = 'GUARDIAN',
+
+    STAFF = 'STAFF'
+}
+
+export type NewTenantAuthority = Omit<ITenantAuthority, 'name'> & { name: null };
 
 export interface ITenantUser {
     id: number;
@@ -41,112 +38,98 @@ export interface ITenantUser {
     longitude?: number | null;
     activationKey?: string | null;
     resetKey?: string | null;
-    createdBy?: string | null;
-    createdDate?: dayjs.Dayjs | null;
+    branchId?: number | null;
     resetDate?: dayjs.Dayjs | null;
     isTenantUser?: boolean | null;
-    lastModifiedBy?: string | null;
-    lastModifiedDate?: dayjs.Dayjs | null;
     authorities?: ITenantAuthority[] | null;
-    branch?: IBranch | null;
-    profile?: IProfileConfig | null
-  }
-  
-  export type NewTenantUser = Omit<ITenantUser, 'id'> & { id: null };
-  
+    profile?: IProfileConfig | null;
+}
+
+export type NewTenantUser = Omit<ITenantUser, 'id'> & { id: null };
+
 //  Profile config related models
-  
+
 export interface IProfileConfig {
-  id: number;
-  userId?: String | null;
-  academicYear?: string | null;
-  username?: string | null;
-  email?: string | null;
-  fullName?: string | null;
-  contactNumber?: string | null;
-  reportsTo?: string | null;
-  gender?: keyof typeof Gender | null;
-  profileType?: keyof typeof ProfileType | null;
-  departments?: string[] | null;
-  roles?: IRoleConfigs | null;
-  subjectIds?:string[] | null;
+    id: number;
+    userId?: String | null;
+    academicYear?: string | null;
+    username?: string | null;
+    email?: string | null;
+    fullName?: string | null;
+    contactNumber?: string | null;
+    reportsTo?: string | null;
+    gender?: keyof typeof Gender | null;
+    profileType?: keyof typeof ProfileType | null;
+    departments?: string[] | null;
+    roles?: IRoleConfigs | null;
+    subjectIds?: string[] | null;
 }
 
 export type NewProfileConfig = Omit<IProfileConfig, 'id'> & { id: null };
 
-
-
 export interface IRoleConfigs {
-  student?: IStudentProfile | null;
-  parent?: IGuardianProfile | null;
-  teacher?: ITeacherProfile | null;
-  lecturer?: ILecturerProfile | null;
-  professor?: IProfessorProfile | null;
-  headofdepartment?: IHeadOfDepartmentProfile | null;
-  headmaster?: IHeadMasterProfile | null;
-  principal?: IPrincipalProfile | null;
-  viceprincipal?: IVicePrincipalProfile | null;
-  sportscoach?: ISportsCoachProfile | null;
-  substituteteacher?: ISubstituteTeacherProfile | null;
-  itadmin?: IITAdministratorProfile | null;
+    student?: IStudentProfile | null;
+    parent?: IGuardianProfile | null;
+    teacher?: ITeacherProfile | null;
+    lecturer?: ILecturerProfile | null;
+    professor?: IProfessorProfile | null;
+    headofdepartment?: IHeadOfDepartmentProfile | null;
+    headmaster?: IHeadMasterProfile | null;
+    principal?: IPrincipalProfile | null;
+    viceprincipal?: IVicePrincipalProfile | null;
+    sportscoach?: ISportsCoachProfile | null;
+    substituteteacher?: ISubstituteTeacherProfile | null;
+    itadmin?: IITAdministratorProfile | null;
 }
-
 
 export interface IStudentProfile {
     rollNumber?: string | null;
-    classId? : number | null;
-    sectionId? : number | null;
-    guardianId? : number | null;
+    classId?: number | null;
+    sectionId?: number | null;
+    guardianId?: number | null;
 }
 
 export interface IGuardianProfile {
-  childrens?: string[] | null;
-  email?: string | null;
-  contactNumber?: string | null;
+    childrens?: string[] | null;
+    email?: string | null;
+    contactNumber?: string | null;
 }
-
 
 export interface ITeacherProfile {
-   subjectIds?:string[] | null;
+    subjectIds?: string[] | null;
 }
-
 
 export interface ISubstituteTeacherProfile {}
 
-
 export interface ISportsCoachProfile {
-  sportsManaged?: string | null;
+    sportsManaged?: string | null;
 }
-
 
 export interface IProfessorProfile {
-  researchAreas?: string | null;
-  publications?: string | null;
+    researchAreas?: string | null;
+    publications?: string | null;
 }
-
 
 export interface IPrincipalProfile {
-  responsibilities?: string | null;
+    responsibilities?: string | null;
 }
 
-
 export interface ILecturerProfile {
-  subjectIds?:string[] | null;
+    subjectIds?: string[] | null;
 }
 
 export interface IITAdministratorProfile {
-  responsibilities?: string | null;
+    responsibilities?: string | null;
 }
 
 export interface IHeadOfDepartmentProfile {
-  responsibilities?: string | null;
+    responsibilities?: string | null;
 }
 
 export interface IHeadMasterProfile {
-  responsibilities?: string | null;
+    responsibilities?: string | null;
 }
 
-
 export interface IVicePrincipalProfile {
-  responsibilities?: string | null;
+    responsibilities?: string | null;
 }

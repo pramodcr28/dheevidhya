@@ -46,7 +46,7 @@ export class AppComponent {
                 };
             } else {
                 this.commonService.getUserInfo = {
-                    subjectsNames: subejcts.filter((sub) => user.subjectIds.includes(sub.id)).map((sub) => sub.name),
+                    subjectsNames: subejcts.filter((sub) => user.subjectIds?.includes(sub.id)).map((sub) => sub.name),
                     subjectIds: user.subjectIds,
                     fullName: user.fullName,
                     userId: user.userId

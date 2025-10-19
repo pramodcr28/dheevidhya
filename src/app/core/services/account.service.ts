@@ -56,7 +56,7 @@ export class AccountService {
                     console.log(claims);
 
                     if (claims) {
-                        this.http.get<any>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ADMIN_BASE_URL + 'api/config/' + claims.id)).subscribe((result) => {
+                        this.http.get<any>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'api/config/' + claims.id)).subscribe((result) => {
                             let branch = null;
                             for (let department of result.departments) {
                                 branch = JSON.parse(JSON.stringify(department.branch));

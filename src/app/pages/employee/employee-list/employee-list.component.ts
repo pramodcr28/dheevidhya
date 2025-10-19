@@ -1,5 +1,9 @@
 import { CommonModule } from '@angular/common';
+import { Component, inject, NgZone, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
@@ -12,43 +16,37 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
-import { EmployeeDialogComponent } from './../employee-dialog/employee-dialog.component';
-import { Component, inject, NgZone, signal } from '@angular/core';
-import { MessageService, ConfirmationService } from 'primeng/api';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import dayjs from 'dayjs/esm';
-import { Subscription, Observable, tap, catchError, of, switchMap, map } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
-import { ExportColumn, Column } from '../../../core/model/table.model';
+import { Column, ExportColumn } from '../../../core/model/table.model';
+import { CommonService } from '../../../core/services/common.service';
+import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { selectUserConfig } from '../../../core/store/user-profile/user-profile.selectors';
 import { SortService } from '../../../shared/sort';
-import { NewTenantUser, ITenantUser, NewProfileConfig, IProfileConfig, ITenantAuthority } from '../../models/user.model';
+import { IProfileConfig, ITenantAuthority, ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantAuthorityService } from '../../service/tenant-authority.service';
-import { UserService, EntityArrayResponseType } from '../../service/user.service';
-import { ApiLoaderService } from '../../../core/services/loaderService';
-import { CommonService } from '../../../core/services/common.service';
+import { UserService } from '../../service/user.service';
+import { EmployeeDialogComponent } from './../employee-dialog/employee-dialog.component';
 
 @Component({
-  selector: 'app-employee-list',
-  imports: [CommonModule,TableModule,FormsModule,ButtonModule,RippleModule,ToastModule,ToolbarModule,RatingModule,InputTextModule,DialogModule,TagModule,InputIconModule,IconFieldModule,ConfirmDialogModule,EmployeeDialogComponent],
-  templateUrl: './employee-list.component.html',
-  styles: ``,
-  providers:[MessageService, ConfirmationService]
+    selector: 'app-employee-list',
+    imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, RatingModule, InputTextModule, DialogModule, TagModule, InputIconModule, IconFieldModule, ConfirmDialogModule, EmployeeDialogComponent],
+    templateUrl: './employee-list.component.html',
+    styles: ``,
+    providers: [MessageService, ConfirmationService]
 })
 export class EmployeeListComponent {
-private store = inject(Store<{ userProfile: UserProfileState }>);
+    private store = inject(Store<{ userProfile: UserProfileState }>);
     studentDialog: boolean = false;
-    employee!:NewTenantUser | ITenantUser;
-    employeeProfile! : NewProfileConfig | IProfileConfig | any;
+    employee!: NewTenantUser | ITenantUser;
+    employeeProfile!: NewProfileConfig | IProfileConfig | any;
     submitted: boolean = false;
     exportColumns!: ExportColumn[];
     cols!: Column[];
     subscription: Subscription | null = null;
- 
-    tenantAuthorities =  signal<ITenantAuthority[]>([]);
+    tenantAuthorities = signal<ITenantAuthority[]>([]);
     isLoading = false;
     employeeProfiles = signal<IProfileConfig[] | null>([]);
     itemsPerPage = ITEMS_PER_PAGE;
@@ -62,130 +60,97 @@ private store = inject(Store<{ userProfile: UserProfileState }>);
     sortService = inject(SortService);
     ngZone = inject(NgZone);
     messageService = inject(MessageService);
-    confirmationService = inject(ConfirmationService)
-    loader = inject(ApiLoaderService); 
-    currentUser : any;
+    confirmationService = inject(ConfirmationService);
+    loader = inject(ApiLoaderService);
+    currentUser: any;
     commonService = inject(CommonService);
     associatedDepartments = [];
-     ngOnInit() {
-          this.authorityService.query().subscribe((result:any)=>{
+
+    ngOnInit() {
+        this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);
-          })
-
-          this.store.select(selectUserConfig).subscribe(userConfig => {
-           this.currentUser = userConfig.userId;
-          });
-            this.commonService.associatedDepartments.subscribe(depts=>{
-             this.associatedDepartments = depts.map(dpt=>dpt.id);
-             this.load();
-          })
-     }
-
-    
-      load(): void {
-        this.loader.show("Fetching Staff Data");
-        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STAFF" , 'departments.in':this.associatedDepartments  }).subscribe({
-          next: (res: any) => {
-            this.employeeProfiles.set(res.content);
-            this.loader.hide();
-          },
         });
-      }
 
-    
+        this.store.select(selectUserConfig).subscribe((userConfig) => {
+            this.currentUser = userConfig.userId;
+        });
+        this.commonService.associatedDepartments.subscribe((depts) => {
+            this.associatedDepartments = depts.map((dpt) => dpt.id);
+            this.load();
+        });
+    }
+
+    load(): void {
+        this.loader.show('Fetching Staff Data');
+        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': 'STAFF', 'departments.in': this.associatedDepartments }).subscribe({
+            next: (res: any) => {
+                this.employeeProfiles.set(res.content);
+                this.loader.hide();
+            }
+        });
+    }
 
     openNew() {
-      this.employee = { 
-        authorities: [],
-        isTenantUser: true,
-        createdBy: this.currentUser,
-        lastModifiedBy: this.currentUser,
-        activated:true,
-        createdDate: dayjs(),
-        lastModifiedDate: dayjs(),
-        imageUrl: '',
-        email: '',
-        passwordHash: '1234'
-      } as NewTenantUser | any;
-    
-      this.employeeProfile = {} as NewProfileConfig;
-      this.submitted = false;
-      this.studentDialog = true;
+        this.employee = {
+            authorities: [],
+            isTenantUser: true,
+            createdBy: this.currentUser,
+            lastModifiedBy: this.currentUser,
+            activated: true,
+            imageUrl: '',
+            email: '',
+            passwordHash: 'User@123'
+        } as NewTenantUser | any;
+
+        this.employeeProfile = {} as NewProfileConfig;
+        this.submitted = false;
+        this.studentDialog = true;
     }
 
-     hideDialog() {
-         this.studentDialog = false;
-         this.submitted = false;
-         this.loader.hide();
-     }
- 
-     onEmployeeSave(employee: { employee: NewTenantUser | ITenantUser; employeeProfile: NewProfileConfig | IProfileConfig }| any) {
+    hideDialog() {
+        this.studentDialog = false;
+        this.submitted = false;
+        this.loader.hide();
+    }
+
+    onEmployeeSave(userConfig: { user: NewTenantUser | ITenantUser; profile: NewProfileConfig | IProfileConfig | any }) {
         this.submitted = true;
-  
-        for (let role in employee.employeeProfile.roles) {
-          if (employee.employeeProfile.roles[role] == null) {
-            delete employee.employeeProfile.roles[role];
-          }
+        for (let role in userConfig.profile.roles) {
+            if (userConfig.profile.roles[role] == null) {
+                delete userConfig.profile.roles[role];
+            }
         }
+        this.loader.show('Updating new Staff');
+        userConfig.profile.profileType = 'STAFF';
+        userConfig.user.passwordHash = 'User@123';
+        this.studentService.create(userConfig).subscribe((result) => {
+            this.hideDialog();
+            this.load();
+            this.messageService.add({ text: 'Congrats! Record created!', closeIcon: 'close' });
+        });
+    }
 
-        if(!employee.employee.id){
-          this.loader.show("Updating new Staff");
-          let newEmployee : NewTenantUser | any = {...employee.employee};
-          
-          this.studentService.create(newEmployee as NewTenantUser).subscribe(result=>{
-            employee.employeeProfile.userId = result.body?.id.toString();
-            employee.employeeProfile.profileType = 'STAFF';
-            this.profileService.create(employee.employeeProfile as NewProfileConfig).subscribe(result=>{
-              setTimeout(()=>{
-              this.hideDialog();
-              this.load();
-              this.messageService.add({text: "Congrats! Record created!",closeIcon: "close"});
-              });
-            })
-         
-          })
-        }else{
-          this.loader.show("Adding new Record");
-          this.studentService.update(employee.employee as ITenantUser).subscribe(result=>{
-            this.profileService.update(employee.employeeProfile as IProfileConfig).subscribe(result=>{
-              setTimeout(()=>{
-              this.hideDialog();
-              this.load();
-              this.messageService.add({text: "Congrats! Record updated!",closeIcon: "close"});
-              });  
-            })
-         
-          })
-        }
-      
-     }
-
-     deleteEmployee(employee:IProfileConfig){
-      this.studentService.delete(+employee.userId).subscribe(res=>{
-        this.profileService.delete(employee?.id!).subscribe(result=>{
-          this.load();
-        })
-      });
-     }
+    deleteEmployee(employee: IProfileConfig) {
+        this.studentService.delete(+employee.userId, null).subscribe((res) => {
+            this.load();
+        });
+    }
 
     getAuthorityNames(authorities: any): string {
-      let result = " ";
-       for(let authority  in authorities){
-        if(authorities[authority] != null){
-          result += authority;
+        let result = ' ';
+        for (let authority in authorities) {
+            if (authorities[authority] != null) {
+                result += authority;
+            }
         }
-       }
-      return result;
+        return result;
     }
 
-     editEmployee(employee:IProfileConfig){
-      console.log(employee);
-      this.studentService.find(+employee.userId).subscribe((result:any)=>{
-        
-        this.employeeProfile = employee;
-        this.employee = { ...result.body};
-        this.studentDialog = true;
-      })
-     
-     }
+    editEmployee(employee: IProfileConfig) {
+        this.studentService.find(+employee.userId).subscribe((result: any) => {
+            this.employeeProfile = employee;
+            this.employee = { ...result.body };
+            this.studentDialog = true;
+        });
+    }
 }

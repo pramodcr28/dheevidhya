@@ -1,8 +1,9 @@
-
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, NgZone, signal } from '@angular/core';
+import { Component, inject, NgZone, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
@@ -15,46 +16,60 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
-import { StudentDialogComponent } from '../student-dialog/student-dialog.component';
-import { ExportColumn, Column } from '../../../core/model/table.model';
-import { catchError, map, Observable, of, Subscription, switchMap, tap } from 'rxjs';
-import { IProfileConfig,  ITenantAuthority,  ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ITEMS_PER_PAGE} from '../../../core/model/pagination.constants';
-import { EntityArrayResponseType, UserService } from '../../service/user.service';
-import { SortService } from '../../../shared/sort';
-import { ProfileConfigService } from '../../service/profile-config.service';
-import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
+import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
+import { Column, ExportColumn } from '../../../core/model/table.model';
+import { CommonService } from '../../../core/services/common.service';
+import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getBranch, selectUserConfig } from '../../../core/store/user-profile/user-profile.selectors';
-import dayjs from 'dayjs/esm';
-import { TenantAuthorityService } from '../../service/tenant-authority.service';
-import { GuardianDialogComponent } from '../guardian-dialog/guardian-dialog.component';
-import { ApiLoaderService } from '../../../core/services/loaderService';
+import { SortService } from '../../../shared/sort';
 import { IBranch } from '../../models/tenant.model';
-import { CommonService } from '../../../core/services/common.service';
+import { IProfileConfig, ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
+import { ProfileConfigService } from '../../service/profile-config.service';
+import { TenantAuthorityService } from '../../service/tenant-authority.service';
+import { UserService } from '../../service/user.service';
+import { GuardianDialogComponent } from '../guardian-dialog/guardian-dialog.component';
+import { StudentDialogComponent } from '../student-dialog/student-dialog.component';
 
 @Component({
-  selector: 'app-student-list',
-  imports: [CommonModule,TableModule,FormsModule,ButtonModule,RippleModule,ToastModule,ToolbarModule,RatingModule,InputTextModule,DialogModule,TagModule,InputIconModule,IconFieldModule,ConfirmDialogModule,GuardianDialogComponent,StudentDialogComponent],
-  templateUrl: './student-list.component.html',
-  providers: [MessageService, ConfirmationService]
+    selector: 'app-student-list',
+    imports: [
+        CommonModule,
+        TableModule,
+        FormsModule,
+        ButtonModule,
+        RippleModule,
+        ToastModule,
+        ToolbarModule,
+        RatingModule,
+        InputTextModule,
+        DialogModule,
+        TagModule,
+        InputIconModule,
+        IconFieldModule,
+        ConfirmDialogModule,
+        GuardianDialogComponent,
+        StudentDialogComponent
+    ],
+    templateUrl: './student-list.component.html',
+    providers: [MessageService, ConfirmationService]
 })
 export class StudentListComponent {
     private store = inject(Store<{ userProfile: UserProfileState }>);
     studentDialog: boolean = false;
     guardianDialog: boolean = false;
-    student!:NewTenantUser | ITenantUser;
-    studentProfile! : NewProfileConfig | IProfileConfig | any;
-    selectedGaurdian!:NewTenantUser | ITenantUser;
-    selectedGaurdianProfile! : NewProfileConfig | IProfileConfig | any;
-    selectedStudentProfile! : NewProfileConfig | IProfileConfig | any;
+    student!: NewTenantUser | ITenantUser;
+    studentProfile!: NewProfileConfig | IProfileConfig | any;
+    selectedGaurdian!: NewTenantUser | ITenantUser;
+    selectedGaurdianProfile!: NewProfileConfig | IProfileConfig | any;
+    selectedStudentProfile!: NewProfileConfig | IProfileConfig | any;
     submitted: boolean = false;
     exportColumns!: ExportColumn[];
     cols!: Column[];
     subscription: Subscription | null = null;
- 
-    tenantAuthorities =  signal<ITenantAuthority[]>([]);
+
+    tenantAuthorities = signal<[]>([]);
     isLoading = false;
     students = signal<any[] | null>([]);
     itemsPerPage = ITEMS_PER_PAGE;
@@ -68,234 +83,158 @@ export class StudentListComponent {
     sortService = inject(SortService);
     ngZone = inject(NgZone);
     messageService = inject(MessageService);
-    confirmationService = inject(ConfirmationService)
-    loader = inject(ApiLoaderService); 
-    currentUser : any;
-    branch:IBranch;
+    confirmationService = inject(ConfirmationService);
+    loader = inject(ApiLoaderService);
+    currentUser: any;
+    branch: IBranch;
     commonService = inject(CommonService);
     associatedDepartments = [];
-     ngOnInit() {
-          this.authorityService.query().subscribe((result:any)=>{
+    ngOnInit() {
+        this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);
-          })
-
-          this.store.select(selectUserConfig).subscribe(userConfig => {
-           this.currentUser = userConfig.userId;
-          });
-
-          this.store.select(getBranch).subscribe(branch => {
-           this.branch = branch;
-          });
-          this.commonService.associatedDepartments.subscribe(depts=>{
-             this.associatedDepartments = depts.map(dpt=>dpt.id);
-             this.load();
-          })
-         
-     }
-
-        load(): void {
-        this.loader.show("Fetching Student Data");
-        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': "STUDENT", 'departments.in':this.associatedDepartments }).subscribe({
-          next: (res: any) => {
-            this.students.set(res.content);
-            this.loader.hide();
-          },
         });
-      }
 
-    
-    openNew() {
-      this.student = { 
-        authorities: [ this.tenantAuthorities().find((a:any) => a.name === 'STUDENT')],
-        isTenantUser: true,
-        createdBy: this.currentUser,
-        lastModifiedBy: this.currentUser,
-        activated:true,
-        createdDate: dayjs(),
-        lastModifiedDate: dayjs(),
-        imageUrl: '',
-        email: 'NA',
-        passwordHash: '1234'
-      } as NewTenantUser | any;
-    
-      this.studentProfile = {} as NewProfileConfig;
-      this.submitted = false;
-      this.studentDialog = true;
+        this.store.select(selectUserConfig).subscribe((userConfig) => {
+            this.currentUser = userConfig.userId;
+        });
+
+        this.store.select(getBranch).subscribe((branch) => {
+            this.branch = branch;
+        });
+        this.commonService.associatedDepartments.subscribe((depts) => {
+            this.associatedDepartments = depts.map((dpt) => dpt.id);
+            this.load();
+        });
     }
 
-     hideDialog() {
+    load(): void {
+        this.loader.show('Fetching Student Data');
+        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': 'STUDENT', 'departments.in': this.associatedDepartments }).subscribe({
+            next: (res: any) => {
+                this.students.set(res.content);
+                this.loader.hide();
+            }
+        });
+    }
+
+    openNew() {
+        this.student = {
+            authorities: [this.tenantAuthorities().find((a: any) => a.name === 'STUDENT')],
+            isTenantUser: true,
+            activated: true,
+            imageUrl: '',
+            email: 'NA',
+            passwordHash: 'User@123'
+        } as NewTenantUser | any;
+
+        this.studentProfile = {} as NewProfileConfig;
+        this.submitted = false;
+        this.studentDialog = true;
+    }
+
+    hideDialog() {
         this.loader.hide();
-         this.studentDialog = false;
-         this.guardianDialog = false;
-         this.submitted = false;
-     }
- 
-     onStudentSave(student: { student: NewTenantUser | ITenantUser; studentProfile: NewProfileConfig | IProfileConfig | any }) {
+        this.studentDialog = false;
+        this.guardianDialog = false;
+        this.submitted = false;
+    }
+
+    onStudentSave(userConfig: { user: NewTenantUser | ITenantUser; profile: NewProfileConfig | IProfileConfig | any }) {
         this.submitted = true;
 
-        for (let role in student.studentProfile.roles) {
-          if (student.studentProfile.roles[role] == null) {
-            delete student.studentProfile.roles[role];
-          }
+        for (let role in userConfig.profile?.roles) {
+            if (userConfig.profile.roles[role] == null) {
+                delete userConfig.profile.roles[role];
+            }
         }
-        if(!student.student.id){
-          this.loader.show("Adding new Student");
-          let newStudent : NewTenantUser | any = {...student.student};
-          newStudent.branch = this.branch;
-          
-          this.studentService.create(newStudent as NewTenantUser).subscribe(result=>{
-            student.studentProfile.userId = result.body?.id.toString();
-            student.studentProfile.profileType = 'STUDENT';
-            this.profileService.create(student.studentProfile as NewProfileConfig).subscribe(result=>{
-              setTimeout(()=>{
-              this.hideDialog();
-              this.load();
-              this.messageService.add({text: "Congrats! Record created!",closeIcon: "close"});
-              });
-            })
-         
-          })
-        }else{
-          this.loader.show("Updating new Student");
-          this.studentService.update(student.student as ITenantUser).subscribe(result=>{           
-            this.profileService.update(student.studentProfile as IProfileConfig).subscribe(result=>{
-              setTimeout(()=>{
-              this.hideDialog();
-              this.load();
-              this.messageService.add({summary: "Congrats! Record updated!",detail: "close"});
-              });  
-            })
-         
-          })
+
+        userConfig.user.branchId = this.branch.id;
+        userConfig.profile.profileType = 'STUDENT';
+        this.loader.show('Adding new Student');
+        this.studentService.create(userConfig).subscribe((result) => {
+            this.hideDialog();
+            this.load();
+            this.messageService.add({ text: 'Congrats! Record created!', closeIcon: 'close' });
+        });
+    }
+
+    onGuardianSave(userConfig: { user: NewTenantUser | ITenantUser; profile: NewProfileConfig | IProfileConfig | any }) {
+        this.loader.show('Updating Guardian Info');
+        if (!userConfig.user.id) {
+            for (let role in userConfig.profile?.roles) {
+                if (userConfig.profile.roles[role] == null) {
+                    delete userConfig.profile.roles[role];
+                }
+            }
+
+            userConfig.user.branchId = this.branch.id;
+            userConfig.profile.profileType = 'GUARDIAN';
+            this.loader.show('Adding new Student');
+            this.studentService.create(userConfig).subscribe((result: any) => {
+                if (this.selectedStudentProfile.roles?.student) {
+                    this.selectedStudentProfile.roles.student.guardianId = result.body?.user.id.toString();
+                }
+                this.profileService.update(this.selectedStudentProfile as IProfileConfig).subscribe((result) => {
+                    setTimeout(() => {
+                        this.hideDialog();
+                        this.load();
+                        this.messageService.add({ text: 'Congrats! Record updated!', closeIcon: 'close' });
+                    });
+                });
+            });
         }
-      
-     }
+    }
 
-     deleteStudent(student:IProfileConfig){
-         this.loader.show("Deleting Student");
-      this.studentService.delete(+student.userId).subscribe(res=>{
-        this.profileService.delete(student.id!).subscribe(result=>{
-         if(student.roles?.student?.guardianId){
-           this.deleteGuardian(student.roles?.student?.guardianId);
-         }else{
-          this.load();
-          this.loader.hide();
-          this.messageService.add({ severity: 'worn', summary: 'Worn Message', detail: 'Student Deleted Successful!!!' });
-         }
-       
-        })
-      });
-     }
+    deleteStudent(student: IProfileConfig) {
+        this.loader.show('Deleting Student');
+        this.studentService.delete(+student.userId, +student.roles?.student?.guardianId).subscribe((res) => {
+            this.load();
+            this.loader.hide();
+            this.messageService.add({ severity: 'worn', summary: 'Worn Message', detail: 'Student Deleted Successful!!!' });
+        });
+    }
 
-     deleteGuardian(guardianId:any){
-        this.loader.show("deleting Guardian");
-        this.studentService.delete(+guardianId).subscribe(res=>{
+    editStudent(student: IProfileConfig) {
+        this.studentService.find(+student.userId).subscribe((result: any) => {
+            this.studentProfile = student;
+            this.student = { ...result.body };
+            this.studentDialog = true;
+        });
+    }
 
-          this.studentService.search(0,10,'id','ASC',{ 'user_id.in': [guardianId] }
-                ).subscribe(profiles=>{
-                  if(profiles.content){
-                     this.profileService.delete(profiles.content[0].id).subscribe(result=>{
-                      this.loader.hide();
-                      this.load();
-                      this.messageService.add({ severity: 'worn', summary: 'Worn Message', detail: 'Guardian Deleted Successful!!!' });
-                    })
-                  }else{
-                    this.loader.hide();
-                  }
-                })
-      });
-     }
+    addOrEditGuardian(student: IProfileConfig) {
+        let gaurdianId = student.roles?.student?.guardianId;
+        this.selectedStudentProfile = student as any;
+        if (gaurdianId) {
+            this.studentService.find(gaurdianId).subscribe((result: any) => {
+                this.studentService.search(0, 10, 'id', 'ASC', { 'user_id.in': [gaurdianId] }).subscribe((profiles) => {
+                    if (profiles.content) {
+                        this.selectedGaurdianProfile = profiles.content[0];
+                        this.selectedGaurdian = { ...result.body };
+                        this.guardianDialog = true;
+                    } else {
+                        this.loader.hide();
+                    }
+                });
+            });
+        } else {
+            this.selectedGaurdian = {
+                authorities: [this.tenantAuthorities().find((a: any) => a.name === 'GUARDIAN')],
+                isTenantUser: true,
+                activated: true,
+                imageUrl: '',
+                email: '',
+                passwordHash: 'User@1234'
+            } as NewTenantUser | any;
 
-     editStudent(student:IProfileConfig){
-     
-      this.studentService.find(+student.userId).subscribe((result:any)=>{
-        this.studentProfile = student;
-        this.student = { ...result.body};
-        this.studentDialog = true;
-      })
-     
-     }
-
-     addOrEditGuardian(student:IProfileConfig){
-     let gaurdianId = student.roles?.student?.guardianId;
-      this.selectedStudentProfile = student as any;
-     if(gaurdianId){
-          this.studentService.find(gaurdianId).subscribe((result:any)=>{ 
-            this.studentService.search(0,10,'id','ASC',{ 'user_id.in': [gaurdianId] }
-                ).subscribe(profiles=>{
-                  if(profiles.content){
-                     this.selectedGaurdianProfile = profiles.content[0];
-                     this.selectedGaurdian = { ...result.body};
-                     this.guardianDialog = true;
-                  }else{
-                    this.loader.hide();
-                  }
-                })
-       
-          });
-     }else{
-
-      this.selectedGaurdian = { 
-        authorities: [ this.tenantAuthorities().find((a:any) => a.name === 'GUARDIAN')],
-        isTenantUser: true,
-        createdBy: this.currentUser,
-        lastModifiedBy: this.currentUser,
-        activated:true,
-        createdDate: dayjs(),
-        lastModifiedDate: dayjs(),
-        imageUrl: '',
-        email: '',
-        passwordHash: '1234'
-      } as NewTenantUser | any;
-    
-      this.selectedGaurdianProfile = {
-        departments:student.departments
-      } as NewProfileConfig;
-      this.guardianDialog = true;
-
-     }
-
-     }
-
-     onGuardianSave(gaurdian: { gaurdian: NewTenantUser|ITenantUser; guardianProfile: NewProfileConfig|IProfileConfig; }) {
-       this.loader.show("Updating Guardian Info");
-        if(!gaurdian.gaurdian.id){      
-          let newGuardian : NewTenantUser | any  = {...gaurdian.gaurdian};
-          
-          this.studentService.create(newGuardian as NewTenantUser).subscribe(result=>{
-            gaurdian.guardianProfile.userId = result.body?.id.toString();
-            gaurdian.guardianProfile.profileType = 'GUARDIAN';
-            this.profileService.create(gaurdian.guardianProfile as NewProfileConfig).subscribe(result2=>{
-              if(this.selectedStudentProfile.roles?.student){
-                this.selectedStudentProfile.roles.student.guardianId = result.body?.id.toString();
-              }
-                
-              this.profileService.update( this.selectedStudentProfile  as IProfileConfig).subscribe(result=>{
-              setTimeout(()=>{
-              this.hideDialog();
-              this.load();
-              this.messageService.add({text: "Congrats! Record updated!",closeIcon: "close"});
-              });  
-            })
-            })
-         
-          })
-        }else{
-          this.studentService.update(gaurdian.gaurdian as ITenantUser).subscribe(result=>{
-            this.profileService.update(gaurdian.guardianProfile as IProfileConfig).subscribe(result=>{
-              setTimeout(()=>{
-              this.hideDialog();
-              this.load();
-              this.messageService.add({text: "Congrats! Record updated!", closeIcon: "close"});
-              });  
-            })
-         
-          })
+            this.selectedGaurdianProfile = {
+                departments: student.departments
+            } as NewProfileConfig;
+            this.guardianDialog = true;
         }
-      
-     }
+    }
 
-hideGuardianDialog() {
-     this.guardianDialog = false;
-}
+    hideGuardianDialog() {
+        this.guardianDialog = false;
+    }
 }
