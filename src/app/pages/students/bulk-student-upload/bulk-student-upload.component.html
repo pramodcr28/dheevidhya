@@ -1,0 +1,248 @@
+<p-toast></p-toast>
+
+<div class="container mx-auto p-6 max-w-7xl">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-3xl font-bold text-gray-800">Bulk Student Upload</h2>
+            <p class="text-gray-600 mt-1">Upload multiple students at once using Excel</p>
+        </div>
+        <p-button 
+            label="Back to Students" 
+            icon="pi pi-arrow-left" 
+            styleClass="p-button-outlined" 
+            (onClick)="goBack()">
+        </p-button>
+    </div>
+
+    <!-- Selection Filters Card -->
+    <p-card styleClass="mb-6">
+        <!-- <ng-template pTemplate="header">
+            <div class="px-4 pt-4 pb-2">
+                <h3 class="text-lg font-semibold text-gray-800">Target Selection</h3>
+                <p class="text-sm text-gray-600 mt-1">Select the department, class, and section for bulk upload</p>
+            </div>
+        </ng-template> -->
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Department -->
+            <div>
+                <label class="block font-semibold mb-2 text-gray-700">Department <span class="text-red-500">*</span></label>
+                <p-select
+                    [options]="associatedDepartments"
+                    [(ngModel)]="selectedDepartment"
+                    [ngModelOptions]="{standalone: true}"
+                    optionLabel="name"
+                    placeholder="Select Department"
+                    [style]="{ width: '100%' }">
+                </p-select>
+                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedDepartment">
+                    Department is required.
+                </small>
+            </div>
+
+            <!-- Class -->
+            <div>
+                <label class="block font-semibold mb-2 text-gray-700">Class <span class="text-red-500">*</span></label>
+                <p-select
+                    [options]="selectedDepartment?.department.classes"
+                    [(ngModel)]="selectedClass"
+                    [ngModelOptions]="{standalone: true}"
+                    optionLabel="name"
+                    placeholder="Select Class"
+                    [disabled]="!selectedDepartment"
+                    [style]="{ width: '100%' }">
+                </p-select>
+                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedClass">
+                    Class is required.
+                </small>
+            </div>
+
+            <!-- Section -->
+            <div>
+                <label class="block font-semibold mb-2 text-gray-700">Section <span class="text-red-500">*</span></label>
+                <p-select
+                    [options]="selectedClass?.sections"
+                    [(ngModel)]="selectedSection"
+                    [ngModelOptions]="{standalone: true}"
+                    optionLabel="name" 
+                    placeholder="Select Section"
+                    [disabled]="!selectedClass"
+                    [style]="{ width: '100%' }">
+                </p-select>
+                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedSection">
+                    Section is required.
+                </small>
+            </div>
+        </div>
+    </p-card>
+
+    <!-- Upload Section -->
+    <p-card *ngIf="!uploadedStudents().length && !isProcessing()" styleClass="mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-6">
+            <!-- Download Template -->
+            <div class="flex flex-col items-center justify-center border-r border-gray-200 pr-8">
+                <div class="bg-green-50 rounded-full p-4 mb-4">
+                    <i class="pi pi-download text-green-600 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Step 1: Download Template</h3>
+                <p class="text-gray-600 mb-4 text-center">Download the Excel template with all required fields</p>
+                <p-button 
+                    label="Download Excel Template" 
+                    icon="pi pi-download" 
+                    styleClass="p-button-success" 
+                    (onClick)="downloadTemplate()">
+                </p-button>
+            </div>
+
+            <!-- Upload File -->
+            <div class="flex flex-col items-center justify-center pl-8">
+                <div class="bg-blue-50 rounded-full p-4 mb-4">
+                    <i class="pi pi-upload text-blue-600 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Step 2: Upload Filled Template</h3>
+                <p class="text-gray-600 mb-4 text-center">Select the Excel file with student data</p>
+                <p-fileupload 
+                    mode="basic" 
+                    accept=".xlsx,.xls" 
+                    [maxFileSize]="5000000" 
+                    [auto]="true" 
+                    chooseLabel="Choose Excel File" 
+                    chooseIcon="pi pi-upload" 
+                    styleClass="p-button-primary" 
+                    (onSelect)="onFileSelect($event)">
+                </p-fileupload>
+                <p class="text-xs text-gray-500 mt-3">Accepted formats: .xlsx, .xls (Max size: 5MB)</p>
+            </div>
+        </div>
+    </p-card>
+
+    <!-- Progress Bar -->
+    <p-card *ngIf="isProcessing()" styleClass="mb-6">
+        <div class="text-center py-8">
+            <div class="mb-4">
+                <i class="pi pi-spin pi-spinner text-4xl text-blue-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-3">Processing Excel File...</h3>
+            <p class="text-gray-600 mb-4">Please wait while we validate your data</p>
+            <p-progressBar mode="indeterminate"></p-progressBar>
+        </div>
+    </p-card>
+
+    <!-- Preview Table -->
+    <p-card *ngIf="uploadedStudents().length > 0 && !isProcessing()">
+        <ng-template pTemplate="header">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between p-4 gap-4">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">Preview Students ({{ uploadedStudents().length }})</h3>
+                    <div class="flex items-center gap-4 mt-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-600">Valid:</span>
+                            <p-tag [value]="validCount().toString()" severity="success"></p-tag>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-600">Invalid:</span>
+                            <p-tag [value]="invalidCount().toString()" severity="danger"></p-tag>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <p-button 
+                        label="Cancel" 
+                        icon="pi pi-times" 
+                        styleClass="p-button-outlined p-button-secondary" 
+                        (onClick)="resetUpload()">
+                    </p-button>
+                    <p-button 
+                        label="Save All Valid Students" 
+                        icon="pi pi-check" 
+                        [disabled]="validCount() === 0 || this.selectedSection == null" 
+                        (onClick)="confirmSave()">
+                    </p-button>
+                </div>
+            </div>
+        </ng-template>
+
+        <p-table 
+            [value]="uploadedStudents()" 
+            [scrollable]="true" 
+            scrollHeight="500px" 
+            styleClass="p-datatable-sm"
+            responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th class="font-semibold">Row</th>
+                    <th class="font-semibold">Status</th>
+                    <th class="font-semibold">Registration ID</th>
+                    <th class="font-semibold">Name</th>
+                    <th class="font-semibold">Gender</th>
+                    <th class="font-semibold">Guardian</th>
+                    <th class="font-semibold">Errors</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-student>
+                <tr [class.bg-red-50]="!student.isValid" [class.hover:bg-gray-50]="student.isValid">
+                    <td class="font-medium">{{ student.rowNumber }}</td>
+                    <td>
+                        <p-tag 
+                            [value]="student.isValid ? 'Valid' : 'Invalid'" 
+                            [severity]="student.isValid ? 'success' : 'danger'">
+                        </p-tag>
+                    </td>
+                    <td>{{ student.registrationId }}</td>
+                    <td class="font-medium">{{ student.firstName }} {{ student.lastName }}</td>
+                    <td>{{ student.gender }}</td>
+                    <td>
+                        <span *ngIf="student.guardianFirstName" class="text-gray-700">
+                            {{ student.guardianFirstName }} {{ student.guardianLastName }}
+                        </span>
+                        <span *ngIf="!student.guardianFirstName" class="text-gray-400 italic">N/A</span>
+                    </td>
+                    <td>
+                        <div *ngIf="!student.isValid" class="text-red-600 text-xs space-y-1">
+                            <div *ngFor="let error of student.errors" class="flex items-start gap-1">
+                                <i class="pi pi-times-circle text-xs mt-0.5"></i>
+                                <span>{{ error }}</span>
+                            </div>
+                        </div>
+                        <span *ngIf="student.isValid" class="text-green-600 text-xs">
+                            <i class="pi pi-check-circle"></i> No errors
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-card>
+
+    <!-- Confirmation Dialog -->
+    <p-dialog 
+        [(visible)]="showConfirmDialog" 
+        [style]="{ width: '450px' }" 
+        header="Confirm Save" 
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false">
+        <div class="flex items-start gap-4 py-4">
+            <div class="bg-yellow-50 rounded-full p-3 flex-shrink-0">
+                <i class="pi pi-exclamation-triangle text-2xl text-yellow-600"></i>
+            </div>
+            <div>
+                <p class="font-semibold mb-2 text-gray-800">Are you sure you want to save {{ validCount() }} students?</p>
+                <p class="text-gray-600 text-sm">This action will create user accounts and profiles for all valid students.</p>
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <p-button 
+                label="Cancel" 
+                icon="pi pi-times" 
+                styleClass="p-button-text" 
+                (onClick)="showConfirmDialog = false">
+            </p-button>
+            <p-button 
+                label="Confirm" 
+                icon="pi pi-check" 
+                (onClick)="saveAllStudents()">
+            </p-button>
+        </ng-template>
+    </p-dialog>
+</div>

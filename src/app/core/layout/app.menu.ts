@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
@@ -27,41 +27,41 @@ export class AppMenu {
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
                     { label: 'Students', icon: 'pi pi-fw pi-users', routerLink: ['/students'] },
+                    { label: 'bulk student upload', icon: 'pi pi-fw pi-upload', routerLink: ['/bulk-student-upload'] },
                     { label: 'Staff', icon: 'pi pi-fw pi-graduation-cap', routerLink: ['/employees'] }
                 ]
             },
-         
             {
                 label: 'Academics',
-                items: [   
+                items: [
                     { label: 'Time Table', icon: 'pi pi-fw pi-table', routerLink: ['/time-table-list'] },
                     { label: 'Student Attendence', icon: 'pi pi-fw pi-home', routerLink: ['/student-attendence'] },
-                    { label: 'Examination', icon:'pi pi-fw pi-verified', routerLink:['/examination']},
-                    { label: 'Assignment', icon:'pi pi-fw pi-book', routerLink:['/assignment']},
-                    { label: 'Notification', icon:'pi pi-fw pi-bell', routerLink:['/notice-board']}
-                ] 
-            },
-               {
-                label: 'Organization',
-                items: [   
-                    { label: 'Department Setup', icon: 'pi pi-fw pi-building-columns', routerLink: ['/department-setup'] },
-                    { label: 'Org Tree', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] },
+                    { label: 'Examination', icon: 'pi pi-fw pi-verified', routerLink: ['/examination'] },
+                    { label: 'Assignment', icon: 'pi pi-fw pi-book', routerLink: ['/assignment'] },
+                    { label: 'Notification', icon: 'pi pi-fw pi-bell', routerLink: ['/notice-board'] }
                 ]
             },
+            {
+                label: 'Organization',
+                items: [
+                    { label: 'Department Setup', icon: 'pi pi-fw pi-building-columns', routerLink: ['/department-setup'] },
+                    { label: 'Org Tree', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] }
+                ]
+            },
+            {
+                label: 'Inventory',
+                items: [
                     {
-            label: 'Inventory',
-            items: [
-                {
-                label: 'Categories',
-                icon: 'pi pi-fw pi-tags',
-                routerLink: ['/inventory/categories']
-                },
-                {
-                label: 'Items',
-                icon: 'pi pi-fw pi-box',
-                routerLink: ['/inventory/assets']
-                }
-            ]
+                        label: 'Categories',
+                        icon: 'pi pi-fw pi-tags',
+                        routerLink: ['/inventory/categories']
+                    },
+                    {
+                        label: 'Items',
+                        icon: 'pi pi-fw pi-box',
+                        routerLink: ['/inventory/assets']
+                    }
+                ]
             }
         ];
     }

@@ -33,7 +33,7 @@ export class UserService {
 
     protected userResourceUrl: any = environment.ServerUrl + environment.UAA_BASE_URL + this.applicationConfigService.getEndpointFor('users');
     protected authorityResourceUrl = environment.ServerUrl + environment.UAA_BASE_URL + this.applicationConfigService.getEndpointFor('authorities');
-
+    private bulkUploadUrl = environment.ServerUrl + environment.UAA_BASE_URL + 'bulk-upload';
     create(user: any): Observable<EntityResponseType> {
         // const copy = this.convertDateFromClient(tenantUser);
         return this.http.post<RestTenantUser>(this.userResourceUrl, user, { observe: 'response' }).pipe(map((res) => this.convertResponseFromServer(res)));
@@ -129,5 +129,10 @@ export class UserService {
         };
 
         return this.http.post<any>(`${environment.ServerUrl + environment.UAA_BASE_URL}api/profile-configs/search`, searchRequest);
+    }
+
+    bulkCreateStudents(payload: any): Observable<any> {
+        console.log('payload', payload);
+        return this.http.post(`${this.bulkUploadUrl}/students`, payload);
     }
 }

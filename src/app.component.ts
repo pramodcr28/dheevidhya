@@ -26,10 +26,10 @@ export class AppComponent {
     private commonService = inject(CommonService);
     ngOnInit() {
         this.store.select(selectUserConfig).subscribe((user) => {
-            const studentRole = user.roles.student;
-            const department = user.departments[0]; // First department
+            const studentRole = user?.roles?.student;
+            const department = user?.departments[0]; // First department
             const subejcts = department.department.classes.flatMap((cls) => cls.sections).flatMap((sec) => sec.subjects);
-            if (studentRole) {
+            if (studentRole && department) {
                 // Find the class and section details
                 const classObj = department.department.classes.find((cls) => cls.id === studentRole.classId);
                 const section = classObj?.sections.find((sec) => sec.id === studentRole.sectionId);

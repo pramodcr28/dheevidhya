@@ -15,6 +15,7 @@ import { TimetableGeneratorComponent } from './app/pages/organization/time-table
 import { TimetableListComponent } from './app/pages/organization/timetable-list/timetable-list.component';
 import { ProfileComponent } from './app/pages/profile/profile.component';
 import { SchoolNoticeBoardComponent } from './app/pages/school-notice-board/school-notice-board.component';
+import { BulkStudentUploadComponent } from './app/pages/students/bulk-student-upload/bulk-student-upload.component';
 import { StudentListComponent } from './app/pages/students/student-list/student-list.component';
 
 export const appRoutes: Routes = [
@@ -25,6 +26,7 @@ export const appRoutes: Routes = [
         children: [
             { path: '', component: Dashboard },
             { path: 'students', component: StudentListComponent },
+            { path: 'bulk-student-upload', component: BulkStudentUploadComponent },
             { path: 'employees', component: EmployeeListComponent },
             { path: 'org', component: OrgTreeComponent },
             { path: 'time-table-setup', component: TimetableGeneratorComponent },
