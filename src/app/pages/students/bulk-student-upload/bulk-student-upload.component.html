@@ -1,7 +1,6 @@
 <p-toast></p-toast>
 
 <div class="container mx-auto p-6 max-w-7xl">
-    <!-- Header -->
     <div class="flex items-center justify-between mb-6">
         <div>
             <h2 class="text-3xl font-bold text-gray-800">Bulk Student Upload</h2>
@@ -15,17 +14,8 @@
         </p-button>
     </div>
 
-    <!-- Selection Filters Card -->
     <p-card styleClass="mb-6">
-        <!-- <ng-template pTemplate="header">
-            <div class="px-4 pt-4 pb-2">
-                <h3 class="text-lg font-semibold text-gray-800">Target Selection</h3>
-                <p class="text-sm text-gray-600 mt-1">Select the department, class, and section for bulk upload</p>
-            </div>
-        </ng-template> -->
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Department -->
             <div>
                 <label class="block font-semibold mb-2 text-gray-700">Department <span class="text-red-500">*</span></label>
                 <p-select
@@ -41,7 +31,6 @@
                 </small>
             </div>
 
-            <!-- Class -->
             <div>
                 <label class="block font-semibold mb-2 text-gray-700">Class <span class="text-red-500">*</span></label>
                 <p-select
@@ -58,7 +47,6 @@
                 </small>
             </div>
 
-            <!-- Section -->
             <div>
                 <label class="block font-semibold mb-2 text-gray-700">Section <span class="text-red-500">*</span></label>
                 <p-select
@@ -77,10 +65,8 @@
         </div>
     </p-card>
 
-    <!-- Upload Section -->
     <p-card *ngIf="!uploadedStudents().length && !isProcessing()" styleClass="mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-6">
-            <!-- Download Template -->
             <div class="flex flex-col items-center justify-center border-r border-gray-200 pr-8">
                 <div class="bg-green-50 rounded-full p-4 mb-4">
                     <i class="pi pi-download text-green-600 text-3xl"></i>
@@ -95,7 +81,6 @@
                 </p-button>
             </div>
 
-            <!-- Upload File -->
             <div class="flex flex-col items-center justify-center pl-8">
                 <div class="bg-blue-50 rounded-full p-4 mb-4">
                     <i class="pi pi-upload text-blue-600 text-3xl"></i>
@@ -117,7 +102,6 @@
         </div>
     </p-card>
 
-    <!-- Progress Bar -->
     <p-card *ngIf="isProcessing()" styleClass="mb-6">
         <div class="text-center py-8">
             <div class="mb-4">
@@ -129,7 +113,6 @@
         </div>
     </p-card>
 
-    <!-- Preview Table -->
     <p-card *ngIf="uploadedStudents().length > 0 && !isProcessing()">
         <ng-template pTemplate="header">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between p-4 gap-4">
@@ -168,20 +151,33 @@
             [scrollable]="true" 
             scrollHeight="500px" 
             styleClass="p-datatable-sm"
-            responsiveLayout="scroll">
+            responsiveLayout="scroll"
+            dataKey="rowNumber">
             <ng-template pTemplate="header">
                 <tr>
-                    <th class="font-semibold">Row</th>
+                    <th style="width: 3rem"></th> <th class="font-semibold">Row</th>
                     <th class="font-semibold">Status</th>
                     <th class="font-semibold">Registration ID</th>
                     <th class="font-semibold">Name</th>
                     <th class="font-semibold">Gender</th>
-                    <th class="font-semibold">Guardian</th>
-                    <th class="font-semibold">Errors</th>
+                    <th class="font-semibold">Email</th>
+                    <th class="font-semibold">Contact</th>
+                    <th class="font-semibold">Error Summary</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-student>
                 <tr [class.bg-red-50]="!student.isValid" [class.hover:bg-gray-50]="student.isValid">
+                    <td>
+                        <p-button 
+                            type="button"
+                            [text]="true"
+                            [rounded]="true"
+                            [plain]="true"
+                            icon="pi pi-eye"
+                            pTooltip="View Full Details"
+                            tooltipPosition="right"
+                            (onClick)="openStudentDetails(student)" />
+                    </td>
                     <td class="font-medium">{{ student.rowNumber }}</td>
                     <td>
                         <p-tag 
@@ -193,19 +189,28 @@
                     <td class="font-medium">{{ student.firstName }} {{ student.lastName }}</td>
                     <td>{{ student.gender }}</td>
                     <td>
-                        <span *ngIf="student.guardianFirstName" class="text-gray-700">
-                            {{ student.guardianFirstName }} {{ student.guardianLastName }}
-                        </span>
-                        <span *ngIf="!student.guardianFirstName" class="text-gray-400 italic">N/A</span>
+                        <span *ngIf="student.email" class="text-gray-700">{{ student.email }}</span>
+                        <span *ngIf="!student.email" class="text-gray-400 italic">N/A</span>
                     </td>
                     <td>
-                        <div *ngIf="!student.isValid" class="text-red-600 text-xs space-y-1">
-                            <div *ngFor="let error of student.errors" class="flex items-start gap-1">
-                                <i class="pi pi-times-circle text-xs mt-0.5"></i>
-                                <span>{{ error }}</span>
+                        <span *ngIf="student.studentContactNumber" class="text-gray-700">{{ student.studentContactNumber }}</span>
+                        <span *ngIf="!student.studentContactNumber" class="text-gray-400 italic">N/A</span>
+                    </td>
+                    <td>
+                        <div *ngIf="!student.isValid" class="text-red-600 text-sm">
+                            <div *ngIf="student.errors && student.errors.length > 0" class="flex items-start gap-1">
+                                <i class="pi pi-times-circle text-sm mt-0.5"></i>
+                                <span>{{ student.errors[0] }}</span>
                             </div>
+                            <div *ngIf="student.errorMessage && student.errors?.length === 0" class="flex items-start gap-1">
+                                <i class="pi pi-times-circle text-sm mt-0.5"></i>
+                                <span>{{ student.errorMessage }}</span>
+                            </div>
+                            <span *ngIf="!student.errorMessage && student.errors?.length > 1" class="text-xs italic cursor-pointer" (click)="openStudentDetails(student)">
+                                (+{{ student.errors.length - 1 }} more errors)
+                            </span>
                         </div>
-                        <span *ngIf="student.isValid" class="text-green-600 text-xs">
+                        <span *ngIf="student.isValid" class="text-green-600 text-sm">
                             <i class="pi pi-check-circle"></i> No errors
                         </span>
                     </td>
@@ -214,7 +219,6 @@
         </p-table>
     </p-card>
 
-    <!-- Confirmation Dialog -->
     <p-dialog 
         [(visible)]="showConfirmDialog" 
         [style]="{ width: '450px' }" 
@@ -245,4 +249,125 @@
             </p-button>
         </ng-template>
     </p-dialog>
+    
+    <p-dialog 
+        [(visible)]="showStudentDetailDialog" 
+        [style]="{ width: '70vw' }" 
+        [header]="'Student Details (Row ' + selectedStudentDetail?.rowNumber + ')'" 
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false">
+        
+        <div *ngIf="selectedStudentDetail" class="p-4">
+            <div class="flex items-center gap-4 mb-4 pb-4 border-b border-gray-200">
+                <h4 class="text-lg font-bold text-gray-800">{{ selectedStudentDetail.firstName }} {{ selectedStudentDetail.lastName }}</h4>
+                <p-tag 
+                    [value]="selectedStudentDetail.isValid ? 'Valid' : 'Invalid'" 
+                    [severity]="selectedStudentDetail.isValid ? 'success' : 'danger'">
+                </p-tag>
+                <span class="text-sm text-gray-500 ml-auto">Reg. ID: <span class="font-medium text-gray-700">{{ selectedStudentDetail.registrationId }}</span></span>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="space-y-3">
+                    <h4 class="font-semibold mb-2 text-gray-800 border-b pb-1">Personal Information</h4>
+                    <div class="detail-item">
+                        <span class="text-xs text-gray-500 block">Registration ID:</span>
+                        <p class="text-sm font-medium">{{ selectedStudentDetail.registrationId }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span class="text-xs text-gray-500 block">Full Name:</span>
+                        <p class="text-sm font-medium">{{ selectedStudentDetail.firstName }} {{ selectedStudentDetail.lastName }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span class="text-xs text-gray-500 block">Gender:</span>
+                        <p class="text-sm font-medium">{{ selectedStudentDetail.gender }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span class="text-xs text-gray-500 block">Password:</span>
+                        <p class="text-sm font-medium">{{ selectedStudentDetail.password || 'N/A' }}</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="font-semibold mb-2 text-gray-800 border-b pb-1">Contact Information</h4>
+                    <div class="detail-item">
+                        <span class="text-xs text-gray-500 block">Email:</span>
+                        <p class="text-sm font-medium">{{ selectedStudentDetail.email || 'N/A' }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <span class="text-xs text-gray-500 block">Contact Number:</span>
+                        <p class="text-sm font-medium">{{ selectedStudentDetail.studentContactNumber || 'N/A' }}</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="font-semibold mb-2 text-gray-800 border-b pb-1">Address Information</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="detail-item">
+                            <span class="text-xs text-gray-500 block">House Number:</span>
+                            <p class="text-sm font-medium">{{ selectedStudentDetail.houseNumber || 'N/A' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <span class="text-xs text-gray-500 block">Street:</span>
+                            <p class="text-sm font-medium">{{ selectedStudentDetail.street || 'N/A' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <span class="text-xs text-gray-500 block">Locality:</span>
+                            <p class="text-sm font-medium">{{ selectedStudentDetail.locality || 'N/A' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <span class="text-xs text-gray-500 block">Landmark:</span>
+                            <p class="text-sm font-medium">{{ selectedStudentDetail.landmark || 'N/A' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <span class="text-xs text-gray-500 block">Taluk:</span>
+                            <p class="text-sm font-medium">{{ selectedStudentDetail.taluk || 'N/A' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <span class="text-xs text-gray-500 block">District:</span>
+                            <p class="text-sm font-medium">{{ selectedStudentDetail.district || 'N/A' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <span class="text-xs text-gray-500 block">State:</span>
+                            <p class="text-sm font-medium">{{ selectedStudentDetail.state || 'N/A' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <span class="text-xs text-gray-500 block">Country:</span>
+                            <p class="text-sm font-medium">{{ selectedStudentDetail.country || 'N/A' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <span class="text-xs text-gray-500 block">Postal Code:</span>
+                            <p class="text-sm font-medium">{{ selectedStudentDetail.postalCode || 'N/A' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="!selectedStudentDetail.isValid && (selectedStudentDetail['errorMessage'])" class="mt-6 pt-4 border-t border-gray-200">
+                <p class="text-sm font-bold text-red-500 uppercase mb-3">Error Details</p>
+                <div class="bg-red-50 border border-red-200 rounded p-4">
+                    <div *ngIf="selectedStudentDetail['errorMessage']" class="flex items-start gap-2 mb-2">
+                        <i class="pi pi-exclamation-circle text-red-600 mt-0.5 text-lg"></i>
+                        <span class="text-sm text-red-700 font-medium">{{ selectedStudentDetail['errorMessage'] }}</span>
+                    </div>
+                    <!-- <div *ngIf="selectedStudentDetail.errors && selectedStudentDetail.errors.length > 0" class="space-y-2">
+                        <div *ngFor="let error of selectedStudentDetail.errors" class="flex items-start gap-2">
+                            <i class="pi pi-times-circle text-red-600 text-sm mt-0.5"></i>
+                            <span class="text-sm text-red-700">{{ error }}</span>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <p-button 
+                label="Close" 
+                icon="pi pi-times" 
+                styleClass="p-button-outlined p-button-secondary" 
+                (onClick)="showStudentDetailDialog = false">
+            </p-button>
+        </ng-template>
+    </p-dialog>
+
 </div>

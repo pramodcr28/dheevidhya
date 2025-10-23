@@ -34,9 +34,15 @@ export class BulkStudentUploadComponent implements OnInit {
     private messageService = inject(MessageService);
     private loader = inject(ApiLoaderService);
     public commonService = inject(CommonService);
+
+    // Signals
     uploadedStudents = signal<StudentExcelRow[]>([]);
     isProcessing = signal(false);
+
+    // Properties
     showConfirmDialog = false;
+    showStudentDetailDialog = false; // New dialog state
+    selectedStudentDetail: StudentExcelRow | null = null; // Selected student for dialog
     submitted: boolean = false;
     associatedBranch: IBranch | undefined;
     associatedDepartments: any[] = [];
@@ -44,61 +50,23 @@ export class BulkStudentUploadComponent implements OnInit {
     selectedClass: any;
     selectedSection: any;
 
+    // Computed Properties/Functions
     validCount = () => this.uploadedStudents().filter((s) => s.isValid).length;
     invalidCount = () => this.uploadedStudents().filter((s) => !s.isValid).length;
 
     ngOnInit() {
         this.store.select(getAssociatedDepartments).subscribe((depts) => {
-            this.associatedDepartments = depts;
+            this.associatedDepartments = depts.map((department: any) => {
+                return { ...department, name: department.department?.name };
+            });
         });
 
         this.store.select(getBranch).subscribe((branch) => {
             this.associatedBranch = branch;
         });
-        this.store.select(getAssociatedDepartments).subscribe((departments) => {
-            this.associatedDepartments = departments.map((department: any) => {
-                return { ...department, name: department.department?.name };
-            });
-
-            // if (this._studentProfile && this._studentProfile.departments && this._studentProfile.departments.length > 0) {
-            //     const departmentId = this._studentProfile.departments[0];
-            //     const foundDepartment = this.associatedDepartments.find((dep) => dep.id === departmentId);
-            //     if (foundDepartment) {
-            //         this.selectedDepartment = foundDepartment;
-            //         this.setClassAndSectionFromProfile();
-            //     }
-            // }
-        });
     }
 
     downloadTemplate() {
-        // const headers = [
-        //     'registrationId',
-        //     'firstName',
-        //     'lastName',
-        //     'gender',
-        //     'houseNumber',
-        //     'street',
-        //     'locality',
-        //     'landmark',
-        //     'taluk',
-        //     'district',
-        //     'state',
-        //     'country',
-        //     'postalCode',
-        //     // 'departmentName',
-        //     // 'className',
-        //     // 'sectionName',
-        //     // 'guardianFirstName',
-        //     // 'guardianLastName',
-        //     // 'guardianEmail',
-        //     // 'guardianPhone',
-        //     // 'guardianRelation',
-        //     'password',
-        //     'email',
-        //     'studentContactNumber'
-        // ];
-
         const sampleData = [
             {
                 registrationId: 'STU002',
@@ -114,14 +82,6 @@ export class BulkStudentUploadComponent implements OnInit {
                 state: 'Karnataka',
                 country: 'India',
                 postalCode: '560001',
-                // departmentName: 'Computer Science',
-                // className: 'Class 10',
-                // sectionName: 'A',
-                // guardianFirstName: 'Robert',
-                // guardianLastName: 'Doe',
-                // guardianEmail: 'robert.doe@example.com',
-                // guardianPhone: '9876543210',
-                // guardianRelation: 'Father',
                 password: 'User@123',
                 email: 'student@gmail.com',
                 studentContactNumber: 9999999999
@@ -170,6 +130,9 @@ export class BulkStudentUploadComponent implements OnInit {
     }
 
     processExcelData(data: any[]) {
+        // Find department and set department IDs
+        const selectedDeptInfo = this.associatedDepartments.find((d) => d.department?.name?.toLowerCase() === this.selectedDepartment?.department?.name?.toLowerCase());
+
         const students: StudentExcelRow[] = data.map((row, index) => {
             const student: StudentExcelRow = {
                 rowNumber: index + 2,
@@ -186,21 +149,14 @@ export class BulkStudentUploadComponent implements OnInit {
                 state: row.state?.toString().trim() || '',
                 country: row.country?.toString().trim() || '',
                 postalCode: row.postalCode?.toString().trim() || '',
-                // guardianFirstName: row.guardianFirstName?.toString().trim() || '',
-                // guardianLastName: row.guardianLastName?.toString().trim() || '',
-                // guardianEmail: row.guardianEmail?.toString().trim() || '',
-                // guardianPhone: row.guardianPhone?.toString().trim() || '',
-                // guardianRelation: row.guardianRelation?.toString().trim() || '',
                 password: row.password?.toString().trim() || 'User@123',
                 email: row.email?.toString().trim(),
-                studentContactNumber: row.studentContactNumber || 9999999999
+                studentContactNumber: row.studentContactNumber // Keep as original type for now
             };
 
-            // Find department and set department IDs
-            const dept = this.associatedDepartments.find((d) => d.department?.name?.toLowerCase() === this.selectedDepartment?.department?.name);
-
-            if (dept) {
-                (student as any).departments = [dept.id];
+            // Set department IDs
+            if (selectedDeptInfo) {
+                (student as any).departments = [selectedDeptInfo.id];
             }
 
             const validation = this.validateStudent(student);
@@ -233,7 +189,17 @@ export class BulkStudentUploadComponent implements OnInit {
             errors.push('Gender must be MALE, FEMALE, or OTHER');
         }
 
-        // Address validation
+        // Email validation
+        if (student.email && !this.isValidEmail(student.email)) {
+            errors.push('Email is invalid');
+        }
+
+        // Contact Number validation (Assuming it should be a number if provided)
+        if (student.studentContactNumber && isNaN(Number(student.studentContactNumber))) {
+            errors.push('Contact Number is invalid (must be numeric)');
+        }
+
+        // Address validation (as per template logic)
         if (!student.houseNumber) errors.push('House Number is required');
         if (!student.street) errors.push('Street is required');
         if (!student.locality) errors.push('Locality is required');
@@ -243,35 +209,6 @@ export class BulkStudentUploadComponent implements OnInit {
         if (!student.country) errors.push('Country is required');
         if (!student.postalCode) errors.push('Postal Code is required');
 
-        // Validate department exists
-        // const dept = this.associatedDepartments.find((d) => d.department?.name?.toLowerCase() === this.selectedDepartment?.department?.name);
-        // if (!dept) errors.push(`Department '${this.selectedDepartment?.department?.name}' not found`);
-
-        // // Validate class and section
-        // if (dept) {
-        //     const cls = dept.department?.classes?.find((c: any) => c.name?.toLowerCase() === student.className.toLowerCase());
-        //     if (!cls) {
-        //         errors.push(`Class '${student.className}' not found in ${student.departmentName}`);
-        //     } else {
-        //         const section = cls.sections?.find((s: any) => s.name?.toLowerCase() === student.sectionName.toLowerCase());
-        //         if (!section) {
-        //             errors.push(`Section '${student.sectionName}' not found in ${student.className}`);
-        //         }
-        //     }
-        // }
-
-        // Guardian validation (optional but if provided, must be complete)
-        // if (student.guardianFirstName || student.guardianLastName || student.guardianEmail) {
-        //     if (!student.guardianFirstName) errors.push('Guardian First Name required if guardian info provided');
-        //     if (!student.guardianLastName) errors.push('Guardian Last Name required if guardian info provided');
-        //     if (!student.guardianEmail) errors.push('Guardian Email required if guardian info provided');
-
-        //     // Email validation
-        //     if (student.guardianEmail && !this.isValidEmail(student.guardianEmail)) {
-        //         errors.push('Invalid guardian email format');
-        //     }
-        // }
-
         return {
             student,
             isValid: errors.length === 0,
@@ -280,36 +217,52 @@ export class BulkStudentUploadComponent implements OnInit {
     }
 
     isValidEmail(email: string): boolean {
+        // Simple regex check
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
+    // New: Open student detail dialog
+    openStudentDetails(student: StudentExcelRow) {
+        this.selectedStudentDetail = student;
+        this.showStudentDetailDialog = true;
+    }
+
     confirmSave() {
-        this.showConfirmDialog = true;
         this.submitted = true;
+        if (!this.selectedDepartment || !this.selectedClass || !this.selectedSection) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Missing Selection',
+                detail: 'Please select Department, Class, and Section before saving.'
+            });
+            return;
+        }
+        if (this.validCount() === 0) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'No Valid Students',
+                detail: 'There are no valid students to save.'
+            });
+            return;
+        }
+        this.showConfirmDialog = true;
     }
 
     saveAllStudents() {
         this.showConfirmDialog = false;
         const validStudents = this.uploadedStudents().filter((s) => s.isValid);
 
-        if (validStudents.length === 0) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'No Valid Students',
-                detail: 'There are no valid students to save'
-            });
-            return;
-        }
-
-        // Get the first student's academic info (all students will be in same dept/class/section)
-        // const firstStudent = validStudents[0];
-        // const dept = this.associatedDepartments.find((d) => d.department?.name?.toLowerCase() === firstStudent.departmentName.toLowerCase());
-        // const cls = dept.department?.classes?.find((c: any) => c.name?.toLowerCase() === firstStudent.className.toLowerCase());
-        // const section = cls.sections?.find((s: any) => s.name?.toLowerCase() === firstStudent.sectionName.toLowerCase());
-
         this.loader.show('Saving students...');
+
+        // Prepare payload - deep clone to remove temporary properties from the signal array
+        const studentsPayload = validStudents.map((s) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { errors, isValid, rowNumber, ...rest } = s;
+            return rest;
+        });
+
         const payload = {
-            students: validStudents,
+            students: studentsPayload,
             branchId: this.associatedBranch?.id,
             departmentId: this.selectedDepartment?.id,
             departmentName: this.selectedDepartment?.department?.name,
@@ -319,21 +272,37 @@ export class BulkStudentUploadComponent implements OnInit {
             sectionName: this.selectedSection?.name,
             academicYear: this.selectedDepartment.academicYear
         };
-        validStudents.forEach((student) => {
-            delete student.errors;
-            delete student.isValid;
-        });
+
         this.userService.bulkCreateStudents(payload).subscribe({
             next: (response: any) => {
                 this.loader.hide();
 
                 if (response.failureCount > 0) {
+                    // Map failed students with error messages
+                    const failedStudentsWithErrors = this.uploadedStudents().map((uploadedStudent) => {
+                        const failedRecord = response.failedStudents.find((fs: any) => fs.registrationId === uploadedStudent.registrationId);
+
+                        if (failedRecord) {
+                            const errorInfo = response.errors?.find((err: any) => err.registrationId === failedRecord.registrationId);
+
+                            return {
+                                ...uploadedStudent,
+                                isValid: false,
+                                errorMessage: errorInfo?.errorMessage || 'Unknown error occurred during save',
+                                errors: []
+                            };
+                        }
+                        return uploadedStudent; // Keep original valid students
+                    });
+
+                    this.uploadedStudents.set(failedStudentsWithErrors);
+
                     this.messageService.add({
                         severity: 'warn',
                         summary: 'Partial Success',
-                        detail: `Created ${response.successCount} students. ${response.failureCount} failed.`
+                        detail: `Successfully created ${response.successCount} students. ${response.failureCount} failed. Please review the errors below.`,
+                        life: 5000
                     });
-                    this.uploadedStudents.set(response.failedStudents || []);
                 } else {
                     this.messageService.add({
                         severity: 'success',
