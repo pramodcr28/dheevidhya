@@ -33,7 +33,7 @@ export class AuthServerProvider {
     }
 
     changePassword(passwordChangeDTO: PasswordChangeDTO): Observable<any> {
-        return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + +`change-password`, passwordChangeDTO);
+        return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + `change-password`, passwordChangeDTO);
     }
 
     save(token: string, newPassword: string): Observable<{}> {
