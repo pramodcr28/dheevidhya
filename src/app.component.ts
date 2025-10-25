@@ -28,30 +28,33 @@ export class AppComponent {
         this.store.select(selectUserConfig).subscribe((user) => {
             const studentRole = user?.roles?.student;
             const department = user?.departments[0]; // First department
-            const subejcts = department.department.classes.flatMap((cls) => cls.sections).flatMap((sec) => sec.subjects);
-            if (studentRole && department) {
-                // Find the class and section details
-                const classObj = department.department.classes.find((cls) => cls.id === studentRole.classId);
-                const section = classObj?.sections.find((sec) => sec.id === studentRole.sectionId);
+            if (department != null) {
+                const subejcts = department.department.classes.flatMap((cls) => cls.sections).flatMap((sec) => sec.subjects);
+                if (studentRole && department) {
+                    // Find the class and section details
+                    const classObj = department.department.classes.find((cls) => cls.id === studentRole.classId);
+                    const section = classObj?.sections.find((sec) => sec.id === studentRole.sectionId);
 
-                this.commonService.getStudentInfo = {
-                    className: classObj?.name || '',
-                    sectionName: section?.name || '',
-                    classId: studentRole.classId,
-                    sectionId: studentRole.sectionId,
-                    departmentName: department.department.name,
-                    departmentId: department.id,
-                    fullName: user.fullName,
-                    userId: user.userId
-                };
-            } else {
-                this.commonService.getUserInfo = {
-                    subjectsNames: subejcts.filter((sub) => user.subjectIds?.includes(sub.id)).map((sub) => sub.name),
-                    subjectIds: user.subjectIds,
-                    fullName: user.fullName,
-                    userId: user.userId
-                };
+                    this.commonService.getStudentInfo = {
+                        className: classObj?.name || '',
+                        sectionName: section?.name || '',
+                        classId: studentRole.classId,
+                        sectionId: studentRole.sectionId,
+                        departmentName: department.department.name,
+                        departmentId: department.id,
+                        fullName: user.fullName,
+                        userId: user.userId
+                    };
+                } else {
+                    this.commonService.getUserInfo = {
+                        subjectsNames: subejcts.filter((sub) => user.subjectIds?.includes(sub.id)).map((sub) => sub.name),
+                        subjectIds: user.subjectIds,
+                        fullName: user.fullName,
+                        userId: user.userId
+                    };
+                }
             }
+
             // this.commonService.getStudentInfo = {className: , sectionName: , classId: , sectionId:  , departmentName: , departmentId:  };
             // this.associatedDepartments = departments;
             // this.associatedDepartmentIds = departments.map((dept) => dept.id);
