@@ -66,7 +66,6 @@ export class ResetFinishComponent {
             this.doNotMatch.set(true);
         } else {
             this.authService.save(this.key(), newPassword).subscribe((res) => {
-                console.log(res);
                 this.success.set(true);
             });
         }

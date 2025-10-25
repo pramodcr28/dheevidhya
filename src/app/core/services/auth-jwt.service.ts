@@ -29,7 +29,6 @@ export class AuthServerProvider {
 
     private authenticateSuccess(response: JwtToken, rememberMe: boolean): void {
         // const user: UserProfile = this.parseUserFromToken(response.token); // Extract user info from token
-
         this.store.dispatch(addToken({ token: response.token }));
     }
 
@@ -37,7 +36,7 @@ export class AuthServerProvider {
         return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + +`change-password`, passwordChangeDTO);
     }
 
-    save(key: string, newPassword: string): Observable<{}> {
-        return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + `reset-password`, { key, newPassword });
+    save(token: string, newPassword: string): Observable<{}> {
+        return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + `reset-password`, { token, newPassword });
     }
 }
