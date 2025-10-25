@@ -34,10 +34,10 @@ export class AuthServerProvider {
     }
 
     changePassword(passwordChangeDTO: PasswordChangeDTO): Observable<any> {
-        return this.http.post(`${environment.ServerUrl}${environment.UAA_BASE_URL} change-password`, passwordChangeDTO);
+        return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + +`change-password`, passwordChangeDTO);
     }
 
     save(key: string, newPassword: string): Observable<{}> {
-        return this.http.post(`${environment.ServerUrl} ${environment.UAA_BASE_URL} reset-password`, { key, newPassword });
+        return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + `reset-password`, { key, newPassword });
     }
 }
