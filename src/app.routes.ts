@@ -15,6 +15,8 @@ import { TimetableGeneratorComponent } from './app/pages/organization/time-table
 import { TimetableListComponent } from './app/pages/organization/timetable-list/timetable-list.component';
 import { ProfileComponent } from './app/pages/profile/profile.component';
 import { SchoolNoticeBoardComponent } from './app/pages/school-notice-board/school-notice-board.component';
+import { StaffAttendanceManagementComponent } from './app/pages/staff-attendance-management/staff-attendance-management.component';
+import { StaffAttendanceComponent } from './app/pages/staff-attendance/staff-attendance.component';
 import { BulkStudentUploadComponent } from './app/pages/students/bulk-student-upload/bulk-student-upload.component';
 import { StudentListComponent } from './app/pages/students/student-list/student-list.component';
 
@@ -35,6 +37,8 @@ export const appRoutes: Routes = [
             { path: 'examination', component: ExaminationComponent },
             { path: 'assignment', component: AssignmentManagementComponent },
             { path: 'notice-board', component: SchoolNoticeBoardComponent },
+            { path: 'staff-attendance', loadComponent: () => StaffAttendanceComponent, data: { title: 'My Attendance' } },
+            { path: 'attendance-management', loadComponent: () => StaffAttendanceManagementComponent, data: { title: 'Attendance Management' } },
             // { path: 'inventory', component: InventoryManagementComponent},
             {
                 path: 'inventory',

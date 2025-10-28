@@ -1,0 +1,434 @@
+<div class="min-h-screen p-4">
+    <p-toast />
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- Present Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-all hover:shadow-lg">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Total Present Today</p>
+                    <h3 class="text-3xl font-bold text-green-600 dark:text-green-500">{{ todayStats.present }}</h3>
+                </div>
+                <div class="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                    <i class="pi pi-check-circle text-2xl text-green-600 dark:text-green-400"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm text-green-600 dark:text-green-400">
+                <i class="pi pi-arrow-up text-xs mr-1"></i>
+                <span class="font-medium">8% from yesterday</span>
+            </div>
+        </div>
+
+        <!-- Absent Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-all hover:shadow-lg">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Total Absent Today</p>
+                    <h3 class="text-3xl font-bold text-red-600 dark:text-red-500">{{ todayStats.absent }}</h3>
+                </div>
+                <div class="w-14 h-14 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
+                    <i class="pi pi-times-circle text-2xl text-red-600 dark:text-red-400"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm text-red-600 dark:text-red-400">
+                <i class="pi pi-arrow-down text-xs mr-1"></i>
+                <span class="font-medium">3% from yesterday</span>
+            </div>
+        </div>
+
+        <!-- Late Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-all hover:shadow-lg">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Late Arrivals</p>
+                    <h3 class="text-3xl font-bold text-orange-600 dark:text-orange-500">{{ todayStats.late }}</h3>
+                </div>
+                <div class="w-14 h-14 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+                    <i class="pi pi-clock text-2xl text-orange-600 dark:text-orange-400"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <i class="pi pi-minus text-xs mr-1"></i>
+                <span class="font-medium">No change</span>
+            </div>
+        </div>
+
+        <!-- Leave Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-all hover:shadow-lg">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">On Leave</p>
+                    <h3 class="text-3xl font-bold text-blue-600 dark:text-blue-500">{{ todayStats.leave }}</h3>
+                </div>
+                <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                    <i class="pi pi-calendar text-2xl text-blue-600 dark:text-blue-400"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm text-blue-600 dark:text-blue-400">
+                <i class="pi pi-arrow-up text-xs mr-1"></i>
+                <span class="font-medium">2% from yesterday</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <p-tabView [(activeIndex)]="activeTab">
+        <!-- Attendance Logs Tab -->
+        <p-tabPanel>
+            <ng-template pTemplate="header">
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-list"></i>
+                    <span>Attendance Logs</span>
+                </div>
+            </ng-template>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Daily Attendance Records</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">View and manage staff attendance logs</p>
+                    </div>
+                    <button 
+                        pButton 
+                        label="Export" 
+                        icon="pi pi-download"
+                        class="bg-green-600 hover:bg-green-700 border-green-600"
+                        (click)="exportLogs()"
+                    ></button>
+                </div>
+
+                <!-- Filters -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <p-date-picker 
+                        [(ngModel)]="logFilters.startDate" 
+                        [showIcon]="true" 
+                        placeholder="Start Date" 
+                        dateFormat="dd/mm/yy"
+                        class="w-full"
+                    />
+                    <p-date-picker 
+                        [(ngModel)]="logFilters.endDate" 
+                        [showIcon]="true" 
+                        placeholder="End Date" 
+                        dateFormat="dd/mm/yy"
+                        class="w-full"
+                    />
+                    <p-multiSelect 
+                        [(ngModel)]="logFilters.departments" 
+                        [options]="departments" 
+                        optionLabel="name" 
+                        optionValue="id" 
+                        placeholder="Select Departments"
+                        class="w-full"
+                    />
+                    <button 
+                        pButton 
+                        label="Apply Filter" 
+                        icon="pi pi-filter"
+                        class="bg-orange-600 hover:bg-orange-700 border-orange-600"
+                        (click)="applyFilters()"
+                    ></button>
+                </div>
+
+                <!-- Search -->
+                <div class="mb-6">
+                    <p-iconfield iconPosition="left" class="w-full md:w-96">
+                        <p-inputicon styleClass="pi pi-search" />
+                        <input 
+                            pInputText 
+                            type="text" 
+                            placeholder="Search by staff name or department..." 
+                            [(ngModel)]="searchQuery"
+                            (ngModelChange)="filterLogs()"
+                            class="w-full"
+                        />
+                    </p-iconfield>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <p-table 
+                        [value]="filteredLogs" 
+                        [loading]="loadingLogs"
+                        [paginator]="true"
+                        [rows]="15"
+                        [rowsPerPageOptions]="[15, 30, 50]"
+                        [showCurrentPageReport]="true"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                        styleClass="p-datatable-sm"
+                    >
+                        <ng-template pTemplate="header">
+                            <tr class="bg-gray-50 dark:bg-gray-700">
+                                <th class="text-left px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Date</th>
+                                <th class="text-left px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Staff Member</th>
+                                <th class="text-left px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Department</th>
+                                <th class="text-left px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Check In</th>
+                                <th class="text-left px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Check Out</th>
+                                <th class="text-left px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Status</th>
+                                <th class="text-left px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Remarks</th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-log>
+                            <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <td class="px-4 py-4 font-medium text-gray-900 dark:text-white">
+                                    {{ log.attendanceDate | date: 'dd MMM yyyy' }}
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <p-avatar 
+                                            [label]="getInitials(log.staffName)" 
+                                            shape="circle"
+                                            styleClass="bg-orange-500 text-white"
+                                        ></p-avatar>
+                                        <span class="font-medium text-gray-900 dark:text-white">{{ log.staffName }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-gray-600 dark:text-gray-300">{{ log.departmentName || 'N/A' }}</td>
+                                <td class="px-4 py-4">
+                                    <span class="inline-flex items-center gap-1 text-green-600 dark:text-green-400 font-medium">
+                                        <i class="pi pi-sign-in text-xs"></i>
+                                        {{ log.checkInTime || '-' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="inline-flex items-center gap-1 text-red-600 dark:text-red-400 font-medium">
+                                        <i class="pi pi-sign-out text-xs"></i>
+                                        {{ log.checkOutTime || '-' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <p-tag [value]="log.status" [severity]="getStatusSeverity(log.status)"></p-tag>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-600 dark:text-gray-300">{{ log.remarks || '-' }}</td>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="7" class="text-center py-12">
+                                    <i class="pi pi-inbox text-5xl text-gray-300 dark:text-gray-600 mb-3 block"></i>
+                                    <p class="text-gray-500 dark:text-gray-400">No attendance logs found</p>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </p-tabPanel>
+
+        <!-- Attendance Report Tab -->
+        <p-tabPanel>
+            <ng-template pTemplate="header">
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-chart-bar"></i>
+                    <span>Attendance Report</span>
+                </div>
+            </ng-template>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Staff Attendance Summary</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Comprehensive attendance overview by staff member</p>
+                    </div>
+                    <button 
+                        pButton 
+                        label="Export Report" 
+                        icon="pi pi-file-excel"
+                        class="bg-green-600 hover:bg-green-700 border-green-600"
+                        (click)="exportReport()"
+                    ></button>
+                </div>
+
+                <!-- Filters -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <p-date-picker 
+                        [(ngModel)]="reportFilters.startDate" 
+                        [showIcon]="true" 
+                        placeholder="Start Date" 
+                        dateFormat="dd/mm/yy"
+                        class="w-full"
+                    />
+                    <p-date-picker 
+                        [(ngModel)]="reportFilters.endDate" 
+                        [showIcon]="true" 
+                        placeholder="End Date" 
+                        dateFormat="dd/mm/yy"
+                        class="w-full"
+                    />
+                    <p-multiSelect 
+                        [(ngModel)]="reportFilters.departments" 
+                        [options]="departments" 
+                        optionLabel="name" 
+                        optionValue="id" 
+                        placeholder="Select Departments"
+                        class="w-full"
+                    />
+                    <button 
+                        pButton 
+                        label="Generate Report" 
+                        icon="pi pi-refresh"
+                        class="bg-orange-600 hover:bg-orange-700 border-orange-600"
+                        (click)="loadAttendanceReport()"
+                    ></button>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <p-table 
+                        [value]="attendanceReport" 
+                        [loading]="loadingReport"
+                        [paginator]="true"
+                        [rows]="15"
+                        [rowsPerPageOptions]="[15, 30, 50]"
+                        [showCurrentPageReport]="true"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                        styleClass="p-datatable-sm"
+                    >
+                        <ng-template pTemplate="header">
+                            <tr class="bg-gray-50 dark:bg-gray-700">
+                                <th class="text-left px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Staff Member</th>
+                                <th class="text-left px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Department</th>
+                                <th class="text-center px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Total Days</th>
+                                <th class="text-center px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Present</th>
+                                <th class="text-center px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Absent</th>
+                                <th class="text-center px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Late</th>
+                                <th class="text-center px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Leave</th>
+                                <th class="text-left px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Attendance %</th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-report>
+                            <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <p-avatar 
+                                            [label]="getInitials(report.staffName)" 
+                                            shape="circle"
+                                            styleClass="bg-orange-500 text-white"
+                                        ></p-avatar>
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">{{ report.staffName }}</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ report.staffId }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-gray-600 dark:text-gray-300">{{ report.departmentName }}</td>
+                                <td class="px-4 py-4 text-center font-semibold text-gray-900 dark:text-white">{{ report.totalDays }}</td>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-bold text-sm">
+                                        {{ report.presentDays }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-bold text-sm">
+                                        {{ report.absentDays }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-bold text-sm">
+                                        {{ report.lateDays }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold text-sm">
+                                        {{ report.leaveDays }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-1">
+                                            <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                                <div 
+                                                    class="h-full rounded-full transition-all"
+                                                    [ngClass]="getProgressBarClass(report.attendancePercentage)"
+                                                    [style.width.%]="report.attendancePercentage"
+                                                ></div>
+                                            </div>
+                                        </div>
+                                        <span class="font-bold text-sm min-w-[50px] text-right" [ngClass]="getPercentageColor(report.attendancePercentage)">
+                                            {{ report.attendancePercentage }}%
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="8" class="text-center py-12">
+                                    <i class="pi pi-chart-bar text-5xl text-gray-300 dark:text-gray-600 mb-3 block"></i>
+                                    <p class="text-gray-500 dark:text-gray-400">No report data available</p>
+                                    <p class="text-sm text-gray-400 dark:text-gray-500 mt-2">Select date range and click "Generate Report"</p>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </p-tabPanel>
+
+        <!-- Analytics Tab -->
+        <p-tabPanel>
+            <ng-template pTemplate="header">
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-chart-pie"></i>
+                    <span>Analytics</span>
+                </div>
+            </ng-template>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Department-wise Attendance -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Department-wise Attendance</h3>
+                    <div class="h-80">
+                        <p-chart type="bar" [data]="departmentChartData" [options]="chartOptions" class="w-full h-full"></p-chart>
+                    </div>
+                </div>
+
+                <!-- Monthly Attendance Trend -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Attendance Trend</h3>
+                    <div class="h-80">
+                        <p-chart type="line" [data]="monthlyTrendData" [options]="chartOptions" class="w-full h-full"></p-chart>
+                    </div>
+                </div>
+
+                <!-- Status Distribution -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Status Distribution</h3>
+                    <div class="h-80">
+                        <p-chart type="doughnut" [data]="statusDistributionData" [options]="pieChartOptions" class="w-full h-full"></p-chart>
+                    </div>
+                </div>
+
+                <!-- Top Performers -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Top Performers</h3>
+                    <div class="space-y-4">
+                        <div *ngFor="let performer of topPerformers; let i = index" 
+                             class="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl border border-orange-100 dark:border-orange-800 transition-all hover:shadow-md">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-lg shadow-lg">
+                                    {{ i + 1 }}
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900 dark:text-white">{{ performer.name }}</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">{{ performer.department }}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ performer.percentage }}%</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ performer.present }}/{{ performer.total }} days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
+</div>

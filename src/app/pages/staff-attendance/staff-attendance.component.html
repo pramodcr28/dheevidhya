@@ -1,0 +1,360 @@
+<div class="min-h-screen">
+    <p-toast />
+    <p-confirmDialog />
+
+    <!-- Attendance Detail Dialog -->
+    <p-dialog [(visible)]="showDetailDialog" [modal]="true" [style]="{ width: '500px' }" [draggable]="false" [resizable]="false">
+        <ng-template pTemplate="header">
+            <div class="flex items-center gap-3">
+                <i class="pi pi-calendar text-blue-600 text-xl"></i>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white m-0">Attendance Details</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 m-0">
+                        {{ selectedDayAttendance?.attendanceDate }}
+                    </p>
+                </div>
+            </div>
+        </ng-template>
+
+        <div *ngIf="selectedDayAttendance" class="space-y-4">
+            <!-- Status -->
+            <div>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Status</label>
+                <p-select [(ngModel)]="selectedDayAttendance.status" [options]="statusOptions" optionLabel="label" optionValue="value" placeholder="Select Status" styleClass="w-full" />
+            </div>
+                @if(selectedDayAttendance.status === 'PRESENT') {
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
+                            <i class="pi pi-sign-in mr-1"></i> Check-In
+                        </label>
+                        <p-datepicker
+                            [(ngModel)]="selectedDayAttendance.checkInTime"
+                            [timeOnly]="true"
+                            [showSeconds]="true"
+                            hourFormat="24"
+                            [iconDisplay]="'input'"
+                            class="w-full"
+                        ></p-datepicker>
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
+                            <i class="pi pi-sign-out mr-1"></i> Check-Out
+                        </label>
+                        <p-datepicker
+                            [(ngModel)]="selectedDayAttendance.checkOutTime"
+                            [timeOnly]="true"
+                            [showSeconds]="true"
+                            hourFormat="24"
+                            [iconDisplay]="'input'"
+                            class="w-full"
+                        ></p-datepicker>
+                    </div>
+                </div>
+                }
+        
+
+
+            <!-- Notes Section -->
+            <div class="h-full pt-2">
+                <p-floatlabel>
+                    <textarea pTextarea id="over_label" [(ngModel)]="selectedDayAttendance.remarks" rows="4" fluid class="h-full"></textarea>
+                    <label for="over_label">Add notes about this attendance...</label>
+                </p-floatlabel>
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="showDetailDialog = false"></button>
+            <button pButton label="Save Changes" icon="pi pi-check" (click)="saveAttendanceChanges()"></button>
+        </ng-template>
+    </p-dialog>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <!-- Left Section: Quick Check-in & Calendar -->
+        <div class="lg:col-span-3 space-y-6">
+            <!-- Quick Check-in Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-4">
+                            <p-avatar [label]="getAvatarInitials(userInfo?.fullName)" size="large" shape="circle" styleClass="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" />
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                                    {{ userInfo?.fullName || 'User' }}
+                                </h3>
+                                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                    <i class="pi pi-clock"></i>
+                                    <span>{{ currentTime }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p-tag *ngIf="todayAttendance" [value]="todayAttendance.status" [severity]="getStatusSeverity(todayAttendance.status)"></p-tag>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button pButton label="Check In" icon="pi pi-sign-in" class="p-button-success" [disabled]="todayAttendance?.checkInTime" (click)="checkIn()"></button>
+                        <button pButton label="Check Out" icon="pi pi-sign-out" class="p-button-danger p-button-outlined" [disabled]="!todayAttendance?.checkInTime || todayAttendance?.checkOutTime" (click)="checkOut()"></button>
+                    </div>
+
+                    <div *ngIf="todayAttendance" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Check-In</span>
+                                <span class="text-base font-semibold text-gray-900 dark:text-white">
+                                    {{ todayAttendance.checkInTime || '--:--' }}
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Check-Out</span>
+                                <span class="text-base font-semibold text-gray-900 dark:text-white">
+                                    {{ todayAttendance.checkOutTime || '--:--' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <!-- <div> -->
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-0">Attendance Calendar</h2>
+                    <div class="flex flex-wrap gap-4 text-xs">
+                        <div class="flex items-center gap-2">
+                            <i class="pi pi-check-circle text-green-600"></i>
+                            <span class="text-gray-600 dark:text-gray-400">Present</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="pi pi-times-circle text-red-600"></i>
+                            <span class="text-gray-600 dark:text-gray-400">Absent</span>
+                        </div>
+                        <!-- <div class="flex items-center gap-2">
+                            <i class="pi pi-clock text-orange-600"></i>
+                            <span class="text-gray-600 dark:text-gray-400">Late</span>
+                        </div> -->
+                        <!-- <div class="flex items-center gap-2">
+                            <i class="pi pi-calendar-minus text-blue-600"></i>
+                            <span class="text-gray-600 dark:text-gray-400">Leave</span>
+                        </div> -->
+                        <!-- <div class="flex items-center gap-2">
+                            <i class="pi pi-minus-circle text-yellow-600"></i>
+                            <span class="text-gray-600 dark:text-gray-400">Half Day</span>
+                        </div> -->
+                    </div>
+                    <!-- </div> -->
+                    <div class="flex items-center gap-1">
+                        <button pButton icon="pi pi-chevron-left" class="p-button-text p-button-sm" (click)="previousMonth()"></button>
+                        <span class="text-base font-medium text-gray-900 dark:text-white min-w-[140px] text-center">
+                            {{ currentViewDate | date: 'MMMM yyyy' }}
+                        </span>
+                        <button pButton icon="pi pi-chevron-right" class="p-button-text p-button-sm" (click)="nextMonth()"></button>
+                    </div>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="calendar-container">
+                    <!-- Weekday Headers -->
+                    <div class="grid grid-cols-7 gap-2 mb-2">
+                        <div *ngFor="let day of weekDays" class="text-center text-xs font-semibold text-gray-600 dark:text-gray-400 py-2">
+                            {{ day }}
+                        </div>
+                    </div>
+
+                    <!-- Calendar Days -->
+                    <div class="grid grid-cols-7 gap-2">
+                        <div *ngFor="let day of calendarDays" class="relative" (click)="onDayClick(day)">
+                            <div
+                                class="h-16 flex flex-col items-center justify-center rounded-lg transition-all cursor-pointer border"
+                                [ngClass]="{
+                                    'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600': day.isCurrentMonth && !day.attendance,
+                                    'bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 opacity-40': !day.isCurrentMonth,
+                                    'border-blue-500 dark:border-blue-400 ring-2 ring-blue-100 dark:ring-blue-900': day.isToday,
+                                    'border-green-500 dark:border-green-400': day.isCurrentMonth && day.attendance?.status === 'PRESENT',
+                                    'border-red-500 dark:border-red-400': day.isCurrentMonth && day.attendance?.status === 'ABSENT',
+                                    'border-blue-500 dark:border-blue-400': day.isCurrentMonth && day.attendance?.status === 'LEAVE',
+                                    'border-gray-300 dark:border-gray-600': day.isCurrentMonth && day.attendance && !day.attendance?.status
+                                }"
+                            >
+                                <span
+                                    class="text-sm font-medium mb-1"
+                                    [ngClass]="{
+                                        'text-gray-400 dark:text-gray-600': !day.isCurrentMonth,
+                                        'text-gray-900 dark:text-white': day.isCurrentMonth,
+                                        'text-blue-600 dark:text-blue-400': day.isToday
+                                    }"
+                                >
+                                    {{ day.date.getDate() }}
+                                </span>
+
+                                <!-- Status Icon -->
+                                @if (day.attendance) {
+                                    <i [class]="getIconBasedOnStataus(day.attendance.status)"></i>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Stats & Chart -->
+        <div class="lg:col-span-1 space-y-4">
+            <!-- Total Present -->
+            <div
+                class="flex justify-between p-4 relative overflow-hidden bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/20 rounded-xl shadow-lg border border-emerald-200/50 dark:border-emerald-800/50 p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+            >
+                <!-- Animated background pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                            <pattern id="grid-present" width="10" height="10" patternUnits="userSpaceOnUse">
+                                <circle cx="5" cy="5" r="1" fill="currentColor" class="text-emerald-500" />
+                            </pattern>
+                        </defs>
+                        <rect width="100" height="100" fill="url(#grid-present)" />
+                    </svg>
+                </div>
+
+                <!-- Animated glow effect -->
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-400/20 rounded-full blur-3xl animate-pulse"></div>
+
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="relative">
+                            <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-all duration-300">
+                                <i class="pi pi-check-circle text-white text-lg"></i>
+                            </div>
+                        </div>
+                        <span class="text-sm font-medium text-emerald-700 dark:text-emerald-300 ps-2">Days Present</span>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 dark:from-emerald-400 dark:to-green-400 bg-clip-text text-transparent mb-1">
+                    {{ monthStats.present }}
+                </div>
+            </div>
+
+            <!-- Total Absent -->
+            <div
+                class="flex justify-between p-4 relative overflow-hidden bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/20 rounded-xl shadow-lg border border-red-200/50 dark:border-red-800/50 p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+            >
+                <!-- Animated background pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                            <pattern id="grid-absent" width="10" height="10" patternUnits="userSpaceOnUse">
+                                <circle cx="5" cy="5" r="1" fill="currentColor" class="text-red-500" />
+                            </pattern>
+                        </defs>
+                        <rect width="100" height="100" fill="url(#grid-absent)" />
+                    </svg>
+                </div>
+
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-red-400/20 rounded-full blur-3xl animate-pulse"></div>
+
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="relative">
+                            <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/30 group-hover:scale-110 transition-all duration-300">
+                                <i class="pi pi-times-circle text-white text-lg"></i>
+                            </div>
+                        </div>
+                        <span class="ps-2 text-sm font-medium text-red-700 dark:text-red-300">Days Absent</span>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-400 dark:to-rose-400 bg-clip-text text-transparent mb-1">
+                    {{ monthStats.absent }}
+                </div>
+            </div>
+
+            <!-- Attendance Percentage -->
+            <div
+                class="flex justify-between p-4 relative overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/20 rounded-xl shadow-lg border border-blue-200/50 dark:border-blue-800/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+            >
+                <!-- Animated background pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                            <pattern id="grid-percentage" width="10" height="10" patternUnits="userSpaceOnUse">
+                                <circle cx="5" cy="5" r="1" fill="currentColor" class="text-blue-500" />
+                            </pattern>
+                        </defs>
+                        <rect width="100" height="100" fill="url(#grid-percentage)" />
+                    </svg>
+                </div>
+
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
+
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="relative">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-all duration-300">
+                                <i class="pi pi-percentage text-white text-lg"></i>
+                            </div>
+                        </div>
+                        <span class="ps-2 text-sm font-medium text-blue-700 dark:text-blue-300">Attendance Rate</span>
+                    </div>
+                </div>
+                <div class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent mb-1">{{ monthStats.percentage }}%</div>
+            </div>
+
+            <!-- Monthly Distribution Chart -->
+            <div class="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-6 hover:shadow-xl transition-all duration-300">
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-6">Monthly Distribution</h3>
+
+                <div class="flex justify-center mb-6">
+                    <div class="relative w-48 h-48">
+                        <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" class="w-full h-full"></p-chart>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ monthStats.total }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-green-500 shadow-lg shadow-green-500/50"></div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Present</span>
+                        </div>
+                        <span class="font-semibold text-gray-900 dark:text-white">{{ monthStats.present }}</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500 shadow-lg shadow-red-500/50"></div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Absent</span>
+                        </div>
+                        <span class="font-semibold text-gray-900 dark:text-white">{{ monthStats.absent }}</span>
+                    </div>
+                    <!-- <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50"></div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Leave</span>
+                        </div>
+                        <span class="font-semibold text-gray-900 dark:text-white">{{ monthStats.leave }}</span>
+                    </div> -->
+                    <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-orange-500 shadow-lg shadow-orange-500/50"></div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Late</span>
+                        </div>
+                        <span class="font-semibold text-gray-900 dark:text-white">{{ monthStats.late }}</span>
+                    </div>
+                </div>
+
+                <button
+                    pButton
+                    label="Export Report"
+                    icon="pi pi-download"
+                    class="w-full mt-6 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+                    (click)="exportDailyReport()"
+                ></button>
+            </div>
+        </div>
+    </div>
+</div>

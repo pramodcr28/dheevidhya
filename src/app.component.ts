@@ -8,7 +8,7 @@ import { AccountService } from './app/core/services/account.service';
 import { CommonService } from './app/core/services/common.service';
 import { WebSocketService } from './app/core/services/websocket.service';
 import { UserProfileState } from './app/core/store/user-profile/user-profile.reducer';
-import { selectUserConfig } from './app/core/store/user-profile/user-profile.selectors';
+import { getBranch, selectUserConfig } from './app/core/store/user-profile/user-profile.selectors';
 
 @Component({
     selector: 'app-root',
@@ -46,12 +46,16 @@ export class AppComponent {
                         userId: user.userId
                     };
                 } else {
-                    this.commonService.getUserInfo = {
-                        subjectsNames: subejcts.filter((sub) => user.subjectIds?.includes(sub.id)).map((sub) => sub.name),
-                        subjectIds: user.subjectIds,
-                        fullName: user.fullName,
-                        userId: user.userId
-                    };
+                    this.store.select(getBranch).subscribe((branch) => {
+                        this.commonService.getUserInfo = {
+                            subjectsNames: subejcts.filter((sub) => user.subjectIds?.includes(sub.id)).map((sub) => sub.name),
+                            subjectIds: user.subjectIds,
+                            fullName: user.fullName,
+                            userId: user.userId,
+                            branchId: branch?.id + '' || '',
+                            branchName: branch?.name || ''
+                        };
+                    });
                 }
             }
 
