@@ -37,7 +37,7 @@ export const appRoutes: Routes = [
             { path: 'examination', component: ExaminationComponent },
             { path: 'assignment', component: AssignmentManagementComponent },
             { path: 'notice-board', component: SchoolNoticeBoardComponent },
-            { path: 'staff-attendance', loadComponent: () => StaffAttendanceComponent, data: { title: 'My Attendance' } },
+            { path: 'staff-calendar', loadComponent: () => StaffAttendanceComponent, data: { title: 'My Calendar' } },
             { path: 'attendance-management', loadComponent: () => StaffAttendanceManagementComponent, data: { title: 'Attendance Management' } },
             // { path: 'inventory', component: InventoryManagementComponent},
             {

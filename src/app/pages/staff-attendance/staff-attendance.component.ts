@@ -260,7 +260,9 @@ export class StaffAttendanceComponent implements OnInit {
         this.staffAttendanceService
             .searchAttendance({
                 filters: {
-                    'staffId.like': this.userInfo?.userId
+                    'staffId.like': this.userInfo?.userId,
+                    'attendanceDate.gte': startStr,
+                    'attendanceDate.lte': endStr
                 },
                 page: 0,
                 size: 100
