@@ -43,7 +43,8 @@ export class AppComponent {
                         departmentName: department.department.name,
                         departmentId: department.id,
                         fullName: user.fullName,
-                        userId: user.userId
+                        userId: user.userId,
+                        academicYear: user.academicYear || ''
                     };
                 } else {
                     this.store.select(getBranch).subscribe((branch) => {
@@ -53,7 +54,8 @@ export class AppComponent {
                             fullName: user.fullName,
                             userId: user.userId,
                             branchId: branch?.id + '' || '',
-                            branchName: branch?.name || ''
+                            branchName: branch?.name || '',
+                            academicYear: user.academicYear || ''
                         };
                     });
                 }

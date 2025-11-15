@@ -6,7 +6,7 @@ export interface StaffAttendance {
     // departmentName: string;
     branchId?: string;
     branchName?: string;
-    attendanceDate?: String;
+    attendanceDate?: string;
     checkInTime?: string;
     checkOutTime?: string;
     status?: AttendanceStatus | any;
@@ -17,9 +17,9 @@ export enum AttendanceStatus {
     PRESENT = 'PRESENT',
     ABSENT = 'ABSENT',
     // HALF_DAY = 'HALF_DAY',
-    LEAVE = 'LEAVE'
+    LEAVE = 'LEAVE',
     // LATE = 'LATE',
-    // ON_DUTY = 'ON_DUTY'
+    ON_DUTY = 'ON_DUTY'
 }
 
 export interface AttendanceStatusOption {
@@ -55,14 +55,14 @@ export interface Branch {
 export interface MonthStats {
     present: number;
     absent: number;
-    late: number;
+    onDuty: number;
     leave: number;
 }
 
 export interface DayStats {
     present: number;
     absent: number;
-    late: number;
+    // late: number;
     leave: number;
     total: number;
 }

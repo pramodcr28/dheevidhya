@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './app/core/auth/auth-guard.guard';
 import { AppLayout } from './app/core/layout/app.layout';
+import { StaffAttendanceComponent } from './app/pages/calendar/staff-calendar.component';
 import { Dashboard } from './app/pages/dashboard/dashboard';
 import { EmployeeListComponent } from './app/pages/employee/employee-list/employee-list.component';
 import { ExaminationComponent } from './app/pages/examination/examination.component';
@@ -16,7 +17,6 @@ import { TimetableListComponent } from './app/pages/organization/timetable-list/
 import { ProfileComponent } from './app/pages/profile/profile.component';
 import { SchoolNoticeBoardComponent } from './app/pages/school-notice-board/school-notice-board.component';
 import { StaffAttendanceManagementComponent } from './app/pages/staff-attendance-management/staff-attendance-management.component';
-import { StaffAttendanceComponent } from './app/pages/staff-attendance/staff-attendance.component';
 import { BulkStudentUploadComponent } from './app/pages/students/bulk-student-upload/bulk-student-upload.component';
 import { StudentListComponent } from './app/pages/students/student-list/student-list.component';
 

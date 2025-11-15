@@ -75,12 +75,19 @@
                             <p-datepicker formControlName="resultDeclarationDate" dateFormat="yy-mm-dd" showIcon placeholder="Publish Date" class="w-full"></p-datepicker>
                         </div>
 
-                        <!-- Holiday -->
                         <div *ngSwitchCase="'HOLIDAY'" [formGroup]="noticeForm.controls.holiday" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <p-select [options]="holidayTypes" formControlName="holidayType" optionLabel="label" optionValue="value" placeholder="Select Holiday Type" class="w-full"> </p-select>
+                            <p-select [options]="holidayTypes" formControlName="holidayType" optionLabel="label" optionValue="value" placeholder="Select Holiday Type" class="w-full" (onChange)="onHolidayTypeChange()"> </p-select>
 
-                            <p-datepicker formControlName="holidayStartDate" dateFormat="yy-mm-dd" showIcon placeholder="Holiday Start" class="w-full"></p-datepicker>
-                            <p-datepicker formControlName="holidayEndDate" dateFormat="yy-mm-dd" showIcon placeholder="Holiday End" class="w-full"></p-datepicker>
+                            <!-- Week Off Day Selection (only show when holidayType is Week_off) -->
+                            <div *ngIf="noticeForm.controls.holiday.controls.holidayType.value === 'Week_off'">
+                                <p-select [options]="weekDays" formControlName="weekOffDay" optionLabel="label" optionValue="value" placeholder="Select Day" class="w-full"> </p-select>
+                            </div>
+
+                            <!-- Date Range (show for all other holiday types except Week_off) -->
+                            <div *ngIf="noticeForm.controls.holiday.controls.holidayType.value !== 'Week_off'" class="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <p-datepicker formControlName="holidayStartDate"  dateFormat="yy-mm-dd" showIcon placeholder="Holiday Start" class="w-full"> </p-datepicker>
+                                <p-datepicker formControlName="holidayEndDate" dateFormat="yy-mm-dd" showIcon placeholder="Holiday End" class="w-full"> </p-datepicker>
+                            </div>
                         </div>
 
                         <div *ngSwitchCase="'MEETING'" [formGroup]="noticeForm.controls.meeting" class="grid grid-cols-1 md:grid-cols-2 gap-4">

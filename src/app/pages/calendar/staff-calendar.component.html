@@ -1,0 +1,558 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6">
+    <p-toast />
+    <p-confirmDialog />
+
+    <!-- Attendance Detail Dialog -->
+    <p-dialog 
+        [(visible)]="showDetailDialog" 
+        [modal]="true" 
+        [style]="{ width: '95vw', maxWidth: '500px' }" 
+        [draggable]="false" 
+        [resizable]="false"
+        styleClass="max-h-[90vh] overflow-auto"
+    >
+        <ng-template pTemplate="header">
+            <div class="flex items-center gap-3">
+                <i class="pi pi-calendar text-blue-600 text-xl"></i>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white m-0">
+                        {{ hasEvents ? 'Event Day - Read Only' : 'Attendance Details' }}
+                    </h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 m-0">
+                        {{ selectedDayAttendance?.attendanceDate }}
+                    </p>
+                </div>
+            </div>
+        </ng-template>
+
+        <div *ngIf="selectedDayAttendance" class="space-y-4">
+            <!-- Events Information -->
+            <div *ngIf="hasEvents" class="space-y-3">
+                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-3">
+                    <div class="flex items-center gap-2 text-purple-700 dark:text-purple-300 mb-2">
+                        <i class="pi pi-info-circle"></i>
+                        <span class="text-sm font-medium">This date has scheduled events. Attendance cannot be modified.</span>
+                    </div>
+                    
+                    <!-- Events List -->
+                    <div class="space-y-2 mt-3">
+                        <div *ngFor="let event of selectedDayEvents" 
+                             class="bg-white/50 dark:bg-gray-800/50 rounded p-2 border border-purple-100 dark:border-purple-700">
+                            <div class="flex items-start gap-2">
+                                <i [class]="getEventIcon(event.holiday.holidayType) + ' mt-0.5'"></i>
+                                <div class="flex-1">
+                                    <p class="text-sm font-semibold text-purple-800 dark:text-purple-200 mb-1">
+                                        {{ event.title }}
+                                    </p>
+                                    <p class="text-xs text-purple-600 dark:text-purple-400">
+                                        {{ getEventTypeDisplay(event.holiday.holidayType) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Status</label>
+                <p-select 
+                    [(ngModel)]="selectedDayAttendance.status" 
+                    [options]="statusOptions" 
+                    optionLabel="label" 
+                    optionValue="value" 
+                    placeholder="Select Status" 
+                    styleClass="w-full"
+                    [disabled]="hasEvents"
+                />
+            </div>
+
+            @if(selectedDayAttendance.status === 'PRESENT' && !hasEvents) {
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
+                            <i class="pi pi-sign-in mr-1"></i> Check-In
+                        </label>
+                        <p-datepicker
+                            [(ngModel)]="selectedDayAttendance.checkInTime"
+                            [timeOnly]="true"
+                            [showSeconds]="true"
+                            hourFormat="24"
+                            [iconDisplay]="'input'"
+                            styleClass="w-full"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
+                            <i class="pi pi-sign-out mr-1"></i> Check-Out
+                        </label>
+                        <p-datepicker
+                            [(ngModel)]="selectedDayAttendance.checkOutTime"
+                            [timeOnly]="true"
+                            [showSeconds]="true"
+                            hourFormat="24"
+                            [iconDisplay]="'input'"
+                            styleClass="w-full"
+                        />
+                    </div>
+                </div>
+            }
+        
+            <div class="h-full pt-2">
+                <p-floatlabel>
+                    <textarea 
+                        pTextarea 
+                        id="remarks_field" 
+                        [(ngModel)]="selectedDayAttendance.remarks" 
+                        rows="4" 
+                        fluid 
+                        class="h-full w-full"
+                        [disabled]="hasEvents"
+                    ></textarea>
+                    <label for="remarks_field">Add notes about this attendance...</label>
+                </p-floatlabel>
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="showDetailDialog = false"></button>
+            <button 
+                *ngIf="!hasEvents"
+                pButton 
+                label="Save Changes" 
+                icon="pi pi-check" 
+                (click)="saveAttendanceChanges()"
+            ></button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Events Detail Dialog -->
+    <p-dialog 
+        [(visible)]="showEventsDialog" 
+        [modal]="true" 
+        [style]="{ width: '95vw', maxWidth: '500px' }" 
+        [draggable]="false" 
+        [resizable]="false"
+    >
+        <ng-template pTemplate="header">
+            <div class="flex items-center gap-3">
+                <i class="pi pi-calendar text-purple-600 text-xl"></i>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white m-0">Events Details</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 m-0">
+                        {{ selectedDayDate | date: 'fullDate' }}
+                    </p>
+                </div>
+            </div>
+        </ng-template>
+
+        <div *ngIf="selectedDayEvents.length > 0" class="space-y-4">
+            <!-- Events List -->
+            <div class="space-y-3">
+                <div *ngFor="let event of selectedDayEvents" 
+                     class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-800 flex items-center justify-center">
+                            <i [class]="getEventIcon(event.holiday.holidayType) + ' text-purple-600 dark:text-purple-400'"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-base font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                                {{ event.title }}
+                            </h4>
+                            
+                            <!-- Event Date Information -->
+                            <div class="space-y-2 text-sm text-purple-700 dark:text-purple-300 mb-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-calendar"></i>
+                                    <span *ngIf="event.holiday.holidayType === 'Week_off'; else dateRangeTemplate">
+                                        Every {{ getWeekOffDayName(event) }}
+                                    </span>
+                                    <ng-template #dateRangeTemplate>
+                                        <span *ngIf="isSingleDayEvent(event); else multiDayTemplate">
+                                            {{ event.holiday.holidayStartDate | date: 'fullDate' }}
+                                        </span>
+                                        <ng-template #multiDayTemplate>
+                                            <span>
+                                                {{ event.holiday.holidayStartDate | date: 'mediumDate' }} - 
+                                                {{ event.holiday.holidayEndDate | date: 'mediumDate' }}
+                                            </span>
+                                        </ng-template>
+                                    </ng-template>
+                                </div>
+                                
+                                <!-- Duration for multi-day events -->
+                                <div *ngIf="event.holiday.holidayType !== 'Week_off' && !isSingleDayEvent(event)" 
+                                     class="flex items-center gap-2 ml-6 text-xs">
+                                    <i class="pi pi-clock"></i>
+                                    <span>
+                                        {{ getEventDuration(event) }} day{{ getEventDuration(event) > 1 ? 's' : '' }}
+                                    </span>
+                                </div>
+
+                                <!-- Recurring indicator for Week_off -->
+                                <div *ngIf="event.holiday.holidayType === 'Week_off'" 
+                                     class="flex items-center gap-2 ml-6 text-xs">
+                                    <i class="pi pi-sync"></i>
+                                    <span>Recurring weekly</span>
+                                </div>
+                            </div>
+
+                            <!-- Event Description if available -->
+                            <div *ngIf="event.content" class="mt-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded border border-purple-100 dark:border-purple-700">
+                                <h5 class="text-sm font-semibold text-purple-800 dark:text-purple-200 mb-2">Description:</h5>
+                                <div class="text-xs text-purple-700 dark:text-purple-300 prose prose-sm dark:prose-invert max-w-none" 
+                                     [innerHTML]="event.content"></div>
+                            </div>
+
+                            <p-chip 
+                                [label]="getEventTypeDisplay(event.holiday.holidayType)" 
+                                [styleClass]="getEventTypeColor(event.holiday.holidayType) + ' font-medium mt-3'"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                <div class="flex items-start gap-2 text-yellow-800 dark:text-yellow-200">
+                    <i class="pi pi-exclamation-triangle mt-0.5"></i>
+                    <div class="text-sm">
+                        <p class="font-medium mb-1">No Attendance Required</p>
+                        <p class="text-xs">
+                            This date has scheduled events. Attendance marking is disabled.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <button pButton label="Close" icon="pi pi-times" (click)="showEventsDialog = false"></button>
+        </ng-template>
+    </p-dialog>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <!-- Main Calendar Section -->
+        <div class="lg:col-span-3 space-y-4 sm:space-y-6">
+            <!-- User Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <p-avatar 
+                                [label]="getAvatarInitials(userInfo?.fullName)" 
+                                size="large" 
+                                shape="circle" 
+                                styleClass="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" 
+                            />
+                            <div>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                                    {{ userInfo?.fullName || 'User' }}
+                                </h3>
+                                <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                                    <i class="pi pi-clock"></i>
+                                    <span>{{ currentTime }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p-tag 
+                            *ngIf="todayAttendance" 
+                            [value]="todayAttendance.status" 
+                            [severity]="getStatusSeverity(todayAttendance.status)"
+                        />
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
+                        <button 
+                            pButton 
+                            label="Check In" 
+                            icon="pi pi-sign-in" 
+                            class="p-button-success text-sm sm:text-base" 
+                            [disabled]="todayAttendance?.checkInTime || hasEventsToday" 
+                            (click)="checkIn()"
+                        > </button> 
+                        <button 
+                            pButton 
+                            label="Check Out" 
+                            icon="pi pi-sign-out" 
+                            class="p-button-danger p-button-outlined text-sm sm:text-base" 
+                            [disabled]="!todayAttendance?.checkInTime || todayAttendance?.checkOutTime || hasEventsToday" 
+                            (click)="checkOut()"
+                        > </button>
+                    </div>
+
+                    <div *ngIf="todayAttendance" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 sm:p-4">
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Check-In</span>
+                                <span class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                                    {{ todayAttendance.checkInTime || '--:--' }}
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Check-Out</span>
+                                <span class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                                    {{ todayAttendance.checkOutTime || '--:--' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-0">Calendar</h2>
+                    
+                    <div class="flex items-center gap-1 w-full sm:w-auto justify-between sm:justify-start">
+                        <button pButton icon="pi pi-chevron-left" class="p-button-text p-button-sm" (click)="previousMonth()"></button>
+                        <span class="text-sm sm:text-base font-medium text-gray-900 dark:text-white min-w-[120px] sm:min-w-[140px] text-center">
+                            {{ currentViewDate | date: 'MMMM yyyy' }}
+                        </span>
+                        <button pButton icon="pi pi-chevron-right" class="p-button-text p-button-sm" (click)="nextMonth()"></button>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="flex flex-wrap gap-2 sm:gap-4 text-xs mb-4 sm:mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-1.5">
+                        <i class="pi pi-check-circle text-green-600"></i>
+                        <span class="text-gray-600 dark:text-gray-400">Present</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <i class="pi pi-times-circle text-red-600"></i>
+                        <span class="text-gray-600 dark:text-gray-400">Absent</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <i class="pi pi-clock text-orange-600"></i>
+                        <span class="text-gray-600 dark:text-gray-400">On Duty</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <i class="pi pi-calendar-minus text-blue-600"></i>
+                        <span class="text-gray-600 dark:text-gray-400">Leave</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <i class="pi pi-star-fill text-purple-600"></i>
+                        <span class="text-gray-600 dark:text-gray-400">Events</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <i class="pi pi-calendar-week text-amber-600"></i>
+                        <span class="text-gray-600 dark:text-gray-400">Week Off</span>
+                    </div>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="calendar-container overflow-x-auto">
+                    <!-- Weekday Headers -->
+                    <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2 min-w-[280px]">
+                        <div *ngFor="let day of weekDays" class="text-center text-xs font-semibold text-gray-600 dark:text-gray-400 py-2">
+                            {{ day }}
+                        </div>
+                    </div>
+
+                    <!-- Calendar Days -->
+                    <div class="grid grid-cols-7 gap-1 sm:gap-2 min-w-[280px]">
+                        <div *ngFor="let day of calendarDays" class="relative event-cell" (click)="onDayClick(day)">
+                            <div
+                                class="h-14 sm:h-16 flex flex-col items-center justify-center rounded-lg transition-all cursor-pointer border relative"
+                                [ngClass]="{
+                                    'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50': day.isCurrentMonth,
+                                    'bg-gray-50 dark:bg-gray-900 opacity-40': !day.isCurrentMonth,
+                                    'hover:shadow-md': day.isCurrentMonth,
+                                    'bg-amber-50 dark:bg-amber-900/30': hasWeekOffEvent(day.events) && day.isCurrentMonth
+                                }"
+                                [class]="getCellBorderClass(day)"
+                            >
+                                <!-- Events Indicators -->
+                                <div *ngIf="day.events.length > 0" class="events-indicator">
+                                    <div class="flex gap-0.5">
+                                        <i *ngFor="let event of getEventIndicators(day.events)" 
+                                           [class]="event.icon + ' ' + event.color + ' text-xs'"></i>
+                                    </div>
+                                    <span *ngIf="day.events.length > 2" class="text-xs font-semibold text-purple-600 dark:text-purple-400">
+                                        +{{ day.events.length - 2 }}
+                                    </span>
+                                </div>
+
+                                <!-- Multi-day event indicators (only for regular events) -->
+                                <div *ngIf="hasRegularEvents(day.events) && isEventStart(day)" 
+                                     class="absolute top-0 left-0 w-2 h-2 bg-purple-500 rounded-full"></div>
+                                <div *ngIf="hasRegularEvents(day.events) && isEventEnd(day)" 
+                                     class="absolute top-0 right-0 w-2 h-2 bg-purple-500 rounded-full"></div>
+
+                                <!-- Date Number -->
+                                <span
+                                    class="text-xs sm:text-sm font-medium mb-0.5"
+                                    [ngClass]="{
+                                        'text-gray-400 dark:text-gray-600': !day.isCurrentMonth,
+                                        'text-gray-900 dark:text-white': day.isCurrentMonth && !day.isToday && !hasWeekOffEvent(day.events),
+                                        'text-blue-600 dark:text-blue-400 font-bold': day.isToday,
+                                        'text-amber-700 dark:text-amber-300 font-semibold': hasWeekOffEvent(day.events) && day.isCurrentMonth
+                                    }"
+                                >
+                                    {{ day.date.getDate() }}
+                                </span>
+
+                                <!-- Status Icon -->
+                                <div *ngIf="day.attendance" class="flex items-center justify-center">
+                                    <i [class]="getIconBasedOnStatus(day.attendance.status)"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Stats & Chart -->
+        <div class="lg:col-span-1 space-y-3 sm:space-y-4">
+            <!-- Total Present -->
+            <div class="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/20 rounded-xl shadow-lg border border-emerald-200/50 dark:border-emerald-800/50 p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <div class="absolute inset-0 opacity-10">
+                    <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                            <pattern id="grid-present" width="10" height="10" patternUnits="userSpaceOnUse">
+                                <circle cx="5" cy="5" r="1" fill="currentColor" class="text-emerald-500" />
+                            </pattern>
+                        </defs>
+                        <rect width="100" height="100" fill="url(#grid-present)" />
+                    </svg>
+                </div>
+
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-400/20 rounded-full blur-3xl animate-pulse"></div>
+
+                <div class="relative z-10 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-all duration-300">
+                                <i class="pi pi-check-circle text-white text-sm sm:text-lg"></i>
+                            </div>
+                            <span class="text-xs sm:text-sm font-medium text-emerald-700 dark:text-emerald-300">Days Present</span>
+                        </div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 dark:from-emerald-400 dark:to-green-400 bg-clip-text text-transparent">
+                        {{ monthStats.present }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Absent -->
+            <div class="relative overflow-hidden bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/20 rounded-xl shadow-lg border border-red-200/50 dark:border-red-800/50 p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <div class="absolute inset-0 opacity-10">
+                    <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                            <pattern id="grid-absent" width="10" height="10" patternUnits="userSpaceOnUse">
+                                <circle cx="5" cy="5" r="1" fill="currentColor" class="text-red-500" />
+                            </pattern>
+                        </defs>
+                        <rect width="100" height="100" fill="url(#grid-absent)" />
+                    </svg>
+                </div>
+
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-red-400/20 rounded-full blur-3xl animate-pulse"></div>
+
+                <div class="relative z-10 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/30 group-hover:scale-110 transition-all duration-300">
+                                <i class="pi pi-times-circle text-white text-sm sm:text-lg"></i>
+                            </div>
+                            <span class="text-xs sm:text-sm font-medium text-red-700 dark:text-red-300">Days Absent</span>
+                        </div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-400 dark:to-rose-400 bg-clip-text text-transparent">
+                        {{ monthStats.absent }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Percentage -->
+            <div class="relative overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/20 rounded-xl shadow-lg border border-blue-200/50 dark:border-blue-800/50 p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <div class="absolute inset-0 opacity-10">
+                    <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                            <pattern id="grid-percentage" width="10" height="10" patternUnits="userSpaceOnUse">
+                                <circle cx="5" cy="5" r="1" fill="currentColor" class="text-blue-500" />
+                            </pattern>
+                        </defs>
+                        <rect width="100" height="100" fill="url(#grid-percentage)" />
+                    </svg>
+                </div>
+
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
+
+                <div class="relative z-10 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-all duration-300">
+                                <i class="pi pi-percentage text-white text-sm sm:text-lg"></i>
+                            </div>
+                            <span class="text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-300">Attendance Rate</span>
+                        </div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
+                        {{ monthStats.percentage }}%
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Distribution Chart -->
+            <div class="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+                <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">Monthly Distribution</h3>
+
+                <div class="flex justify-center mb-4 sm:mb-6">
+                    <div class="relative w-36 h-36 sm:w-48 sm:h-48">
+                        <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" class="w-full h-full"></p-chart>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="text-center">
+                                <div class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ monthStats.total }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500 shadow-lg shadow-green-500/50"></div>
+                            <span class="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Present</span>
+                        </div>
+                        <span class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{{ monthStats.present }}</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500 shadow-lg shadow-red-500/50"></div>
+                            <span class="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Absent</span>
+                        </div>
+                        <span class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{{ monthStats.absent }}</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50"></div>
+                            <span class="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Leave</span>
+                        </div>
+                        <span class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{{ monthStats.leave }}</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-orange-500 shadow-lg shadow-orange-500/50"></div>
+                            <span class="text-xs sm:text-sm text-gray-700 dark:text-gray-300">On Duty</span>
+                        </div>
+                        <span class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{{ monthStats.onDuty }}</span>
+                    </div>
+                </div>
+
+                <button
+                    pButton
+                    label="Export Report"
+                    icon="pi pi-download"
+                    class="w-full mt-4 sm:mt-6 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base"
+                    (click)="exportDailyReport()"
+                ></button>
+            </div>
+        </div>
+    </div>
+</div>
