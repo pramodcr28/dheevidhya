@@ -66,7 +66,7 @@ export class DepartmentSetupComponent {
             this.selectedMasterDepartment.academicStart = departmentConfig.body?.academicStart;
             this.selectedMasterDepartment.academicEnd = departmentConfig.body?.academicEnd;
             if (this.selectedMasterDepartment) {
-                this.userService.search(0, 100, 'id', 'ASC', { 'departments.in': [this.selectedMasterDepartment!.id] }).subscribe((result) => {
+                this.userService.search(0, 100, 'id', 'ASC', { 'departments.in': [this.selectedMasterDepartment!.id], 'profileType.equals': 'STAFF' }).subscribe((result) => {
                     this.loader.hide();
                     this.selectedDepartment = departmentConfig.body?.department;
                     this.users = result.content;

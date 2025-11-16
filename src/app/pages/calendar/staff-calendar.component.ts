@@ -659,7 +659,7 @@ export class StaffAttendanceComponent implements OnInit {
 
     getEventTypeColor(eventType: string): string {
         const colorMap: any = {
-            Week_off: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
+            Week_off: 'bg-amber-100 text-amber-400 dark:bg-amber-900 dark:text-amber-200',
             Government: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
             Festival: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
             Company: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
@@ -671,7 +671,7 @@ export class StaffAttendanceComponent implements OnInit {
 
     getEventIcon(eventType: string): string {
         const iconMap: any = {
-            Week_off: 'pi pi-calendar-week',
+            Week_off: 'pi pi-calendar-clock',
             Government: 'pi pi-flag-fill',
             Festival: 'pi pi-star-fill',
             Company: 'pi pi-building',
@@ -731,7 +731,7 @@ export class StaffAttendanceComponent implements OnInit {
         const weekOffEvents = events.filter((event) => event.holiday.holidayType === 'Week_off');
         if (weekOffEvents.length > 0) {
             indicators.push({
-                icon: 'pi pi-calendar-week',
+                icon: 'pi pi-calendar-clock',
                 color: 'text-amber-500'
             });
         }
@@ -756,7 +756,7 @@ export class StaffAttendanceComponent implements OnInit {
         if (day.events.length > 0) {
             // Week_off events - dashed amber border
             if (this.hasWeekOffEvent(day.events)) {
-                return 'border-amber-500 dark:border-amber-400 border-2 border-dashed rounded-lg';
+                return 'border-amber-200 dark:border-amber-400 border-2 border-dashed rounded-lg';
             }
 
             // Regular events - solid purple border
