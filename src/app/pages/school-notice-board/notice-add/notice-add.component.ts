@@ -1,13 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { EditorModule } from 'primeng/editor';
-import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
@@ -20,52 +18,35 @@ import { Attachment, CategoryType, Notice, Priority, Status, TargetType } from '
 @Component({
     selector: 'app-notice-add',
     standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        FormsModule,
-        SelectModule,
-        ButtonModule,
-        InputTextModule,
-        CalendarModule,
-        DialogModule,
-        EditorModule,
-        DatePickerModule,
-        FloatLabelModule,
-        PanelModule,
-        InputNumberModule,
-        SelectButtonModule,
-        CheckboxModule
-    ],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, SelectModule, ButtonModule, InputTextModule, DialogModule, EditorModule, DatePickerModule, PanelModule, InputNumberModule, SelectButtonModule, CheckboxModule],
     templateUrl: './notice-add.component.html',
     styles: ``
 })
-export class NoticeAddComponent implements OnInit {
+export class NoticeAddComponent implements OnInit, OnChanges {
     @Input() visible = false;
+    @Input() editMode = false;
+    @Input() noticeData: Notice | null = null;
+
     categoryOptions: any[] = [
         { label: 'General', value: 'GENERAL', icon: 'pi pi-bell', colorClass: 'bg-yellow-500' },
         { label: 'Time Table', value: 'TIMETABLE', icon: 'pi pi-calendar', colorClass: 'bg-blue-500' },
-        { label: 'Meeting', value: 'MEETING', icon: 'pi pi-trophy', colorClass: 'bg-emerald-500' },
-        { label: 'Attendance', value: 'ATTENDANCE', icon: 'pi pi-users', colorClass: 'bg-orange-500' },
+        { label: 'Meeting', value: 'MEETING', icon: 'pi pi-users', colorClass: 'bg-emerald-500' },
+        { label: 'Attendance', value: 'ATTENDANCE', icon: 'pi pi-check-circle', colorClass: 'bg-orange-500' },
         { label: 'Exam Announcement', value: 'EXAM_ANNOUNCEMENT', icon: 'pi pi-file-edit', colorClass: 'bg-red-500' },
         { label: 'Exam Result', value: 'EXAM_RESULT', icon: 'pi pi-trophy', colorClass: 'bg-green-500' },
         { label: 'Festival', value: 'FEST', icon: 'pi pi-heart', colorClass: 'bg-purple-500' },
-        { label: 'Holiday', value: 'HOLIDAY', icon: 'pi pi-exclamation-triangle', colorClass: 'bg-yellow-500' },
+        { label: 'Holiday', value: 'HOLIDAY', icon: 'pi pi-sun', colorClass: 'bg-amber-500' },
         { label: 'Appreciation', value: 'APPRECIATION', icon: 'pi pi-star', colorClass: 'bg-pink-500' },
-        { label: 'School Achievement', value: 'SCHOOL_ACHIEVEMENT', icon: 'pi pi-trophy', colorClass: 'bg-emerald-500' }
+        { label: 'School Achievement', value: 'SCHOOL_ACHIEVEMENT', icon: 'pi pi-trophy', colorClass: 'bg-teal-500' }
     ];
+
     @Input() priorityOptions: any[] = [];
     @Output() save = new EventEmitter<Notice>();
     @Output() cancel = new EventEmitter<void>();
 
-    // temp field for attachment URL input
-    attachmentsInput = '';
-
-    // options for target types (you can pass these from parent instead)
     targetTypeOptions = Object.values(TargetType).map((v) => ({ label: v, value: v }));
     examTypes = Object.entries(ExamTypeLabels).map(([value, label]) => ({ label, value }));
 
-    // From SchoolAchievementDetails
     schoolAchievementCategories = [
         { label: 'Academic', value: 'Academic' },
         { label: 'Infrastructure', value: 'Infrastructure' },
@@ -73,7 +54,6 @@ export class NoticeAddComponent implements OnInit {
         { label: 'Recognition', value: 'Recognition' }
     ];
 
-    // From MeetingDetails
     meetingTypes = [
         { label: 'Parent-Teacher Meeting', value: 'PTM' },
         { label: 'Individual', value: 'Individual' },
@@ -82,7 +62,6 @@ export class NoticeAddComponent implements OnInit {
         { label: 'Staff Meeting', value: 'Staff' }
     ];
 
-    // From HolidayDetails
     holidayTypes = [
         { label: 'Emergency', value: 'Emergency' },
         { label: 'Government', value: 'Government' },
@@ -91,7 +70,6 @@ export class NoticeAddComponent implements OnInit {
         { label: 'Festival', value: 'Festival' }
     ];
 
-    // From FestDetails
     festTypes = [
         { label: 'Cultural', value: 'Cultural' },
         { label: 'Sports', value: 'Sports' },
@@ -99,14 +77,12 @@ export class NoticeAddComponent implements OnInit {
         { label: 'Literary', value: 'Literary' }
     ];
 
-    // From AttendanceDetails
     attendanceTypes = [
         { label: 'Low Attendance', value: 'Low' },
         { label: 'Absent', value: 'Absent' },
         { label: 'Improvement Needed', value: 'Improvement' }
     ];
 
-    // From AppreciationDetails
     appreciationCategories = [
         { label: 'Academic', value: 'Academic' },
         { label: 'Sports', value: 'Sports' },
@@ -121,20 +97,27 @@ export class NoticeAddComponent implements OnInit {
         { label: 'National Level', value: 'National' }
     ];
 
+    weekDays = [
+        { label: 'Monday', value: 'MONDAY' },
+        { label: 'Tuesday', value: 'TUESDAY' },
+        { label: 'Wednesday', value: 'WEDNESDAY' },
+        { label: 'Thursday', value: 'THURSDAY' },
+        { label: 'Friday', value: 'FRIDAY' },
+        { label: 'Saturday', value: 'SATURDAY' },
+        { label: 'Sunday', value: 'SUNDAY' }
+    ];
+
     noticeForm!: FormGroup<{
         categoryType: FormControl<CategoryType | null>;
         title: FormControl<string | null>;
         content: FormControl<string | null>;
         priority: FormControl<Priority | null>;
-
         targetAudience: FormGroup<{
             type: FormControl<TargetType | null>;
-            targetIds: FormControl<string | null>; // comma separated in UI (parsed on submit)
+            targetIds: FormControl<string | null>;
             includeAll: FormControl<boolean | null>;
         }>;
-
         attachments: FormControl<Attachment[] | null>;
-
         timetable: FormGroup<{ effectiveDate: FormControl<string | null> }>;
         attendance: FormGroup<{
             attendancePercentage: FormControl<number | null>;
@@ -172,32 +155,31 @@ export class NoticeAddComponent implements OnInit {
             venue: FormControl<string | null>;
         }>;
         appreciation: FormGroup<{
-            recipientIds: FormControl<string | null>; // comma separated
+            recipientIds: FormControl<string | null>;
             achievementCategory: FormControl<string | null>;
             recognitionLevel: FormControl<string | null>;
         }>;
         schoolAchievement: FormGroup<{
             achievementCategory: FormControl<string | null>;
             achievementDate: FormControl<string | null>;
-            recipientIds: FormControl<string | null>; // comma separated
+            recipientIds: FormControl<string | null>;
         }>;
     }>;
-    commonService = inject(CommonService);
-    constructor(private fb: FormBuilder) {}
 
-    // Add this to your component class
-    weekDays = [
-        { label: 'Monday', value: 'MONDAY' },
-        { label: 'Tuesday', value: 'TUESDAY' },
-        { label: 'Wednesday', value: 'WEDNESDAY' },
-        { label: 'Thursday', value: 'THURSDAY' },
-        { label: 'Friday', value: 'FRIDAY' },
-        { label: 'Saturday', value: 'SATURDAY' },
-        { label: 'Sunday', value: 'SUNDAY' }
-    ];
+    commonService = inject(CommonService);
+
+    constructor(private fb: FormBuilder) {}
 
     ngOnInit(): void {
         this.initializeForm();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['noticeData'] && this.noticeData && this.editMode) {
+            this.populateForm(this.noticeData);
+        } else if (changes['visible'] && !this.visible) {
+            this.resetForm();
+        }
     }
 
     private initializeForm(): void {
@@ -266,27 +248,52 @@ export class NoticeAddComponent implements OnInit {
         });
     }
 
+    private populateForm(notice: Notice): void {
+        this.noticeForm.patchValue({
+            categoryType: notice.categoryType,
+            title: notice.title,
+            content: notice.content,
+            priority: notice.priority,
+            targetAudience: {
+                type: notice.targetAudience.type,
+                targetIds: notice.targetAudience.targetIds?.join(', '),
+                includeAll: notice.targetAudience.type === TargetType.ALL
+            },
+            attachments: notice.attachments || ([] as any),
+            timetable: notice.timetable || {},
+            attendance: notice.attendance || {},
+            examAnnouncement: notice.examAnnouncement || {},
+            examResult: notice.examResult || ({} as any),
+            holiday: notice.holiday || {},
+            meeting: notice.meeting || {},
+            fest: notice.fest || {},
+            appreciation: notice.appreciation
+                ? {
+                      ...notice.appreciation,
+                      recipientIds: notice.appreciation.recipientIds?.join(', ')
+                  }
+                : {},
+            schoolAchievement: notice.schoolAchievement
+                ? {
+                      ...notice.schoolAchievement,
+                      recipientIds: notice.schoolAchievement.recipientIds?.join(', ')
+                  }
+                : {}
+        });
+    }
+
     get categoryType(): CategoryType | null {
         return this.noticeForm.controls.categoryType.value ?? null;
     }
 
-    removeAttachment(index: number): void {
-        const current = this.noticeForm.controls.attachments.value ?? [];
-        current.splice(index, 1);
-        this.noticeForm.controls.attachments.setValue([...current]);
-    }
-
     private formatDate(date: any): string | null {
         if (!date) return null;
-
         try {
             const d = new Date(date);
             if (isNaN(d.getTime())) return null;
-
             const year = d.getFullYear();
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const day = String(d.getDate()).padStart(2, '0');
-
             return `${year}-${month}-${day}`;
         } catch {
             return null;
@@ -300,21 +307,19 @@ export class NoticeAddComponent implements OnInit {
         }
 
         const raw = this.noticeForm.getRawValue();
-
-        // parse targetIds & appreciation/schoolAchievement recipientIds from comma-separated strings
         const targetIds = this.parseCsv(raw.targetAudience.targetIds);
         const appreciationRecipientIds = this.parseCsv(raw.appreciation.recipientIds);
         const schoolAchievementRecipientIds = this.parseCsv(raw.schoolAchievement.recipientIds);
 
         const notice: Notice = {
-            id: null,
+            id: this.editMode && this.noticeData ? this.noticeData.id : null,
             academicYear: this.commonService.getUserInfo.academicYear,
             categoryType: raw.categoryType as CategoryType,
             title: raw.title ?? '',
             content: raw.content ?? '',
             priority: raw.priority as Priority,
             status: Status.PUBLISHED,
-            publishedAt: new Date().toISOString(),
+            publishedAt: this.editMode && this.noticeData ? this.noticeData.publishedAt : new Date().toISOString(),
             targetAudience: {
                 type: raw.targetAudience.type as TargetType,
                 targetIds: targetIds.length ? targetIds : ['all']
@@ -323,8 +328,8 @@ export class NoticeAddComponent implements OnInit {
             timetable: raw.timetable
         };
 
-        // Add conditional fields only if present
-        if (raw.attendance) {
+        // Add conditional fields
+        if (raw.attendance && Object.values(raw.attendance).some((v) => v !== null && v !== false)) {
             notice.attendance = {
                 attendancePercentage: raw.attendance.attendancePercentage,
                 attendanceType: raw.attendance.attendanceType as 'Low' | 'Absent' | 'Improvement',
@@ -332,7 +337,7 @@ export class NoticeAddComponent implements OnInit {
             };
         }
 
-        if (raw.examAnnouncement) {
+        if (raw.examAnnouncement && Object.values(raw.examAnnouncement).some((v) => v !== null)) {
             notice.examAnnouncement = {
                 examTitle: raw.examAnnouncement.examTitle,
                 examType: raw.examAnnouncement.examType,
@@ -341,7 +346,7 @@ export class NoticeAddComponent implements OnInit {
             };
         }
 
-        if (raw.examResult) {
+        if (raw.examResult && Object.values(raw.examResult).some((v) => v !== null)) {
             notice.examResult = {
                 examTitle: raw.examResult.examTitle,
                 examType: raw.examResult.examType,
@@ -349,7 +354,7 @@ export class NoticeAddComponent implements OnInit {
             };
         }
 
-        if (raw.holiday) {
+        if (raw.holiday && Object.values(raw.holiday).some((v) => v !== null)) {
             notice.holiday = {
                 holidayType: raw.holiday.holidayType as 'Emergency' | 'Government' | 'Weather',
                 holidayStartDate: this.formatDate(raw.holiday.holidayStartDate),
@@ -358,7 +363,7 @@ export class NoticeAddComponent implements OnInit {
             };
         }
 
-        if (raw.meeting) {
+        if (raw.meeting && Object.values(raw.meeting).some((v) => v !== null)) {
             notice.meeting = {
                 meetingType: raw.meeting.meetingType as 'PTM' | 'Individual' | 'Emergency' | 'Progress' | 'Staff',
                 meetingDate: this.formatDate(raw.meeting.meetingDate),
@@ -367,7 +372,7 @@ export class NoticeAddComponent implements OnInit {
             };
         }
 
-        if (raw.fest) {
+        if (raw.fest && Object.values(raw.fest).some((v) => v !== null)) {
             notice.fest = {
                 festName: raw.fest.festName,
                 festType: raw.fest.festType as 'Cultural' | 'Sports' | 'Science' | 'Literary',
@@ -377,7 +382,7 @@ export class NoticeAddComponent implements OnInit {
             };
         }
 
-        if (raw.appreciation) {
+        if (raw.appreciation && appreciationRecipientIds.length) {
             notice.appreciation = {
                 recipientIds: appreciationRecipientIds,
                 achievementCategory: raw.appreciation.achievementCategory as 'Academic' | 'Sports' | 'Cultural' | 'Social',
@@ -385,7 +390,7 @@ export class NoticeAddComponent implements OnInit {
             };
         }
 
-        if (raw.schoolAchievement) {
+        if (raw.schoolAchievement && schoolAchievementRecipientIds.length) {
             notice.schoolAchievement = {
                 recipientIds: schoolAchievementRecipientIds,
                 achievementCategory: raw.schoolAchievement.achievementCategory as 'Academic' | 'Infrastructure' | 'Awards' | 'Recognition',
@@ -394,23 +399,21 @@ export class NoticeAddComponent implements OnInit {
         }
 
         this.save.emit(notice);
-        this.resetAndClose();
+        this.resetForm();
     }
 
     close(): void {
         this.cancel.emit();
-        this.resetAndClose();
+        this.resetForm();
     }
 
-    private resetAndClose(): void {
+    private resetForm(): void {
         this.noticeForm.reset();
-        // restore defaults
+        this.noticeForm.controls.categoryType.setValue(CategoryType.GENERAL);
         this.noticeForm.controls.priority.setValue(Priority.MEDIUM);
         this.noticeForm.controls.targetAudience.controls.type.setValue(TargetType.ALL);
         this.noticeForm.controls.targetAudience.controls.includeAll.setValue(true);
         this.noticeForm.controls.attachments.setValue([]);
-        this.attachmentsInput = '';
-        this.visible = false;
     }
 
     private parseCsv(input: string | null | undefined): string[] {
@@ -420,20 +423,15 @@ export class NoticeAddComponent implements OnInit {
             .map((s) => s.trim())
             .filter((s) => s.length > 0);
     }
+
     onHolidayTypeChange(): void {
         const holidayType = this.noticeForm.controls.holiday.controls.holidayType.value;
         const holidayGroup = this.noticeForm.controls.holiday;
 
         if (holidayType === 'Week_off') {
-            // Clear date fields when switching to Week_off
             holidayGroup.controls.holidayStartDate.setValue(null);
             holidayGroup.controls.holidayEndDate.setValue(null);
-            // Set weekOffDay to Monday by default if not set
-            // if (!holidayGroup.controls.weekOffDay.value) {
-            //     holidayGroup.controls.weekOffDay.setValue('MONDAY');
-            // }
         } else {
-            // Clear weekOffDay when switching to other holiday types
             holidayGroup.controls.weekOffDay.setValue(null);
         }
     }

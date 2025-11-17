@@ -1,25 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
-import { BadgeModule } from 'primeng/badge';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { CarouselModule } from 'primeng/carousel';
-import { ChipModule } from 'primeng/chip';
+import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
-import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { PanelModule } from 'primeng/panel';
-import { RippleModule } from 'primeng/ripple';
-import { ScrollPanelModule } from 'primeng/scrollpanel';
-import { SkeletonModule } from 'primeng/skeleton';
-import { TabViewModule } from 'primeng/tabview';
+import { SelectModule } from 'primeng/select';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { CommonService } from '../../core/services/common.service';
 import { ApiLoaderService } from '../../core/services/loaderService';
 import { Notice } from '../models/notification.model';
 import { NotificationService } from '../service/notification.service';
@@ -28,31 +21,8 @@ import { NoticeAddComponent } from './notice-add/notice-add.component';
 @Component({
     selector: 'app-school-notice-board',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ButtonModule,
-        CardModule,
-        TabViewModule,
-        InputTextModule,
-        DropdownModule,
-        BadgeModule,
-        ChipModule,
-        ToastModule,
-        OverlayPanelModule,
-        ScrollPanelModule,
-        TagModule,
-        PanelModule,
-        DividerModule,
-        SkeletonModule,
-        TooltipModule,
-        RippleModule,
-        DialogModule,
-        CarouselModule,
-        NoticeAddComponent
-    ],
-    providers: [MessageService],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, SelectModule, TagModule, ToastModule, DialogModule, DatePickerModule, TableModule, TooltipModule, NoticeAddComponent],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './school-notice-board.component.html',
     styles: []
 })
@@ -61,41 +31,44 @@ export class SchoolNoticeBoardComponent implements OnInit {
     noticeForm!: FormGroup;
     isDarkMode = false;
     addDialogVisible = false;
+    deleteDialogVisible = false;
+    isEditMode = false;
+    selectedNotice: Notice | null = null;
+    noticeToDelete: Notice | null = null;
+
     notificationService = inject(NotificationService);
     loader = inject(ApiLoaderService);
+    commonService = inject(CommonService);
+
     notices: Notice[] = [];
+    totalRecords = 0;
+    loading = false;
 
-    apiCall() {
-        this.loader.show('Fetching Assignments');
-        this.notificationService.search().subscribe((result) => {
-            this.notices = result.content;
-            this.loader.hide();
-        });
-    }
+    // Pagination
+    pageSize = 10;
+    pageNumber = 0;
 
-    showAddDialog() {
-        this.addDialogVisible = true;
-    }
+    // Filters
+    searchText = '';
+    selectedPriority: string | null = null;
+    // dateRange: Date[] | null = null;
 
-    notifications = [
-        { id: 1, message: 'New timetable uploaded for Grade 10', type: 'timetable', time: '5 min ago' },
-        { id: 2, message: 'Attendance notification sent to parents', type: 'attendance', time: '15 min ago' },
-        { id: 3, message: 'Exam announcement published', type: 'exam', time: '1 hour ago' },
-        { id: 4, message: 'Cultural fest registration opened', type: 'fest', time: '2 hours ago' }
-    ];
+    // Sorting
+    sortField = 'publishedAt';
+    sortOrder = 'desc';
 
     categoryOptions = [
-        { label: 'All', value: 'ALL', icon: 'pi pi-th-large', colorClass: 'bg-gray-500' },
+        { label: 'All Categories', value: 'ALL', icon: 'pi pi-th-large', colorClass: 'bg-gray-500' },
         { label: 'General', value: 'GENERAL', icon: 'pi pi-bell', colorClass: 'bg-yellow-500' },
         { label: 'Time Table', value: 'TIMETABLE', icon: 'pi pi-calendar', colorClass: 'bg-blue-500' },
-        { label: 'Meeting', value: 'MEETING', icon: 'pi pi-trophy', colorClass: 'bg-emerald-500' },
-        { label: 'Attendance', value: 'ATTENDANCE', icon: 'pi pi-users', colorClass: 'bg-orange-500' },
+        { label: 'Meeting', value: 'MEETING', icon: 'pi pi-users', colorClass: 'bg-emerald-500' },
+        { label: 'Attendance', value: 'ATTENDANCE', icon: 'pi pi-check-circle', colorClass: 'bg-orange-500' },
         { label: 'Exam Announcement', value: 'EXAM_ANNOUNCEMENT', icon: 'pi pi-file-edit', colorClass: 'bg-red-500' },
         { label: 'Exam Result', value: 'EXAM_RESULT', icon: 'pi pi-trophy', colorClass: 'bg-green-500' },
         { label: 'Festival', value: 'FEST', icon: 'pi pi-heart', colorClass: 'bg-purple-500' },
-        { label: 'Holiday', value: 'HOLIDAY', icon: 'pi pi-exclamation-triangle', colorClass: 'bg-yellow-500' },
+        { label: 'Holiday', value: 'HOLIDAY', icon: 'pi pi-sun', colorClass: 'bg-amber-500' },
         { label: 'Appreciation', value: 'APPRECIATION', icon: 'pi pi-star', colorClass: 'bg-pink-500' },
-        { label: 'School Achievement', value: 'SCHOOL_ACHIEVEMENT', icon: 'pi pi-trophy', colorClass: 'bg-emerald-500' }
+        { label: 'School Achievement', value: 'SCHOOL_ACHIEVEMENT', icon: 'pi pi-trophy', colorClass: 'bg-teal-500' }
     ];
 
     priorityOptions = [
@@ -104,29 +77,21 @@ export class SchoolNoticeBoardComponent implements OnInit {
         { label: 'HIGH', value: 'HIGH', severity: 'danger' as const }
     ];
 
+    priorityFilterOptions = [
+        { label: 'All Priorities', value: null },
+        { label: 'High', value: 'HIGH' },
+        { label: 'Medium', value: 'MEDIUM' },
+        { label: 'Low', value: 'LOW' }
+    ];
+
     constructor(
         private fb: FormBuilder,
         private messageService: MessageService
     ) {
         this.initializeForm();
     }
-    @ViewChild('scrollContainer', { static: false }) scrollContainer!: ElementRef;
 
-    ngAfterViewInit() {
-        const el = this.scrollContainer.nativeElement;
-    }
-
-    scrollLeft() {
-        this.scrollContainer.nativeElement.scrollBy({ left: -200, behavior: 'smooth' });
-    }
-
-    scrollRight() {
-        this.scrollContainer.nativeElement.scrollBy({ left: 200, behavior: 'smooth' });
-    }
-    ngOnInit() {
-        this.checkTheme();
-        this.apiCall();
-    }
+    ngOnInit() {}
 
     initializeForm() {
         this.noticeForm = this.fb.group({
@@ -137,29 +102,169 @@ export class SchoolNoticeBoardComponent implements OnInit {
         });
     }
 
-    get filteredNotices() {
-        return this.selectedCategory === 'ALL' ? this.notices : this.notices.filter((notice) => notice.categoryType === this.selectedCategory);
+    onLazyLoad(event: TableLazyLoadEvent) {
+        this.pageNumber = (event.first ?? 0) / (event.rows ?? 10);
+        this.pageSize = event.rows ?? 10;
+        this.sortField = (event.sortField as string) || 'publishedAt';
+        this.sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
+
+        this.loadNotices();
     }
 
-    selectCategory(category: string) {
-        this.selectedCategory = category;
+    loadNotices() {
+        this.loading = true;
+        this.loader.show('Fetching notices...');
+
+        const filters: any = {
+            'branchId.like': this.commonService.getUserInfo.branchId
+        };
+
+        // Category filter
+        if (this.selectedCategory !== 'ALL') {
+            filters['categoryType.equals'] = this.selectedCategory;
+        }
+
+        // Priority filter
+        if (this.selectedPriority) {
+            filters['priority.equals'] = this.selectedPriority;
+        }
+
+        // Search filter
+        if (this.searchText.trim()) {
+            filters['title.contains'] = this.searchText.trim();
+        }
+
+        // // Date range filter
+        // if (this.dateRange && this.dateRange.length === 2 && this.dateRange[0] && this.dateRange[1]) {
+        //     filters['publishedAt.greaterThanOrEqual'] = this.formatDateForApi(this.dateRange[0]);
+        //     filters['publishedAt.lessThanOrEqual'] = this.formatDateForApi(this.dateRange[1]);
+        // }
+
+        const request = {
+            page: this.pageNumber,
+            size: this.pageSize,
+            sortBy: this.sortField,
+            sortDirection: this.sortOrder,
+            filters: filters
+        };
+
+        this.notificationService.search(request).subscribe({
+            next: (result) => {
+                this.notices = result.content;
+                this.totalRecords = result.totalElements;
+                this.loading = false;
+                this.loader.hide();
+            },
+            error: (error) => {
+                this.loading = false;
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to load notices',
+                    life: 3000
+                });
+            }
+        });
     }
 
-    selectNewNoticeCategory(category: string) {
-        this.noticeForm.patchValue({ categoryType: category });
+    onFilterChange() {
+        this.pageNumber = 0;
+        this.loadNotices();
     }
 
-    selectPriority(priority: string) {
-        this.noticeForm.patchValue({ priority });
+    clearFilters() {
+        this.searchText = '';
+        this.selectedPriority = null;
+        // this.dateRange = null;
+        this.selectedCategory = 'ALL';
+        this.onFilterChange();
     }
 
-    getNoticeCount(category: string): number {
-        return category === 'ALL' ? this.notices.length : this.notices.filter((n) => n.categoryType === category).length;
+    showAddDialog() {
+        this.isEditMode = false;
+        this.selectedNotice = null;
+        this.addDialogVisible = true;
     }
 
-    getSelectedCategoryName(): string {
-        const category = this.categoryOptions.find((cat) => cat.value === this.selectedCategory);
-        return category ? category.label : 'Unknown Category';
+    editNotice(notice: Notice) {
+        this.isEditMode = true;
+        this.selectedNotice = { ...notice };
+        this.addDialogVisible = true;
+    }
+
+    deleteNotice(notice: Notice) {
+        this.noticeToDelete = notice;
+        this.deleteDialogVisible = true;
+    }
+
+    confirmDelete() {
+        if (!this.noticeToDelete?.id) return;
+
+        this.loader.show('Deleting notice...');
+        // this.notificationService.delete(this.noticeToDelete.id).subscribe({
+        //     next: () => {
+        //         this.loader.hide();
+        //         this.messageService.add({
+        //             severity: 'success',
+        //             summary: 'Deleted',
+        //             detail: 'Notice deleted successfully',
+        //             life: 3000
+        //         });
+        //         this.deleteDialogVisible = false;
+        //         this.noticeToDelete = null;
+        //         this.loadNotices();
+        //     },
+        //     error: () => {
+        //         this.loader.hide();
+        //         this.messageService.add({
+        //             severity: 'error',
+        //             summary: 'Error',
+        //             detail: 'Failed to delete notice',
+        //             life: 3000
+        //         });
+        //     }
+        // });
+    }
+
+    saveNotice(formValue: any) {
+        this.loader.show(this.isEditMode ? 'Updating notice...' : 'Publishing notice...');
+        // this.isEditMode ? this.notificationService.update(this.selectedNotice!.id!, formValue) :
+        const request = this.notificationService.create(formValue);
+
+        request.subscribe({
+            next: () => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: `Notice ${this.isEditMode ? 'updated' : 'published'} successfully!`,
+                    life: 3000
+                });
+                this.closeDialog();
+                this.loadNotices();
+            },
+            error: () => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `Failed to ${this.isEditMode ? 'update' : 'publish'} notice`,
+                    life: 3000
+                });
+            }
+        });
+    }
+
+    closeDialog() {
+        this.addDialogVisible = false;
+        this.isEditMode = false;
+        this.selectedNotice = null;
+    }
+
+    getCategoryLabel(categoryType: string): string {
+        const category = this.categoryOptions.find((cat) => cat.value === categoryType);
+        return category ? category.label.replace('All Categories', categoryType) : categoryType;
     }
 
     getCategoryIcon(categoryType: string): string {
@@ -170,19 +275,6 @@ export class SchoolNoticeBoardComponent implements OnInit {
     getCategoryColorClass(categoryType: string): string {
         const category = this.categoryOptions.find((cat) => cat.value === categoryType);
         return category ? category.colorClass : 'bg-gray-500';
-    }
-
-    getPriorityBorderClass(priority: string): string {
-        switch (priority) {
-            case 'HIGH':
-                return 'priority-high';
-            case 'MEDIUM':
-                return 'priority-medium';
-            case 'LOW':
-                return 'priority-low';
-            default:
-                return '';
-        }
     }
 
     getPrioritySeverity(priority: string): 'success' | 'info' | 'warn' | 'danger' {
@@ -198,56 +290,30 @@ export class SchoolNoticeBoardComponent implements OnInit {
         }
     }
 
-    createNotice(formValue: any) {
-        // let newNotice: Notice = {
-        //     id: this.generateId(),
-        //     academicYear: '2025-2026',
-        //     status: 'PUBLISHED',
-        //     attachments: [],
-        //     createdAt: new Date().toISOString(),
-        //     publishedAt: new Date().toISOString(),
-        //     ...formValue // include category-specific details
-        // };
-
-        this.loader.show('New notice publishing');
-        this.notificationService.create(formValue).subscribe((res) => {
-            this.loader.hide();
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Notice published successfully!',
-                life: 3000
-            });
-            this.addDialogVisible = false;
-            this.apiCall();
+    formatDate(dateString: string | null | undefined): string {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
         });
     }
 
-    resetForm() {
-        this.noticeForm.reset();
-        this.noticeForm.patchValue({ priority: 'MEDIUM' });
+    formatTime(dateString: string | null | undefined): string {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
     }
 
-    toggleTheme() {
-        this.isDarkMode = !this.isDarkMode;
-        document.documentElement.classList.toggle('dark', this.isDarkMode);
-        localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
+    formatDateForApi(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
-
-    checkTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-        this.isDarkMode = savedTheme === 'dark' || (!savedTheme && prefersDark);
-        document.documentElement.classList.toggle('dark', this.isDarkMode);
-    }
-
-    // private generateId(): string {
-    //     return Math.random().toString(36).substr(2, 9);
-    // }
-
-    // private getCategoryLabel(categoryType: string): string {
-    //     const category = this.categoryOptions.find((cat) => cat.value === categoryType);
-    //     return category ? category.label : categoryType;
-    // }
 }

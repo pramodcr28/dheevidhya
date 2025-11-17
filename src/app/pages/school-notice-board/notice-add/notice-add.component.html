@@ -1,202 +1,462 @@
-<p-dialog header="Create New Notice" [(visible)]="visible" [modal]="true" [style]="{ width: '90vw', height: '90vh' }" [breakpoints]="{ '960px': '95vw' }" (onHide)="close()" class="rounded-2xl">
-    <form [formGroup]="noticeForm" (ngSubmit)="submit()" class="flex flex-col h-full overflow-hidden">
-        <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto pr-2">
-            <!-- LEFT SIDE -->
-            <div class="col-span-1 space-y-6">
-                <!-- General Info -->
-                <p-panel header="General Information" [toggleable]="true" class="rounded-xl shadow">
-                    <div class="flex flex-wrap gap-4">
-                        <!-- Title - 60% -->
-                        <div class="flex-1 min-w-[60%]">
-                            <label for="title">Title</label>
-                            <input pInputText id="title" formControlName="title" class="w-full mt-2" />
-                        </div>
-
-                        <!-- Priority - 40% -->
-                        <div class="flex-1 min-w-[35%]">
-                            <label class="block text-sm font-semibold mb-2 text-gray-700">Priority</label>
-                            <p-selectButton [options]="priorityOptions" formControlName="priority" optionLabel="label" optionValue="value" [multiple]="false" class="w-full"></p-selectButton>
-                        </div>
-                    </div>
-                </p-panel>
-
-                <!-- Dynamic Fields -->
-                <p-panel header="Category" [toggleable]="true" class="rounded-xl shadow">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <p-select [options]="categoryOptions" optionLabel="label" optionValue="value" formControlName="categoryType" placeholder="Select category" class="w-full"> </p-select>
-                    </div>
-                    <ng-container [ngSwitch]="categoryType">
-                        <!-- Timetable -->
-                        <div *ngSwitchCase="'TIMETABLE'" [formGroup]="noticeForm.controls.timetable" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <p-date-picker formControlName="effectiveDate" dateFormat="yy-mm-dd" showIcon placeholder="Effective Date" class="w-full"></p-date-picker>
-                        </div>
-
-                        <!-- Attendance -->
-                        <div *ngSwitchCase="'ATTENDANCE'" [formGroup]="noticeForm.controls.attendance" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <p-inputNumber formControlName="attendancePercentage" mode="decimal" placeholder="Attendance %" class="w-full"></p-inputNumber>
-
-                            <!-- Attendance Type as select -->
-                            <div>
-                                <label class="block text-sm font-semibold mb-1 text-gray-700">Attendance Type</label>
-                                <p-select [options]="attendanceTypes" formControlName="attendanceType" optionLabel="label" optionValue="value" placeholder="Select Type" class="w-full"> </p-select>
-                            </div>
-
-                            <div class="col-span-2">
-                                <p-checkbox formControlName="parentMeetingRequired" [binary]="true" inputId="parentMeetingRequired" />
-                                <label for="parentMeetingRequired" class="ml-2">Parent meeting required</label>
-                            </div>
-                        </div>
-
-                        <!-- Exam Announcement -->
-                        <div *ngSwitchCase="'EXAM_ANNOUNCEMENT'" [formGroup]="noticeForm.controls.examAnnouncement" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <p-floatlabel>
-                                <input pInputText id="examTitle" formControlName="examTitle" class="w-full" />
-                                <label for="examTitle">Exam Title</label>
-                            </p-floatlabel>
-                            <div>
-                                <!-- <label class="block font-semibold mb-1">Exam Type</label> -->
-                                <p-select [options]="examTypes" optionValue="value" formControlName="examType" placeholder="Select Exam Type" class="w-full"> </p-select>
-                            </div>
-
-                            <p-datepicker formControlName="examStartDate" dateFormat="yy-mm-dd" showIcon placeholder="Start Date" class="w-full"></p-datepicker>
-                            <p-datepicker formControlName="examEndDate" dateFormat="yy-mm-dd" showIcon placeholder="End Date" class="w-full"></p-datepicker>
-                        </div>
-
-                        <!-- Exam Result -->
-                        <div *ngSwitchCase="'EXAM_RESULT'" [formGroup]="noticeForm.controls.examResult" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- <p-floatlabel>
-                                <input pInputText id="examTitle" formControlName="examTitle" class="w-full" />
-                                <label for="examTitle">Exam Title</label>
-                            </p-floatlabel> -->
-                            <div>
-                                <!-- <label class="block font-semibold mb-1">Exam Type</label> -->
-                                <p-select [options]="examTypes" optionValue="value" formControlName="examType" placeholder="Select Exam Type" class="w-full"> </p-select>
-                            </div>
-                            <p-datepicker formControlName="resultDeclarationDate" dateFormat="yy-mm-dd" showIcon placeholder="Publish Date" class="w-full"></p-datepicker>
-                        </div>
-
-                        <div *ngSwitchCase="'HOLIDAY'" [formGroup]="noticeForm.controls.holiday" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <p-select [options]="holidayTypes" formControlName="holidayType" optionLabel="label" optionValue="value" placeholder="Select Holiday Type" class="w-full" (onChange)="onHolidayTypeChange()"> </p-select>
-
-                            <!-- Week Off Day Selection (only show when holidayType is Week_off) -->
-                            <div *ngIf="noticeForm.controls.holiday.controls.holidayType.value === 'Week_off'">
-                                <p-select [options]="weekDays" formControlName="weekOffDay" optionLabel="label" optionValue="value" placeholder="Select Day" class="w-full"> </p-select>
-                            </div>
-
-                            <!-- Date Range (show for all other holiday types except Week_off) -->
-                            <div *ngIf="noticeForm.controls.holiday.controls.holidayType.value !== 'Week_off'" class="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <p-datepicker formControlName="holidayStartDate"  dateFormat="yy-mm-dd" showIcon placeholder="Holiday Start" class="w-full"> </p-datepicker>
-                                <p-datepicker formControlName="holidayEndDate" dateFormat="yy-mm-dd" showIcon placeholder="Holiday End" class="w-full"> </p-datepicker>
-                            </div>
-                        </div>
-
-                        <div *ngSwitchCase="'MEETING'" [formGroup]="noticeForm.controls.meeting" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <p-select [options]="meetingTypes" formControlName="meetingType" placeholder="Select Meeting Type" class="w-full"> </p-select>
-                            </div>
-                            <p-datepicker formControlName="meetingDate" dateFormat="yy-mm-dd" showIcon placeholder="Meeting Date" class="w-full"> </p-datepicker>
-
-                            <p-datepicker formControlName="meetingTime" timeOnly="true" hourFormat="24" placeholder="Select Time" class="w-full"> </p-datepicker>
-
-                            <p-floatlabel>
-                                <input pInputText id="venue" formControlName="venue" class="w-full" />
-                                <label for="venue">Venue</label>
-                            </p-floatlabel>
-                        </div>
-
-                        <div *ngSwitchCase="'APPRECIATION'" [formGroup]="noticeForm.controls.appreciation" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Recipient IDs -->
-                            <div class="md:col-span-2">
-                                <p-floatlabel>
-                                    <input pInputText id="recipientIds" formControlName="recipientIds" class="w-full" />
-                                    <label for="recipientIds">Recipient IDs (comma separated)</label>
-                                </p-floatlabel>
-                            </div>
-
-                            <!-- Achievement Category -->
-                            <div>
-                                <label class="block text-sm font-semibold mb-1 text-gray-700">Achievement Category</label>
-                                <p-select [options]="appreciationCategories" formControlName="achievementCategory" optionLabel="label" optionValue="value" placeholder="Select Category" class="w-full"> </p-select>
-                            </div>
-
-                            <!-- Recognition Level -->
-                            <div>
-                                <label class="block text-sm font-semibold mb-1 text-gray-700">Recognition Level</label>
-                                <p-select [options]="recognitionLevels" formControlName="recognitionLevel" optionLabel="label" optionValue="value" placeholder="Select Level" class="w-full"> </p-select>
-                            </div>
-                        </div>
-                        <!-- School Achievement -->
-                        <div *ngSwitchCase="'SCHOOL_ACHIEVEMENT'" [formGroup]="noticeForm.controls.schoolAchievement" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Achievement Category -->
-                            <div>
-                                <label class="block text-sm font-semibold mb-1 text-gray-700">Achievement Category</label>
-                                <p-select [options]="schoolAchievementCategories" formControlName="achievementCategory" optionLabel="label" optionValue="value" placeholder="Select Category" class="w-full"> </p-select>
-                            </div>
-
-                            <!-- Achievement Date -->
-                            <div>
-                                <label class="block text-sm font-semibold mb-1 text-gray-700">Achievement Date</label>
-                                <p-datepicker formControlName="achievementDate" dateFormat="yy-mm-dd" showIcon placeholder="Achievement Date" class="w-full"> </p-datepicker>
-                            </div>
-
-                            <!-- Recipient IDs -->
-                            <div class="md:col-span-2">
-                                <p-floatlabel>
-                                    <input pInputText id="recipientIds" formControlName="recipientIds" class="w-full" />
-                                    <label for="recipientIds">Recipient IDs (comma separated)</label>
-                                </p-floatlabel>
-                            </div>
-                        </div>
-
-                        <!-- Fest -->
-                        <div *ngSwitchCase="'FEST'" [formGroup]="noticeForm.controls.fest" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <p-floatlabel>
-                                <input pInputText id="festName" formControlName="festName" class="w-full" />
-                                <label for="festName">Fest Name</label>
-                            </p-floatlabel>
-
-                            <p-select [options]="festTypes" formControlName="festType" optionLabel="label" optionValue="value" placeholder="Select Fest Type" class="w-full"> </p-select>
-
-                            <p-datepicker formControlName="eventStartDate" dateFormat="yy-mm-dd" showIcon placeholder="Event Start Date" class="w-full"></p-datepicker>
-                            <p-datepicker formControlName="eventEndDate" dateFormat="yy-mm-dd" showIcon placeholder="Event End Date" class="w-full"></p-datepicker>
-
-                            <p-floatlabel>
-                                <input pInputText id="venue" formControlName="venue" class="w-full" />
-                                <label for="venue">Venue</label>
-                            </p-floatlabel>
-                        </div>
-                    </ng-container>
-                </p-panel>
-                <!-- Category & Target Audience -->
-                <p-panel header="Audience" [toggleable]="true" class="rounded-xl shadow">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" formGroupName="targetAudience">
-                        <!-- Audience Type -->
-                        <div>
-                            <p-select [options]="targetTypeOptions" optionLabel="label" optionValue="value" formControlName="type" placeholder="Select audience type" class="w-full"> </p-select>
-                        </div>
-
-                        <!-- Target IDs (only if type ≠ ALL) -->
-                        <div *ngIf="noticeForm.get('targetAudience.type')?.value !== 'ALL'">
-                            <p-floatlabel>
-                                <input pInputText id="targetIds" formControlName="targetIds" class="w-full" />
-                                <label for="targetIds">Target Ids</label>
-                            </p-floatlabel>
-                        </div>
-                    </div>
-                </p-panel>
+<p-dialog 
+  [header]="editMode ? 'Edit Notice' : 'Create New Notice'" 
+  [(visible)]="visible" 
+  [modal]="true" 
+  [style]="{ width: '90vw', maxHeight: '90vh' }" 
+  [breakpoints]="{ '960px': '95vw' }" 
+  (onHide)="close()" 
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="rounded-2xl">
+  
+  <form [formGroup]="noticeForm" (ngSubmit)="submit()" class="flex flex-col h-full">
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-y-auto pr-2" style="max-height: calc(90vh - 150px);">
+      
+      <!-- LEFT SIDE -->
+      <div class="space-y-4">
+        
+        <!-- General Info -->
+        <p-panel header="General Information" [toggleable]="false" styleClass="rounded-xl">
+          <div class="space-y-4">
+            <!-- Title -->
+            <div>
+              <label for="title" class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Title <span class="text-red-500">*</span>
+              </label>
+              <input 
+                pInputText 
+                id="title" 
+                formControlName="title" 
+                placeholder="Enter notice title"
+                class="w-full" />
+              <small class="text-red-500" *ngIf="noticeForm.controls.title.invalid && noticeForm.controls.title.touched">
+                Title is required (min 5 characters)
+              </small>
             </div>
 
-            <!-- RIGHT SIDE -->
-            <div class="col-span-1">
-                <p-panel header="Notice Content" class="rounded-xl shadow">
-                    <p-editor formControlName="content" [style]="{ height: 'calc(90vh - 200px)' }" placeholder="Write notice content..." class="w-full"> </p-editor>
-                </p-panel>
-                <!-- Footer -->
-                <div class="flex justify-end gap-3 p-4 pb-0 bg-white border-t border-gray-200 sticky bottom-0">
-                    <p-button label="Cancel" icon="pi pi-times" severity="secondary" (click)="close()" class="rounded-lg"> </p-button>
-                    <p-button label="Publish" icon="pi pi-send" type="submit" [disabled]="!noticeForm.valid"> </p-button>
+            <!-- Priority -->
+            <div>
+              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Priority <span class="text-red-500">*</span>
+              </label>
+              <p-selectButton 
+                [options]="priorityOptions" 
+                formControlName="priority" 
+                optionLabel="label" 
+                optionValue="value" 
+                [multiple]="false"
+                styleClass="w-full">
+              </p-selectButton>
+            </div>
+          </div>
+        </p-panel>
+
+        <!-- Category -->
+        <p-panel header="Category Details" [toggleable]="false" styleClass="rounded-xl">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Category <span class="text-red-500">*</span>
+              </label>
+              <p-select 
+                [options]="categoryOptions" 
+                optionLabel="label" 
+                optionValue="value" 
+                formControlName="categoryType" 
+                placeholder="Select category" 
+                class="w-full">
+                <ng-template let-option pTemplate="item">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs" [ngClass]="option.colorClass">
+                      <i [class]="option.icon"></i>
+                    </div>
+                    <span>{{option.label}}</span>
+                  </div>
+                </ng-template>
+              </p-select>
+            </div>
+
+            <!-- Dynamic Category Fields -->
+            <ng-container [ngSwitch]="categoryType">
+              
+              <!-- Timetable -->
+              <div *ngSwitchCase="'TIMETABLE'" [formGroup]="noticeForm.controls.timetable">
+                <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Effective Date</label>
+                <p-datepicker 
+                  formControlName="effectiveDate" 
+                  dateFormat="yy-mm-dd" 
+                  [showIcon]="true"
+                  placeholder="Select effective date" 
+                  class="w-full">
+                </p-datepicker>
+              </div>
+
+              <!-- Attendance -->
+              <div *ngSwitchCase="'ATTENDANCE'" [formGroup]="noticeForm.controls.attendance" class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Attendance %</label>
+                    <p-inputNumber 
+                      formControlName="attendancePercentage" 
+                      [min]="0" 
+                      [max]="100"
+                      placeholder="%" 
+                      class="w-full">
+                    </p-inputNumber>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Type</label>
+                    <p-select 
+                      [options]="attendanceTypes" 
+                      formControlName="attendanceType" 
+                      optionLabel="label" 
+                      optionValue="value" 
+                      placeholder="Select Type" 
+                      class="w-full">
+                    </p-select>
+                  </div>
                 </div>
+                <div class="flex items-center gap-2">
+                  <p-checkbox 
+                    formControlName="parentMeetingRequired" 
+                    [binary]="true" 
+                    inputId="parentMeetingRequired" />
+                  <label for="parentMeetingRequired" class="text-sm text-gray-700 dark:text-gray-300">
+                    Parent meeting required
+                  </label>
+                </div>
+              </div>
+
+              <!-- Exam Announcement -->
+              <div *ngSwitchCase="'EXAM_ANNOUNCEMENT'" [formGroup]="noticeForm.controls.examAnnouncement" class="space-y-3">
+                <div>
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Exam Title</label>
+                  <input pInputText formControlName="examTitle" placeholder="Enter exam title" class="w-full" />
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Exam Type</label>
+                  <p-select 
+                    [options]="examTypes" 
+                    formControlName="examType" 
+                    placeholder="Select Exam Type" 
+                    class="w-full">
+                  </p-select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Start Date</label>
+                    <p-datepicker 
+                      formControlName="examStartDate" 
+                      dateFormat="yy-mm-dd" 
+                      [showIcon]="true"
+                      placeholder="Start Date" 
+                      class="w-full">
+                    </p-datepicker>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">End Date</label>
+                    <p-datepicker 
+                      formControlName="examEndDate" 
+                      dateFormat="yy-mm-dd" 
+                      [showIcon]="true"
+                      placeholder="End Date" 
+                      class="w-full">
+                    </p-datepicker>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Exam Result -->
+              <div *ngSwitchCase="'EXAM_RESULT'" [formGroup]="noticeForm.controls.examResult" class="space-y-3">
+                <div>
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Exam Type</label>
+                  <p-select 
+                    [options]="examTypes" 
+                    formControlName="examType" 
+                    placeholder="Select Exam Type" 
+                    class="w-full">
+                  </p-select>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Result Declaration Date</label>
+                  <p-datepicker 
+                    formControlName="resultDeclarationDate" 
+                    dateFormat="yy-mm-dd" 
+                    [showIcon]="true"
+                    placeholder="Publish Date" 
+                    class="w-full">
+                  </p-datepicker>
+                </div>
+              </div>
+
+              <!-- Holiday -->
+              <div *ngSwitchCase="'HOLIDAY'" [formGroup]="noticeForm.controls.holiday" class="space-y-3">
+                <div>
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Holiday Type</label>
+                  <p-select 
+                    [options]="holidayTypes" 
+                    formControlName="holidayType" 
+                    optionLabel="label" 
+                    optionValue="value" 
+                    placeholder="Select Holiday Type" 
+                    (onChange)="onHolidayTypeChange()"
+                    class="w-full">
+                  </p-select>
+                </div>
+                
+                <div *ngIf="noticeForm.controls.holiday.controls.holidayType.value === 'Week_off'">
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Week Off Day</label>
+                  <p-select 
+                    [options]="weekDays" 
+                    formControlName="weekOffDay" 
+                    optionLabel="label" 
+                    optionValue="value" 
+                    placeholder="Select Day" 
+                    class="w-full">
+                  </p-select>
+                </div>
+
+                <div *ngIf="noticeForm.controls.holiday.controls.holidayType.value !== 'Week_off'" class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Start Date</label>
+                    <p-datepicker 
+                      formControlName="holidayStartDate" 
+                      dateFormat="yy-mm-dd" 
+                      [showIcon]="true"
+                      placeholder="Holiday Start" 
+                      class="w-full">
+                    </p-datepicker>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">End Date</label>
+                    <p-datepicker 
+                      formControlName="holidayEndDate" 
+                      dateFormat="yy-mm-dd" 
+                      [showIcon]="true"
+                      placeholder="Holiday End" 
+                      class="w-full">
+                    </p-datepicker>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Meeting -->
+              <div *ngSwitchCase="'MEETING'" [formGroup]="noticeForm.controls.meeting" class="space-y-3">
+                <div>
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Meeting Type</label>
+                  <p-select 
+                    [options]="meetingTypes" 
+                    formControlName="meetingType" 
+                    placeholder="Select Meeting Type" 
+                    class="w-full">
+                  </p-select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Meeting Date</label>
+                    <p-datepicker 
+                      formControlName="meetingDate" 
+                      dateFormat="yy-mm-dd" 
+                      [showIcon]="true"
+                      placeholder="Date" 
+                      class="w-full">
+                    </p-datepicker>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Meeting Time</label>
+                    <p-datepicker 
+                      formControlName="meetingTime" 
+                      [timeOnly]="true"
+                      placeholder="Time" 
+                      class="w-full">
+                    </p-datepicker>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Venue</label>
+                  <input pInputText formControlName="venue" placeholder="Enter venue" class="w-full" />
+                </div>
+              </div>
+
+              <!-- Appreciation -->
+              <div *ngSwitchCase="'APPRECIATION'" [formGroup]="noticeForm.controls.appreciation" class="space-y-3">
+                <div>
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Recipient IDs</label>
+                  <input 
+                    pInputText 
+                    formControlName="recipientIds" 
+                    placeholder="Comma separated IDs" 
+                    class="w-full" />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Achievement Category</label>
+                    <p-select 
+                      [options]="appreciationCategories" 
+                      formControlName="achievementCategory" 
+                      optionLabel="label" 
+                      optionValue="value" 
+                      placeholder="Select Category" 
+                      class="w-full">
+                    </p-select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Recognition Level</label>
+                    <p-select 
+                      [options]="recognitionLevels" 
+                      formControlName="recognitionLevel" 
+                      optionLabel="label" 
+                      optionValue="value" 
+                      placeholder="Select Level" 
+                      class="w-full">
+                    </p-select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- School Achievement -->
+              <div *ngSwitchCase="'SCHOOL_ACHIEVEMENT'" [formGroup]="noticeForm.controls.schoolAchievement" class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Achievement Category</label>
+                    <p-select 
+                      [options]="schoolAchievementCategories" 
+                      formControlName="achievementCategory" 
+                      optionLabel="label" 
+                      optionValue="value" 
+                      placeholder="Select Category" 
+                      class="w-full">
+                    </p-select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Achievement Date</label>
+                    <p-datepicker 
+                      formControlName="achievementDate" 
+                      dateFormat="yy-mm-dd" 
+                      [showIcon]="true"
+                      placeholder="Date" 
+                      class="w-full">
+                    </p-datepicker>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Recipient IDs</label>
+                  <input 
+                    pInputText 
+                    formControlName="recipientIds" 
+                    placeholder="Comma separated IDs" 
+                    class="w-full" />
+                </div>
+              </div>
+
+              <!-- Fest -->
+              <div *ngSwitchCase="'FEST'" [formGroup]="noticeForm.controls.fest" class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Fest Name</label>
+                    <input pInputText formControlName="festName" placeholder="Fest name" class="w-full" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Fest Type</label>
+                    <p-select 
+                      [options]="festTypes" 
+                      formControlName="festType" 
+                      optionLabel="label" 
+                      optionValue="value" 
+                      placeholder="Select Type" 
+                      class="w-full">
+                    </p-select>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Start Date</label>
+                    <p-datepicker 
+                      formControlName="eventStartDate" 
+                      dateFormat="yy-mm-dd" 
+                      [showIcon]="true"
+                      placeholder="Start Date" 
+                      class="w-full">
+                    </p-datepicker>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">End Date</label>
+                    <p-datepicker 
+                      formControlName="eventEndDate" 
+                      dateFormat="yy-mm-dd" 
+                      [showIcon]="true"
+                      placeholder="End Date" 
+                      class="w-full">
+                    </p-datepicker>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Venue</label>
+                  <input pInputText formControlName="venue" placeholder="Enter venue" class="w-full" />
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </p-panel>
+
+        <!-- Audience -->
+        <p-panel header="Target Audience" [toggleable]="false" styleClass="rounded-xl">
+          <div formGroupName="targetAudience" class="space-y-3">
+            <div>
+              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Audience Type <span class="text-red-500">*</span>
+              </label>
+              <p-select 
+                [options]="targetTypeOptions" 
+                optionLabel="label" 
+                optionValue="value" 
+                formControlName="type" 
+                placeholder="Select audience type" 
+                class="w-full">
+              </p-select>
             </div>
-        </div>
-    </form>
+            
+            <div *ngIf="noticeForm.get('targetAudience.type')?.value !== 'ALL'">
+              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Target IDs</label>
+              <input 
+                pInputText 
+                formControlName="targetIds" 
+                placeholder="Comma separated IDs"
+                class="w-full" />
+            </div>
+          </div>
+        </p-panel>
+      </div>
+
+      <!-- RIGHT SIDE - Content Editor -->
+      <div>
+        <p-panel header="Notice Content" [toggleable]="false" styleClass="rounded-xl h-full">
+          <p-editor 
+            formControlName="content" 
+            [style]="{ height: '500px' }" 
+            placeholder="Write notice content here..."
+            class="w-full">
+          </p-editor>
+        </p-panel>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+      <p-button 
+        label="Cancel" 
+        icon="pi pi-times" 
+        severity="secondary"
+        [outlined]="true"
+        type="button"
+        (click)="close()">
+      </p-button>
+      <p-button 
+        [label]="editMode ? 'Update' : 'Publish'" 
+        [icon]="editMode ? 'pi pi-check' : 'pi pi-send'" 
+        type="submit" 
+        [disabled]="!noticeForm.valid">
+      </p-button>
+    </div>
+  </form>
 </p-dialog>

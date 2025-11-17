@@ -15,16 +15,8 @@ export class NotificationService {
     protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ACADEMICS_BASE_URL + 'api/notices');
     protected studentService = inject(UserService);
 
-    search<T>(page: number = 0, size: number = 100, sortBy: string = 'id', sortDirection: string = 'ASC', filters: any = {}): Observable<any> {
-        const searchRequest = {
-            page: page,
-            size: size,
-            sortBy: sortBy,
-            sortDirection: sortDirection,
-            filters: filters
-        };
-
-        return this.http.post<any>(`${this.resourceUrl}/search`, searchRequest);
+    search<T>(request: any): Observable<any> {
+        return this.http.post<any>(`${this.resourceUrl}/search`, request);
     }
 
     create(attendence: Notice) {

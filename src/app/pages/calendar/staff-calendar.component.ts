@@ -238,20 +238,24 @@ export class StaffAttendanceComponent implements OnInit {
             .subscribe({
                 next: (response) => {
                     this.attendanceHistory = response.content;
-
-                    this.notificationService
-                        .search(0, 100, 'id', 'ASC', {
+                    const request = {
+                        page: 0,
+                        size: 100,
+                        sortBy: 'id',
+                        sortDirection: 'desc',
+                        filters: {
                             'categoryType.equals': 'HOLIDAY',
                             'branchId.like': this.userInfo?.branchId
-                        })
-                        .subscribe((result) => {
-                            this.events = result.content;
-                            this.generateCalendar();
-                            this.calculateMonthStats();
-                            this.updateChart();
-                            this.loading = false;
-                            this.checkTodayEvents();
-                        });
+                        }
+                    };
+                    this.notificationService.search(request).subscribe((result) => {
+                        this.events = result.content;
+                        this.generateCalendar();
+                        this.calculateMonthStats();
+                        this.updateChart();
+                        this.loading = false;
+                        this.checkTodayEvents();
+                    });
                 },
                 error: () => {
                     this.loading = false;
