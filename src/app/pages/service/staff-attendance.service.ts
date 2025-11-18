@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { StaffAttendance, StaffAttendanceReport } from '../models/staff-attendence.mdel';
+import { StaffAttendance } from '../models/staff-attendence.mdel';
 export interface SearchRequest {
     filters?: {
         [key: string]: any;
@@ -61,44 +61,44 @@ export class StaffAttendanceService {
     }
 
     // Generate attendance report
-    generateReport(request: SearchRequest): Observable<PageResponse<StaffAttendanceReport>> {
-        return this.http.post<PageResponse<StaffAttendanceReport>>(`${this.apiUrl}/report`, request, this.httpOptions);
-    }
+    // generateReport(request: SearchRequest): Observable<PageResponse<StaffAttendanceReport>> {
+    //     return this.http.post<PageResponse<StaffAttendanceReport>>(`${this.apiUrl}/report`, request, this.httpOptions);
+    // }
 
     // Get staff attendance for specific date range
-    getStaffAttendanceByDateRange(request: SearchRequest): Observable<PageResponse<StaffAttendance>> {
-        return this.searchAttendance(request);
-    }
+    // getStaffAttendanceByDateRange(request: SearchRequest): Observable<PageResponse<StaffAttendance>> {
+    //     return this.searchAttendance(request);
+    // }
 
     // Get today's attendance for all staff
-    getTodayAttendance(): Observable<PageResponse<StaffAttendance>> {
-        const today = new Date().toISOString().split('T')[0];
-        const request: SearchRequest = {
-            filters: {
-                attendanceDateRange: [today, today]
-            },
-            page: 0,
-            size: 1000
-        };
-        return this.searchAttendance(request);
-    }
+    // getTodayAttendance(): Observable<PageResponse<StaffAttendance>> {
+    //     const today = new Date().toISOString().split('T')[0];
+    //     const request: SearchRequest = {
+    //         filters: {
+    //             attendanceDateRange: [today, today]
+    //         },
+    //         page: 0,
+    //         size: 1000
+    //     };
+    //     return this.searchAttendance(request);
+    // }
 
     // Get monthly stats for a staff member
-    getMonthlyStats(staffId: string): Observable<PageResponse<StaffAttendance>> {
-        const startOfMonth = new Date();
-        startOfMonth.setDate(1);
-        const today = new Date();
+    // getMonthlyStats(staffId: string): Observable<PageResponse<StaffAttendance>> {
+    //     const startOfMonth = new Date();
+    //     startOfMonth.setDate(1);
+    //     const today = new Date();
 
-        const request: SearchRequest = {
-            filters: {
-                staffId,
-                attendanceDateRange: [startOfMonth.toISOString().split('T')[0], today.toISOString().split('T')[0]]
-            },
-            page: 0,
-            size: 100
-        };
-        return this.searchAttendance(request);
-    }
+    //     const request: SearchRequest = {
+    //         filters: {
+    //             staffId,
+    //             attendanceDateRange: [startOfMonth.toISOString().split('T')[0], today.toISOString().split('T')[0]]
+    //         },
+    //         page: 0,
+    //         size: 100
+    //     };
+    //     return this.searchAttendance(request);
+    // }
 
     // Export attendance data to CSV
     exportToCSV(data: any[], filename: string): void {

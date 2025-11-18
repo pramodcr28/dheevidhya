@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
@@ -17,7 +18,10 @@ import { TableModule } from 'primeng/table';
 import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
-import { AttendanceLog, Department, StaffAttendanceReport } from '../models/staff-attendence.mdel';
+import { CommonService } from '../../core/services/common.service';
+import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
+import { getAssociatedDepartments } from '../../core/store/user-profile/user-profile.selectors';
+import { StaffAttendance, StaffAttendanceReport } from '../models/staff-attendence.mdel';
 import { StaffAttendanceService } from '../service/staff-attendance.service';
 
 @Component({
@@ -48,25 +52,28 @@ import { StaffAttendanceService } from '../service/staff-attendance.service';
 export class StaffAttendanceManagementComponent implements OnInit {
     activeTab = 0;
     loadingLogs = false;
-    loadingReport = false;
-    searchQuery = '';
+    // loadingReport = false;
+    // searchQuery = '';
 
     staffAttendanceService = inject(StaffAttendanceService);
+    associatedDepartments: any[] = [];
+    // selectedDepartments: any;
+    private store = inject(Store<{ userProfile: UserProfileState }>);
+    commonService = inject(CommonService);
+    // todayStats = {
+    //     present: 0,
+    //     absent: 0,
+    //     late: 0,
+    //     leave: 0
+    // };
 
-    todayStats = {
-        present: 0,
-        absent: 0,
-        late: 0,
-        leave: 0
-    };
-
-    departments: Department[] = [
-        { id: 'DEPT001', name: 'Computer Science' },
-        { id: 'DEPT002', name: 'Mathematics' },
-        { id: 'DEPT003', name: 'Physics' },
-        { id: 'DEPT004', name: 'Chemistry' },
-        { id: 'DEPT005', name: 'English' }
-    ];
+    // departments: any[] = [
+    //     { id: 'DEPT001', name: 'Computer Science' },
+    //     { id: 'DEPT002', name: 'Mathematics' },
+    //     { id: 'DEPT003', name: 'Physics' },
+    //     { id: 'DEPT004', name: 'Chemistry' },
+    //     { id: 'DEPT005', name: 'English' }
+    // ];
 
     logFilters = {
         startDate: null as Date | null,
@@ -74,14 +81,14 @@ export class StaffAttendanceManagementComponent implements OnInit {
         departments: [] as string[]
     };
 
-    reportFilters = {
-        startDate: null as Date | null,
-        endDate: null as Date | null,
-        departments: [] as string[]
-    };
+    // reportFilters = {
+    //     startDate: null as Date | null,
+    //     endDate: null as Date | null,
+    //     departments: [] as string[]
+    // };
 
-    attendanceLogs: AttendanceLog[] = [];
-    filteredLogs: AttendanceLog[] = [];
+    attendanceLogs: StaffAttendance[] = [];
+    filteredLogs: StaffAttendance[] = [];
     attendanceReport: StaffAttendanceReport[] = [];
 
     departmentChartData: any;
@@ -97,174 +104,179 @@ export class StaffAttendanceManagementComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.loadTodayStats();
+        this.store.select(getAssociatedDepartments).subscribe((departments) => {
+            this.associatedDepartments = departments;
+            this.logFilters.departments = this.associatedDepartments.map((dept) => dept.id);
+        });
         this.loadAttendanceLogs();
     }
 
-    loadTodayStats() {
-        const today = new Date().toISOString().split('T')[0];
+    // loadTodayStats() {
+    //     const today = new Date().toISOString().split('T')[0];
 
-        this.staffAttendanceService
-            .searchAttendance({
-                filters: {
-                    attendanceDateRange: [today, today]
-                },
-                page: 0,
-                size: 1000
-            })
-            .subscribe({
-                next: (response) => {
-                    const records = response.content;
-                    this.todayStats = {
-                        present: records.filter((r: any) => r.status === 'PRESENT').length,
-                        absent: records.filter((r: any) => r.status === 'ABSENT').length,
-                        late: records.filter((r: any) => r.status === 'LATE').length,
-                        leave: records.filter((r: any) => r.status === 'LEAVE').length
-                    };
-                }
-            });
-    }
+    //     this.staffAttendanceService
+    //         .searchAttendance({
+    //             filters: {
+    //                 attendanceDateRange: [today, today]
+    //             },
+    //             page: 0,
+    //             size: 1000
+    //         })
+    //         .subscribe({
+    //             next: (response) => {
+    //                 const records = response.content;
+    //                 this.todayStats = {
+    //                     present: records.filter((r: any) => r.status === 'PRESENT').length,
+    //                     absent: records.filter((r: any) => r.status === 'ABSENT').length,
+    //                     late: records.filter((r: any) => r.status === 'LATE').length,
+    //                     leave: records.filter((r: any) => r.status === 'LEAVE').length
+    //                 };
+    //             }
+    //         });
+    // }
 
     loadAttendanceLogs() {
         this.loadingLogs = true;
         const filters: any = {};
 
-        if (this.logFilters.startDate && this.logFilters.endDate) {
-            filters.attendanceDateRange = [this.logFilters.startDate.toISOString().split('T')[0], this.logFilters.endDate.toISOString().split('T')[0]];
+        if (this.logFilters.startDate) {
+            filters['attendanceDate.gte'] = this.commonService.formatDateForApi(this.logFilters.startDate);
         }
 
-        this.staffAttendanceService
-            .searchAttendance({
-                filters,
-                page: 0,
-                size: 100,
-                sortBy: 'attendanceDate',
-                sortDirection: 'DESC'
-            })
-            .subscribe({
-                next: (response) => {
-                    // this.attendanceLogs = response.content;
-                    this.filteredLogs = [...this.attendanceLogs];
-                    this.loadingLogs = false;
-                },
-                error: () => {
-                    this.loadingLogs = false;
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to load attendance logs'
-                    });
-                }
-            });
-    }
-
-    loadAttendanceReport() {
-        this.loadingReport = true;
-        const filters: any = {};
-
-        if (this.reportFilters.startDate && this.reportFilters.endDate) {
-            filters.attendanceDateRange = [this.reportFilters.startDate.toISOString().split('T')[0], this.reportFilters.endDate.toISOString().split('T')[0]];
+        if (this.logFilters.endDate) {
+            filters['attendanceDate.lte'] = this.commonService.formatDateForApi(this.logFilters.endDate);
         }
 
-        this.staffAttendanceService
-            .searchAttendance({
-                filters,
-                page: 0,
-                size: 100
-            })
-            .subscribe({
-                next: (response) => {
-                    this.processReportData(response.content);
-                    this.loadingReport = false;
-                    this.updateChartData();
-                },
-                error: () => {
-                    this.loadingReport = false;
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to generate report'
-                    });
-                }
-            });
-    }
+        if (this.logFilters.departments && this.logFilters.departments.length > 0) {
+            filters['departmentId.in'] = this.logFilters.departments;
+        }
 
-    processReportData(data: any[]) {
-        const staffMap = new Map<string, any>();
+        filters['branchId.like'] = this.commonService.getUserInfo?.branchId;
 
-        data.forEach((record) => {
-            const key = record.staffId;
-            if (!staffMap.has(key)) {
-                staffMap.set(key, {
-                    staffId: record.staffId,
-                    staffName: record.staffName,
-                    departmentName: record.departmentName || 'N/A',
-                    presentDays: 0,
-                    absentDays: 0,
-                    lateDays: 0,
-                    leaveDays: 0,
-                    halfDays: 0,
-                    totalDays: 0
+        this.staffAttendanceService.searchAttendance({ filters: filters, page: 0, size: 100 }).subscribe({
+            next: (response) => {
+                this.attendanceLogs = response.content;
+                this.filteredLogs = [...this.attendanceLogs];
+                this.loadingLogs = false;
+            },
+            error: () => {
+                this.loadingLogs = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to load attendance logs'
                 });
             }
-
-            const staff = staffMap.get(key);
-            staff.totalDays++;
-
-            switch (record.status) {
-                case 'PRESENT':
-                    staff.presentDays++;
-                    break;
-                case 'ABSENT':
-                    staff.absentDays++;
-                    break;
-                case 'LATE':
-                    staff.lateDays++;
-                    break;
-                case 'LEAVE':
-                    staff.leaveDays++;
-                    break;
-                case 'HALF_DAY':
-                    staff.halfDays++;
-                    break;
-            }
         });
-
-        this.attendanceReport = Array.from(staffMap.values()).map((staff) => ({
-            ...staff,
-            attendancePercentage: staff.totalDays > 0 ? Math.round((staff.presentDays / staff.totalDays) * 100) : 0
-        }));
     }
 
-    filterLogs() {
-        if (!this.searchQuery.trim()) {
-            this.filteredLogs = [...this.attendanceLogs];
-            return;
-        }
+    // loadAttendanceReport() {
+    //     this.loadingReport = true;
+    //     const filters: any = {};
 
-        const query = this.searchQuery.toLowerCase();
-        this.filteredLogs = this.attendanceLogs.filter((log) => log.staffName?.toLowerCase().includes(query) || log.departmentName?.toLowerCase().includes(query));
-    }
+    //     if (this.reportFilters.startDate && this.reportFilters.endDate) {
+    //         filters.attendanceDateRange = [this.reportFilters.startDate.toISOString().split('T')[0], this.reportFilters.endDate.toISOString().split('T')[0]];
+    //     }
+
+    //     this.staffAttendanceService
+    //         .searchAttendance({
+    //             filters,
+    //             page: 0,
+    //             size: 100
+    //         })
+    //         .subscribe({
+    //             next: (response) => {
+    //                 this.processReportData(response.content);
+    //                 this.loadingReport = false;
+    //                 this.updateChartData();
+    //             },
+    //             error: () => {
+    //                 this.loadingReport = false;
+    //                 this.messageService.add({
+    //                     severity: 'error',
+    //                     summary: 'Error',
+    //                     detail: 'Failed to generate report'
+    //                 });
+    //             }
+    //         });
+    // }
+
+    // processReportData(data: any[]) {
+    //     const staffMap = new Map<string, any>();
+
+    //     data.forEach((record) => {
+    //         const key = record.staffId;
+    //         if (!staffMap.has(key)) {
+    //             staffMap.set(key, {
+    //                 staffId: record.staffId,
+    //                 staffName: record.staffName,
+    //                 departmentName: record.departmentName || 'N/A',
+    //                 presentDays: 0,
+    //                 absentDays: 0,
+    //                 lateDays: 0,
+    //                 leaveDays: 0,
+    //                 halfDays: 0,
+    //                 totalDays: 0
+    //             });
+    //         }
+
+    //         const staff = staffMap.get(key);
+    //         staff.totalDays++;
+
+    //         switch (record.status) {
+    //             case 'PRESENT':
+    //                 staff.presentDays++;
+    //                 break;
+    //             case 'ABSENT':
+    //                 staff.absentDays++;
+    //                 break;
+    //             case 'LATE':
+    //                 staff.lateDays++;
+    //                 break;
+    //             case 'LEAVE':
+    //                 staff.leaveDays++;
+    //                 break;
+    //             case 'HALF_DAY':
+    //                 staff.halfDays++;
+    //                 break;
+    //         }
+    //     });
+
+    //     this.attendanceReport = Array.from(staffMap.values()).map((staff) => ({
+    //         ...staff,
+    //         attendancePercentage: staff.totalDays > 0 ? Math.round((staff.presentDays / staff.totalDays) * 100) : 0
+    //     }));
+    // }
+
+    // filterLogs() {
+    //     if (!this.searchQuery.trim()) {
+    //         this.filteredLogs = [...this.attendanceLogs];
+    //         return;
+    //     }
+
+    //     const query = this.searchQuery.toLowerCase();
+    //     this.filteredLogs = this.attendanceLogs.filter((log) => log.staffName?.toLowerCase().includes(query) || log.departmentName?.toLowerCase().includes(query));
+    // }
 
     applyFilters() {
         this.loadAttendanceLogs();
     }
 
-    exportLogs() {
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Export Started',
-            detail: 'Attendance logs are being exported...'
-        });
-    }
+    // exportLogs() {
+    //     this.messageService.add({
+    //         severity: 'success',
+    //         summary: 'Export Started',
+    //         detail: 'Attendance logs are being exported...'
+    //     });
+    // }
 
-    exportReport() {
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Export Started',
-            detail: 'Attendance report is being exported...'
-        });
-    }
+    // exportReport() {
+    //     this.messageService.add({
+    //         severity: 'success',
+    //         summary: 'Export Started',
+    //         detail: 'Attendance report is being exported...'
+    //     });
+    // }
 
     getInitials(name: string): string {
         if (!name) return 'NA';
@@ -288,17 +300,17 @@ export class StaffAttendanceManagementComponent implements OnInit {
         return severityMap[status] || 'info';
     }
 
-    getProgressBarClass(percentage: number): string {
-        if (percentage >= 90) return 'bg-green-500';
-        if (percentage >= 75) return 'bg-yellow-500';
-        return 'bg-red-500';
-    }
+    // getProgressBarClass(percentage: number): string {
+    //     if (percentage >= 90) return 'bg-green-500';
+    //     if (percentage >= 75) return 'bg-yellow-500';
+    //     return 'bg-red-500';
+    // }
 
-    getPercentageColor(percentage: number): string {
-        if (percentage >= 90) return 'text-green-600 dark:text-green-400';
-        if (percentage >= 75) return 'text-yellow-600 dark:text-yellow-400';
-        return 'text-red-600 dark:text-red-400';
-    }
+    // getPercentageColor(percentage: number): string {
+    //     if (percentage >= 90) return 'text-green-600 dark:text-green-400';
+    //     if (percentage >= 75) return 'text-yellow-600 dark:text-yellow-400';
+    //     return 'text-red-600 dark:text-red-400';
+    // }
 
     initializeChartData() {
         this.departmentChartData = {
@@ -324,7 +336,6 @@ export class StaffAttendanceManagementComponent implements OnInit {
                 }
             ]
         };
-
         this.monthlyTrendData = {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
             datasets: [
@@ -342,7 +353,6 @@ export class StaffAttendanceManagementComponent implements OnInit {
                 }
             ]
         };
-
         this.statusDistributionData = {
             labels: ['Present', 'Absent', 'Late', 'Leave', 'Half Day'],
             datasets: [
@@ -353,7 +363,6 @@ export class StaffAttendanceManagementComponent implements OnInit {
                 }
             ]
         };
-
         this.chartOptions = {
             responsive: true,
             maintainAspectRatio: false,
@@ -383,7 +392,6 @@ export class StaffAttendanceManagementComponent implements OnInit {
                 }
             }
         };
-
         this.pieChartOptions = {
             responsive: true,
             maintainAspectRatio: false,
@@ -400,7 +408,6 @@ export class StaffAttendanceManagementComponent implements OnInit {
                 }
             }
         };
-
         this.topPerformers = [
             { name: 'John Doe', department: 'Computer Science', percentage: 98.5, present: 197, total: 200 },
             { name: 'Jane Smith', department: 'Mathematics', percentage: 97.2, present: 194, total: 200 },
@@ -409,59 +416,59 @@ export class StaffAttendanceManagementComponent implements OnInit {
         ];
     }
 
-    updateChartData() {
-        if (this.attendanceReport.length === 0) return;
+    // updateChartData() {
+    //     if (this.attendanceReport.length === 0) return;
 
-        const deptMap = new Map<string, any>();
+    //     const deptMap = new Map<string, any>();
 
-        this.attendanceReport.forEach((report) => {
-            if (!deptMap.has(report.departmentName)) {
-                deptMap.set(report.departmentName, {
-                    present: 0,
-                    absent: 0,
-                    late: 0
-                });
-            }
-            const dept = deptMap.get(report.departmentName);
-            dept.present += report.presentDays;
-            dept.absent += report.absentDays;
-            dept.late += report.lateDays;
-        });
+    //     this.attendanceReport.forEach((report) => {
+    //         if (!deptMap.has(report.departmentName)) {
+    //             deptMap.set(report.departmentName, {
+    //                 present: 0,
+    //                 absent: 0,
+    //                 late: 0
+    //             });
+    //         }
+    //         const dept = deptMap.get(report.departmentName);
+    //         dept.present += report.presentDays;
+    //         dept.absent += report.absentDays;
+    //         dept.late += report.lateDays;
+    //     });
 
-        const labels = Array.from(deptMap.keys());
-        this.departmentChartData = {
-            labels,
-            datasets: [
-                {
-                    label: 'Present',
-                    backgroundColor: '#22c55e',
-                    borderRadius: 8,
-                    data: labels.map((dept) => deptMap.get(dept).present)
-                },
-                {
-                    label: 'Absent',
-                    backgroundColor: '#ef4444',
-                    borderRadius: 8,
-                    data: labels.map((dept) => deptMap.get(dept).absent)
-                },
-                {
-                    label: 'Late',
-                    backgroundColor: '#f97316',
-                    borderRadius: 8,
-                    data: labels.map((dept) => deptMap.get(dept).late)
-                }
-            ]
-        };
+    //     const labels = Array.from(deptMap.keys());
+    //     this.departmentChartData = {
+    //         labels,
+    //         datasets: [
+    //             {
+    //                 label: 'Present',
+    //                 backgroundColor: '#22c55e',
+    //                 borderRadius: 8,
+    //                 data: labels.map((dept) => deptMap.get(dept).present)
+    //             },
+    //             {
+    //                 label: 'Absent',
+    //                 backgroundColor: '#ef4444',
+    //                 borderRadius: 8,
+    //                 data: labels.map((dept) => deptMap.get(dept).absent)
+    //             },
+    //             {
+    //                 label: 'Late',
+    //                 backgroundColor: '#f97316',
+    //                 borderRadius: 8,
+    //                 data: labels.map((dept) => deptMap.get(dept).late)
+    //             }
+    //         ]
+    //     };
 
-        this.topPerformers = this.attendanceReport
-            .sort((a, b) => b.attendancePercentage - a.attendancePercentage)
-            .slice(0, 4)
-            .map((r) => ({
-                name: r.staffName,
-                department: r.departmentName,
-                percentage: r.attendancePercentage,
-                present: r.presentDays,
-                total: r.totalDays
-            }));
-    }
+    //     this.topPerformers = this.attendanceReport
+    //         .sort((a, b) => b.attendancePercentage - a.attendancePercentage)
+    //         .slice(0, 4)
+    //         .map((r) => ({
+    //             name: r.staffName,
+    //             department: r.departmentName,
+    //             percentage: r.attendancePercentage,
+    //             present: r.presentDays,
+    //             total: r.totalDays
+    //         }));
+    // }
 }

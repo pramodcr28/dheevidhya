@@ -30,7 +30,7 @@ export class AppMenu {
                     { label: 'bulk student upload', icon: 'pi pi-fw pi-upload', routerLink: ['/bulk-student-upload'] },
                     { label: 'Staff', icon: 'pi pi-fw pi-graduation-cap', routerLink: ['/employees'] },
                     { label: 'Calendar', icon: 'pi pi-fw pi-calendar', routerLink: ['/staff-calendar'] },
-                    { label: 'Attendance Management', icon: 'pi pi-fw pi-calendar-times', routerLink: ['/attendance-management'] }
+                    { label: 'Staff Attendence', icon: 'pi pi-fw pi-calendar-times', routerLink: ['/attendance-management'] }
                 ]
             },
             {

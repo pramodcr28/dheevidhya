@@ -97,7 +97,7 @@ export class StaffAttendanceComponent implements OnInit {
     currentViewDate = new Date();
 
     private datePipe = inject(DatePipe);
-    userInfo: any = {};
+    // userInfo: any = {};
 
     todayAttendance: StaffAttendance | null = null;
 
@@ -140,8 +140,6 @@ export class StaffAttendanceComponent implements OnInit {
     notificationService = inject(NotificationService);
 
     ngOnInit() {
-        this.userInfo = this.commonService.getUserInfo;
-
         this.loadMonthlyAttendance();
         this.updateCurrentTime();
         setInterval(() => this.updateCurrentTime(), 1000);
@@ -228,7 +226,7 @@ export class StaffAttendanceComponent implements OnInit {
         this.staffAttendanceService
             .searchAttendance({
                 filters: {
-                    'staffId.like': this.userInfo?.userId,
+                    'staffId.like': this.commonService.getUserInfo?.userId,
                     'attendanceDate.gte': startStr,
                     'attendanceDate.lte': endStr
                 },
@@ -245,7 +243,7 @@ export class StaffAttendanceComponent implements OnInit {
                         sortDirection: 'desc',
                         filters: {
                             'categoryType.equals': 'HOLIDAY',
-                            'branchId.like': this.userInfo?.branchId
+                            'branchId.like': this.commonService.getUserInfo?.branchId
                         }
                     };
                     this.notificationService.search(request).subscribe((result) => {
@@ -443,10 +441,12 @@ export class StaffAttendanceComponent implements OnInit {
             this.selectedDayAttendance = { ...day.attendance };
         } else {
             this.selectedDayAttendance = {
-                staffId: this.userInfo.userId,
-                staffName: this.userInfo.fullName,
-                branchId: this.userInfo.branchId,
-                branchName: this.userInfo.branchName,
+                staffId: this.commonService.getUserInfo.userId,
+                staffName: this.commonService.getUserInfo.fullName,
+                branchId: this.commonService.getUserInfo.branchId,
+                departmentId: this.commonService.getUserInfo.departmentId,
+                departmentName: this.commonService.getUserInfo.departmentName,
+                branchName: this.commonService.getUserInfo.branchName,
                 attendanceDate: this.datePipe.transform(day.date, 'yyyy-MM-dd') || '',
                 status: 'PRESENT',
                 checkInTime: undefined,
@@ -506,10 +506,12 @@ export class StaffAttendanceComponent implements OnInit {
     checkIn() {
         const now = new Date();
         const attendance: StaffAttendance = {
-            staffId: this.userInfo.userId,
-            staffName: this.userInfo.fullName,
-            branchId: this.userInfo.branchId,
-            branchName: this.userInfo.branchName,
+            staffId: this.commonService.getUserInfo.userId,
+            staffName: this.commonService.getUserInfo.fullName,
+            departmentId: this.commonService.getUserInfo.departmentId,
+            departmentName: this.commonService.getUserInfo.departmentName,
+            branchId: this.commonService.getUserInfo.branchId,
+            branchName: this.commonService.getUserInfo.branchName,
             attendanceDate: this.datePipe.transform(now, 'yyyy-MM-dd'),
             checkInTime: this.datePipe.transform(now, 'HH:mm:ss'),
             status: 'PRESENT'

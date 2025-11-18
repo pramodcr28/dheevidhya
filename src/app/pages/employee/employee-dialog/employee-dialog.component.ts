@@ -114,8 +114,9 @@ export class EmployeeDialogComponent {
     submitted: boolean = false;
     availableAuthorities: any[] = [];
     associatedDepartments: any[] = [];
-    associatedBranch: IBranch | undefined;
     selectedDepartments: any;
+    associatedBranch: IBranch | undefined;
+
     selectedClass: any;
     selectedSection: any;
     selectedGender: Gender = Gender.MALE;

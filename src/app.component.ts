@@ -55,7 +55,9 @@ export class AppComponent {
                             userId: user.userId,
                             branchId: branch?.id + '' || '',
                             branchName: branch?.name || '',
-                            academicYear: user.academicYear || ''
+                            academicYear: user.academicYear || '',
+                            departmentName: department.department.name,
+                            departmentId: department.id
                         };
                     });
                 }
