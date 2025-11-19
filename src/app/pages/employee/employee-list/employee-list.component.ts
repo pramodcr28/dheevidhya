@@ -64,7 +64,6 @@ export class EmployeeListComponent {
     loader = inject(ApiLoaderService);
     currentUser: any;
     commonService = inject(CommonService);
-    associatedDepartments = [];
 
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
@@ -74,15 +73,13 @@ export class EmployeeListComponent {
         this.store.select(selectUserConfig).subscribe((userConfig) => {
             this.currentUser = userConfig.userId;
         });
-        this.commonService.associatedDepartments.subscribe((depts) => {
-            this.associatedDepartments = depts.map((dpt) => dpt.id);
-            this.load();
-        });
+
+        this.load();
     }
 
     load(): void {
         this.loader.show('Fetching Staff Data');
-        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': 'STAFF', 'departments.in': this.associatedDepartments }).subscribe({
+        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': 'STAFF', 'departments.in': this.commonService.associatedDepartments.map((dpt) => dpt.id) }).subscribe({
             next: (res: any) => {
                 this.employeeProfiles.set(res.content);
                 this.loader.hide();

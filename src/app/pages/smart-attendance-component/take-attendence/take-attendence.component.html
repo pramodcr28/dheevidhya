@@ -4,7 +4,7 @@
 <div class="flex items-center justify-between mb-6">
   <div class="flex items-center space-x-4">
     <p-select 
-      [options]="commonService.associatedSections | async" 
+      [options]="commonService.associatedSections" 
       [(ngModel)]="selectedSection" 
       optionLabel="sectionName"
       placeholder="Select Section"

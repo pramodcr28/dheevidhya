@@ -6,7 +6,7 @@
             <div class="flex items-center space-x-4">
                 <!-- Section Filter -->
                 <p-multi-select 
-                  [options]="commonService.associatedSections | async" 
+                  [options]="commonService.associatedSections" 
                   [(ngModel)]="selectedSection"
                   optionLabel="sectionName"
                   placeholder="Section Name"
@@ -18,7 +18,7 @@
 
                 <!-- Subject Filter -->
                 <p-multi-select 
-                  [options]="commonService.associatedSubjects | async" 
+                  [options]="commonService.associatedSubjects" 
                   [(ngModel)]="selectedSubject"
                   optionLabel="name"
                   placeholder="Subject"

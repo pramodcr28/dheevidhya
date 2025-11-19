@@ -37,10 +37,11 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <!-- Department -->
+     @if(commonService.associatedDepartments){
     <div>
       <label class="block font-bold mb-2">Department</label>
       <p-select
-        [options]="commonService.associatedDepartments |async"
+        [options]="commonService.associatedDepartments"
         [(ngModel)]="timeTableService.timeTable.department"
         [ngModelOptions]="{standalone: true}"
         (onChange)="timeTableService.onDepartmentChange()"
@@ -53,6 +54,8 @@
         Department is required.
       </small>
     </div>
+     }
+
 
     <!-- Periods Per Day -->
     <div>

@@ -21,45 +21,64 @@ export class CommonService {
     displayDateTimeFormate = 'dd MMMM yyyy, hh:mm a';
 
     themeGradients: string[] = [
-        'linear-gradient(180deg, #2196F3, #64B5F6)', // Blue
-        'linear-gradient(135deg, #4CAF50, #81C784)', // Green
-        'linear-gradient(135deg, #FF9800, #FFB74D)', // Orange
-        'linear-gradient(135deg, #F44336, #EF9A9A)', // Red
-        'linear-gradient(135deg, #9C27B0, #BA68C8)', // Purple
-        'linear-gradient(135deg, #00BCD4, #4DD0E1)', // Teal/Cyan
-        'linear-gradient(135deg, #FFC107, #FFD54F)', // Amber
-        'linear-gradient(135deg, #E91E63, #F06292)', // Pink
-        'linear-gradient(135deg, #8BC34A, #AED581)', // Lime
-        'linear-gradient(135deg, #3F51B5, #7986CB)', // Indigo
-        'linear-gradient(135deg, #607D8B, #90A4AE)' // Blue Grey
+        'linear-gradient(180deg, #2196F3, #64B5F6)',
+        'linear-gradient(135deg, #4CAF50, #81C784)',
+        'linear-gradient(135deg, #FF9800, #FFB74D)',
+        'linear-gradient(135deg, #F44336, #EF9A9A)',
+        'linear-gradient(135deg, #9C27B0, #BA68C8)',
+        'linear-gradient(135deg, #00BCD4, #4DD0E1)',
+        'linear-gradient(135deg, #FFC107, #FFD54F)',
+        'linear-gradient(135deg, #E91E63, #F06292)',
+        'linear-gradient(135deg, #8BC34A, #AED581)',
+        'linear-gradient(135deg, #3F51B5, #7986CB)',
+        'linear-gradient(135deg, #607D8B, #90A4AE)'
     ];
 
     protected readonly http = inject(HttpClient);
     protected readonly applicationConfigService = inject(ApplicationConfigService);
+    private store = inject(Store<{ userProfile: UserProfileState }>);
 
     protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ADMIN_BASE_URL + 'api/profile-configs');
 
-    private store = inject(Store<{ userProfile: UserProfileState }>);
+    branch: IBranch | null = null;
+    associatedDepartments: IDepartmentConfig[] = [];
+    associatedSections: Section[] = [];
+    associatedSubjects: any[] = [];
+    currentUser: any = null;
+    userAssociatedSubjects: any[] = [];
 
-    branch: Observable<IBranch>;
-    associatedDepartments: Observable<IDepartmentConfig[]>;
-    associatedSections: Observable<Section[]>;
-    associatedSubjects: Observable<any[]>;
-    currentUser: Observable<any>;
-    userAssociatedSubjects: Observable<any[]>;
     getStudentInfo = null;
     getUserInfo = null;
-    findProfileConfig(id: number): Observable<EntityResponseType> {
-        return this.http.get<IProfileConfig>(`${this.resourceUrl}/${id}`, { observe: 'response' });
-    }
 
     constructor() {
-        this.branch = this.store.select(getBranch);
-        this.associatedDepartments = this.store.select(getAssociatedDepartments);
-        this.associatedSections = this.store.select(getAllSectionEntities);
-        this.associatedSubjects = this.store.select(getSubjectsByFilters([]));
-        this.currentUser = this.store.select(selectUserConfig);
-        this.userAssociatedSubjects = this.store.select(getUserAssociatedSubjects);
+        // Initialize values by subscribing once
+        this.store.select(getBranch).subscribe((res) => {
+            this.branch = res;
+        });
+
+        this.store.select(getAssociatedDepartments).subscribe((res) => {
+            this.associatedDepartments = res ?? [];
+        });
+
+        this.store.select(getAllSectionEntities).subscribe((res) => {
+            this.associatedSections = res ?? [];
+        });
+
+        this.store.select(getSubjectsByFilters([])).subscribe((res) => {
+            this.associatedSubjects = res ?? [];
+        });
+
+        this.store.select(selectUserConfig).subscribe((res) => {
+            this.currentUser = res;
+        });
+
+        this.store.select(getUserAssociatedSubjects).subscribe((res) => {
+            this.userAssociatedSubjects = res ?? [];
+        });
+    }
+
+    findProfileConfig(id: number): Observable<EntityResponseType> {
+        return this.http.get<IProfileConfig>(`${this.resourceUrl}/${id}`, { observe: 'response' });
     }
 
     post<T>(url: string, body: any): Observable<T> {
@@ -68,7 +87,6 @@ export class CommonService {
 
     formatDate(date: Date): string {
         return date.toISOString().slice(0, -1);
-        // produces yyyy-MM-ddTHH:mm:ss.SSS (without trailing Z)
     }
 
     formatDateForApi(date: Date): string {

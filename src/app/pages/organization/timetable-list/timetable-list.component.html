@@ -12,7 +12,7 @@
     <!-- Department Selection -->
         <div class="w-full lg:w-64">
           <p-select
-            [options]="commonService.associatedDepartments | async"
+            [options]="commonService.associatedDepartments"
             [(ngModel)]="selectedDepartment"
             [ngModelOptions]="{standalone: true}"
             optionLabel="name"
@@ -28,7 +28,6 @@
         [(ngModel)]="statusFilter" 
         optionLabel="label" 
         optionValue="value"
-        (onChange)="filterTimetables()"
         placeholder="Select Status"
         class="w-full">
       </p-select>
@@ -44,14 +43,14 @@
   </div>
 
   <!-- No Results Message -->
-  <div *ngIf="filteredTimetables.length === 0" class="text-center py-12 text-gray-500">
+  <div *ngIf="timetables.length === 0" class="text-center py-12 text-gray-500">
     <i class="pi pi-search text-4xl mb-4 text-gray-300"></i>
     <p class="text-lg">No timetables found matching your criteria.</p>
   </div>
 
   <!-- Timetable Cards Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-    <div *ngFor="let timetable of filteredTimetables" 
+    <div *ngFor="let timetable of timetables" 
          class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-100 relative">
       
       <!-- Status Ribbon -->

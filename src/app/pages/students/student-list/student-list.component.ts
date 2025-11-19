@@ -68,7 +68,6 @@ export class StudentListComponent {
     exportColumns!: ExportColumn[];
     cols!: Column[];
     subscription: Subscription | null = null;
-
     tenantAuthorities = signal<[]>([]);
     isLoading = false;
     students = signal<any[] | null>([]);
@@ -88,7 +87,6 @@ export class StudentListComponent {
     currentUser: any;
     branch: IBranch;
     commonService = inject(CommonService);
-    associatedDepartments = [];
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);
@@ -101,15 +99,11 @@ export class StudentListComponent {
         this.store.select(getBranch).subscribe((branch) => {
             this.branch = branch;
         });
-        this.commonService.associatedDepartments.subscribe((depts) => {
-            this.associatedDepartments = depts.map((dpt) => dpt.id);
-            this.load();
-        });
     }
 
     load(): void {
         this.loader.show('Fetching Student Data');
-        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': 'STUDENT', 'departments.in': this.associatedDepartments }).subscribe({
+        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': 'STUDENT', 'departments.in': this.commonService.associatedDepartments.map((dpt) => dpt.id) }).subscribe({
             next: (res: any) => {
                 this.students.set(res.content);
                 this.loader.hide();

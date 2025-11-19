@@ -43,14 +43,9 @@ export class TakeAttendenceComponent {
     studentService = inject(UserService);
     loader = inject(ApiLoaderService);
     students = signal<any[] | null>([]);
-    associatedDepartments = [];
     today: Date = new Date();
     takeAttandence = false;
-    ngOnInit() {
-        this.commonService.associatedDepartments.subscribe((depts) => {
-            this.associatedDepartments = depts.map((dpt) => dpt.id);
-        });
-    }
+    ngOnInit() {}
     onSectionChange() {
         this.store.select(getSubjectsByFilters([this.selectedSection.departmentId], [this.selectedSection.classId], [this.selectedSection.sectionId])).subscribe((subjects) => {
             this.subjects = subjects;
@@ -81,13 +76,13 @@ export class TakeAttendenceComponent {
                 'profileType.equals': 'STUDENT',
                 'roles.student.section_id.equals': this.selectedSection.sectionId,
                 'roles.student.class_id.equals': this.selectedSection.classId,
-                'departments.in': this.associatedDepartments
+                'departments.in': this.commonService.associatedDepartments.map((dpt) => dpt.id)
             })
             .subscribe({
                 next: (res: any) => {
                     this.attendenceService
                         .search(0, 100, 'id', 'ASC', {
-                            'departmentId.in': this.associatedDepartments,
+                            'departmentId.in': this.commonService.associatedDepartments.map((dpt) => dpt.id),
                             'classId.equals': this.selectedSection.classId,
                             'sectionId.equals': this.selectedSection.sectionId,
                             'subjectCode.equals': this.selectedSubject.code,

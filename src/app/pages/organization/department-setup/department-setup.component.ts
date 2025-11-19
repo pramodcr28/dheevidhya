@@ -9,7 +9,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TabsModule } from 'primeng/tabs';
 import { ToastModule } from 'primeng/toast';
-import { firstValueFrom } from 'rxjs';
 import { UserFilterPipePipe } from '../../../core/pipe/user-filter-pipe.pipe';
 import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
@@ -28,7 +27,7 @@ export class DepartmentSetupComponent {
     commonService = inject(CommonService);
     selectedMasterDepartment: any;
     selectedDepartment: IMasterDepartment;
-    masterDepartments: any[] = [];
+    // masterDepartments: any[] = [];
     items: MenuItem[] | undefined;
     departmentConfigService = inject(DepartmentConfigService);
     userService = inject(UserService);
@@ -40,13 +39,13 @@ export class DepartmentSetupComponent {
     ) {}
 
     ngOnInit() {
-        this.commonService.associatedDepartments.subscribe((data) => {
-            if (data && data.length > 0) {
-                this.masterDepartments = data;
-                this.selectedMasterDepartment = this.masterDepartments[0];
-                this.onDepartmentChange();
-            }
-        });
+        // this.commonService.associatedDepartments.subscribe((data) => {
+        if (this.commonService.associatedDepartments && this.commonService.associatedDepartments.length > 0) {
+            // this.masterDepartments = data;
+            this.selectedMasterDepartment = this.commonService.associatedDepartments[0];
+            this.onDepartmentChange();
+        }
+        // });
 
         this.items = [
             {
@@ -77,7 +76,7 @@ export class DepartmentSetupComponent {
 
     async saveSetup() {
         this.selectedMasterDepartment!['department'] = this.selectedDepartment;
-        this.selectedMasterDepartment!['branch'] = await firstValueFrom(this.commonService.branch);
+        this.selectedMasterDepartment!['branch'] = this.commonService.branch;
         this.loader.show('Updating Department Config...');
 
         this.departmentConfigService.update(this.selectedMasterDepartment!).subscribe((departConf) => {

@@ -20,9 +20,11 @@
           </div>
           
           <!-- Department Selector -->
-           <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 min-w-80">
+
+          @if(commonService.associatedDepartments){
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 min-w-80">
             <p-select
-              [options]="masterDepartments"
+              [options]="commonService.associatedDepartments"
               [(ngModel)]="selectedMasterDepartment"
               name="masterDepartment"
               optionLabel="name"
@@ -32,19 +34,8 @@
               class="w-full modern-select">
             </p-select>
           </div>
-          <!-- <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 min-w-80">
-            <p-select
-              [options]="users"
-              [(ngModel)]="selectedDepartment.hod"
-              name="hod"
-              optionLabel="fullName"
-              optionValue="userId"
-              appendTo="body"
-              placeholder="Select HOD"
-              class="w-full modern-select">
-            </p-select>
-
-          </div> -->
+          }
+       
         </div>
       </div>
       

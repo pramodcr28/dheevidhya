@@ -43,106 +43,106 @@ export class ReviewComponent {
         let classes: any[] = [];
         let classCounter = 1;
 
-        this.commonService.associatedDepartments.subscribe((departments) => {
-            const department = departments.find((department) => department.id == this.timeTableService.timeTable.department.id);
+        // this.commonService.associatedDepartments.subscribe((departments) => {
+        const department = this.commonService.associatedDepartments.find((department) => department.id == this.timeTableService.timeTable.department.id);
 
-            department?.department.classes?.forEach((cls) => {
-                cls.sections.forEach((section: any) => {
-                    const subjects = section.subjects.map((sub) => ({
-                        id: sub.id,
-                        name: sub.name,
-                        teacher_id: sub.teacher,
-                        hours_per_week: this.timeTableService.timeTable.subjects.find((subject) => subject.id == sub.id)?.hoursPerWeek ?? 5
-                    }));
+        department?.department.classes?.forEach((cls) => {
+            cls.sections.forEach((section: any) => {
+                const subjects = section.subjects.map((sub) => ({
+                    id: sub.id,
+                    name: sub.name,
+                    teacher_id: sub.teacher,
+                    hours_per_week: this.timeTableService.timeTable.subjects.find((subject) => subject.id == sub.id)?.hoursPerWeek ?? 5
+                }));
 
-                    classes.push({
-                        id: cls.id + '-' + section.id,
-                        name: `${cls.name}-${section.name}`,
-                        subjects
-                    });
-
-                    classCounter++;
+                classes.push({
+                    id: cls.id + '-' + section.id,
+                    name: `${cls.name}-${section.name}`,
+                    subjects
                 });
+
+                classCounter++;
             });
+        });
 
-            const exportData: any = {
-                days: this.timeTableService.timeTable.settings.workingDays.filter((d) => d.selected).length,
-                periods_per_day: this.timeTableService.timeTable.settings.periodsPerDay,
-                teachers,
-                classes
-            };
+        const exportData: any = {
+            days: this.timeTableService.timeTable.settings.workingDays.filter((d) => d.selected).length,
+            periods_per_day: this.timeTableService.timeTable.settings.periodsPerDay,
+            teachers,
+            classes
+        };
 
-            this.showTimetableDialog = true;
-            this.timeTableService.generateTimeTable(exportData).subscribe((response: any) => {
-                const rawTimetable = response.timetable;
+        this.showTimetableDialog = true;
+        this.timeTableService.generateTimeTable(exportData).subscribe((response: any) => {
+            const rawTimetable = response.timetable;
 
-                const classSections: any[] = [];
+            const classSections: any[] = [];
 
-                // rawTimetable keys are like: "classId-sectionId"
-                for (const key of Object.keys(rawTimetable)) {
-                    const [classId, sectionId] = key.split('-');
-                    const classEntry = classes.find((cls) => cls.id === key);
+            // rawTimetable keys are like: "classId-sectionId"
+            for (const key of Object.keys(rawTimetable)) {
+                const [classId, sectionId] = key.split('-');
+                const classEntry = classes.find((cls) => cls.id === key);
 
-                    let className = '';
-                    let sectionName = '';
+                let className = '';
+                let sectionName = '';
 
-                    if (classEntry) {
-                        [className, sectionName] = classEntry.name.split('-');
-                    }
-                    const dayEntries = rawTimetable[key];
+                if (classEntry) {
+                    [className, sectionName] = classEntry.name.split('-');
+                }
+                const dayEntries = rawTimetable[key];
 
-                    const schedules: any[] = [];
+                const schedules: any[] = [];
 
-                    for (const dayIndex of Object.keys(dayEntries)) {
-                        const periods: any[] = [];
+                for (const dayIndex of Object.keys(dayEntries)) {
+                    const periods: any[] = [];
 
-                        const periodEntries = dayEntries[dayIndex];
+                    const periodEntries = dayEntries[dayIndex];
 
-                        for (const periodIndex of Object.keys(periodEntries)) {
-                            const period = periodEntries[periodIndex];
-                            periods.push({
-                                startTime: '08:00',
-                                endTime: '08:45',
-                                type: period.subject_name === 'FREE' ? 'break' : 'lecture',
-                                name: period.subject_name,
-                                subject: {
-                                    id: period.subject_id,
-                                    name: period.subject_name
-                                },
-                                instructor: {
-                                    id: period.teacher_id,
-                                    name: period.teacher_name
-                                }
-                            });
-                        }
-
-                        schedules.push({
-                            day: dayIndex,
-                            periods
+                    for (const periodIndex of Object.keys(periodEntries)) {
+                        const period = periodEntries[periodIndex];
+                        periods.push({
+                            startTime: '08:00',
+                            endTime: '08:45',
+                            type: period.subject_name === 'FREE' ? 'break' : 'lecture',
+                            name: period.subject_name,
+                            subject: {
+                                id: period.subject_id,
+                                name: period.subject_name
+                            },
+                            instructor: {
+                                id: period.teacher_id,
+                                name: period.teacher_name
+                            }
                         });
                     }
 
-                    classSections.push({
-                        classId,
-                        className,
-                        sectionId,
-                        sectionName,
-                        schedules
+                    schedules.push({
+                        day: dayIndex,
+                        periods
                     });
                 }
 
-                this.timetableJson = {
-                    id: null,
-                    status: 'Draft',
-                    departmentId: this.timeTableService.timeTable.department.id,
-                    departmentName: this.timeTableService.timeTable.department.department.name,
-                    settings: { ...this.timeTableService.timeTable.settings },
-                    classSections,
-                    isActive: true
-                };
-                this.showTimetableDialog = true;
-            });
+                classSections.push({
+                    classId,
+                    className,
+                    sectionId,
+                    sectionName,
+                    schedules
+                });
+            }
+
+            this.timetableJson = {
+                id: null,
+                status: 'Draft',
+                departmentId: this.timeTableService.timeTable.department.id,
+                departmentName: this.timeTableService.timeTable.department.department.name,
+                settings: { ...this.timeTableService.timeTable.settings },
+                classSections,
+                isActive: true
+            };
+            this.showTimetableDialog = true;
         });
+        // });
     }
 
     saveTimetable() {

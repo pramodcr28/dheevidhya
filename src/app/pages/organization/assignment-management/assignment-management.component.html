@@ -1,9 +1,10 @@
 <div class="min-h-screen">
     <div class="mx-auto">
         <!-- Dynamic Grid: 3 columns for students, full width for others -->
-        <div [ngClass]="(commonService.currentUser | async)?.roles?.student ? 'grid grid-cols-1 xl:grid-cols-4 gap-6' : ''">
+         @if(commonService.currentUser){
+ <div [ngClass]="commonService.currentUser?.roles?.student ? 'grid grid-cols-1 xl:grid-cols-4 gap-6' : ''">
             <!-- Main Content Area -->
-            <div [ngClass]="(commonService.currentUser | async)?.roles?.student ? 'xl:col-span-3' : 'w-full'">
+            <div [ngClass]="commonService.currentUser?.roles?.student ? 'xl:col-span-3' : 'w-full'">
                 @if (currentView !== 'group' ) {
                     <div class="flex flex-col gap-4 mb-6 p-5">
                         <!-- Header Row -->
@@ -12,7 +13,7 @@
                             <div class="flex items-center gap-3">
                                 <button pButton icon="pi pi-arrow-left" class="p-button-text p-button-rounded hover:bg-gray-100" pTooltip="Back" (click)="currentView === 'submissions' ? backtoAssignmentList() : (currentView = 'group')"></button>
 
-                                @if ((commonService.currentUser | async)?.roles?.student) {
+                                @if (commonService.currentUser?.roles?.student) {
                                     <h2 class="text-2xl font-bold text-gray-800 m-0">
                                         {{ currentView === 'cards' ? selectedGroup.name + ' - Assignments' : 'Submissions' }}
                                     </h2>
@@ -24,7 +25,7 @@
                             </div>
 
                             <!-- Add Task Button -->
-                            @if (!(commonService.currentUser | async)?.roles?.student && currentView === 'cards') {
+                            @if (!commonService.currentUser?.roles?.student && currentView === 'cards') {
                                 <p-button label="Add Task" icon="pi pi-plus" severity="primary" size="small" class="w-full sm:w-auto" (onClick)="selectedAssignment = {}; showAddDialog = true"> </p-button>
                             }
                         </div>
@@ -64,7 +65,7 @@
                                 <div class="flex items-center justify-between pt-3 border-t border-gray-100">
                                     <button pButton icon="pi pi-eye" label="View" class="p-button-text p-button-sm text-primary" (click)="viewAssignment(assignment)"></button>
 
-                               @if (!(commonService.currentUser | async)?.roles?.student) {
+                               @if (!commonService.currentUser?.roles?.student) {
   <div class="flex items-center gap-3">
 
     <!-- ✅ Edit Icon -->
@@ -97,7 +98,7 @@
                                 <p class="text-xl font-semibold text-gray-700 mb-2">No assignments yet</p>
                                 <p class="text-sm text-gray-500">Assignments will appear here once they're created</p>
                             </div>
-                            @if (!(commonService.currentUser | async)?.roles?.student) {
+                            @if (!commonService.currentUser?.roles?.student) {
                                 <button pButton label="Create Assignment" icon="pi pi-plus" class="p-button-outlined mt-2" (click)="showAddDialog = true"></button>
                             }
                         </div>
@@ -108,7 +109,7 @@
                 <div *ngIf="currentView === 'group'">
                     <div *ngIf="groupedAssignments?.length > 0; else noSubjects" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- Student View -->
-                        @if ((commonService.currentUser | async)?.roles?.student) {
+                        @if (commonService.currentUser?.roles?.student) {
                             <div *ngFor="let group of groupedAssignments" class="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group">
                                 <div class="bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 p-3 text-white relative overflow-hidden">
                                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
@@ -273,7 +274,7 @@
             </div>
 
             <!-- Sidebar (Only for Students) -->
-            @if ((commonService.currentUser | async)?.roles?.student) {
+            @if (commonService.currentUser?.roles?.student) {
                 <div class="xl:col-span-1">
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
                         <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-4">
@@ -319,6 +320,8 @@
                 </div>
             }
         </div>
+         }
+       
 
         <!-- Dialogs -->
         <app-add-assignment-dialog
