@@ -1,207 +1,201 @@
-import { CommonService } from './../../../../core/services/common.service';
-import { Component, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TimeTableService } from '../../../service/time-table.service';
-import { DialogModule } from 'primeng/dialog';
-import { ClassSection, DepartmentTimetable } from '../../../models/time-table';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { MessageModule } from 'primeng/message';
-import { TimetableViewComponent } from '../../../../shared/timetable-view/timetable-view.component';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
+import { MessageModule } from 'primeng/message';
+import { ToastModule } from 'primeng/toast';
+import { TimetableViewComponent } from '../../../../shared/timetable-view/timetable-view.component';
+import { ClassSection, DepartmentTimetable } from '../../../models/time-table';
+import { TimeTableService } from '../../../service/time-table.service';
+import { CommonService } from './../../../../core/services/common.service';
 @Component({
-  selector: 'app-review',
-  standalone: true,
-  imports: [CommonModule,DialogModule,ToastModule,MessageModule,TimetableViewComponent],
-  providers: [MessageService],
-  templateUrl: './review.component.html'
+    selector: 'app-review',
+    standalone: true,
+    imports: [CommonModule, DialogModule, ToastModule, MessageModule, TimetableViewComponent],
+    providers: [MessageService],
+    templateUrl: './review.component.html'
 })
 export class ReviewComponent {
+    showTimetableDialog = false;
+    timetableJson: DepartmentTimetable | null = null;
+    messageService = inject(MessageService);
+    commonService = inject(CommonService);
+    timeTableService = inject(TimeTableService);
+    router = inject(Router);
+    validationErrors: string[];
+    generateTimetable() {
+        const errors = this.validateTimetable();
+        if (errors.length) {
+            this.validationErrors = errors;
+            return;
+        }
 
- showTimetableDialog = false;
- timetableJson: DepartmentTimetable | null = null;
- messageService = inject(MessageService);
- commonService = inject(CommonService);
- timeTableService = inject(TimeTableService);
- router = inject(Router);
- validationErrors: string[];
- generateTimetable() {
+        this.validationErrors = [];
 
-const errors = this.validateTimetable();
-  if (errors.length) {
-    this.validationErrors = errors;
-    return;
-  }
+        const teachers = this.timeTableService.getTeachersList().map((t) => ({
+            id: t.id,
+            name: t.name,
+            preferred_periods: t.timeOn,
+            avoided_periods: t.timeOff,
+            unavailable_periods: []
+        }));
+        let classes: any[] = [];
+        let classCounter = 1;
 
-  this.validationErrors = [];
+        this.commonService.associatedDepartments.subscribe((departments) => {
+            const department = departments.find((department) => department.id == this.timeTableService.timeTable.department.id);
 
-  const teachers = this.timeTableService.getTeachersList().map(t => ({
-    id: t.id,
-    name: t.name,
-    preferred_periods: t.timeOn,
-    avoided_periods:t.timeOff
-  }));
-  let classes: any[] = [];
-  let classCounter = 1;
+            department?.department.classes?.forEach((cls) => {
+                cls.sections.forEach((section: any) => {
+                    const subjects = section.subjects.map((sub) => ({
+                        id: sub.id,
+                        name: sub.name,
+                        teacher_id: sub.teacher,
+                        hours_per_week: this.timeTableService.timeTable.subjects.find((subject) => subject.id == sub.id)?.hoursPerWeek ?? 5
+                    }));
 
-  this.commonService.associatedDepartments.subscribe(departments=>{
-   const department =  departments.find(department=>department.id == this.timeTableService.timeTable.department.id);
+                    classes.push({
+                        id: cls.id + '-' + section.id,
+                        name: `${cls.name}-${section.name}`,
+                        subjects
+                    });
 
-  department?.department.classes?.forEach(cls => {
-    cls.sections.forEach((section:any) => {
-      const subjects = section.subjects.map(sub => ({
-        id: sub.id,
-        name: sub.name,
-        teacher_id: sub.teacher,
-        hours_per_week: this.timeTableService.timeTable.subjects.find(subject=>subject.id == sub.id)?.hoursPerWeek ??  5
-      }));
+                    classCounter++;
+                });
+            });
 
-      classes.push({
-        id: cls.id + '-' + section.id,
-        name: `${cls.name}-${section.name}`,
-        subjects
-      });
+            const exportData: any = {
+                days: this.timeTableService.timeTable.settings.workingDays.filter((d) => d.selected).length,
+                periods_per_day: this.timeTableService.timeTable.settings.periodsPerDay,
+                teachers,
+                classes
+            };
 
-      classCounter++;
-    });
-  });
+            this.showTimetableDialog = true;
+            this.timeTableService.generateTimeTable(exportData).subscribe((response: any) => {
+                const rawTimetable = response.timetable;
 
-  const exportData: any = {
-    days: this.timeTableService.timeTable.settings.workingDays.filter(d => d.selected).length,
-    periods_per_day: this.timeTableService.timeTable.settings.periodsPerDay,
-    teachers,
-    classes
-  };
+                const classSections: any[] = [];
 
-  this.showTimetableDialog = true ;
-this.timeTableService.generateTimeTable(exportData).subscribe((response: any) => {
-  const rawTimetable = response.timetable;
+                // rawTimetable keys are like: "classId-sectionId"
+                for (const key of Object.keys(rawTimetable)) {
+                    const [classId, sectionId] = key.split('-');
+                    const classEntry = classes.find((cls) => cls.id === key);
 
-  const classSections: any[] = [];
+                    let className = '';
+                    let sectionName = '';
 
-  // rawTimetable keys are like: "classId-sectionId"
-  for (const key of Object.keys(rawTimetable)) {
-    const [classId, sectionId] = key.split('-');
-    const classEntry = classes.find(cls => cls.id === key);
+                    if (classEntry) {
+                        [className, sectionName] = classEntry.name.split('-');
+                    }
+                    const dayEntries = rawTimetable[key];
 
-  let className = '';
-  let sectionName = '';
+                    const schedules: any[] = [];
 
-  if (classEntry) {
-    [className, sectionName] = classEntry.name.split('-');
-  }
-    const dayEntries = rawTimetable[key];
+                    for (const dayIndex of Object.keys(dayEntries)) {
+                        const periods: any[] = [];
 
-    const schedules: any[] = [];
+                        const periodEntries = dayEntries[dayIndex];
 
-    for (const dayIndex of Object.keys(dayEntries)) {
-      const periods: any[] = [];
+                        for (const periodIndex of Object.keys(periodEntries)) {
+                            const period = periodEntries[periodIndex];
+                            periods.push({
+                                startTime: '08:00',
+                                endTime: '08:45',
+                                type: period.subject_name === 'FREE' ? 'break' : 'lecture',
+                                name: period.subject_name,
+                                subject: {
+                                    id: period.subject_id,
+                                    name: period.subject_name
+                                },
+                                instructor: {
+                                    id: period.teacher_id,
+                                    name: period.teacher_name
+                                }
+                            });
+                        }
 
-      const periodEntries = dayEntries[dayIndex]; 
+                        schedules.push({
+                            day: dayIndex,
+                            periods
+                        });
+                    }
 
-      for (const periodIndex of Object.keys(periodEntries)) {
-        const period = periodEntries[periodIndex];
-        periods.push({
-          startTime: '08:00', 
-          endTime: '08:45',   
-          type: period.subject_name === 'FREE' ? 'break' : 'lecture',
-          name: period.subject_name,
-          subject: {
-            id: period.subject_id,
-            name: period.subject_name
-          },
-          instructor: {
-            id: period.teacher_id,
-            name: period.teacher_name
-          }
+                    classSections.push({
+                        classId,
+                        className,
+                        sectionId,
+                        sectionName,
+                        schedules
+                    });
+                }
+
+                this.timetableJson = {
+                    id: null,
+                    status: 'Draft',
+                    departmentId: this.timeTableService.timeTable.department.id,
+                    departmentName: this.timeTableService.timeTable.department.department.name,
+                    settings: { ...this.timeTableService.timeTable.settings },
+                    classSections,
+                    isActive: true
+                };
+                this.showTimetableDialog = true;
+            });
         });
-      }
-
-      schedules.push({
-        day: dayIndex, 
-        periods
-      });
     }
 
-    classSections.push({
-      classId,
-      className,
-      sectionId,
-      sectionName,
-      schedules
-    });
-  }
+    saveTimetable() {
+        this.timeTableService.create(this.timetableJson).subscribe((result: any) => {
+            this.router.navigate(['/time-table-list']);
+            this.messageService.add({ severity: 'success', summary: 'Success Message', detail: 'Congrats! Time Table Added' });
+        });
+    }
 
-  this.timetableJson = {
-    id:null,
-    status:"Draft",
-    departmentId: this.timeTableService.timeTable.department.id,
-    departmentName: this.timeTableService.timeTable.department.department.name,
-    settings: {...this.timeTableService.timeTable.settings },
-    classSections,
-    isActive: true,
-  };
-  this.showTimetableDialog = true;
-});
-  })
-}
+    cancel() {
+        this.showTimetableDialog = false;
+        this.timetableJson = null;
+    }
 
+    getSlotIndexes(classSec: ClassSection): number[] {
+        const slots = classSec.schedules[0]?.periods.length || 0;
+        return Array.from({ length: slots }, (_, i) => i);
+    }
 
+    getWorkingDays() {
+        return this.timeTableService.timeTable.settings.workingDays
+            .filter((slot) => slot.selected)
+            .map((slot) => slot.name)
+            .join(',');
+    }
+    validateTimetable(): string[] {
+        const errors: string[] = [];
 
+        // ✅ Department selection check
+        if (!this.timeTableService.timeTable.department) {
+            errors.push('Please select a department.');
+        }
 
-saveTimetable() {
-  this.timeTableService.create(this.timetableJson)
-  .subscribe((result:any)=>{
-      this.router.navigate(['/time-table-list']);
-      this.messageService.add({ severity: 'success', summary: 'Success Message', detail: 'Congrats! Time Table Added' });
-     });
-}
+        // ✅ At least one subject required
+        if (!this.timeTableService.timeTable.subjects.length) {
+            errors.push('No subjects found for this department.');
+        }
 
-cancel(){
-  this.showTimetableDialog = false;
-  this.timetableJson = null;
-}
+        // ✅ Every subject must have a teacher
+        // const unassigned = this.timeTableService.timeTable.subjects.filter(s => !s.teacher);
+        // if (unassigned.length) {
+        //   errors.push(`${unassigned.length} subject(s) do not have a teacher assigned.`);
+        // }
 
-getSlotIndexes(classSec: ClassSection): number[] {
-  const slots = classSec.schedules[0]?.periods.length || 0;
-  return Array.from({ length: slots }, (_, i) => i);
-}
+        const workingDays = this.timeTableService.timeTable.settings.workingDays.filter((d) => d.selected);
+        if (!workingDays.length) {
+            errors.push('Please select at least one working day.');
+        }
 
+        if (this.timeTableService.timeTable.settings.periodsPerDay <= 0) {
+            errors.push('Invalid number of periods per day.');
+        }
 
-  getWorkingDays() {
-    return this.timeTableService.timeTable.
-      settings.workingDays.filter((slot)=>slot.selected).
-      map(slot=>slot.name).join(',');
-  }
-  validateTimetable(): string[] {
-  const errors: string[] = [];
-
-  // ✅ Department selection check
-  if (!this.timeTableService.timeTable.department) {
-    errors.push("Please select a department.");
-  }
-
-  // ✅ At least one subject required
-  if (!this.timeTableService.timeTable.subjects.length) {
-    errors.push("No subjects found for this department.");
-  }
-
-  // ✅ Every subject must have a teacher
-  // const unassigned = this.timeTableService.timeTable.subjects.filter(s => !s.teacher);
-  // if (unassigned.length) {
-  //   errors.push(`${unassigned.length} subject(s) do not have a teacher assigned.`);
-  // }
-
-  const workingDays = this.timeTableService.timeTable.settings.workingDays.filter(d => d.selected);
-  if (!workingDays.length) {
-    errors.push("Please select at least one working day.");
-  }
-
-  if (this.timeTableService.timeTable.settings.periodsPerDay <= 0) {
-    errors.push("Invalid number of periods per day.");
-  }
-
-  return errors;
-}
-
+        return errors;
+    }
 }
