@@ -57,7 +57,10 @@ export class CommonService {
         });
 
         this.store.select(getAssociatedDepartments).subscribe((res) => {
-            this.associatedDepartments = res ?? [];
+            this.associatedDepartments =
+                res?.map((department: any) => {
+                    return { ...department, name: department.department?.name };
+                }) ?? [];
         });
 
         this.store.select(getAllSectionEntities).subscribe((res) => {

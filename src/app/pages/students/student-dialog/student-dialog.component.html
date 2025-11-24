@@ -150,7 +150,7 @@
         <div class="mt-2">
           <label class="block font-bold mb-2">Department</label>
           <p-select
-            [options]="associatedDepartments"
+            [options]="commonService.associatedDepartments"
             [(ngModel)]="selectedDepartment"
             [ngModelOptions]="{standalone: true}"
             optionLabel="name"

@@ -137,8 +137,7 @@ export class ReviewComponent {
                 departmentId: this.timeTableService.timeTable.department.id,
                 departmentName: this.timeTableService.timeTable.department.department.name,
                 settings: { ...this.timeTableService.timeTable.settings },
-                classSections,
-                isActive: true
+                classSections
             };
             this.showTimetableDialog = true;
         });

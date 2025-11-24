@@ -15,8 +15,8 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
+import { CommonService } from '../../../core/services/common.service';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
 import { IBranch } from '../../models/tenant.model';
 import {
     IGuardianProfile,
@@ -90,7 +90,7 @@ export class StudentDialogComponent implements OnInit {
 
             if (value.departments && value.departments.length > 0) {
                 const departmentId = value.departments[0];
-                const foundDepartment = this.associatedDepartments.find((dep) => dep.id === departmentId);
+                const foundDepartment = this.commonService.associatedDepartments.find((dep) => dep.id === departmentId);
                 if (foundDepartment) {
                     this.selectedDepartment = foundDepartment;
 
@@ -132,7 +132,8 @@ export class StudentDialogComponent implements OnInit {
     submitted: boolean = false;
     availableAuthorities: any[] = [];
     associatedBranch: IBranch | undefined;
-    associatedDepartments: any[] = [];
+    // associatedDepartments: any[] = [];
+    commonService = inject(CommonService);
     selectedDepartment: any;
     selectedClass: any;
     selectedSection: any;
@@ -165,20 +166,20 @@ export class StudentDialogComponent implements OnInit {
                 longitude: 77.5946,
                 ...this.student
             };
-        this.store.select(getAssociatedDepartments).subscribe((departments) => {
-            this.associatedDepartments = departments.map((department: any) => {
-                return { ...department, name: department.department?.name };
-            });
+        // this.store.select(getAssociatedDepartments).subscribe((departments) => {
+        //     this.associatedDepartments = departments.map((department: any) => {
+        //         return { ...department, name: department.department?.name };
+        //     });
 
-            if (this._studentProfile && this._studentProfile.departments && this._studentProfile.departments.length > 0) {
-                const departmentId = this._studentProfile.departments[0];
-                const foundDepartment = this.associatedDepartments.find((dep) => dep.id === departmentId);
-                if (foundDepartment) {
-                    this.selectedDepartment = foundDepartment;
-                    this.setClassAndSectionFromProfile();
-                }
+        if (this._studentProfile && this._studentProfile.departments && this._studentProfile.departments.length > 0) {
+            const departmentId = this._studentProfile.departments[0];
+            const foundDepartment = this.commonService.associatedDepartments.find((dep) => dep.id === departmentId);
+            if (foundDepartment) {
+                this.selectedDepartment = foundDepartment;
+                this.setClassAndSectionFromProfile();
             }
-        });
+        }
+        // });
     }
 
     private setClassAndSectionFromProfile(): void {

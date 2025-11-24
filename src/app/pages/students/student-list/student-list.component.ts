@@ -22,9 +22,7 @@ import { Column, ExportColumn } from '../../../core/model/table.model';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getBranch, selectUserConfig } from '../../../core/store/user-profile/user-profile.selectors';
 import { SortService } from '../../../shared/sort';
-import { IBranch } from '../../models/tenant.model';
 import { IProfileConfig, ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantAuthorityService } from '../../service/tenant-authority.service';
@@ -84,21 +82,22 @@ export class StudentListComponent {
     messageService = inject(MessageService);
     confirmationService = inject(ConfirmationService);
     loader = inject(ApiLoaderService);
-    currentUser: any;
-    branch: IBranch;
+    // currentUser: any;
+    // branch: IBranch;
     commonService = inject(CommonService);
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);
         });
 
-        this.store.select(selectUserConfig).subscribe((userConfig) => {
-            this.currentUser = userConfig.userId;
-        });
+        // this.store.select(selectUserConfig).subscribe((userConfig) => {
+        //     this.currentUser = userConfig.userId;
+        // });
 
-        this.store.select(getBranch).subscribe((branch) => {
-            this.branch = branch;
-        });
+        // this.store.select(getBranch).subscribe((branch) => {
+        //     this.branch = branch;
+        // });
+        this.load();
     }
 
     load(): void {
@@ -142,7 +141,7 @@ export class StudentListComponent {
             }
         }
 
-        userConfig.user.branchId = this.branch.id;
+        userConfig.user.branchId = this.commonService.branch.id;
         userConfig.profile.profileType = 'STUDENT';
         this.loader.show('Adding new Student');
         this.studentService.create(userConfig).subscribe((result) => {
@@ -161,7 +160,7 @@ export class StudentListComponent {
                 }
             }
 
-            userConfig.user.branchId = this.branch.id;
+            userConfig.user.branchId = this.commonService.branch.id;
             userConfig.profile.profileType = 'GUARDIAN';
             this.loader.show('Adding new Student');
             this.studentService.create(userConfig).subscribe((result: any) => {

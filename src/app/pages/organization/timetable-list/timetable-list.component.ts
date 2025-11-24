@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -24,9 +24,6 @@ import { TimeTableService } from './../../service/time-table.service';
     templateUrl: './timetable-list.component.html'
 })
 export class TimetableListComponent implements OnInit {
-    // filteredTimetables: DepartmentTimetable[] = [];
-    searchText: string = '';
-    departmentFilter: string = '';
     statusFilter: string = '';
     timeTableService = inject(TimeTableService);
     commonService = inject(CommonService);
@@ -37,41 +34,36 @@ export class TimetableListComponent implements OnInit {
     showTimetableDialog = false;
     statusOptions = [
         { label: 'All Status', value: '' },
-        { label: 'Active', value: 'active' },
-        { label: 'Archived', value: 'archived' }
+        { label: 'Draft', value: 'DRAFT' },
+        { label: 'Published', value: 'PUBLISHED' },
+        { label: 'Inactive', value: 'INACTIVE' }
     ];
+
+    editMode = signal(true);
+
     loader = inject(ApiLoaderService);
 
     ngOnInit() {
-        this.getTimeTableList();
+        this.selectedDepartment = this.commonService.associatedDepartments[0]?.id;
+        this.apiCall();
     }
 
-    getTimeTableList() {
+    apiCall() {
         this.loader.show('Fetching Timetables');
 
-        this.timeTableService.search(0, 100, 'id', 'ASC', { 'department_id.in': [...this.commonService.associatedDepartments?.map((dept) => dept.id)] }).subscribe((res) => {
+        const filters: any = {
+            'department_id.in': [this.selectedDepartment]
+        };
+
+        if (this.statusFilter && this.statusFilter != '') {
+            filters['status.equals'] = this.statusFilter;
+        }
+
+        this.timeTableService.search(0, 100, 'id', 'ASC', filters).subscribe((res) => {
             this.timetables = res.content;
             this.loader.hide();
         });
-
-        // this.timeTableService.fetchTimeTables().subscribe((result: any) => {
-        //     this.timetables = result;
-        //     this.loader.hide();
-        //     this.filteredTimetables = [...this.timetables];
-        // });
     }
-
-    // filterTimetables() {
-    //     this.filteredTimetables = this.timetables.filter((timetable) => {
-    //         const matchesSearch = timetable.settings.academicYear.toLowerCase().includes(this.searchText.toLowerCase()) || timetable.settings.semester.toLowerCase().includes(this.searchText.toLowerCase());
-
-    //         const matchesDepartment = !this.departmentFilter || timetable.departmentId === this.departmentFilter;
-
-    //         const matchesStatus = !this.statusFilter || (this.statusFilter === 'active' && timetable.isActive) || (this.statusFilter === 'archived' && !timetable.isActive);
-
-    //         return matchesSearch && matchesDepartment && matchesStatus;
-    //     });
-    // }
 
     viewTimeTable(timetable) {
         this.dailogeType = 'View';
@@ -86,7 +78,7 @@ export class TimetableListComponent implements OnInit {
     }
     deleteTimeTable(timetable) {
         this.timeTableService.deleteTimeTable(timetable.id).subscribe((result) => {
-            this.getTimeTableList();
+            this.apiCall();
         });
     }
 
@@ -96,4 +88,10 @@ export class TimetableListComponent implements OnInit {
     }
 
     saveTimetable() {}
+
+    handleTimetableChange(updatedTimetable: DepartmentTimetable): void {
+        console.log('Timetable changed:', updatedTimetable);
+        // this.currentTimetable.set(updatedTimetable);
+        // Optionally save to backend or mark as modified
+    }
 }
