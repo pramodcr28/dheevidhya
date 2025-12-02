@@ -24,6 +24,11 @@ export class ReviewComponent {
     timeTableService = inject(TimeTableService);
     router = inject(Router);
     validationErrors: string[];
+
+    // Updated generateTimetable() method with break insertion logic
+
+    // Updated generateTimetable() method with proper break insertion
+
     generateTimetable() {
         const errors = this.validateTimetable();
         if (errors.length) {
@@ -40,10 +45,9 @@ export class ReviewComponent {
             avoided_periods: t.timeOff,
             unavailable_periods: []
         }));
-        let classes: any[] = [];
-        let classCounter = 1;
 
-        // this.commonService.associatedDepartments.subscribe((departments) => {
+        let classes: any[] = [];
+
         const department = this.commonService.associatedDepartments.find((department) => department.id == this.timeTableService.timeTable.department.id);
 
         department?.department.classes?.forEach((cls) => {
@@ -60,13 +64,11 @@ export class ReviewComponent {
                     name: `${cls.name}-${section.name}`,
                     subjects
                 });
-
-                classCounter++;
             });
         });
 
         const exportData: any = {
-            days: this.timeTableService.timeTable.settings.workingDays.filter((d) => d.selected).length,
+            days: this.timeTableService.timeTable.settings.workingDays.map((day, index) => (day.selected ? index : -1)).filter((index) => index !== -1),
             periods_per_day: this.timeTableService.timeTable.settings.periodsPerDay,
             teachers,
             classes
@@ -75,10 +77,8 @@ export class ReviewComponent {
         this.showTimetableDialog = true;
         this.timeTableService.generateTimeTable(exportData).subscribe((response: any) => {
             const rawTimetable = response.timetable;
-
             const classSections: any[] = [];
 
-            // rawTimetable keys are like: "classId-sectionId"
             for (const key of Object.keys(rawTimetable)) {
                 const [classId, sectionId] = key.split('-');
                 const classEntry = classes.find((cls) => cls.id === key);
@@ -89,21 +89,34 @@ export class ReviewComponent {
                 if (classEntry) {
                     [className, sectionName] = classEntry.name.split('-');
                 }
-                const dayEntries = rawTimetable[key];
 
+                const dayEntries = rawTimetable[key];
                 const schedules: any[] = [];
+                const settings = this.timeTableService.timeTable.settings;
+
+                // Get enabled breaks, sorted by afterPeriod
+                const enabledBreaks = (settings.breaks || []).filter((b) => b.enabled).sort((a, b) => a.afterPeriod - b.afterPeriod);
+
+                let dayStartMinutes = this.toMinutes(settings.startTime);
 
                 for (const dayIndex of Object.keys(dayEntries)) {
                     const periods: any[] = [];
-
                     const periodEntries = dayEntries[dayIndex];
+                    let currentStart = dayStartMinutes;
+                    let lecturePeriodCount = 0; // Track actual lecture periods
 
                     for (const periodIndex of Object.keys(periodEntries)) {
                         const period = periodEntries[periodIndex];
+                        lecturePeriodCount++;
+
+                        const startTimeStr = this.toHHmm(currentStart);
+                        const endTimeStr = this.toHHmm(currentStart + settings.periodDuration);
+
+                        // Add lecture period
                         periods.push({
-                            startTime: '08:00',
-                            endTime: '08:45',
-                            type: period.subject_name === 'FREE' ? 'break' : 'lecture',
+                            startTime: startTimeStr,
+                            endTime: endTimeStr,
+                            type: 'lecture',
                             name: period.subject_name,
                             subject: {
                                 id: period.subject_id,
@@ -114,6 +127,28 @@ export class ReviewComponent {
                                 name: period.teacher_name
                             }
                         });
+
+                        currentStart += settings.periodDuration;
+
+                        // Check if we need to insert a break after this lecture period
+                        const breakToInsert = enabledBreaks.find((b) => b.afterPeriod === lecturePeriodCount);
+
+                        if (breakToInsert) {
+                            const breakStartTime = this.toHHmm(currentStart);
+                            const breakEndTime = this.toHHmm(currentStart + breakToInsert.duration);
+
+                            // Insert break period
+                            periods.push({
+                                startTime: breakStartTime,
+                                endTime: breakEndTime,
+                                type: 'break',
+                                name: breakToInsert.name,
+                                subject: null,
+                                instructor: null
+                            });
+
+                            currentStart += breakToInsert.duration;
+                        }
                     }
 
                     schedules.push({
@@ -139,9 +174,22 @@ export class ReviewComponent {
                 settings: { ...this.timeTableService.timeTable.settings },
                 classSections
             };
+
             this.showTimetableDialog = true;
         });
-        // });
+    }
+
+    // Helper methods
+    private toMinutes(timeStr: string): number {
+        if (!timeStr) return 0;
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        return hours * 60 + minutes;
+    }
+
+    private toHHmm(minutes: number): string {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
     }
 
     saveTimetable() {

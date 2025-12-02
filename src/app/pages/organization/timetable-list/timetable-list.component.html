@@ -106,8 +106,6 @@
 </div>
 
 <p-dialog [(visible)]="showTimetableDialog" (onHide)="cancel()" [modal]="true" header="Timetable Preview" [style]="{ width: '85vw' }">
-    <app-timetable-view [timetableJson]="seletedTimeTable" (publish)="saveTimetable()" [dailogeType]="dailogeType" (cancel)="cancel()"> </app-timetable-view>
-
        <app-timetable-view
         [timetableJson]="seletedTimeTable"
         [dailogeType]="editMode() ? 'Edit' : 'View'"

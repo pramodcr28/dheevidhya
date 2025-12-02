@@ -36,7 +36,23 @@ export class TimeTableService {
             endTime: '16:00',
             periodDuration: 45,
             breakDuration: 10,
-            periodsPerDay: 7
+            periodsPerDay: 7,
+            breaks: [
+                {
+                    id: 'tea_break',
+                    name: 'Tea Break',
+                    afterPeriod: 2,
+                    duration: 15,
+                    enabled: false
+                },
+                {
+                    id: 'lunch_break',
+                    name: 'Lunch Break',
+                    afterPeriod: 4,
+                    duration: 45,
+                    enabled: false
+                }
+            ]
         },
         subjects: [],
         schedule: {}
@@ -178,5 +194,10 @@ export class TimeTableService {
             subjects: [],
             schedule: {}
         };
+    }
+    getPeriodConflicts(payload: any): Observable<any> {
+        //GET http://localhost:8080/services/v3admin/api/timetables/instructor/192/slots
+
+        return this.http.post(`${this.resourceUrl}/get-period-swap-conflicts`, payload);
     }
 }

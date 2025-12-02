@@ -10,18 +10,24 @@ export interface TimeTable {
 // ----------------------    export timetable     ---------------------------------
 
 export interface Period {
+    id?: string;
+    name: string;
+    type: 'lecture' | 'break' | 'free';
     startTime: string;
     endTime: string;
-    type: string;
-    name: string;
     subject: {
         id: string;
         name: string;
     };
-    instructor: {
+    instructor?: {
         id: string;
         name: string;
     };
+    // Direct properties - no helper methods needed
+    cssClasses?: string;
+    tooltip?: string;
+    canDrop?: boolean;
+    duration?: number; // Duration in minutes (optional, can be calculated)
 }
 
 interface Schedule {
@@ -55,7 +61,34 @@ export interface TimeTableSettings {
     periodDuration: number;
     breakDuration: number;
     periodsPerDay: number;
+    breaks?: BreakConfig[];
 }
+
+export interface BreakConfig {
+    id: string;
+    name: string;
+    afterPeriod: number; // Insert break after this period number (1-indexed)
+    duration: number; // Duration in minutes
+    enabled: boolean;
+}
+
+// Example default breaks
+export const DEFAULT_BREAKS: BreakConfig[] = [
+    {
+        id: 'tea_break',
+        name: 'Tea Break',
+        afterPeriod: 2,
+        duration: 15,
+        enabled: false
+    },
+    {
+        id: 'lunch_break',
+        name: 'Lunch Break',
+        afterPeriod: 4,
+        duration: 30,
+        enabled: false
+    }
+];
 
 export interface Teacher {
     name: string;

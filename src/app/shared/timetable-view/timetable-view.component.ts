@@ -1,10 +1,12 @@
+// Modern TimetableViewComponent with Break Column Support and PrimeNG Styling
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, effect, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, effect, inject, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { ClassSection, DepartmentTimetable, Period } from '../../pages/models/time-table';
+import { TimeTableService } from '../../pages/service/time-table.service';
 
 interface DragData {
     period: Period;
@@ -30,20 +32,59 @@ interface InstructorConflicts {
 
 @Component({
     selector: 'app-timetable-view',
+    standalone: true,
     imports: [CommonModule, ToastModule, TooltipModule],
     providers: [MessageService],
     templateUrl: './timetable-view.component.html',
     styles: [
         `
-            /* ensure selected cells keep visible outline only for keyboard users */
             [aria-selected='true'] {
                 box-shadow: none;
             }
 
-            /* Fix border rendering */
-            .grid > div {
-                border-style: solid;
-                border-width: 1px;
+            /* Smooth animations */
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .space-y-6 > * {
+                animation: fadeIn 0.3s ease-out;
+            }
+
+            /* Break column styling */
+            .break-column {
+                width: 4rem !important;
+                min-width: 4rem !important;
+                max-width: 4rem !important;
+            }
+
+            /* Compact period cells */
+            .compact-period {
+                padding: 0.5rem !important;
+                min-height: 100px !important;
+            }
+
+            /* Smaller font sizes */
+            .text-smaller {
+                font-size: 0.875rem;
+                line-height: 1.25rem;
+            }
+
+            .text-xs-smaller {
+                font-size: 0.75rem;
+                line-height: 1rem;
+            }
+            /* styles.css or global css */
+            .writing-vertical-rl {
+                writing-mode: vertical-rl;
+                text-orientation: mixed;
             }
         `
     ]
@@ -60,22 +101,30 @@ export class TimetableViewComponent {
     instructorConflicts = signal<InstructorConflicts | null>(null);
     loadingConflicts = signal<boolean>(false);
 
+    timeTableService = inject(TimeTableService);
+
     constructor(
         private messageService: MessageService,
         private http: HttpClient
     ) {
         effect(() => {
-            if (!this.prepared() && !this.draggedItem()) {
-                this.instructorConflicts.set(null);
+            const prep = this.prepared();
+            const conflicts = this.instructorConflicts();
+            const loading = this.loadingConflicts();
+
+            if (prep) {
+                this.updateAllPeriodProperties(prep, conflicts, loading);
+            } else {
+                this.clearAllPeriodProperties();
             }
         });
     }
 
-    /* grid template with minmax to prevent collapse */
-    gridTemplateColumns(slotCount: number): string {
-        if (!slotCount || slotCount <= 0) return 'minmax(120px, 160px)';
-        const repeatCols = `repeat(${slotCount}, minmax(140px, 1fr))`;
-        return `minmax(120px, 160px) ${repeatCols}`;
+    /**
+     * Useful helper (if needed elsewhere) to fetch break for a specific slot index (1-based afterPeriod)
+     */
+    getBreakForSlot(slotIndex: number) {
+        return this.timetableJson?.settings?.breaks?.find((b: any) => b.enabled && b.afterPeriod === slotIndex);
     }
 
     getSlotIndexes(classSec: ClassSection): number[] {
@@ -86,31 +135,46 @@ export class TimetableViewComponent {
     }
 
     getDayName(dayIndex: number): string {
-        return this.timetableJson.settings.workingDays.filter((day) => day.selected)[dayIndex]?.name || '';
+        // returns Nth selected working day name (your original logic)
+        const selected = this.timetableJson.settings.workingDays.filter((d) => d.selected);
+        return selected[dayIndex]?.name || '';
     }
 
-    canDragPeriod(classSection: ClassSection, dayIndex: number, periodIndex: number): boolean {
-        if (this.dailogeType !== 'Edit') return false;
+    // Calculate duration between two times
+    calculateDuration(startTime: string, endTime: string): number {
+        const [startHour, startMin] = startTime.split(':').map(Number);
+        const [endHour, endMin] = endTime.split(':').map(Number);
 
-        const prepared = this.prepared();
-        if (!prepared) return false;
+        const startMinutes = startHour * 60 + startMin;
+        const endMinutes = endHour * 60 + endMin;
 
-        // Only allow dragging from the currently prepared period
-        return prepared.classSection.classId === classSection.classId && prepared.dayIndex === dayIndex && prepared.periodIndex === periodIndex && this.preparedForDrag();
+        return endMinutes - startMinutes;
     }
-
     async onPeriodClick(period: Period, classSection: ClassSection, dayIndex: number, periodIndex: number): Promise<void> {
         if (this.dailogeType !== 'Edit') return;
 
+        if (period?.type === 'break') {
+            this.messageService.add({
+                severity: 'info',
+                summary: 'Break Period',
+                detail: 'Break periods cannot be moved or edited',
+                life: 3000
+            });
+            return;
+        }
+
         const current = this.prepared();
+
+        // Toggle off if clicking same period
         if (current && current.classSection.classId === classSection.classId && current.dayIndex === dayIndex && current.periodIndex === periodIndex) {
             this.prepared.set(null);
             return;
         }
 
+        // Set new prepared period
         this.prepared.set({ period, classSection, dayIndex, periodIndex });
 
-        // Reset conflicts when selecting a new period
+        // Reset conflicts
         this.instructorConflicts.set(null);
         this.loadingConflicts.set(false);
 
@@ -120,26 +184,246 @@ export class TimetableViewComponent {
         }
 
         this.loadingConflicts.set(true);
-        try {
-            await this.fetchInstructorConflicts(period.instructor.id, period.instructor.name);
-        } catch (err) {
-            console.error('Error fetching conflicts', err);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to check instructor schedule' });
-            this.instructorConflicts.set(null);
-        } finally {
+
+        let request = {
+            timeTableId: this.timetableJson.id,
+            periodIndex: periodIndex,
+            dayIndex: dayIndex,
+            classId: classSection.classId,
+            sectionId: classSection.sectionId
+        };
+        this.timeTableService.getPeriodConflicts(request).subscribe((response: any[]) => {
+            // Group by instructorName
+            const grouped: { [key: string]: any[] } = {};
+
+            response.forEach((item) => {
+                const name = item.instructorName?.trim();
+
+                if (!grouped[name]) {
+                    grouped[name] = [];
+                }
+
+                // Push only allocated slot fields
+                grouped[name].push({
+                    dayIndex: item.dayIndex,
+                    className: item.className,
+                    sectionName: item.sectionName,
+                    deptName: item.deptName,
+                    branchName: item.branchName,
+                    startTime: item.startTime,
+                    endTime: item.endTime
+                });
+            });
+
+            // Convert grouped object into your required structure
+            Object.keys(grouped).forEach((instructorName) => {
+                this.instructorConflicts.set({
+                    instructorId: null, // put your value here
+                    instructorName,
+                    allocatedSlots: grouped[instructorName]
+                });
+            });
             this.loadingConflicts.set(false);
+        });
+    }
+
+    private updateAllPeriodProperties(prepared: DragData, conflicts: InstructorConflicts | null, loading: boolean): void {
+        if (!this.timetableJson?.classSections) return;
+        console.log('Updating period properties with prepared:', prepared, 'conflicts:', conflicts, 'loading:', loading);
+        this.timetableJson.classSections.forEach((classSection) => {
+            classSection.schedules.forEach((schedule, dayIndex) => {
+                schedule.periods.forEach((period, periodIndex) => {
+                    this.setPeriodProperties(period, classSection, dayIndex, periodIndex, prepared, conflicts, loading);
+                });
+            });
+        });
+    }
+
+    private clearAllPeriodProperties(): void {
+        if (!this.timetableJson?.classSections) return;
+
+        this.timetableJson.classSections.forEach((classSection) => {
+            classSection.schedules.forEach((schedule) => {
+                schedule.periods.forEach((period) => {
+                    period.cssClasses = this.getBaseCellClasses(period);
+                    period.tooltip = '';
+                    period.canDrop = false;
+                });
+            });
+        });
+    }
+
+    private setPeriodProperties(period: Period, classSection: ClassSection, dayIndex: number, periodIndex: number, prepared: DragData, conflicts: InstructorConflicts | null, loading: boolean): void {
+        // Break periods - not interactive
+        if (period.type === 'break') {
+            period.cssClasses = 'bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-yellow-900/20 border-2 border-orange-300 dark:border-orange-700 shadow-md cursor-default';
+            period.tooltip = `${period.name} - ${this.calculateDuration(period.startTime, period.endTime)} minutes break`;
+            period.canDrop = false;
+            return;
         }
+
+        // Free periods (lectures without subjects)
+        const isFree = period.type === 'lecture' && !period.subject?.id;
+
+        if (isFree) {
+            if (this.dailogeType !== 'Edit') {
+                period.cssClasses = 'bg-surface-100 dark:bg-surface-800 border-2 border-dashed border-surface-300 dark:border-surface-600';
+                period.tooltip = '';
+                period.canDrop = false;
+                return;
+            }
+        }
+
+        // Lecture periods
+        if (period.type === 'lecture' && period.subject?.id) {
+            // Base style for lectures
+            let baseClass = 'bg-white dark:bg-gray-800 border border-primary-200 dark:border-primary-700 shadow-sm hover:shadow-md';
+
+            if (this.dailogeType !== 'Edit') {
+                period.cssClasses = baseClass;
+                period.tooltip = '';
+                period.canDrop = false;
+                return;
+            }
+
+            // Edit mode styles
+            period.cssClasses = baseClass + ' cursor-pointer';
+
+            // Selected period (source)
+            if (prepared.classSection.classId === classSection.classId && prepared.dayIndex === dayIndex && prepared.periodIndex === periodIndex) {
+                period.cssClasses = 'bg-primary-50 dark:bg-primary-900/20 border-2 border-primary-500 dark:border-primary-400 shadow-xl ring-2 ring-primary-300 dark:ring-primary-600 cursor-move';
+                period.tooltip = '📍 Selected - Ready to move';
+                period.canDrop = false;
+                return;
+            }
+
+            // Different class section
+            if (prepared.classSection.classId !== classSection.classId) {
+                period.cssClasses = baseClass + ' opacity-40 cursor-not-allowed';
+                period.tooltip = '❌ Can only move within same class section';
+                period.canDrop = false;
+                return;
+            }
+
+            // Same class section - validate drop
+            const validation = this.validateDrop(classSection, dayIndex, periodIndex, prepared, conflicts);
+
+            if (validation.canDrop) {
+                period.cssClasses = 'bg-green-50 dark:bg-green-900/20 border-2 border-green-500 dark:border-green-400 shadow-lg  cursor-pointer';
+                period.tooltip = loading ? '🔄 Checking conflicts...' : '✅ Drop here to swap periods';
+                period.canDrop = true;
+            } else {
+                if (validation.reason && validation.reason.includes('teaching')) {
+                    period.cssClasses = 'bg-red-50 dark:bg-red-900/20 border-2 border-red-500 dark:border-red-400 opacity-75 cursor-not-allowed';
+                    period.tooltip = `❌ ${validation.reason}`;
+                    period.canDrop = false;
+                } else {
+                    period.cssClasses = baseClass + ' opacity-50 cursor-not-allowed';
+                    period.tooltip = `⚠️ ${validation.reason || 'Cannot drop here'}`;
+                    period.canDrop = false;
+                }
+            }
+        } else {
+            // Free periods in edit mode
+            let baseClass = 'bg-surface-100 dark:bg-surface-800 border-2 border-dashed border-surface-300 dark:border-surface-600';
+
+            if (this.dailogeType === 'Edit') {
+                period.cssClasses = baseClass + ' cursor-pointer hover:border-surface-400 dark:hover:border-surface-500';
+
+                // If this free period can accept drops
+                if (prepared.classSection.classId === classSection.classId) {
+                    const validation = this.validateDrop(classSection, dayIndex, periodIndex, prepared, conflicts);
+
+                    if (validation.canDrop) {
+                        period.cssClasses = 'bg-green-50 dark:bg-green-900/20 border-2 border-green-500 dark:border-green-400 shadow-lg cursor-pointer';
+                        period.tooltip = '✅ Drop here to swap';
+                        period.canDrop = true;
+                    }
+                }
+            } else {
+                period.cssClasses = baseClass;
+                period.tooltip = '';
+                period.canDrop = false;
+            }
+        }
+    }
+
+    private getBaseCellClasses(period: Period): string {
+        if (period.type === 'break') {
+            return 'bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-yellow-900/20 border-2 border-orange-300 dark:border-orange-700 shadow-md';
+        }
+
+        const isFree = period.type === 'lecture' && !period.subject?.id;
+
+        if (isFree) {
+            return 'bg-surface-100 dark:bg-surface-800 border-2 border-dashed border-surface-300 dark:border-surface-600';
+        }
+
+        return 'bg-white dark:bg-gray-800 border border-primary-200 dark:border-primary-700 shadow-sm';
+    }
+
+    private validateDrop(targetClassSection: ClassSection, targetDayIndex: number, targetPeriodIndex: number, prepared: DragData, conflicts: InstructorConflicts | null): { canDrop: boolean; reason?: string } {
+        const targetPeriod = targetClassSection.schedules[targetDayIndex].periods[targetPeriodIndex];
+
+        // Cannot drop on break periods
+        if (targetPeriod.type === 'break') {
+            return { canDrop: false, reason: 'Cannot swap with break periods' };
+        }
+
+        // Same slot
+        if (prepared.classSection.classId === targetClassSection.classId && prepared.dayIndex === targetDayIndex && prepared.periodIndex === targetPeriodIndex) {
+            return { canDrop: false, reason: 'Cannot drop on same slot' };
+        }
+
+        // Different class section
+        if (prepared.classSection.classId !== targetClassSection.classId) {
+            return { canDrop: false, reason: 'Can only move periods within same class section' };
+        }
+
+        // Non-lecture or no instructor - allow free movement
+        if (prepared.period.type !== 'lecture' || !prepared.period.instructor?.id) {
+            return { canDrop: true };
+        }
+
+        // No conflicts data yet or empty
+        if (!conflicts || conflicts.allocatedSlots?.length === 0) {
+            return { canDrop: true };
+        }
+
+        // Check for instructor conflict at target slot
+        const conflictSlot = conflicts.allocatedSlots?.find((slot) => slot.dayIndex === targetDayIndex && slot.periodIndex === targetPeriodIndex);
+
+        if (conflictSlot) {
+            return {
+                canDrop: false,
+                reason: `Instructor ${conflicts.instructorName} is teaching ${conflictSlot.className}-${conflictSlot.sectionName} at this time`
+            };
+        }
+
+        return { canDrop: true };
+    }
+
+    canDragPeriod(classSection: ClassSection, dayIndex: number, periodIndex: number): boolean {
+        if (this.dailogeType !== 'Edit') return false;
+
+        const period = classSection.schedules[dayIndex].periods[periodIndex];
+
+        // Cannot drag break periods
+        if (period.type === 'break') return false;
+
+        const prepared = this.prepared();
+        if (!prepared) return false;
+
+        return prepared.classSection.classId === classSection.classId && prepared.dayIndex === dayIndex && prepared.periodIndex === periodIndex && this.preparedForDrag();
     }
 
     preparedForDrag(): boolean {
         const p = this.prepared();
         if (!p) return false;
 
-        // For non-lecture periods, always allow drag
-        if (p.period.type !== 'lecture') return true;
+        if (p.period.type === 'break') return false;
 
-        // For lecture periods, only allow drag if no conflicts or no instructor
-        if (!p.period.instructor?.id) return true;
+        if (p.period.type !== 'lecture') return true;
 
         return !this.loadingConflicts();
     }
@@ -148,45 +432,16 @@ export class TimetableViewComponent {
         const p = this.prepared();
         if (!p) return false;
 
-        // Only highlight periods in the SAME class section
         return p.classSection.classId === classSection.classId && p.dayIndex === dayIndex && p.periodIndex === periodIndex;
     }
 
-    async fetchInstructorConflicts(instructorId: string, instructorName: string): Promise<void> {
-        const response = await this.simulateApiCall(instructorId);
-        this.instructorConflicts.set({
-            instructorId,
-            instructorName,
-            allocatedSlots: response.allocatedSlots
-        });
-    }
-
-    private async simulateApiCall(instructorId: string): Promise<{ allocatedSlots: InstructorSlot[] }> {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const allocatedSlots: InstructorSlot[] = [];
-                for (const classSection of this.timetableJson.classSections) {
-                    classSection.schedules.forEach((schedule, dayIdx) => {
-                        schedule.periods.forEach((period, periodIdx) => {
-                            if (period.instructor?.id === instructorId && period.type === 'lecture') {
-                                allocatedSlots.push({
-                                    dayIndex: dayIdx,
-                                    periodIndex: periodIdx,
-                                    className: classSection.className,
-                                    sectionName: classSection.sectionName,
-                                    startTime: period.startTime,
-                                    endTime: period.endTime
-                                });
-                            }
-                        });
-                    });
-                }
-                resolve({ allocatedSlots });
-            }, 300);
-        });
-    }
-
     onNativeDragStart(event: DragEvent, period: Period, classSection: ClassSection, dayIndex: number, periodIndex: number): void {
+        // Prevent dragging break periods
+        if (period.type === 'break') {
+            event.preventDefault();
+            return;
+        }
+
         const prepared = this.prepared();
         if (!prepared) {
             event.preventDefault();
@@ -202,41 +457,38 @@ export class TimetableViewComponent {
             event.preventDefault();
             return;
         }
-
+        debugger;
         this.draggedItem.set(prepared);
         event.dataTransfer!.effectAllowed = 'move';
         event.dataTransfer!.setData('text/plain', 'move');
-
-        // If this is a lecture period with instructor and we don't have conflicts yet, fetch them
-        if (prepared.period.type === 'lecture' && prepared.period.instructor?.id && !this.instructorConflicts()) {
-            this.loadingConflicts.set(true);
-            this.fetchInstructorConflicts(prepared.period.instructor.id, prepared.period.instructor.name).finally(() => this.loadingConflicts.set(false));
-        }
     }
 
     onDragOver(event: DragEvent): void {
         event.preventDefault();
         const dragged = this.draggedItem();
-        if (dragged) event.dataTransfer!.dropEffect = 'move';
+        if (dragged) {
+            event.dataTransfer!.dropEffect = 'move';
+        }
     }
 
     onDrop(event: DragEvent, targetClassSection: ClassSection, targetDayIndex: number, targetPeriodIndex: number): void {
         event.preventDefault();
         const dragged = this.draggedItem();
+
         if (!dragged) {
             this.resetDragState();
             return;
         }
 
-        // Allow dropping on any slot type (including breaks and free periods)
-        if (dragged.classSection.classId === targetClassSection.classId && dragged.dayIndex === targetDayIndex && dragged.periodIndex === targetPeriodIndex) {
-            this.resetDragState();
-            return;
-        }
+        const targetPeriod = targetClassSection.schedules[targetDayIndex].periods[targetPeriodIndex];
 
-        const validation = this.canDropAtSlot(targetClassSection, targetDayIndex, targetPeriodIndex);
-        if (!validation.canDrop) {
-            this.messageService.add({ severity: 'error', summary: 'Cannot Drop', detail: validation.reason || 'Invalid drop location' });
+        if (!targetPeriod.canDrop) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Cannot Drop',
+                detail: targetPeriod.tooltip || 'Invalid drop location',
+                life: 4000
+            });
             this.resetDragState();
             return;
         }
@@ -254,7 +506,12 @@ export class TimetableViewComponent {
             }
         );
 
-        this.messageService.add({ severity: 'success', summary: 'Period Moved', detail: 'Timetable updated' });
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: '✅ Period moved successfully!',
+            life: 3000
+        });
 
         this.resetDragState();
         this.timetableChange.emit(this.timetableJson);
@@ -271,131 +528,17 @@ export class TimetableViewComponent {
         this.loadingConflicts.set(false);
     }
 
-    canDropAtSlot(targetClassSection: ClassSection, targetDayIndex: number, targetPeriodIndex: number): { canDrop: boolean; reason?: string } {
-        const dragged = this.draggedItem();
-        if (!dragged) return { canDrop: false };
-
-        // Allow dropping within the same class section only
-        if (dragged.classSection.classId !== targetClassSection.classId) {
-            return { canDrop: false, reason: 'Can only move periods within the same class section' };
-        }
-
-        // Don't allow dropping on the same slot
-        if (dragged.classSection.classId === targetClassSection.classId && dragged.dayIndex === targetDayIndex && dragged.periodIndex === targetPeriodIndex) {
-            return { canDrop: false, reason: 'Cannot drop on same slot' };
-        }
-
-        // For non-lecture periods or lecture periods without instructors, allow free movement
-        if (dragged.period.type !== 'lecture' || !dragged.period.instructor?.id) {
-            return { canDrop: true };
-        }
-
-        // For lecture periods with instructors, check conflicts
-        const conflicts = this.instructorConflicts();
-
-        // If conflicts data is not available yet, allow drop (we'll check in background)
-        if (!conflicts) {
-            return { canDrop: true };
-        }
-
-        // If conflicts data is available but empty, allow drop
-        if (conflicts.allocatedSlots.length === 0) {
-            return { canDrop: true };
-        }
-
-        // Check if there's a conflict at the target slot
-        const hasConflict = conflicts.allocatedSlots.some((slot) => slot.dayIndex === targetDayIndex && slot.periodIndex === targetPeriodIndex);
-
-        if (hasConflict) {
-            const conflictSlot = conflicts.allocatedSlots.find((s) => s.dayIndex === targetDayIndex && s.periodIndex === targetPeriodIndex);
-            return {
-                canDrop: false,
-                reason: `${conflicts.instructorName} is teaching ${conflictSlot?.className} - ${conflictSlot?.sectionName} at this time`
-            };
-        }
-
-        return { canDrop: true };
-    }
-
-    computeCellClasses(classSection: ClassSection, dayIndex: number, periodIndex: number, period: Period): string {
-        const base = 'px-3 py-2 transition-all duration-150 relative flex items-stretch justify-start cursor-pointer';
-
-        if (this.dailogeType !== 'Edit') {
-            return `${base} bg-white dark:bg-gray-800`;
-        }
-
-        // Base styles for different period types
-        let typeClasses = '';
-        switch (period.type) {
-            case 'break':
-                typeClasses = 'bg-gray-50 dark:bg-gray-800/50';
-                break;
-            case 'free':
-                typeClasses = 'bg-white dark:bg-gray-800';
-                break;
-            case 'lecture':
-                typeClasses = 'bg-white dark:bg-gray-800';
-                break;
-        }
-
-        const prepared = this.prepared();
-        if (!prepared) {
-            return `${base} ${typeClasses}`;
-        }
-
-        // Selected period (the one being prepared for drag)
-        if (prepared.classSection.classId === classSection.classId && prepared.dayIndex === dayIndex && prepared.periodIndex === periodIndex) {
-            return `${base} ring-2 ring-blue-500 dark:ring-blue-400 bg-blue-50 dark:bg-blue-900/20 ${typeClasses}`;
-        }
-
-        // Only show drop targets in the same class section
-        if (prepared.classSection.classId === classSection.classId) {
-            const validation = this.canDropAtSlot(classSection, dayIndex, periodIndex);
-
-            if (validation.canDrop) {
-                return `${base} ring-2 ring-green-400 dark:ring-green-500 bg-green-50 dark:bg-green-900/10 ${typeClasses}`;
-            } else {
-                // Only show red if there's a specific conflict reason, otherwise use default styling
-                if (validation.reason && validation.reason.includes('teaching')) {
-                    return `${base} ring-2 ring-red-500 dark:ring-red-400 bg-red-50 dark:bg-red-900/10 cursor-not-allowed ${typeClasses}`;
-                } else {
-                    // For other restrictions (same slot, different section), use default styling
-                    return `${base} ${typeClasses} cursor-not-allowed`;
-                }
-            }
-        }
-
-        return `${base} ${typeClasses}`;
-    }
-
-    getDropTooltip(classSection: ClassSection, dayIndex: number, periodIndex: number): string {
-        const prepared = this.prepared();
-        if (!prepared) return '';
-
-        // Only show tooltips for the same class section
-        if (prepared.classSection.classId !== classSection.classId) {
-            return 'Can only move within same class section';
-        }
-
-        if (prepared.classSection.classId === classSection.classId && prepared.dayIndex === dayIndex && prepared.periodIndex === periodIndex) {
-            return 'This is the source period';
-        }
-
-        const validation = this.canDropAtSlot(classSection, dayIndex, periodIndex);
-
-        if (validation.canDrop) {
-            if (this.loadingConflicts()) {
-                return 'Checking conflicts... ✓ Drop here';
-            }
-            return '✓ Drop here';
-        } else {
-            return `✗ ${validation.reason || 'Cannot drop here'}`;
-        }
-    }
-
     private swapPeriods(source: { classSection: ClassSection; dayIndex: number; periodIndex: number }, target: { classSection: ClassSection; dayIndex: number; periodIndex: number }): void {
         const sourcePeriod = { ...source.classSection.schedules[source.dayIndex].periods[source.periodIndex] };
         const targetPeriod = { ...target.classSection.schedules[target.dayIndex].periods[target.periodIndex] };
+
+        // Clear UI properties before swapping
+        delete sourcePeriod.cssClasses;
+        delete sourcePeriod.tooltip;
+        delete sourcePeriod.canDrop;
+        delete targetPeriod.cssClasses;
+        delete targetPeriod.tooltip;
+        delete targetPeriod.canDrop;
 
         target.classSection.schedules[target.dayIndex].periods[target.periodIndex] = sourcePeriod;
         source.classSection.schedules[source.dayIndex].periods[source.periodIndex] = targetPeriod;
@@ -408,5 +551,37 @@ export class TimetableViewComponent {
     onCancel(): void {
         this.prepared.set(null);
         this.cancel.emit();
+    }
+    getColumnsWithBreaks(classSec: ClassSection): Array<any> {
+        const periods = this.getSlotIndexes(classSec);
+        // const breaks = this.timetableJson?.settings?.breaks || [];
+        const cols: any[] = [];
+
+        periods.forEach((_, idx) => {
+            // period column
+            cols.push({ type: 'period', index: idx });
+
+            // check if any break is to be inserted AFTER this period (afterPeriod is 1-based)
+            const breakItem = this.timetableJson?.settings?.breaks?.find((b: any) => b.afterPeriod === idx + 1);
+            if (breakItem) {
+                cols.push({ type: 'break', breakItem });
+            }
+        });
+
+        return cols;
+    }
+
+    gridTemplateColumns(totalColCount: number): string {
+        if (!totalColCount || totalColCount <= 0) {
+            return 'minmax(120px, 140px)';
+        }
+
+        let template = 'minmax(120px, 140px) ';
+
+        for (let i = 0; i < totalColCount; i++) {
+            template += 'auto ';
+        }
+
+        return template;
     }
 }
