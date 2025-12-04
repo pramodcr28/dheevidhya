@@ -32,6 +32,7 @@ export interface Period {
 
 interface Schedule {
     day: string; // or number, depends how you map it
+    dayName: string;
     periods: Period[];
 }
 
@@ -44,12 +45,12 @@ export interface ClassSection {
 }
 
 export interface DepartmentTimetable {
-    id: string;
-    status: string;
-    departmentId: string;
-    departmentName: string;
-    classSections: ClassSection[];
-    settings: TimeTableSettings;
+    id?: string;
+    status?: string;
+    departmentId?: string;
+    departmentName?: string;
+    classSections?: ClassSection[];
+    settings?: TimeTableSettings;
 }
 
 export interface TimeTableSettings {

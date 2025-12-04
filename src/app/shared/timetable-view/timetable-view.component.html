@@ -1,9 +1,9 @@
 <p-toast></p-toast>
 
-<div *ngIf="timetableJson" class="relative pb-24 dark:bg-gray-900 min-h-screen">
+<div *ngIf="displayTimeTableJson" class="relative pb-24 dark:bg-gray-900 min-h-screen">
 
   <div class="space-y-6">
-    <div *ngFor="let classSec of timetableJson.classSections"
+    <div *ngFor="let classSec of displayTimeTableJson.classSections"
          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
 
       <div class="bg-primary-600 dark:bg-primary-700 p-5">
@@ -22,69 +22,106 @@
 
       <div class="overflow-x-auto p-4">
         <div class="w-full grid gap-1.5 min-w-fit"
-             [ngStyle]="{ 'gridTemplateColumns': gridTemplateColumns(getColumnsWithBreaks(classSec).length) }">
-
+             [ngStyle]="{ 'gridTemplateColumns': '120px repeat(' + ((classSec._columns?.length) || 7) + ', minmax(120px,1fr))' }">
           <div class="bg-primary-50 dark:bg-primary-900/20 font-bold text-primary-700 dark:text-primary-300 p-3 rounded-lg flex items-center justify-center border-2 border-primary-200 dark:border-primary-800">
-            <div class="text-center">
+            <div class="text-center flex-col items-center flex">
               <i class="pi pi-calendar text-lg mb-1 block"></i>
               <span class="text-xs uppercase tracking-wide">Day</span>
             </div>
           </div>
-
-          <ng-container *ngFor="let col of getColumnsWithBreaks(classSec)">
+          <ng-container *ngFor="let col of classSec._columns">
             <div *ngIf="col.type === 'period'"
                  class="bg-surface-50 dark:bg-surface-800 p-2 rounded-lg flex flex-col items-center justify-center border border-surface-200 dark:border-surface-700">
-              <span class="text-[9px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">Slot</span>
+              <span class="text-[9px] font-semibold text-surface-500 dark:text-surface-400  tracking-wider">Period</span>
               <span class="text-xl font-bold text-primary-600 dark:text-primary-400 mt-0.5">{{ col.index + 1 }}</span>
             </div>
+
             <div *ngIf="col.type === 'break'"
-                 class="bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded-lg flex items-center justify-center border-2 border-yellow-300 dark:border-yellow-700 shadow-sm w-full">
-               <i class="pi pi-clock text-yellow-700 dark:text-yellow-200"></i>
+                 class="bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded-lg flex items-center justify-center border-2 border-yellow-300 dark:border-yellow-700 shadow-sm">
+              <i class="pi pi-clock text-yellow-700 dark:text-yellow-200"></i>
             </div>
           </ng-container>
 
           <ng-container *ngFor="let schedule of classSec.schedules; let dayIdx = index">
 
-            <div class="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center gap-2 min-w-[80px] border-2 border-primary-200 dark:border-primary-800 shadow-sm">
+            <div class="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center gap-2 min-w-[80px] border-2 border-primary-200 dark:border-primary-800 shadow-sm flex-col">
               <div class="p-1.5 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
                 <i class="pi pi-calendar-plus text-primary-600 dark:text-primary-400 text-base"></i>
               </div>
-              <div>
-                <span class="font-bold text-gray-900 dark:text-gray-100 text-sm block">{{ getDayName(dayIdx) }}</span>
-                <span class="text-xs text-surface-500 dark:text-surface-400">Day {{ dayIdx + 1 }}</span>
-              </div>
+                <span class="font-bold text-gray-900 dark:text-gray-100 text-sm block">
+                  {{ schedule.dayName  }}
+                </span>
+        
             </div>
+            <ng-container *ngFor="let headerCol of classSec._columns; let colIndex = index">
+              <ng-container *ngIf="schedule._cells && schedule._cells[colIndex] as cell">
+                <div *ngIf="cell.type === 'break' && dayIdx === 0"
+     [style.grid-row]="'span ' + classSec.schedules.length"
+     class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-900/10
+            rounded-lg border border-yellow-200 dark:border-yellow-700 shadow-inner relative">
 
-            <ng-container *ngFor="let col of getColumnsWithBreaks(classSec); let colIndex = index">
+    <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 py-4">
 
-              <ng-container *ngIf="col.type === 'period'">
-                <ng-container *ngTemplateOutlet="periodCell;
-                    context: { $implicit: schedule.periods[col.index], periodIndex: col.index, classSec: classSec, dayIdx: dayIdx }">
-                </ng-container>
+        <div class="p-1.5 rounded-full bg-white/60 dark:bg-white/10 shadow-sm">
+            <i class="pi pi-stopwatch text-yellow-600 dark:text-yellow-200 text-base"></i>
+        </div>
+
+        <div class="text-xs font-bold text-yellow-800 dark:text-yellow-200 uppercase tracking-widest"
+             style="writing-mode: vertical-rl; transform: rotate(180deg);">
+            {{ cell.breakItem?.name }}
+        </div>
+
+        <div class="text-[10px] text-yellow-700 dark:text-yellow-300 font-mono"
+             style="writing-mode: vertical-rl; transform: rotate(180deg);">
+            {{ cell.breakItem?.duration }} mins
+        </div>
+    </div>
+</div>
+
+                <div *ngIf="cell.type === 'lecture'"
+                     [pTooltip]="cell.tooltip"
+                     tooltipPosition="top"
+                     [escape]="false"
+                     class="relative p-2 min-h-[60px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center"
+                     [ngClass]="{
+                       'bg-white dark:bg-gray-800 border border-surface-200 dark:border-surface-700 text-gray-900 dark:text-white': cell.subject?.id,
+                       'bg-surface-100 dark:bg-surface-800 border-2 border-dashed border-surface-300 dark:border-surface-600 text-surface-800 dark:text-surface-200': !cell.subject?.id
+                     }">
+
+                  <div *ngIf="cell.subject?.id; else freeBlock" class="h-full flex flex-col justify-center items-center text-center">
+                    <h4 class="font-bold text-sm leading-tight mb-1 truncate w-full">
+                      {{ cell.subject?.name || cell.name }}
+                    </h4>
+
+                    <div class="text-xs text-gray-700 dark:text-gray-300 mb-1 truncate w-full">
+                      {{ cell.instructor?.name || 'No Instructor' }}
+                    </div>
+
+                    <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">
+                      {{ cell.startTime }} - {{ cell.endTime }}
+                    </div>
+                  </div>
+
+                  <ng-template #freeBlock>
+                    <div class="h-full flex flex-col items-center justify-center text-center">
+                      <div class="text-xs font-bold uppercase mb-1 text-surface-600 dark:text-surface-400">
+                        Free Period
+                      </div>
+                      <div class="text-[10px] text-surface-500 dark:text-surface-500">
+                        {{ cell.startTime }} - {{ cell.endTime }}
+                      </div>
+                    </div>
+                  </ng-template>
+                </div>
+
               </ng-container>
 
-              <div *ngIf="col.type === 'break' && dayIdx === 0"
-                   [style.grid-row]="'span ' + classSec.schedules.length"
-                   class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-900/10 rounded-lg flex flex-col items-center justify-center border border-yellow-200 dark:border-yellow-700 shadow-inner p-1">
-                
-                <div class="h-full flex flex-col items-center justify-center gap-4 py-4">
-                    <div class="p-1.5 rounded-full bg-white/60 dark:bg-white/10 shadow-sm">
-                        <i class="pi pi-stopwatch text-yellow-600 dark:text-yellow-200 text-base"></i>
-                    </div>
-                    
-                    <div class="writing-vertical-rl rotate-180 text-xs font-bold text-yellow-800 dark:text-yellow-200 uppercase tracking-widest whitespace-nowrap">
-                        {{ col.breakItem.name }}
-                    </div>
-
-                    <div class="writing-vertical-rl rotate-180 text-[10px] text-yellow-700 dark:text-yellow-300 font-mono">
-                        {{ col.breakItem.duration }} mins
-                    </div>
-                </div>
-              </div>
+            
 
             </ng-container>
 
           </ng-container>
+
         </div>
       </div>
 
@@ -103,10 +140,6 @@
               <div class="w-3 h-3 rounded bg-surface-200 dark:bg-surface-700 border border-surface-300 dark:border-surface-600"></div>
               <span class="text-surface-700 dark:text-surface-300 font-medium">Free Period</span>
             </div>
-            <div class="ml-auto text-surface-500 dark:text-surface-400 text-xs">
-              <i class="pi pi-info-circle mr-1"></i>
-              {{ getSlotIndexes(classSec).length }} total slots per day
-            </div>
           </div>
         </div>
       </div>
@@ -117,86 +150,14 @@
   <div *ngIf="dailogeType === 'Edit'"
        class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
     <div class="flex items-center gap-3 bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-3">
-      <button (click)="onCancel()"
-              class="px-6 py-3 rounded-xl bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-200 font-semibold hover:bg-surface-200 dark:hover:bg-surface-600 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md transform hover:-translate-y-0.5">
-        <i class="pi pi-times"></i>
-        <span>Cancel</span>
+      <button (click)="onCancel()" class="px-6 py-3 rounded-xl bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-200 font-semibold">
+        <i class="pi pi-times"></i> <span>Cancel</span>
       </button>
 
-      <button (click)="onPublish()"
-              class="px-8 py-3 rounded-xl text-white font-bold bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-        <i class="pi pi-check-circle"></i>
-        <span>Publish Timetable</span>
+      <button (click)="onPublish()" class="px-8 py-3 rounded-xl text-white font-bold bg-primary-600">
+        <i class="pi pi-check-circle"></i> <span>Publish Timetable</span>
       </button>
     </div>
   </div>
 
 </div>
-
-<ng-template #periodCell let-period let-periodIndex="periodIndex" let-classSec="classSec" let-dayIdx="dayIdx">
-  <!-- Replace the original top-level period div with this -->
-<div
-  (pointerdown)="onPeriodClick(period, classSec, dayIdx, periodIndex)"
-  [attr.aria-selected]="isSelectedPeriod(classSec, dayIdx, periodIndex) ? 'true' : 'false'"
-  [draggable]="dailogeType === 'Edit' && period.type !== 'break'"
-  (dragstart)="onNativeDragStart($event, period, classSec, dayIdx, periodIndex)"
-  (dragover)="onDragOver($event)"
-  (drop)="onDrop($event, classSec, dayIdx, periodIndex)"
-  (dragend)="onDragEnd()"
-  [pTooltip]="period.tooltip"
-  tooltipPosition="top"
-  [escape]="false"
-  [ngClass]="period.cssClasses"
-  class="relative p-2 min-h-[40px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center group">
-
-    <div class="absolute top-1 right-1 z-30 pointer-events-none">
-      <div *ngIf="isSelectedPeriod(classSec, dayIdx, periodIndex) && loadingConflicts()"
-           class="flex items-center gap-1 bg-primary-600 text-white px-2 py-1 rounded-full shadow-lg text-[10px] font-semibold animate-pulse">
-        <i class="pi pi-spin pi-spinner text-xs"></i>
-        <span>Checking</span>
-      </div>
-      <div *ngIf="isSelectedPeriod(classSec, dayIdx, periodIndex) && !loadingConflicts() && preparedForDrag()"
-           class="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded-full shadow-lg text-[10px] font-semibold">
-        <i class="pi pi-check-circle text-xs"></i>
-        <span>Ready</span>
-      </div>
-    </div>
-
-    <div *ngIf="period.type === 'lecture' && period.subject?.id"
-         class="h-full flex flex-col justify-center items-center text-center">
-
-      <div *ngIf="isSelectedPeriod(classSec, dayIdx, periodIndex) && preparedForDrag()"
-           class="flex justify-center mb-1">
-        <div class="flex items-center gap-0.5 text-surface-400">
-          <i class="pi pi-ellipsis-h text-xs"></i>
-          <i class="pi pi-ellipsis-h -ml-1 text-xs"></i>
-        </div>
-      </div>
-
-      <h4 class="font-bold text-sm text-gray-900 dark:text-white leading-tight mb-1 truncate w-full">
-        {{ period.name }}
-      </h4>
-
-      <div class="text-xs text-gray-700 dark:text-gray-300 mb-1 truncate w-full">
-        {{ period.instructor?.name || 'No Instructor' }}
-      </div>
-
-      <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">
-        {{ period.startTime }} - {{ period.endTime }}
-      </div>
-    </div>
-
-    <div *ngIf="(period.type === 'lecture' && !period.subject?.id) || period.type === 'free'"
-         class="h-full flex flex-col items-center justify-center text-center">
-
-      <div class="text-xs font-bold text-surface-600 dark:text-surface-400 uppercase tracking-wide mb-1">
-        Free Period
-      </div>
-
-      <div class="text-[10px] text-surface-500 dark:text-surface-500">
-        {{ period.startTime }} - {{ period.endTime }}
-      </div>
-    </div>
-
-  </div>
-</ng-template>
