@@ -23,12 +23,14 @@
       <div class="overflow-x-auto p-4">
         <div class="w-full grid gap-1.5 min-w-fit"
              [ngStyle]="{ 'gridTemplateColumns': '120px repeat(' + ((classSec._columns?.length) || 7) + ', minmax(120px,1fr))' }">
+          
           <div class="bg-primary-50 dark:bg-primary-900/20 font-bold text-primary-700 dark:text-primary-300 p-3 rounded-lg flex items-center justify-center border-2 border-primary-200 dark:border-primary-800">
             <div class="text-center flex-col items-center flex">
               <i class="pi pi-calendar text-lg mb-1 block"></i>
               <span class="text-xs uppercase tracking-wide">Day</span>
             </div>
           </div>
+
           <ng-container *ngFor="let col of classSec._columns">
             <div *ngIf="col.type === 'period'"
                  class="bg-surface-50 dark:bg-surface-800 p-2 rounded-lg flex flex-col items-center justify-center border border-surface-200 dark:border-surface-700">
@@ -48,47 +50,50 @@
               <div class="p-1.5 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
                 <i class="pi pi-calendar-plus text-primary-600 dark:text-primary-400 text-base"></i>
               </div>
-                <span class="font-bold text-gray-900 dark:text-gray-100 text-sm block">
-                  {{ schedule.dayName  }}
-                </span>
-        
+              <span class="font-bold text-gray-900 dark:text-gray-100 text-sm block">
+                {{ schedule.dayName  }}
+              </span>
             </div>
+        
             <ng-container *ngFor="let headerCol of classSec._columns; let colIndex = index">
               <ng-container *ngIf="schedule._cells && schedule._cells[colIndex] as cell">
+                
                 <div *ngIf="cell.type === 'break' && dayIdx === 0"
-     [style.grid-row]="'span ' + classSec.schedules.length"
-     class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-900/10
-            rounded-lg border border-yellow-200 dark:border-yellow-700 shadow-inner relative">
+                     [style.grid-row]="'span ' + classSec.schedules.length"
+                     class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-900/10
+                            rounded-lg border border-yellow-200 dark:border-yellow-700 shadow-inner relative">
 
-    <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 py-4">
+                  <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 py-4">
+                    <div class="p-1.5 rounded-full bg-white/60 dark:bg-white/10 shadow-sm">
+                      <i class="pi pi-stopwatch text-yellow-600 dark:text-yellow-200 text-base"></i>
+                    </div>
+                    <div class="text-xs font-bold text-yellow-800 dark:text-yellow-200 uppercase tracking-widest"
+                         style="writing-mode: vertical-rl; transform: rotate(180deg);">
+                      {{ cell.breakItem?.name }}
+                    </div>
+                    <div class="text-[10px] text-yellow-700 dark:text-yellow-300 font-mono"
+                         style="writing-mode: vertical-rl; transform: rotate(180deg);">
+                      {{ cell.breakItem?.duration }} mins
+                    </div>
+                  </div>
+                </div>
 
-        <div class="p-1.5 rounded-full bg-white/60 dark:bg-white/10 shadow-sm">
-            <i class="pi pi-stopwatch text-yellow-600 dark:text-yellow-200 text-base"></i>
-        </div>
-
-        <div class="text-xs font-bold text-yellow-800 dark:text-yellow-200 uppercase tracking-widest"
-             style="writing-mode: vertical-rl; transform: rotate(180deg);">
-            {{ cell.breakItem?.name }}
-        </div>
-
-        <div class="text-[10px] text-yellow-700 dark:text-yellow-300 font-mono"
-             style="writing-mode: vertical-rl; transform: rotate(180deg);">
-            {{ cell.breakItem?.duration }} mins
-        </div>
-    </div>
-</div>
-
-                <div *ngIf="cell.type === 'lecture'"
+                <div *ngIf="cell.type === 'lecture' || cell.type === 'free'"
+                     pDraggable
+                     (onDragStart)="onDragStart(classSec, dayIdx, cell.realPeriodIndex)"
+                     (onDragEnd)="onDragEnd()"
+                     pDroppable
+                     (onDrop)="onDrop(classSec, dayIdx, cell.realPeriodIndex)"
                      [pTooltip]="cell.tooltip"
                      tooltipPosition="top"
                      [escape]="false"
-                     class="relative p-2 min-h-[60px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center"
+                     class="relative p-2 min-h-[60px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center cursor-grab active:cursor-grabbing hover:shadow-md"
                      [ngClass]="{
                        'bg-white dark:bg-gray-800 border border-surface-200 dark:border-surface-700 text-gray-900 dark:text-white': cell.subject?.id,
                        'bg-surface-100 dark:bg-surface-800 border-2 border-dashed border-surface-300 dark:border-surface-600 text-surface-800 dark:text-surface-200': !cell.subject?.id
                      }">
-
-                  <div *ngIf="cell.subject?.id; else freeBlock" class="h-full flex flex-col justify-center items-center text-center">
+                     
+                     <div *ngIf="cell.subject?.id; else freeBlock" class="h-full flex flex-col justify-center items-center text-center">
                     <h4 class="font-bold text-sm leading-tight mb-1 truncate w-full">
                       {{ cell.subject?.name || cell.name }}
                     </h4>
@@ -115,11 +120,7 @@
                 </div>
 
               </ng-container>
-
-            
-
             </ng-container>
-
           </ng-container>
 
         </div>
