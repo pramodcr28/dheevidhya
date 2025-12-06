@@ -195,9 +195,8 @@ export class TimeTableService {
             schedule: {}
         };
     }
-    getPeriodConflicts(payload: any): Observable<any> {
-        //GET http://localhost:8080/services/v3admin/api/timetables/instructor/192/slots
 
+    getPeriodConflicts(payload: any): Observable<any> {
         return this.http.post(`${this.resourceUrl}/get-period-swap-conflicts`, payload);
     }
 }

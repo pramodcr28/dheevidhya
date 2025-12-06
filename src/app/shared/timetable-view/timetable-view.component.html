@@ -7,15 +7,25 @@
          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
 
       <div class="bg-primary-600 dark:bg-primary-700 p-5">
-        <div class="flex items-center gap-3">
-          <div class="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
-            <i class="pi pi-graduation-cap text-white text-2xl"></i>
+        <div class="flex items-center gap-3 justify-between">
+          <div class="flex items-center gap-3 flex-1">
+            <div class="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
+              <i class="pi pi-graduation-cap text-white text-2xl"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white">
+                {{ classSec.className }} - Section {{ classSec.sectionName }}
+              </h3>
+              <p class="text-primary-100 text-sm mt-0.5">Weekly Schedule</p>
+            </div>
           </div>
-          <div>
-            <h3 class="text-xl font-bold text-white">
-              {{ classSec.className }} - Section {{ classSec.sectionName }}
-            </h3>
-            <p class="text-primary-100 text-sm mt-0.5">Weekly Schedule Overview</p>
+          <div *ngIf="selectedPeriod" class="px-4 py-2 bg-blue-500 rounded-lg flex items-center gap-2">
+            <span class="text-white text-sm font-semibold">
+              <i class="pi pi-check-circle mr-2"></i>Selected
+            </span>
+            <button (click)="deselectPeriod()" class="text-white hover:text-gray-200">
+              <i class="pi pi-times text-lg"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -34,7 +44,7 @@
           <ng-container *ngFor="let col of classSec._columns">
             <div *ngIf="col.type === 'period'"
                  class="bg-surface-50 dark:bg-surface-800 p-2 rounded-lg flex flex-col items-center justify-center border border-surface-200 dark:border-surface-700">
-              <span class="text-[9px] font-semibold text-surface-500 dark:text-surface-400  tracking-wider">Period</span>
+              <span class="text-[9px] font-semibold text-surface-500 dark:text-surface-400 tracking-wider">Period</span>
               <span class="text-xl font-bold text-primary-600 dark:text-primary-400 mt-0.5">{{ col.index + 1 }}</span>
             </div>
 
@@ -51,7 +61,7 @@
                 <i class="pi pi-calendar-plus text-primary-600 dark:text-primary-400 text-base"></i>
               </div>
               <span class="font-bold text-gray-900 dark:text-gray-100 text-sm block">
-                {{ schedule.dayName  }}
+                {{ schedule.dayName }}
               </span>
             </div>
         
@@ -60,9 +70,7 @@
                 
                 <div *ngIf="cell.type === 'break' && dayIdx === 0"
                      [style.grid-row]="'span ' + classSec.schedules.length"
-                     class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-900/10
-                            rounded-lg border border-yellow-200 dark:border-yellow-700 shadow-inner relative">
-
+                     class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-900/10 rounded-lg border border-yellow-200 dark:border-yellow-700 shadow-inner relative">
                   <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 py-4">
                     <div class="p-1.5 rounded-full bg-white/60 dark:bg-white/10 shadow-sm">
                       <i class="pi pi-stopwatch text-yellow-600 dark:text-yellow-200 text-base"></i>
@@ -79,44 +87,55 @@
                 </div>
 
                 <div *ngIf="cell.type === 'lecture' || cell.type === 'free'"
-                     pDraggable
+                     (click)="dailogeType === 'Edit' && onPeriodClick(classSec, dayIdx, cell.realPeriodIndex, cell)"
+                     [pDraggable]="(isSelectedPeriod(dayIdx, cell.realPeriodIndex) && dailogeType === 'Edit') ? 'true' : 'false' "
                      (onDragStart)="onDragStart(classSec, dayIdx, cell.realPeriodIndex)"
-                     (onDragEnd)="onDragEnd()"
-                     pDroppable
+                     [pDroppable]="!isSelectedPeriod(dayIdx, cell.realPeriodIndex) ? 'true' : 'false'"
                      (onDrop)="onDrop(classSec, dayIdx, cell.realPeriodIndex)"
-                     [pTooltip]="cell.tooltip"
+                     [pTooltip]="getTooltipText(dayIdx, cell.realPeriodIndex, cell)"
                      tooltipPosition="top"
                      [escape]="false"
-                     class="relative p-2 min-h-[60px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center cursor-grab active:cursor-grabbing hover:shadow-md"
+                     class="relative p-2 min-h-[60px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md"
                      [ngClass]="{
-                       'bg-white dark:bg-gray-800 border border-surface-200 dark:border-surface-700 text-gray-900 dark:text-white': cell.subject?.id,
-                       'bg-surface-100 dark:bg-surface-800 border-2 border-dashed border-surface-300 dark:border-surface-600 text-surface-800 dark:text-surface-200': !cell.subject?.id
+                       'selected-period': isSelectedPeriod(dayIdx, cell.realPeriodIndex),
+                       'drag-valid-target': isValidDropTarget(dayIdx, cell.realPeriodIndex) && selectedPeriod,
+                       'drag-conflict-target': isConflictTarget(dayIdx, cell.realPeriodIndex) && selectedPeriod,
+                       'bg-white dark:bg-gray-800 border border-surface-200 dark:border-surface-700 text-gray-900 dark:text-white cursor-grab active:cursor-grabbing': cell.subject?.id && !selectedPeriod,
+                       'bg-surface-100 dark:bg-surface-800 border-2 border-dashed border-surface-300 dark:border-surface-600 text-surface-800 dark:text-surface-200 cursor-grab active:cursor-grabbing': !cell.subject?.id && !selectedPeriod,
+                       'opacity-30 cursor-not-allowed': selectedPeriod && isConflictTarget(dayIdx, cell.realPeriodIndex),
+                       'opacity-50 cursor-default': selectedPeriod && !isSelectedPeriod(dayIdx, cell.realPeriodIndex) && !isValidDropTarget(dayIdx, cell.realPeriodIndex) && !isConflictTarget(dayIdx, cell.realPeriodIndex),
+                       'cursor-pointer': dailogeType === 'Edit'
                      }">
                      
+                     <div *ngIf="isConflictTarget(dayIdx, cell.realPeriodIndex) && selectedPeriod" 
+                          class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+                       <i class="pi pi-exclamation-circle text-[10px]"></i>
+                     </div>
+                     
                      <div *ngIf="cell.subject?.id; else freeBlock" class="h-full flex flex-col justify-center items-center text-center">
-                    <h4 class="font-bold text-sm leading-tight mb-1 truncate w-full">
-                      {{ cell.subject?.name || cell.name }}
-                    </h4>
+                       <h4 class="font-bold text-sm leading-tight mb-1 truncate w-full">
+                         {{ cell.subject?.name || cell.name }}
+                       </h4>
 
-                    <div class="text-xs text-gray-700 dark:text-gray-300 mb-1 truncate w-full">
-                      {{ cell.instructor?.name || 'No Instructor' }}
-                    </div>
+                       <div class="text-xs text-gray-700 dark:text-gray-300 mb-1 truncate w-full">
+                         {{ cell.instructor?.name || 'No Instructor' }}
+                       </div>
 
-                    <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">
-                      {{ cell.startTime }} - {{ cell.endTime }}
-                    </div>
-                  </div>
+                       <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">
+                         {{ cell.startTime }} - {{ cell.endTime }}
+                       </div>
+                     </div>
 
-                  <ng-template #freeBlock>
-                    <div class="h-full flex flex-col items-center justify-center text-center">
-                      <div class="text-xs font-bold uppercase mb-1 text-surface-600 dark:text-surface-400">
-                        Free Period
-                      </div>
-                      <div class="text-[10px] text-surface-500 dark:text-surface-500">
-                        {{ cell.startTime }} - {{ cell.endTime }}
-                      </div>
-                    </div>
-                  </ng-template>
+                     <ng-template #freeBlock>
+                       <div class="h-full flex flex-col items-center justify-center text-center">
+                         <div class="text-xs font-bold uppercase mb-1 text-surface-600 dark:text-surface-400">
+                           Free Period
+                         </div>
+                         <div class="text-[10px] text-surface-500 dark:text-surface-500">
+                           {{ cell.startTime }} - {{ cell.endTime }}
+                         </div>
+                       </div>
+                     </ng-template>
                 </div>
 
               </ng-container>
@@ -140,6 +159,18 @@
             <div class="flex items-center gap-2">
               <div class="w-3 h-3 rounded bg-surface-200 dark:bg-surface-700 border border-surface-300 dark:border-surface-600"></div>
               <span class="text-surface-700 dark:text-surface-300 font-medium">Free Period</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded bg-blue-500 shadow-sm"></div>
+              <span class="text-surface-700 dark:text-surface-300 font-medium">Selected</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded bg-green-500 shadow-sm"></div>
+              <span class="text-surface-700 dark:text-surface-300 font-medium">Valid</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded bg-red-500 shadow-sm"></div>
+              <span class="text-surface-700 dark:text-surface-300 font-medium">Conflict</span>
             </div>
           </div>
         </div>
