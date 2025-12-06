@@ -4,6 +4,7 @@
 
   <div class="space-y-6">
     <div *ngFor="let classSec of displayTimeTableJson.classSections"
+         [ngClass]="{ 'other-section': selectedPeriod && selectedPeriod.classSec !== classSec }"
          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
 
       <div class="bg-primary-600 dark:bg-primary-700 p-5">
@@ -19,7 +20,7 @@
               <p class="text-primary-100 text-sm mt-0.5">Weekly Schedule</p>
             </div>
           </div>
-          <div *ngIf="selectedPeriod" class="px-4 py-2 bg-blue-500 rounded-lg flex items-center gap-2">
+          <div *ngIf="selectedPeriod && selectedPeriod.classSec === classSec" class="px-4 py-2 bg-blue-500 rounded-lg flex items-center gap-2">
             <span class="text-white text-sm font-semibold">
               <i class="pi pi-check-circle mr-2"></i>Selected
             </span>
@@ -87,55 +88,59 @@
                 </div>
 
                 <div *ngIf="cell.type === 'lecture' || cell.type === 'free'"
-                     (click)="dailogeType === 'Edit' && onPeriodClick(classSec, dayIdx, cell.realPeriodIndex, cell)"
-                     [pDraggable]="(isSelectedPeriod(dayIdx, cell.realPeriodIndex) && dailogeType === 'Edit') ? 'true' : 'false' "
-                     (onDragStart)="onDragStart(classSec, dayIdx, cell.realPeriodIndex)"
-                     [pDroppable]="!isSelectedPeriod(dayIdx, cell.realPeriodIndex) ? 'true' : 'false'"
-                     (onDrop)="onDrop(classSec, dayIdx, cell.realPeriodIndex)"
-                     [pTooltip]="getTooltipText(dayIdx, cell.realPeriodIndex, cell)"
+                     (click)="dailogeType === 'Edit' && onPeriodClick(classSec, cell.dayIndex, cell.realPeriodIndex, cell)"
+                     [pDraggable]="(isSelectedPeriod(cell.dayIndex, cell.realPeriodIndex, cell) && dailogeType === 'Edit') ? 'true' : 'false'"
+                     (onDragStart)="onDragStart(classSec, cell.dayIndex, cell.realPeriodIndex,cell)"
+                     [pDroppable]="cell.canDrop ? 'true' : 'false'"
+                     (onDrop)="onDrop(classSec, cell.dayIndex, cell.realPeriodIndex)"
+                     [pTooltip]="cell.tooltipText || cell.tooltip"
                      tooltipPosition="top"
                      [escape]="false"
-                     class="relative p-2 min-h-[60px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md"
+                     class="relative p-2 min-h-[60px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md border"
                      [ngClass]="{
-                       'selected-period': isSelectedPeriod(dayIdx, cell.realPeriodIndex),
-                       'drag-valid-target': isValidDropTarget(dayIdx, cell.realPeriodIndex) && selectedPeriod,
-                       'drag-conflict-target': isConflictTarget(dayIdx, cell.realPeriodIndex) && selectedPeriod,
-                       'bg-white dark:bg-gray-800 border border-surface-200 dark:border-surface-700 text-gray-900 dark:text-white cursor-grab active:cursor-grabbing': cell.subject?.id && !selectedPeriod,
-                       'bg-surface-100 dark:bg-surface-800 border-2 border-dashed border-surface-300 dark:border-surface-600 text-surface-800 dark:text-surface-200 cursor-grab active:cursor-grabbing': !cell.subject?.id && !selectedPeriod,
-                       'opacity-30 cursor-not-allowed': selectedPeriod && isConflictTarget(dayIdx, cell.realPeriodIndex),
-                       'opacity-50 cursor-default': selectedPeriod && !isSelectedPeriod(dayIdx, cell.realPeriodIndex) && !isValidDropTarget(dayIdx, cell.realPeriodIndex) && !isConflictTarget(dayIdx, cell.realPeriodIndex),
+                       'drag-valid-target': cell.canDrop && selectedPeriod,
+                       'drag-conflict-target': !cell.canDrop && selectedPeriod,
+                       'selected-period': isSelectedPeriod(cell.dayIndex, cell.realPeriodIndex, cell),
                        'cursor-pointer': dailogeType === 'Edit'
                      }">
                      
-                     <div *ngIf="isConflictTarget(dayIdx, cell.realPeriodIndex) && selectedPeriod" 
+                     <div *ngIf="!cell.canDrop && selectedPeriod" 
                           class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
                        <i class="pi pi-exclamation-circle text-[10px]"></i>
                      </div>
-                     
-                     <div *ngIf="cell.subject?.id; else freeBlock" class="h-full flex flex-col justify-center items-center text-center">
-                       <h4 class="font-bold text-sm leading-tight mb-1 truncate w-full">
-                         {{ cell.subject?.name || cell.name }}
-                       </h4>
 
-                       <div class="text-xs text-gray-700 dark:text-gray-300 mb-1 truncate w-full">
-                         {{ cell.instructor?.name || 'No Instructor' }}
-                       </div>
-
+                     <div *ngIf="isValidatingPeriod(cell.dayIndex, cell.realPeriodIndex)" class="h-full flex flex-col justify-center items-center text-center gap-2">
+                       <div class="validating-spinner"></div>
                        <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">
-                         {{ cell.startTime }} - {{ cell.endTime }}
+                         Validating...
                        </div>
                      </div>
+                     <div *ngIf="!isValidatingPeriod(cell.dayIndex, cell.realPeriodIndex)">
+                       <div *ngIf="cell.subject?.id; else freeBlock" class="h-full flex flex-col justify-center items-center text-center">
+                         <h4 class="font-bold text-sm leading-tight mb-1 truncate w-full">
+                           {{ cell.subject?.name || cell.name }}
+                         </h4>
 
-                     <ng-template #freeBlock>
-                       <div class="h-full flex flex-col items-center justify-center text-center">
-                         <div class="text-xs font-bold uppercase mb-1 text-surface-600 dark:text-surface-400">
-                           Free Period
+                         <div class="text-xs text-gray-700 dark:text-gray-300 mb-1 truncate w-full">
+                           {{ cell.instructor?.name || 'No Instructor' }}
                          </div>
-                         <div class="text-[10px] text-surface-500 dark:text-surface-500">
+
+                         <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">
                            {{ cell.startTime }} - {{ cell.endTime }}
                          </div>
                        </div>
-                     </ng-template>
+
+                       <ng-template #freeBlock>
+                         <div class="h-full flex flex-col items-center justify-center text-center">
+                           <div class="text-xs font-bold uppercase mb-1 text-surface-600 dark:text-surface-400">
+                             Free Period
+                           </div>
+                           <div class="text-[10px] text-surface-500 dark:text-surface-500">
+                             {{ cell.startTime }} - {{ cell.endTime }}
+                           </div>
+                         </div>
+                       </ng-template>
+                     </div>
                 </div>
 
               </ng-container>
@@ -187,7 +192,7 @@
       </button>
 
       <button (click)="onPublish()" class="px-8 py-3 rounded-xl text-white font-bold bg-primary-600">
-        <i class="pi pi-check-circle"></i> <span>Publish Timetable</span>
+        <i class="pi pi-check-circle"></i> <span>Publish Changes</span>
       </button>
     </div>
   </div>

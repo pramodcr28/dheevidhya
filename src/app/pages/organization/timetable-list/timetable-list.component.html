@@ -109,7 +109,7 @@
        <app-timetable-view
         [timetableJson]="seletedTimeTable"
         [dailogeType]="editMode() ? 'Edit' : 'View'"
-        (publish)="saveTimetable()"
+        (publish)="saveTimetable($event)"
         (cancel)="cancel()"
         (timetableChange)="handleTimetableChange($event)"
       />

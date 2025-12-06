@@ -69,6 +69,10 @@ export class TimeTableService {
         return this.http.post(this.resourceUrl, timeTable);
     }
 
+    update(timeTable: any, id: string) {
+        return this.http.put(this.resourceUrl + '/' + id, timeTable);
+    }
+
     fetchTimeTables() {
         return this.http.get(this.resourceUrl);
     }

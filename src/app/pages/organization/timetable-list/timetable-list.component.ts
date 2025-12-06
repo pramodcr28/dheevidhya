@@ -32,6 +32,8 @@ export class TimetableListComponent implements OnInit {
     seletedTimeTable: DepartmentTimetable;
     dailogeType: 'Edit' | 'View';
     showTimetableDialog = false;
+    loader = inject(ApiLoaderService);
+    messageService = inject(MessageService);
     statusOptions = [
         { label: 'All Status', value: '' },
         { label: 'Draft', value: 'DRAFT' },
@@ -40,8 +42,6 @@ export class TimetableListComponent implements OnInit {
     ];
 
     editMode = signal(true);
-
-    loader = inject(ApiLoaderService);
 
     ngOnInit() {
         this.selectedDepartment = this.commonService.associatedDepartments[0]?.id;
@@ -87,11 +87,22 @@ export class TimetableListComponent implements OnInit {
         this.seletedTimeTable = null;
     }
 
-    saveTimetable() {}
+    saveTimetable(updatedTimetable: DepartmentTimetable): void {
+        this.loader.show('Updating Timetable...');
+        this.timeTableService.update(updatedTimetable, updatedTimetable.id || '').subscribe(() => {
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Timetable Updated successfully',
+                life: 2000
+            });
+            this.loader.hide();
+            this.showTimetableDialog = false;
+            this.seletedTimeTable = null;
+        });
+    }
 
     handleTimetableChange(updatedTimetable: DepartmentTimetable): void {
         console.log('Timetable changed:', updatedTimetable);
-        // this.currentTimetable.set(updatedTimetable);
-        // Optionally save to backend or mark as modified
     }
 }

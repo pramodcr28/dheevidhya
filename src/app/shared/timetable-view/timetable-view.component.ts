@@ -4,6 +4,7 @@ import { MessageService } from 'primeng/api';
 import { DragDropModule } from 'primeng/dragdrop';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { ApiLoaderService } from '../../core/services/loaderService';
 import { BreakConfig, DepartmentTimetable } from '../../pages/models/time-table';
 import { TimeTableService } from '../../pages/service/time-table.service';
 
@@ -28,11 +29,6 @@ interface SelectedPeriod {
     conflictInfo?: ConflictInfo[];
 }
 
-interface CellConflictStatus {
-    hasConflict: boolean;
-    conflictDetails?: ConflictInfo;
-}
-
 @Component({
     selector: 'app-timetable-view',
     standalone: true,
@@ -50,35 +46,37 @@ interface CellConflictStatus {
             .cursor-grabbing {
                 cursor: grabbing;
             }
-            .selected-period {
-                @apply border-4 border-blue-500 bg-blue-50 dark:bg-blue-900/40 shadow-lg !important;
-            }
             .drag-valid-target {
                 @apply border-2 border-green-500 bg-green-50 dark:bg-green-900/20 !important;
             }
             .drag-conflict-target {
                 @apply border-2 border-red-500 bg-red-50 dark:bg-red-900/20 !important;
             }
-            .has-conflict-badge {
-                @apply absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold !important;
+            .other-section {
+                @apply opacity-90 blur-sm pointer-events-none !important;
+            }
+            .validating-spinner {
+                @apply inline-block w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin;
+            }
+            .selected-period {
+                @apply border-4 border-blue-500 bg-blue-50 dark:bg-blue-900/40 shadow-lg !important;
             }
         `
     ]
 })
 export class TimetableViewComponent {
     @Input() dailogeType: 'Edit' | 'View' = 'View';
-    @Output() publish = new EventEmitter<void>();
+    @Output() publish = new EventEmitter<DepartmentTimetable>();
     @Output() cancel = new EventEmitter<void>();
     @Output() timetableChange = new EventEmitter<DepartmentTimetable>();
-
+    loader = inject(ApiLoaderService);
     timeTableService = inject(TimeTableService);
     messageService = inject(MessageService);
     displayTimeTableJson!: DepartmentTimetable | any;
 
     selectedPeriod: SelectedPeriod | null = null;
-    validDropTargets: Set<string> = new Set();
-    conflictDropTargets: Map<string, ConflictInfo> = new Map();
     isValidatingConflicts = false;
+    validatingPeriodKey: string | null = null;
 
     @Input()
     set timetableJson(value: DepartmentTimetable | null) {
@@ -132,7 +130,8 @@ export class TimetableViewComponent {
                             startTime: period?.startTime,
                             endTime: period?.endTime,
                             tooltip: period?.tooltip,
-                            cssClasses: period?.cssClasses
+                            cssClasses: period?.cssClasses,
+                            canDrop: true
                         });
                     } else {
                         cells.push({
@@ -156,6 +155,21 @@ export class TimetableViewComponent {
         return `${scheduleIndex}-${periodIndex}`;
     }
 
+    timeToMinutes(timeStr: string): number {
+        console.log(timeStr);
+        const [hours, minutes] = timeStr?.split(':').map(Number);
+        return hours * 60 + minutes;
+    }
+
+    isTimeOverlapping(start1: string, end1: string, start2: string, end2: string): boolean {
+        const start1Min = this.timeToMinutes(start1);
+        const end1Min = this.timeToMinutes(end1);
+        const start2Min = this.timeToMinutes(start2);
+        const end2Min = this.timeToMinutes(end2);
+
+        return !(end1Min <= start2Min || end2Min <= start1Min);
+    }
+
     onPeriodClick(classSec: any, scheduleIndex: number, periodIndex: number, cell: any) {
         if (cell.type !== 'lecture') {
             this.messageService.add({
@@ -173,6 +187,9 @@ export class TimetableViewComponent {
         }
 
         this.deselectPeriod();
+
+        const cellKey = this.getCellKey(scheduleIndex, periodIndex);
+        this.validatingPeriodKey = cellKey;
         this.isValidatingConflicts = true;
 
         const request = {
@@ -186,6 +203,7 @@ export class TimetableViewComponent {
         this.timeTableService.getPeriodConflicts(request).subscribe(
             (response: ConflictInfo[]) => {
                 this.isValidatingConflicts = false;
+                this.validatingPeriodKey = null;
 
                 this.selectedPeriod = {
                     classSec,
@@ -196,7 +214,7 @@ export class TimetableViewComponent {
                     conflictInfo: response
                 };
 
-                this.validateDropTargetsLocally(classSec, scheduleIndex, periodIndex, response);
+                this.validateDropTargetsLocally(classSec, cell);
 
                 this.messageService.add({
                     severity: 'info',
@@ -207,6 +225,7 @@ export class TimetableViewComponent {
             },
             (error) => {
                 this.isValidatingConflicts = false;
+                this.validatingPeriodKey = null;
                 console.error('Error:', error);
                 this.messageService.add({
                     severity: 'error',
@@ -218,56 +237,58 @@ export class TimetableViewComponent {
         );
     }
 
-    private validateDropTargetsLocally(classSec: any, sourceScheduleIndex: number, sourcePeriodIndex: number, conflictInfo: ConflictInfo[]) {
-        this.validDropTargets.clear();
-        this.conflictDropTargets.clear();
-
-        classSec.schedules.forEach((schedule: any, dayIdx: number) => {
-            schedule.periods.forEach((period: any, periodIdx: number) => {
-                if (dayIdx === sourceScheduleIndex && periodIdx === sourcePeriodIndex) {
-                    return;
-                }
-
-                const cellKey = this.getCellKey(dayIdx, periodIdx);
-
-                const cellConflict = conflictInfo.find((conflict) => {
-                    return parseInt(conflict.dayIndex) === dayIdx && conflict.instructorId === period?.instructor?.id;
+    private validateDropTargetsLocally(classSec: any, selectedCell: any) {
+        this.selectedPeriod?.conflictInfo.forEach((conflict) => {
+            classSec.schedules
+                .find((schedule) => parseInt(schedule.day) === parseInt(conflict.dayIndex))
+                ?._cells.forEach((cell: any) => {
+                    if (this.isTimeOverlapping(conflict.startTime, conflict.endTime, cell.startTime, cell.endTime)) {
+                        cell.canDrop = false;
+                        cell.tooltipText = `Conflict: ${conflict.instructorName} at ${conflict.startTime}-${conflict.endTime}`;
+                    }
                 });
-
-                if (cellConflict) {
-                    this.conflictDropTargets.set(cellKey, cellConflict);
-                } else {
-                    this.validDropTargets.add(cellKey);
-                }
-            });
+            console.log('Conflict:', conflict);
         });
+        // classSec.schedules.forEach((schedule: any) => {
+        //     const dayConflicts = ?.filter((conflict) => parseInt(conflict.dayIndex) === schedule.day) || [];
+
+        //     schedule._cells.forEach((cell: any, cellIdx: number) => {
+        //         if (cell.type === 'lecture' || cell.type === 'free') {
+        //             // Skip the selected period itself (source cell)
+        //             // if (schedule.day === this.selectedPeriod?.scheduleIndex && cellIdx === this.selectedPeriod?.periodIndex) {
+        //             //     return;
+        //             // }
+        //             // cell.canDrop = true;
+        //             // cell.tooltipText = cell.tooltip || `${cell.subject?.name || 'Free Period'}<br/>${cell.startTime} - ${cell.endTime}`;
+        //             // dayConflicts.forEach((conflict) => {
+        //             //     if (this.isTimeOverlapping(conflict.startTime, conflict.endTime, cell.startTime, cell.endTime) && cell.dayIndex == conflict.dayIndex) {
+        //             //         cell.canDrop = false;
+        //             //         cell.tooltipText = `Conflict: ${conflict.instructorName} at ${conflict.startTime}-${conflict.endTime}`;
+        //             //     }
+        //             // });
+        //         }
+        //     });
+        // });
     }
 
-    isValidDropTarget(scheduleIndex: number, periodIndex: number): boolean {
+    isSelectedPeriod(scheduleIndex: number, periodIndex: number, cell: any): boolean {
         if (!this.selectedPeriod) return false;
+        // return this.selectedPeriod.scheduleIndex === scheduleIndex && this.selectedPeriod.periodIndex === periodIndex;
+        return this.selectedPeriod.period === cell;
+    }
+
+    isValidatingPeriod(scheduleIndex: number, periodIndex: number): boolean {
         const cellKey = this.getCellKey(scheduleIndex, periodIndex);
-        return this.validDropTargets.has(cellKey);
-    }
-
-    isConflictTarget(scheduleIndex: number, periodIndex: number): boolean {
-        if (!this.selectedPeriod) return false;
-        const cellKey = this.getCellKey(scheduleIndex, periodIndex);
-        return this.conflictDropTargets.has(cellKey);
-    }
-
-    isSelectedPeriod(scheduleIndex: number, periodIndex: number): boolean {
-        if (!this.selectedPeriod) return false;
-        return this.selectedPeriod.scheduleIndex === scheduleIndex && this.selectedPeriod.periodIndex === periodIndex;
+        return this.validatingPeriodKey === cellKey && this.isValidatingConflicts;
     }
 
     deselectPeriod() {
         this.selectedPeriod = null;
-        this.validDropTargets.clear();
-        this.conflictDropTargets.clear();
+        this.validatingPeriodKey = null;
     }
 
-    onDragStart(classSec: any, scheduleIndex: number, periodIndex: number) {
-        if (!this.isSelectedPeriod(scheduleIndex, periodIndex)) {
+    onDragStart(classSec: any, scheduleIndex: number, periodIndex: number, cell: any) {
+        if (!this.isSelectedPeriod(scheduleIndex, periodIndex, cell)) {
             return;
         }
     }
@@ -276,29 +297,28 @@ export class TimetableViewComponent {
         if (!this.selectedPeriod) {
             return;
         }
-        if (this.isConflictTarget(targetScheduleIndex, targetPeriodIndex)) {
-            const conflictInfo = this.conflictDropTargets.get(this.getCellKey(targetScheduleIndex, targetPeriodIndex));
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Conflict Detected',
-                detail: `Cannot drop. Conflict with: ${conflictInfo?.instructorName} at ${conflictInfo?.startTime}`,
-                life: 3000
-            });
-            return;
-        }
 
-        if (!this.isValidDropTarget(targetScheduleIndex, targetPeriodIndex)) {
-            return;
-        }
+        const sourceSchedule = this.selectedPeriod.classSec.schedules.find((s) => s.day == this.selectedPeriod.scheduleIndex.toString());
 
-        const sourceSchedule = this.selectedPeriod.classSec.schedules[this.selectedPeriod.scheduleIndex];
-        const targetSchedule = classSec.schedules[targetScheduleIndex];
+        const targetSchedule = classSec.schedules.find((s) => s.day == targetScheduleIndex.toString());
 
         const sourcePeriod = sourceSchedule.periods[this.selectedPeriod.periodIndex];
         const targetPeriod = targetSchedule.periods[targetPeriodIndex];
 
-        sourceSchedule.periods[this.selectedPeriod.periodIndex] = targetPeriod;
-        targetSchedule.periods[targetPeriodIndex] = sourcePeriod;
+        // --- Swap ONLY logical properties, not time properties ---
+        const sourceCopy = { ...sourcePeriod };
+        const targetCopy = { ...targetPeriod };
+
+        // Properties that should NOT be swapped
+        const fixedFields = ['startTime', 'endTime', 'duration'];
+
+        // Swap fields except fixed time-related ones
+        Object.keys(sourcePeriod).forEach((key) => {
+            if (!fixedFields.includes(key)) {
+                sourcePeriod[key] = targetCopy[key];
+                targetPeriod[key] = sourceCopy[key];
+            }
+        });
 
         this.processForDisplay();
         this.deselectPeriod();
@@ -313,25 +333,8 @@ export class TimetableViewComponent {
         this.timetableChange.emit(this.displayTimeTableJson);
     }
 
-    getTooltipText(scheduleIndex: number, periodIndex: number, cell: any): string {
-        if (this.isSelectedPeriod(scheduleIndex, periodIndex)) {
-            return 'Selected - Drag to move within section';
-        }
-        if (this.isValidDropTarget(scheduleIndex, periodIndex)) {
-            return 'Valid drop target';
-        }
-        if (this.isConflictTarget(scheduleIndex, periodIndex)) {
-            const conflictInfo = this.conflictDropTargets.get(this.getCellKey(scheduleIndex, periodIndex));
-            return `Conflict: ${conflictInfo?.instructorName} at ${conflictInfo?.startTime}-${conflictInfo?.endTime}`;
-        }
-        if (this.selectedPeriod) {
-            return 'Validating...';
-        }
-        return cell.tooltip || `${cell.subject?.name || 'Free Period'}<br/>${cell.startTime} - ${cell.endTime}`;
-    }
-
     onPublish(): void {
-        this.publish.emit();
+        this.publish.emit(this.timetableJson);
     }
 
     onCancel(): void {
