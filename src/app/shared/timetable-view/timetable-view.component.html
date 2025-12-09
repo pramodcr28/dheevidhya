@@ -24,7 +24,7 @@
             <span class="text-white text-sm font-semibold">
               <i class="pi pi-check-circle mr-2"></i>Selected
             </span>
-            <button (click)="deselectPeriod()" class="text-white hover:text-gray-200">
+            <button (click)="deselectPeriod(classSec)" class="text-white hover:text-gray-200">
               <i class="pi pi-times text-lg"></i>
             </button>
           </div>
@@ -32,8 +32,9 @@
       </div>
 
       <div class="overflow-x-auto p-4">
-        <div class="w-full grid gap-1.5 min-w-fit"
-             [ngStyle]="{ 'gridTemplateColumns': '120px repeat(' + ((classSec._columns?.length) || 7) + ', minmax(120px,1fr))' }">
+<div class="w-full grid gap-1.5 min-w-fit"
+     [ngStyle]="{ 'gridTemplateColumns': 'repeat(' + ((classSec._columns?.length +1 || 7)) + ', auto)' }">
+
           
           <div class="bg-primary-50 dark:bg-primary-900/20 font-bold text-primary-700 dark:text-primary-300 p-3 rounded-lg flex items-center justify-center border-2 border-primary-200 dark:border-primary-800">
             <div class="text-center flex-col items-center flex">
@@ -57,7 +58,7 @@
 
           <ng-container *ngFor="let schedule of classSec.schedules; let dayIdx = index">
 
-            <div class="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center gap-2 min-w-[80px] border-2 border-primary-200 dark:border-primary-800 shadow-sm flex-col">
+            <div class="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center gap-2 min-w-[50px] border-2 border-primary-200 dark:border-primary-800 shadow-sm flex-col">
               <div class="p-1.5 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
                 <i class="pi pi-calendar-plus text-primary-600 dark:text-primary-400 text-base"></i>
               </div>
@@ -98,16 +99,11 @@
                      [escape]="false"
                      class="relative p-2 min-h-[60px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md border"
                      [ngClass]="{
-                       'drag-valid-target': cell.canDrop && selectedPeriod,
-                       'drag-conflict-target': !cell.canDrop && selectedPeriod,
-                       'selected-period': isSelectedPeriod(cell.dayIndex, cell.realPeriodIndex, cell),
+                       'drag-valid-target': cell.canDrop && selectedPeriod && classSec === selectedPeriod.classSec,
+                       'drag-conflict-target': !cell.canDrop && selectedPeriod && classSec === selectedPeriod.classSec,
+                       'selected-period': isSelectedPeriod(cell.dayIndex, cell.realPeriodIndex, cell)  && classSec === selectedPeriod.classSec ,
                        'cursor-pointer': dailogeType === 'Edit'
                      }">
-                     
-                     <div *ngIf="!cell.canDrop && selectedPeriod" 
-                          class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-                       <i class="pi pi-exclamation-circle text-[10px]"></i>
-                     </div>
 
                      <div *ngIf="isValidatingPeriod(cell.dayIndex, cell.realPeriodIndex)" class="h-full flex flex-col justify-center items-center text-center gap-2">
                        <div class="validating-spinner"></div>
@@ -187,12 +183,12 @@
   <div *ngIf="dailogeType === 'Edit'"
        class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
     <div class="flex items-center gap-3 bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-3">
-      <button (click)="onCancel()" class="px-6 py-3 rounded-xl bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-200 font-semibold">
-        <i class="pi pi-times"></i> <span>Cancel</span>
+      <button (click)="onCancel()" class="px-4 py-3 rounded-xl bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-200 font-semibold ">
+        <i class="pi pi-times me-2"></i> <span>Cancel</span>
       </button>
 
-      <button (click)="onPublish()" class="px-8 py-3 rounded-xl text-white font-bold bg-primary-600">
-        <i class="pi pi-check-circle"></i> <span>Publish Changes</span>
+      <button (click)="onPublish()" class="px-4 py-3 rounded-xl text-white font-bold bg-primary-600">
+        <i class="pi pi-check-circle me-2"></i> <span>Update Changes</span>
       </button>
     </div>
   </div>

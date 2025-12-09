@@ -131,6 +131,7 @@ export class TimetableViewComponent {
 
                 (schedule as any)._cells = cells;
             });
+            this.deselectPeriod(classSec);
         });
     }
 
@@ -155,11 +156,11 @@ export class TimetableViewComponent {
         }
 
         if (this.selectedPeriod && this.selectedPeriod.scheduleIndex === scheduleIndex && this.selectedPeriod.periodIndex === periodIndex) {
-            this.deselectPeriod();
+            this.deselectPeriod(classSec);
             return;
         }
 
-        this.deselectPeriod();
+        this.deselectPeriod(classSec);
 
         const cellKey = this.getCellKey(scheduleIndex, periodIndex);
         this.validatingPeriodKey = cellKey;
@@ -234,9 +235,23 @@ export class TimetableViewComponent {
         return this.validatingPeriodKey === cellKey && this.isValidatingConflicts;
     }
 
-    deselectPeriod() {
+    deselectPeriod(classSec: any) {
         this.selectedPeriod = null;
         this.validatingPeriodKey = null;
+
+        // Reset cells to default state for this class section only
+        if (classSec?.schedules) {
+            classSec.schedules.forEach((schedule: any) => {
+                schedule._cells.forEach((cell: any) => {
+                    // Reset states modified during conflict validation
+                    cell.canDrop = false; // or true based on your default rule
+                    cell.tooltipText = cell.tooltip || `${cell.subject?.name || 'Free Period'}<br/>${cell.startTime} - ${cell.endTime}`;
+
+                    // If you track conflicts visually, reset those too:
+                    delete cell.isConflict;
+                });
+            });
+        }
     }
 
     onDragStart(classSec: any, scheduleIndex: number, periodIndex: number, cell: any) {
@@ -272,7 +287,7 @@ export class TimetableViewComponent {
         });
 
         this.processForDisplay();
-        this.deselectPeriod();
+        this.deselectPeriod(classSec);
         this.timetableChange.emit(this.displayTimeTableJson);
     }
 

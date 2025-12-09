@@ -98,6 +98,10 @@ export class TimeTableService {
         else return this.http.post('http://localhost:8084/generate-timetable', request);
     }
 
+    updateStatus(timetableId: string, newStatus: string) {
+        return this.http.post(`${this.resourceUrl}/${timetableId}/status`, { status: newStatus });
+    }
+
     // Teacher Methods
     getTeachersList(): Teacher[] {
         return this.teachers;
