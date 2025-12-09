@@ -8,25 +8,13 @@ import { ApiLoaderService } from '../../core/services/loaderService';
 import { BreakConfig, DepartmentTimetable } from '../../pages/models/time-table';
 import { TimeTableService } from '../../pages/service/time-table.service';
 
-interface ConflictInfo {
-    dayIndex: string;
-    className: string;
-    sectionName: string;
-    deptName: string;
-    branchName: string;
-    startTime: string;
-    endTime: string;
-    instructorName: string;
-    instructorId: string;
-}
-
 interface SelectedPeriod {
     classSec: any;
     scheduleIndex: number;
     periodIndex: number;
     period: any;
     isValidForMove: boolean;
-    conflictInfo?: ConflictInfo[];
+    conflictInfo?: any[];
 }
 
 @Component({
@@ -155,21 +143,6 @@ export class TimetableViewComponent {
         return `${scheduleIndex}-${periodIndex}`;
     }
 
-    timeToMinutes(timeStr: string): number {
-        console.log(timeStr);
-        const [hours, minutes] = timeStr?.split(':').map(Number);
-        return hours * 60 + minutes;
-    }
-
-    isTimeOverlapping(start1: string, end1: string, start2: string, end2: string): boolean {
-        const start1Min = this.timeToMinutes(start1);
-        const end1Min = this.timeToMinutes(end1);
-        const start2Min = this.timeToMinutes(start2);
-        const end2Min = this.timeToMinutes(end2);
-
-        return !(end1Min <= start2Min || end2Min <= start1Min);
-    }
-
     onPeriodClick(classSec: any, scheduleIndex: number, periodIndex: number, cell: any) {
         if (cell.type !== 'lecture') {
             this.messageService.add({
@@ -197,11 +170,13 @@ export class TimetableViewComponent {
             periodIndex: periodIndex,
             dayIndex: scheduleIndex,
             classId: classSec.classId,
-            sectionId: classSec.sectionId
+            sectionId: classSec.sectionId,
+            startTime: cell.startTime,
+            endTime: cell.endTime
         };
 
         this.timeTableService.getPeriodConflicts(request).subscribe(
-            (response: ConflictInfo[]) => {
+            (response: any[]) => {
                 this.isValidatingConflicts = false;
                 this.validatingPeriodKey = null;
 
@@ -214,8 +189,19 @@ export class TimetableViewComponent {
                     conflictInfo: response
                 };
 
-                this.validateDropTargetsLocally(classSec, cell);
-
+                classSec.schedules.forEach((schedule: any) => {
+                    const dayConflicts = this.selectedPeriod.conflictInfo?.filter((conflict) => conflict.dayIndex == schedule.day) || [];
+                    console.log('Validating schedule for day:', schedule.day, 'with conflicts:', dayConflicts);
+                    schedule._cells.forEach((cell: any, cellIdx: number) => {
+                        let conflict = dayConflicts.find((conflict) => conflict.startTime == cell.startTime && conflict.endTime == cell.endTime);
+                        cell.canDrop = true;
+                        cell.tooltipText = cell.tooltip || `${cell.subject?.name || 'Free Period'}<br/>${cell.startTime} - ${cell.endTime}`;
+                        if (conflict) {
+                            cell.canDrop = false;
+                            cell.tooltipText = `${conflict.conflict.instructorName} is busy in ${conflict.conflict.className} ${conflict.conflict.sectionName} on Day ${conflict.conflict.dayIndex} (${conflict.conflict.startTime} - ${conflict.conflict.endTime})`;
+                        }
+                    });
+                });
                 this.messageService.add({
                     severity: 'info',
                     summary: 'Period Selected',
@@ -235,40 +221,6 @@ export class TimetableViewComponent {
                 });
             }
         );
-    }
-
-    private validateDropTargetsLocally(classSec: any, selectedCell: any) {
-        this.selectedPeriod?.conflictInfo.forEach((conflict) => {
-            classSec.schedules
-                .find((schedule) => parseInt(schedule.day) === parseInt(conflict.dayIndex))
-                ?._cells.forEach((cell: any) => {
-                    if (this.isTimeOverlapping(conflict.startTime, conflict.endTime, cell.startTime, cell.endTime)) {
-                        cell.canDrop = false;
-                        cell.tooltipText = `Conflict: ${conflict.instructorName} at ${conflict.startTime}-${conflict.endTime}`;
-                    }
-                });
-            console.log('Conflict:', conflict);
-        });
-        // classSec.schedules.forEach((schedule: any) => {
-        //     const dayConflicts = ?.filter((conflict) => parseInt(conflict.dayIndex) === schedule.day) || [];
-
-        //     schedule._cells.forEach((cell: any, cellIdx: number) => {
-        //         if (cell.type === 'lecture' || cell.type === 'free') {
-        //             // Skip the selected period itself (source cell)
-        //             // if (schedule.day === this.selectedPeriod?.scheduleIndex && cellIdx === this.selectedPeriod?.periodIndex) {
-        //             //     return;
-        //             // }
-        //             // cell.canDrop = true;
-        //             // cell.tooltipText = cell.tooltip || `${cell.subject?.name || 'Free Period'}<br/>${cell.startTime} - ${cell.endTime}`;
-        //             // dayConflicts.forEach((conflict) => {
-        //             //     if (this.isTimeOverlapping(conflict.startTime, conflict.endTime, cell.startTime, cell.endTime) && cell.dayIndex == conflict.dayIndex) {
-        //             //         cell.canDrop = false;
-        //             //         cell.tooltipText = `Conflict: ${conflict.instructorName} at ${conflict.startTime}-${conflict.endTime}`;
-        //             //     }
-        //             // });
-        //         }
-        //     });
-        // });
     }
 
     isSelectedPeriod(scheduleIndex: number, periodIndex: number, cell: any): boolean {
@@ -312,7 +264,6 @@ export class TimetableViewComponent {
         // Properties that should NOT be swapped
         const fixedFields = ['startTime', 'endTime', 'duration'];
 
-        // Swap fields except fixed time-related ones
         Object.keys(sourcePeriod).forEach((key) => {
             if (!fixedFields.includes(key)) {
                 sourcePeriod[key] = targetCopy[key];
@@ -322,22 +273,16 @@ export class TimetableViewComponent {
 
         this.processForDisplay();
         this.deselectPeriod();
-
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Period moved successfully',
-            life: 2000
-        });
-
         this.timetableChange.emit(this.displayTimeTableJson);
     }
 
     onPublish(): void {
+        this.selectedPeriod = null;
         this.publish.emit(this.timetableJson);
     }
 
     onCancel(): void {
+        this.selectedPeriod = null;
         this.cancel.emit();
     }
 }

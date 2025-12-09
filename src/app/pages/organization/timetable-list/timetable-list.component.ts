@@ -103,6 +103,14 @@ export class TimetableListComponent implements OnInit {
     }
 
     handleTimetableChange(updatedTimetable: DepartmentTimetable): void {
-        console.log('Timetable changed:', updatedTimetable);
+        this.timeTableService.update(updatedTimetable, updatedTimetable.id || '').subscribe(() => {
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Timetable Updated successfully',
+                life: 2000
+            });
+            this.loader.hide();
+        });
     }
 }
