@@ -58,13 +58,12 @@
       <label class="block text-xs font-medium text-gray-600 mb-0.5">Working Days</label>
       <p class="text-sm text-gray-900">{{ getWorkingDays() }}</p>
     </div>
-     <div>
+    <!-- <div>
       <div class="text-xs text-gray-600">Subjects</div>
       <div class="text-lg font-bold text-blue-600">
         {{ timeTableService.timeTable.subjects.length }}
       </div>
-      
-    </div>
+    </div> -->
 
     <div>
       <div class="text-xs text-gray-600">Teachers</div>
@@ -86,7 +85,7 @@
   <app-timetable-view 
     [timetableJson]="timetableJson"
     (publish)="saveTimetable()"
-    [dailogeType]="'Edit'"
+    [dailogeType]="'View'"
     (cancel)="cancel()">
   </app-timetable-view>
 </p-dialog>

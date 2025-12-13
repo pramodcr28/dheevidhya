@@ -25,54 +25,29 @@ export class ReviewComponent {
     router = inject(Router);
     validationErrors: string[];
 
-    // Updated generateTimetable() method with break insertion logic
-
-    // Updated generateTimetable() method with proper break insertion
-
     generateTimetable() {
-        const errors = this.validateTimetable();
+        const teachers = this.timeTableService.getTeachersList().map((t) => ({
+            id: t.id,
+            name: t.name,
+            preferred_periods: t.timeOn,
+            avoided_periods: t.timeOff,
+            unavailable_periods: t.unavailable_periods
+        }));
+
+        const exportData: any = {
+            days: this.timeTableService.timeTable.settings.workingDays.map((day, index) => (day.selected ? index : -1)).filter((index) => index !== -1),
+            periods_per_day: this.timeTableService.timeTable.settings.periodsPerDay,
+            teachers,
+            classes: this.timeTableService.classes
+        };
+
+        const errors = this.validateTimetable(exportData);
         if (errors.length) {
             this.validationErrors = errors;
             return;
         }
 
         this.validationErrors = [];
-
-        const teachers = this.timeTableService.getTeachersList().map((t) => ({
-            id: t.id,
-            name: t.name,
-            preferred_periods: t.timeOn,
-            avoided_periods: t.timeOff,
-            unavailable_periods: []
-        }));
-
-        let classes: any[] = [];
-
-        const department = this.commonService.associatedDepartments.find((department) => department.id == this.timeTableService.timeTable.department.id);
-
-        department?.department.classes?.forEach((cls) => {
-            cls.sections.forEach((section: any) => {
-                const subjects = section.subjects.map((sub) => ({
-                    id: sub.id,
-                    name: sub.name,
-                    teacher_id: sub.teacher,
-                    hours_per_week: this.timeTableService.timeTable.subjects.find((subject) => subject.id == sub.id)?.hoursPerWeek ?? 5
-                }));
-
-                classes.push({
-                    id: cls.id + '-' + section.id,
-                    name: `${cls.name}-${section.name}`,
-                    subjects
-                });
-            });
-        });
-
-        const exportData: any = {
-            days: this.timeTableService.timeTable.settings.workingDays.map((day, index) => (day.selected ? index : -1)).filter((index) => index !== -1),
-            periods_per_day: this.timeTableService.timeTable.settings.periodsPerDay,
-            teachers,
-            classes
-        };
 
         this.showTimetableDialog = true;
         this.timeTableService.generateTimeTable(exportData).subscribe((response: any) => {
@@ -81,7 +56,7 @@ export class ReviewComponent {
 
             for (const key of Object.keys(rawTimetable)) {
                 const [classId, sectionId] = key.split('-');
-                const classEntry = classes.find((cls) => cls.id === key);
+                const classEntry = this.timeTableService.classes.find((cls) => cls.id === key);
 
                 let className = '';
                 let sectionName = '';
@@ -168,7 +143,7 @@ export class ReviewComponent {
 
             this.timetableJson = {
                 id: null,
-                status: 'Draft',
+                status: 'published',
                 departmentId: this.timeTableService.timeTable.department.id,
                 departmentName: this.timeTableService.timeTable.department.department.name,
                 settings: { ...this.timeTableService.timeTable.settings },
@@ -215,20 +190,15 @@ export class ReviewComponent {
             .map((slot) => slot.name)
             .join(',');
     }
-    validateTimetable(): string[] {
+
+    validateTimetable(exportData: any): string[] {
         const errors: string[] = [];
 
-        // ✅ Department selection check
         if (!this.timeTableService.timeTable.department) {
             errors.push('Please select a department.');
         }
+        // let totalPeriods = this.timeTableService.timeTable.settings.periodsPerDay * exportData.days.length;
 
-        // ✅ At least one subject required
-        if (!this.timeTableService.timeTable.subjects.length) {
-            errors.push('No subjects found for this department.');
-        }
-
-        // ✅ Every subject must have a teacher
         // const unassigned = this.timeTableService.timeTable.subjects.filter(s => !s.teacher);
         // if (unassigned.length) {
         //   errors.push(`${unassigned.length} subject(s) do not have a teacher assigned.`);

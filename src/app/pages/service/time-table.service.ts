@@ -18,6 +18,7 @@ export class TimeTableService {
     private userService = inject(UserService);
     private applicationConfigService = inject(ApplicationConfigService);
     public teachers: Teacher[] = [];
+    public classes: any[] = [];
     public timeTable: TimeTable = {
         department: null,
         settings: {
@@ -54,7 +55,6 @@ export class TimeTableService {
                 }
             ]
         },
-        subjects: [],
         schedule: {}
     };
 
@@ -64,7 +64,6 @@ export class TimeTableService {
 
     private resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ADMIN_BASE_URL + 'api/timetables');
 
-    // API Methods
     create(timeTable: any) {
         return this.http.post(this.resourceUrl, timeTable);
     }
@@ -102,13 +101,26 @@ export class TimeTableService {
         return this.http.post(`${this.resourceUrl}/${timetableId}/status`, { status: newStatus });
     }
 
-    // Teacher Methods
     getTeachersList(): Teacher[] {
         return this.teachers;
     }
 
     onDepartmentChange() {
         this.timeTable.settings.academicYear = this.timeTable.department.academicYear;
+        this.timeTable.department.department.classes.forEach((cls) => {
+            cls.sections.forEach((section: any) => {
+                this.classes.push({
+                    id: cls.id + '-' + section.id,
+                    name: `${cls.name}-${section.name}`,
+                    subjects: section.subjects.map((sub) => ({
+                        id: sub.id,
+                        name: sub.name,
+                        teacher_id: sub.teacher,
+                        hours_per_week: sub.periodsPerWeek
+                    }))
+                });
+            });
+        });
         this.store.select(getSubjectsByFilters([this.timeTable.department.id])).subscribe((subjects) => {
             this.userService
                 .search(0, 100, 'id', 'ASC', {
@@ -123,14 +135,20 @@ export class TimeTableService {
                         timeOff: [],
                         timeOn: []
                     }));
-                    // teachers.find((teacher: Teacher) => teacher.id === sub.teacher)
-                    this.timeTable.subjects = subjects.map((sub: any, index: number) => ({
-                        id: sub.id,
-                        name: sub.name,
-                        teacher: null,
-                        hoursPerWeek: 4,
-                        color: this.availableColors[index % this.availableColors.length]
-                    }));
+
+                    this.getInstructorSlots(this.teachers.map((t) => t.id)).subscribe((slots) => {
+                        this.teachers.forEach((teacher) => {
+                            const teacherSlots = slots.filter((s: any) => s.instructorId == teacher.id);
+                            teacher.unavailable_periods = teacherSlots
+                                ? teacherSlots.map((s) => {
+                                      let dayIndex = Number(s.dayIndex);
+                                      let periodIndex = this.getPeriodIndexByStartAndEndTime(s.startTime, s.endTime);
+
+                                      return [(dayIndex = Number(s.dayIndex)), periodIndex];
+                                  })
+                                : [];
+                        });
+                    });
                 });
         });
     }
@@ -147,11 +165,9 @@ export class TimeTableService {
         const offIndex = teacher.timeOff.findIndex((t) => t.toString() === keyStr);
 
         if (onIndex !== -1) {
-            // Available → Unavailable
             teacher.timeOn.splice(onIndex, 1);
             teacher.timeOff.push(key);
         } else if (offIndex !== -1) {
-            // Unavailable → Neutral
             teacher.timeOff.splice(offIndex, 1);
         } else {
             teacher.timeOn.push(key);
@@ -199,9 +215,50 @@ export class TimeTableService {
                 breakDuration: 10,
                 periodsPerDay: 7
             },
-            subjects: [],
             schedule: {}
         };
+    }
+
+    private toMinutes(timeStr: string): number {
+        if (!timeStr) return 0;
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        return hours * 60 + minutes;
+    }
+
+    getPeriodIndexByStartAndEndTime(startTime: string, endTime: string): number {
+        const settings = this.timeTable.settings;
+        const enabledBreaks = (settings.breaks || []).filter((b) => b.enabled).sort((a, b) => a.afterPeriod - b.afterPeriod);
+
+        const dayStartMinutes = this.toMinutes(settings.startTime);
+        const targetStart = this.toMinutes(startTime);
+        const targetEnd = this.toMinutes(endTime);
+
+        let currentStart = dayStartMinutes;
+        let lecturePeriodCount = 0;
+
+        for (let p = 0; p < settings.periodsPerDay; p++) {
+            lecturePeriodCount++;
+
+            const periodStart = currentStart;
+            const periodEnd = currentStart + settings.periodDuration;
+
+            if (periodStart === targetStart && periodEnd === targetEnd) {
+                return p;
+            }
+
+            currentStart += settings.periodDuration;
+
+            const breakToInsert = enabledBreaks.find((b) => b.afterPeriod === lecturePeriodCount);
+            if (breakToInsert) {
+                currentStart += breakToInsert.duration;
+            }
+        }
+
+        return -1;
+    }
+
+    getInstructorSlots(ids: string[]): Observable<any> {
+        return this.http.post(`${this.resourceUrl}/instructors/slots`, ids);
     }
 
     getPeriodConflicts(payload: any): Observable<any> {

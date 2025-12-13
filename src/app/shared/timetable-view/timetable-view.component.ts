@@ -53,7 +53,7 @@ interface SelectedPeriod {
     ]
 })
 export class TimetableViewComponent {
-    @Input() dailogeType: 'Edit' | 'View' = 'View';
+    @Input() dailogeType: 'Edit' | 'View' | any = 'View';
     @Output() publish = new EventEmitter<DepartmentTimetable>();
     @Output() cancel = new EventEmitter<void>();
     @Output() timetableChange = new EventEmitter<DepartmentTimetable>();

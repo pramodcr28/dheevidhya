@@ -3,7 +3,7 @@ import { IDepartmentConfig } from './org.model';
 export interface TimeTable {
     department: IDepartmentConfig;
     settings: TimeTableSettings;
-    subjects: Subject[];
+    // subjects: Subject[];
     schedule: { [day: string]: TimeSlot[] };
 }
 
@@ -92,6 +92,7 @@ export const DEFAULT_BREAKS: BreakConfig[] = [
 ];
 
 export interface Teacher {
+    unavailable_periods: any;
     name: string;
     id: string;
     timeOff: [number, number][];
@@ -102,7 +103,7 @@ export interface Subject {
     id: string;
     name: string;
     teacher: Teacher;
-    hoursPerWeek: number;
+    periodsPerWeek: number;
     color: string;
 }
 

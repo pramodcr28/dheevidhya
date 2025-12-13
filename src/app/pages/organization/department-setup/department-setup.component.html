@@ -196,7 +196,6 @@
                     class="w-full compact-select">
                   </p-select>
                 </div>
-                
                 <!-- Additional Subject Info -->
                 <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-600">
                   <div>
@@ -205,9 +204,16 @@
                            class="w-full p-1 text-xs rounded border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
                   </div>
                   <div>
-                    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Hours/Week</label>
-                    <input type="number" pInputText placeholder="4" 
-                           class="w-full p-1 text-xs rounded border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+                    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Periods/Week</label>
+                    <input 
+                        type="number" 
+                        pInputText 
+                        placeholder="4"
+                        name="periodsPerWeek"
+                        [(ngModel)]="subject.periodsPerWeek"
+                        class="w-full p-1 text-xs rounded border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700"
+                      />
+
                   </div>
                 </div>
               </div>

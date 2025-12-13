@@ -58,6 +58,7 @@ export interface IMasterSubject {
     teacher?: string | null;
     subjectType?: string | null;
     status?: boolean | null;
+    periodsPerWeek?: number;
 }
 
 export type NewMasterSubject = Omit<IMasterSubject, 'id'> & { id: null };
