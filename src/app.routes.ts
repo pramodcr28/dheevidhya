@@ -8,7 +8,9 @@ import { ExaminationComponent } from './app/pages/examination/examination.compon
 import { CategoryManagementComponent } from './app/pages/inventory-management/category-management/category-management.component';
 import { AssetsManagementComponent } from './app/pages/inventory-management/inventory-management.component';
 import { Notfound } from './app/pages/notfound/notfound';
+import { AddAcademicYearComponent } from './app/pages/organization/add-academic-year/add-academic-year.component';
 import { AssignmentManagementComponent } from './app/pages/organization/assignment-management/assignment-management.component';
+import { DepartmentListComponent } from './app/pages/organization/department-setup/department-setup-list/department-setup-list.component';
 import { DepartmentSetupComponent } from './app/pages/organization/department-setup/department-setup.component';
 import { OrgTreeComponent } from './app/pages/organization/org-tree/org-tree.component';
 import { StudentAttendenceComponent } from './app/pages/organization/student-attendence/student-attendence.component';
@@ -60,7 +62,19 @@ export const appRoutes: Routes = [
                     }
                 ]
             },
-            { path: 'department-setup', component: DepartmentSetupComponent },
+            { path: 'departments', component: DepartmentListComponent },
+            {
+                path: 'department-setup/:id',
+                component: DepartmentSetupComponent
+            },
+            {
+                path: 'add-academic-year/:id',
+                component: AddAcademicYearComponent
+            },
+            {
+                path: 'edit-academic-year/:id',
+                component: AddAcademicYearComponent
+            },
             { path: 'profile', component: ProfileComponent }
             // { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             // { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }

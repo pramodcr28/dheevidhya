@@ -1,0 +1,81 @@
+<p-toast></p-toast>
+
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">Department Management</h1>
+      <p class="text-gray-600 dark:text-gray-400">Select a department to configure</p>
+    </div>
+    @if(masterDepartments?.length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for(dept of masterDepartments; track dept.id) {
+          <div 
+            class="group bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-primary-400 dark:hover:border-primary-500">
+            
+            <div class="h-24 bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 relative overflow-hidden">
+              <div class="absolute inset-0 opacity-0 group-hover:opacity-10 bg-white transition-opacity"></div>
+            </div>
+
+            <div class="p-6 -mt-12 relative z-10">
+              <div class="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div class="p-3 bg-primary-100 dark:bg-primary-900 rounded-lg">
+                    <i class="pi pi-building text-2xl text-primary-600 dark:text-primary-400"></i>
+                  </div>
+                  <span class="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-3 py-1 rounded-full">
+                    {{dept.status ? 'Active' : 'Inactive'}}
+                  </span>
+                </div>
+              </div>
+
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">{{dept.name}}</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{dept.description || 'No description'}}</p>
+              
+              <div class="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 mb-4">
+                <i class="pi pi-tag"></i>
+                <span>{{dept.code}}</span>
+              </div>
+
+              <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center space-x-2 text-sm">
+                  <i class="pi pi-crown text-yellow-500"></i>
+                  <span class="text-gray-600 dark:text-gray-400">
+                    {{dept.hod ? 'HOD Assigned' : 'No HOD'}}
+                  </span>
+                </div>
+              </div>
+
+              @if(dept.classes && dept.classes.length > 0) {
+                <div class="mt-2 flex items-center space-x-2 text-sm">
+                  <i class="pi pi-home text-blue-500"></i>
+                  <span class="text-gray-600 dark:text-gray-400">
+                    {{dept.classes.length}} Classes
+                  </span>
+                </div>
+              }
+            </div>
+
+            <div class="px-6 pb-6">
+              <button 
+                pButton 
+                type="button"
+                label="Configure"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                (click)="selectDepartment(dept)"
+                class="w-full p-button-sm p-button-primary">
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if(masterDepartments?.length === 0) {
+      <div class="text-center py-12">
+        <i class="pi pi-inbox text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+        <p class="text-xl text-gray-600 dark:text-gray-400">No departments available</p>
+      </div>
+    }
+  </div>
+</div>

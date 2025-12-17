@@ -1,0 +1,224 @@
+<p-toast></p-toast>
+
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6">
+  <div class="max-w-7xl mx-auto">
+    
+    <div class="mb-8 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <button 
+            pButton 
+            type="button" 
+            icon="pi pi-arrow-left" 
+            (click)="goBack()" 
+            class="p-button-rounded p-button-text p-button-lg">
+        </button>
+        <div>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Department Setup</h2>
+            <p class="text-gray-600 dark:text-gray-400">
+                {{masterDepartment?.name}} <span *ngIf="masterDepartment?.code">({{masterDepartment?.code}})</span>
+            </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-8">
+        <p-steps [model]="steps" [(activeIndex)]="activeIndex" [readonly]="false" styleClass="cursor-pointer"></p-steps>
+    </div>
+
+    <div *ngIf="activeIndex === 0" class="fade-in">
+        <form [formGroup]="editForm" class="space-y-6">
+             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+                 <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div class="space-y-2">
+                         <label class="font-semibold text-gray-700 dark:text-gray-300">Academic Year</label>
+                         <input pInputText formControlName="academicYear" placeholder="e.g. 2024-2025" class="w-full"/>
+                     </div>
+                     <div class="space-y-2 flex flex-col justify-center">
+                        <label class="font-semibold text-gray-700 dark:text-gray-300 mb-2">Active Status</label>
+                        <div class="flex items-center gap-2">
+                            <p-inputSwitch formControlName="status"></p-inputSwitch>
+                            <span class="text-sm text-gray-500">{{ editForm.get('status')?.value ? 'Active' : 'Inactive' }}</span>
+                        </div>
+                    </div>
+                     <div class="space-y-2">
+                         <label class="font-semibold text-gray-700 dark:text-gray-300">Academic Start</label>
+                         <p-calendar formControlName="academicStart" dateFormat="yy-mm-dd" [showIcon]="true" styleClass="w-full"></p-calendar>
+                     </div>
+                     <div class="space-y-2">
+                         <label class="font-semibold text-gray-700 dark:text-gray-300">Academic End</label>
+                         <p-calendar formControlName="academicEnd" dateFormat="yy-mm-dd" [showIcon]="true" styleClass="w-full"></p-calendar>
+                     </div>
+                 </div>
+             </div>
+             
+             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+                 <div class="p-6 text-center" *ngIf="!masterDepartment?.classes?.length">
+                    <p>No classes to configure.</p>
+                 </div>
+                 <div class="p-6 space-y-8" *ngIf="masterDepartment?.classes">
+                     @for (classItem of masterDepartment?.classes; track $index) {
+                         <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                            <h4 class="font-bold mb-2 dark:text-white">{{classItem.name}}</h4>
+                            <p-multiSelect [options]="masterSectionCollection" [(ngModel)]="classItem.sections" [ngModelOptions]="{standalone: true}" optionLabel="name" display="chip" styleClass="w-full"></p-multiSelect>
+                            
+                            @for (section of classItem.sections; track section.id) {
+                                <div class="mt-4 pl-4 border-l-2">
+                                    <label class="text-sm block mb-1 dark:text-gray-300">Subjects for {{section.name}}</label>
+                                    <p-multiSelect [options]="masterSubjectsCollection" [(ngModel)]="section.subjects" [ngModelOptions]="{standalone: true}" optionLabel="name" display="chip" styleClass="w-full"></p-multiSelect>
+                                </div>
+                            }
+                         </div>
+                     }
+                 </div>
+             </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 pb-8">
+                <button pButton type="button" label="Cancel" icon="pi pi-times" (click)="goBack()" class="p-button-outlined p-button-secondary"></button>
+                <button pButton type="button" label="Save & Next" icon="pi pi-arrow-right" iconPos="right" (click)="saveAndNext()" [loading]="isSaving" class="p-button-primary"></button>
+            </div>
+        </form>
+    </div>
+
+    <div *ngIf="activeIndex === 1" class="fade-in">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[600px]">
+            
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex flex-col h-full border border-gray-200 dark:border-gray-700 overflow-hidden"
+                 (dragover)="onDragOver($event)" (drop)="onDrop($event, 'source')">
+                
+                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                            Available Staff
+                            <span class="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 text-xs py-1 px-2 rounded-full">{{filteredSourceStaff.length}}</span>
+                        </h3>
+                    </div>
+                    <button *ngIf="filteredSourceStaff.length > 0" (click)="moveAllToTarget()" class="text-xs text-primary-600 hover:underline">Add All</button>
+                </div>
+
+                <div class="p-3 border-b border-gray-100 dark:border-gray-700">
+                    <p-iconField iconPosition="left" class="w-full">
+                        <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+                        <input type="text" pInputText [(ngModel)]="searchSource" placeholder="Search staff..." class="w-full p-inputtext-sm" />
+                    </p-iconField>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-gray-50/50 dark:bg-gray-900/20 staff-scroll">
+                    @for (user of filteredSourceStaff; track user.id) {
+                        <div class="group bg-white dark:bg-gray-700 p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:shadow-md transition-all duration-200 cursor-pointer flex items-center gap-3 select-none"
+                             draggable="true" (dragstart)="onDragStart($event, user, 'source')"
+                             (click)="moveToTarget(user)">
+                            
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold shadow-sm">
+                                {{user.fullName?.charAt(0) || 'U'}}
+                            </div>
+                            
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{user.fullName}}</h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{user.email}}</p>
+                            </div>
+
+                            <div class="w-8 h-8 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center text-green-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="pi pi-plus text-sm"></i>
+                            </div>
+                        </div>
+                    }
+                    @if (filteredSourceStaff.length === 0) {
+                        <div class="flex flex-col items-center justify-center h-48 text-gray-400">
+                            <i class="pi pi-users text-3xl mb-2 opacity-50"></i>
+                            <p class="text-sm">No staff found</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex flex-col h-full border-2 border-dashed border-primary-200 dark:border-primary-900 overflow-hidden"
+                 [ngClass]="{'border-solid border-primary-500 bg-primary-50/10': targetStaff.length > 0}"
+                 (dragover)="onDragOver($event)" (drop)="onDrop($event, 'target')">
+                
+                <div class="p-4 bg-primary-50 dark:bg-primary-900/20 border-b border-primary-100 dark:border-primary-800 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-primary-800 dark:text-primary-300 flex items-center gap-2">
+                            Assigned Staff
+                            <span class="bg-primary-200 dark:bg-primary-700 text-primary-800 dark:text-white text-xs py-1 px-2 rounded-full">{{filteredTargetStaff.length}}</span>
+                        </h3>
+                    </div>
+                    <button *ngIf="filteredTargetStaff.length > 0" (click)="moveAllToSource()" class="text-xs text-red-500 hover:underline">Remove All</button>
+                </div>
+
+                <div class="p-3 border-b border-gray-100 dark:border-gray-700">
+                    <p-iconField iconPosition="left" class="w-full">
+                        <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+                        <input type="text" pInputText [(ngModel)]="searchTarget" placeholder="Find in assigned..." class="w-full p-inputtext-sm" />
+                    </p-iconField>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white dark:bg-gray-800 staff-scroll">
+                    @for (user of filteredTargetStaff; track user.id) {
+                        <div class="group bg-white dark:bg-gray-700 p-3 rounded-xl border border-l-4 border-gray-200 dark:border-gray-600 border-l-primary-500 hover:shadow-md transition-all duration-200 cursor-pointer flex items-center gap-3 select-none"
+                             draggable="true" (dragstart)="onDragStart($event, user, 'target')"
+                             (click)="moveToSource(user)">
+                            
+                            <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold">
+                                {{user.fullName?.charAt(0) || 'U'}}
+                            </div>
+                            
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{user.fullName}}</h4>
+                                <p class="text-xs text-primary-600 dark:text-primary-400 flex items-center gap-1">
+                                    <i class="pi pi-check-circle text-[10px]"></i> Assigned
+                                </p>
+                            </div>
+
+                            <div class="w-8 h-8 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="pi pi-times text-sm"></i>
+                            </div>
+                        </div>
+                    }
+                    @if (filteredTargetStaff.length === 0) {
+                        <div class="flex flex-col items-center justify-center h-full text-gray-400 pb-12">
+                            <div class="w-20 h-20 bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                                <i class="pi pi-user-plus text-3xl opacity-50"></i>
+                            </div>
+                            <p class="font-medium text-gray-500">No staff assigned yet</p>
+                            <p class="text-xs text-gray-400 mt-1">Drag staff here or click to assign</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+        <div class="flex items-center justify-between pt-6 pb-8 border-t border-gray-200 dark:border-gray-700 mt-6">
+            <button 
+                pButton 
+                type="button" 
+                label="Back" 
+                icon="pi pi-arrow-left" 
+                (click)="activeIndex = 0" 
+                class="p-button-outlined">
+            </button>
+            
+            <div class="flex gap-3">
+                 <button 
+                    pButton 
+                    type="button" 
+                    label="Skip" 
+                    class="p-button-text p-button-secondary"
+                    (click)="goBack()">
+                </button>
+                <button 
+                    pButton 
+                    type="button" 
+                    label="Confirm Assignments" 
+                    icon="pi pi-check-circle" 
+                    (click)="saveStaffAssignment()" 
+                    [loading]="isSaving" 
+                    class="p-button-success shadow-lg shadow-green-200 dark:shadow-none">
+                </button>
+            </div>
+        </div>
+    </div>
+
+  </div>
+</div>

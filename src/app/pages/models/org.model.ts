@@ -71,3 +71,8 @@ export interface Section {
     className: string;
     departmentName: string;
 }
+
+export interface IDepartmentAcademicYear {
+    academicYear: string;
+    deptConfigId: string;
+}

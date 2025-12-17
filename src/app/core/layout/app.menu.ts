@@ -46,7 +46,7 @@ export class AppMenu {
             {
                 label: 'Organization',
                 items: [
-                    { label: 'Department Setup', icon: 'pi pi-fw pi-building-columns', routerLink: ['/department-setup'] },
+                    { label: 'Department Setup', icon: 'pi pi-fw pi-building-columns', routerLink: ['/departments'] },
                     { label: 'Org Tree', icon: 'pi pi-fw pi-sitemap', routerLink: ['/org'] }
                 ]
             },
