@@ -17,7 +17,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments, getBranch, getSubjectsByFilters } from '../../../core/store/user-profile/user-profile.selectors';
+import { getAssociatedDepartments, getSubjectsByFilters } from '../../../core/store/user-profile/user-profile.selectors';
 import { IBranch } from '../../models/tenant.model';
 import {
     IGuardianProfile,
@@ -42,6 +42,7 @@ import {
 import { ProfileConfigFormService } from '../../service/profile-config-form.service';
 import { TenantUserFormService } from '../../service/tenant-user-form.service';
 import { UserService } from '../../service/user.service';
+import { CommonService } from './../../../core/services/common.service';
 
 @Component({
     selector: 'app-employee-dialog',
@@ -125,10 +126,11 @@ export class EmployeeDialogComponent {
         { label: 'Male', value: 'MALE' },
         { label: 'Other', value: 'OTHER' }
     ];
-    branch: IBranch | any;
+    // branch: IBranch | any;
     contactNumber: any;
     departmentSpecificSubjects = [];
     selectedSubjects = [];
+    commonService = inject(CommonService);
     ngOnInit(): void {
         if (!this.employee.id)
             this.employee = {
@@ -164,9 +166,9 @@ export class EmployeeDialogComponent {
             this.departmentSpecificSubjects = subjects;
         });
 
-        this.store.select(getBranch).subscribe((branch) => {
-            this.branch = branch;
-        });
+        // this.store.select(getBranch).subscribe((branch) => {
+        //     this.branch = branch;
+        // });
     }
 
     onDepartmentSelection() {
@@ -182,7 +184,7 @@ export class EmployeeDialogComponent {
             const updatedStudent = this.tenantUserFormService.getTenantUser(this.employeeForm);
 
             if (!updatedStudent.id) {
-                updatedStudent.branchId = this.branch.id;
+                updatedStudent.branchId = this.commonService.branch.id;
                 updatedStudent.passwordHash = '';
             }
 

@@ -131,6 +131,18 @@ export class UserService {
         return this.http.post<any>(`${environment.ServerUrl + environment.UAA_BASE_URL}api/profile-configs/search`, searchRequest);
     }
 
+    userSearch<T>(page: number = 0, size: number = 10, sortBy: string = 'id', sortDirection: string = 'ASC', filters: any = {}): Observable<any> {
+        const searchRequest = {
+            page: page,
+            size: size,
+            sortBy: sortBy,
+            sortDirection: sortDirection,
+            filters: filters
+        };
+
+        return this.http.post<any>(`${environment.ServerUrl + environment.UAA_BASE_URL}users/search`, searchRequest);
+    }
+
     bulkCreateStudents(payload: any): Observable<any> {
         console.log('payload', payload);
         return this.http.post(`${this.bulkUploadUrl}/students`, payload);

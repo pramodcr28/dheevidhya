@@ -9,6 +9,7 @@ export interface IDepartmentConfig {
     status?: boolean | null;
     branch?: IBranch | null;
     department?: IMasterDepartment | null;
+    associatedStaffs?: String[];
 }
 
 export type NewDepartmentConfig = Omit<IDepartmentConfig, 'id'> & { id: null };
@@ -41,6 +42,7 @@ export interface IMasterSection {
     name?: string | null;
     code?: string | null;
     capacity?: number | null;
+    room?: number | null;
     description?: string | null;
     sectionTeacher?: string | null;
     status?: boolean | null;

@@ -208,6 +208,7 @@ export class StudentDialogComponent implements OnInit {
         if (!updatedStudent.id) {
             // updatedStudent.branch = this.selectedDepartment.branch;
             // updatedStudent.passwordHash = '';
+            updatedStudent.branchId = this.commonService.branch.id;
         }
 
         this.generateUserProfile(updatedStudent);

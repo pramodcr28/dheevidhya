@@ -408,12 +408,14 @@ export class NoticeAddComponent implements OnInit, OnChanges {
     }
 
     private resetForm(): void {
-        this.noticeForm.reset();
-        this.noticeForm.controls.categoryType.setValue(CategoryType.GENERAL);
-        this.noticeForm.controls.priority.setValue(Priority.MEDIUM);
-        this.noticeForm.controls.targetAudience.controls.type.setValue(TargetType.ALL);
-        this.noticeForm.controls.targetAudience.controls.includeAll.setValue(true);
-        this.noticeForm.controls.attachments.setValue([]);
+        if (this.noticeForm) {
+            this.noticeForm.reset();
+            this.noticeForm.controls.categoryType.setValue(CategoryType.GENERAL);
+            this.noticeForm.controls.priority.setValue(Priority.MEDIUM);
+            this.noticeForm.controls.targetAudience.controls.type.setValue(TargetType.ALL);
+            this.noticeForm.controls.targetAudience.controls.includeAll.setValue(true);
+            this.noticeForm.controls.attachments.setValue([]);
+        }
     }
 
     private parseCsv(input: string | null | undefined): string[] {

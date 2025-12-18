@@ -2,26 +2,27 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AccordionModule, AccordionPanel } from 'primeng/accordion';
 import { MessageService } from 'primeng/api';
+import { AvatarModule } from 'primeng/avatar'; // Added
+import { BadgeModule } from 'primeng/badge'; // Added
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TabsModule } from 'primeng/tabs';
+import { TagModule } from 'primeng/tag'; // Added
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { UserFilterPipePipe } from '../../../core/pipe/user-filter-pipe.pipe';
 import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
-import { IDepartmentAcademicYear, IMasterDepartment } from '../../models/org.model';
+import { IDepartmentAcademicYear, IMasterClass, IMasterDepartment } from '../../models/org.model'; // Import IMasterClass
 import { UserService } from '../../service/user.service';
 
 @Component({
     selector: 'app-department-setup',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, DropdownModule, DialogModule, InputTextModule, TabsModule, SelectModule, AccordionModule, AccordionPanel, ToastModule, UserFilterPipePipe],
+    imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TabsModule, SelectModule, ToastModule, TooltipModule, UserFilterPipePipe, AvatarModule, TagModule, BadgeModule],
     templateUrl: './department-setup.component.html',
     styles: [],
     providers: [MessageService]
@@ -43,6 +44,9 @@ export class DepartmentSetupComponent implements OnInit {
 
     activeTabIndex = null;
 
+    // New State for Modern UI
+    activeClass: IMasterClass | null = null;
+
     ngOnInit() {
         this.activatedRoute.params.subscribe((params) => {
             const deptId = params['id'];
@@ -57,11 +61,7 @@ export class DepartmentSetupComponent implements OnInit {
                     },
                     (error) => {
                         this.loader.hide();
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Failed to fetch academic years'
-                        });
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch academic years' });
                     }
                 );
             }
@@ -76,28 +76,27 @@ export class DepartmentSetupComponent implements OnInit {
 
     fetchDepartmentConfig(deptConfigId: string) {
         this.loader.show('Fetching department configuration...');
-
         this.departmentConfigService.find(deptConfigId).subscribe(
             (response: any) => {
                 this.selectedDepartment = response.body?.department;
                 this.selectedMasterDepartment = response.body;
 
+                // Automatically select the first class for the dashboard view
+                if (this.selectedDepartment?.classes && this.selectedDepartment.classes.length > 0) {
+                    this.activeClass = this.selectedDepartment.classes[0];
+                }
+
                 this.fetchDepartmentStaff();
             },
             (error) => {
                 this.loader.hide();
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to fetch department configuration'
-                });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch department configuration' });
             }
         );
     }
 
     fetchDepartmentStaff() {
         if (!this.selectedMasterDepartment?.id) return;
-
         this.userService
             .search(0, 100, 'id', 'ASC', {
                 'departments.in': [this.selectedMasterDepartment.id],
@@ -110,39 +109,37 @@ export class DepartmentSetupComponent implements OnInit {
                 },
                 (error) => {
                     this.loader.hide();
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to fetch staff'
-                    });
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch staff' });
                 }
             );
     }
 
+    // New Helper: Select a class to view
+    selectClass(classItem: IMasterClass) {
+        this.activeClass = classItem;
+    }
+
+    // Helper: Count total subjects in a class for badges
+    getSubjectCount(classItem: IMasterClass): number {
+        if (!classItem.sections) return 0;
+        // Approximation based on first section to avoid heavy calculation in template
+        return classItem.sections[0]?.subjects?.length || 0;
+    }
+
     async saveSetup() {
         if (!this.selectedMasterDepartment || !this.selectedDepartment) return;
-
         this.selectedMasterDepartment.department = this.selectedDepartment;
         this.selectedMasterDepartment.branch = this.commonService.branch;
         this.loader.show('Updating Department Configuration...');
-
         this.departmentConfigService.update(this.selectedMasterDepartment).subscribe(
             () => {
                 this.loader.hide();
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Department Configuration Updated Successfully!'
-                });
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Department Configuration Updated Successfully!' });
                 setTimeout(() => this.goBack(), 1000);
             },
             () => {
                 this.loader.hide();
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to update configuration'
-                });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update configuration' });
             }
         );
     }
@@ -152,14 +149,11 @@ export class DepartmentSetupComponent implements OnInit {
     }
 
     addNewAcademicYear() {
-        this.router.navigate(['/add-academic-year', this.selectedDepartment.id]);
+        this.router.navigate(['/add-academic-year', this.selectedDepartment?.id]);
     }
 
-    // NEW METHOD: Handle Edit Navigation
     editAcademicYear() {
         if (this.selectedAcademicYear) {
-            // You need to ensure your Routing Module supports '/edit-academic-year/:configId'
-            // or reuse the same component route if it can handle ID differentiation
             this.router.navigate(['/edit-academic-year', this.selectedAcademicYear.deptConfigId]);
         }
     }

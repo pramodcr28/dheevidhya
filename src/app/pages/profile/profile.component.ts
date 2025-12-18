@@ -247,14 +247,17 @@ export class ProfileComponent {
     }
 
     getTotalClasses(): number {
-        return this.userProfile.departments.reduce((total, dept) => total + dept.department.classes.length, 0);
+        return this.userProfile.departments.reduce((total, dept) => total + dept.department?.classes?.length, 0);
     }
 
     getTotalSections(): number {
-        return this.userProfile.departments.reduce((total, dept) => total + dept.department.classes.reduce((classTotal, cls) => classTotal + cls.sections.length, 0), 0);
+        return this.userProfile.departments.reduce((total, dept) => total + dept.department?.classes?.reduce((classTotal, cls) => classTotal + cls.sections?.length, 0), 0);
     }
 
     getTotalSubjects(): number {
-        return this.userProfile.departments.reduce((total, dept) => total + dept.department.classes.reduce((classTotal, cls) => classTotal + cls.sections.reduce((sectionTotal, section) => sectionTotal + section.subjects.length, 0), 0), 0);
+        return this.userProfile.departments?.reduce(
+            (total, dept) => total + dept.department?.classes?.reduce((classTotal, cls) => classTotal + cls?.sections?.reduce((sectionTotal, section) => sectionTotal + (section?.subjects?.length ?? 0), 0), 0),
+            0
+        );
     }
 }
