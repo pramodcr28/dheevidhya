@@ -41,16 +41,15 @@ export class DepartmentSetupComponent implements OnInit {
     selectedAcademicYear: IDepartmentAcademicYear | null = null;
     academicYears: IDepartmentAcademicYear[] = [];
     users: any[] = [];
-
+    selectedDepartmentId = null;
     activeTabIndex = null;
-
-    // New State for Modern UI
     activeClass: IMasterClass | null = null;
 
     ngOnInit() {
         this.activatedRoute.params.subscribe((params) => {
             const deptId = params['id'];
             if (deptId) {
+                this.selectedDepartmentId = deptId;
                 this.departmentConfigService.fetchAcademicYears(deptId).subscribe(
                     (data) => {
                         this.academicYears = data || [];
@@ -149,7 +148,7 @@ export class DepartmentSetupComponent implements OnInit {
     }
 
     addNewAcademicYear() {
-        this.router.navigate(['/add-academic-year', this.selectedDepartment?.id]);
+        this.router.navigate(['/add-academic-year', this.selectedDepartment?.id ?? this.selectedDepartmentId]);
     }
 
     editAcademicYear() {

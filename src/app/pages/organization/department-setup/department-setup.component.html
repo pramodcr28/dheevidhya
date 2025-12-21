@@ -158,7 +158,7 @@
                                                         <p-select
                                                             [options]="users"
                                                             [(ngModel)]="section.sectionTeacher"
-                                                            name="sectionTeacher_{{activeClass.id}}_{{si}}"
+                                                            [name]="'sectionTeacher_' + activeClass.id + '_' + si"
                                                             optionLabel="fullName"
                                                             optionValue="userId"
                                                             placeholder="Assign Teacher"
@@ -176,11 +176,23 @@
                                                 <div class="px-6 py-4 grid grid-cols-2 gap-4 border-b border-gray-50 dark:border-gray-700 bg-white dark:bg-gray-800">
                                                     <div class="space-y-1">
                                                         <label class="text-[10px] uppercase font-bold text-gray-400">Capacity</label>
-                                                        <input type="number" [(ngModel)]="section.capacity" pInputText placeholder="--" class="w-full p-1 text-sm border-none bg-gray-50 dark:bg-gray-900 rounded focus:ring-1 focus:ring-indigo-500">
+                                                        <input 
+                                                            type="number" 
+                                                            [(ngModel)]="section.capacity" 
+                                                            [name]="'capacity_' + activeClass.id + '_' + si"
+                                                            pInputText 
+                                                            placeholder="--" 
+                                                            class="w-full p-1 text-sm border-none bg-gray-50 dark:bg-gray-900 rounded focus:ring-1 focus:ring-indigo-500">
                                                     </div>
                                                     <div class="space-y-1">
                                                         <label class="text-[10px] uppercase font-bold text-gray-400">Room</label>
-                                                        <input type="text" [(ngModel)]="section.room" pInputText placeholder="--" class="w-full p-1 text-sm border-none bg-gray-50 dark:bg-gray-900 rounded focus:ring-1 focus:ring-indigo-500">
+                                                        <input 
+                                                            type="text" 
+                                                            [(ngModel)]="section.room" 
+                                                            [name]="'room_' + activeClass.id + '_' + si"
+                                                            pInputText 
+                                                            placeholder="--" 
+                                                            class="w-full p-1 text-sm border-none bg-gray-50 dark:bg-gray-900 rounded focus:ring-1 focus:ring-indigo-500">
                                                     </div>
                                                 </div>
 
@@ -205,7 +217,7 @@
                                                                     <p-select
                                                                         [options]="users | userFilter: subject.id.toString()"
                                                                         [(ngModel)]="subject.teacher"
-                                                                        name="subjectTeacher_{{activeClass.id}}_{{si}}_{{subi}}"
+                                                                        [name]="'subjectTeacher_' + activeClass.id + '_' + si + '_' + subi"
                                                                         optionLabel="fullName"
                                                                         optionValue="userId"
                                                                         placeholder="Select Teacher"
