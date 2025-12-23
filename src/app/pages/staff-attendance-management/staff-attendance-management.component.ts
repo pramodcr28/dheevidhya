@@ -106,7 +106,7 @@ export class StaffAttendanceManagementComponent implements OnInit {
     ngOnInit() {
         this.store.select(getAssociatedDepartments).subscribe((departments) => {
             this.associatedDepartments = departments;
-            this.logFilters.departments = this.associatedDepartments.map((dept) => dept.id);
+            this.logFilters.departments = this.associatedDepartments?.map((dept) => dept.id);
         });
         this.loadAttendanceLogs();
     }

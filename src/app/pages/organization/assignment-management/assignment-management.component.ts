@@ -92,14 +92,13 @@ export class AssignmentManagementComponent implements OnInit {
         this.currentView = 'cards';
         this.selectedGroup = group;
         let reqBody: any = {};
-        this.commonService.currentUser.subscribe((user) => {
-            if (user?.roles?.student) {
-                reqBody = { subjectName: group.name, className: group.className, sectionName: group.sectionName, departmentId: group.departmentName, 'status.ne': 'DRAFT' };
-            } else {
-                reqBody = { subjectName: group.subjectName, className: group.className, sectionName: group.sectionName, departmentId: group.departmentId };
-            }
-            this.subjectInfo = { departmentId: group.departmentId, className: group.className, sectionName: group.sectionName, subjectName: group.subjectName };
-        });
+        let user = this.commonService.currentUser;
+        if (user?.roles?.student) {
+            reqBody = { subjectName: group.name, className: group.className, sectionName: group.sectionName, departmentId: group.departmentName, 'status.ne': 'DRAFT' };
+        } else {
+            reqBody = { subjectName: group.subjectName, className: group.className, sectionName: group.sectionName, departmentId: group.departmentId };
+        }
+        this.subjectInfo = { departmentId: group.departmentId, className: group.className, sectionName: group.sectionName, subjectName: group.subjectName };
 
         this.assignmentService.search(0, 100, 'id', 'ASC', reqBody).subscribe((result) => {
             this.assignments = result.content;
@@ -109,17 +108,16 @@ export class AssignmentManagementComponent implements OnInit {
 
     getGroupedAssignments() {
         let reqBody: any = {};
-        this.commonService.currentUser.subscribe((user) => {
-            if (user?.roles?.student) {
-                reqBody = { departmentIds: [this.commonService.getStudentInfo.departmentId], classNames: [this.commonService.getStudentInfo.className], sectionNames: [this.commonService.getStudentInfo.sectionName] };
-            } else {
-                reqBody = { departmentIds: this.associatedDepartments.map((dept) => dept.id) };
-            }
-            this.loader.show('Fetching Assignments');
-            this.assignmentService.getGroupedAssignments(0, 100, 'id', 'ASC', reqBody).subscribe((result) => {
-                this.groupedAssignments = result.content;
-                this.loader.hide();
-            });
+        let user = this.commonService.currentUser;
+        if (user?.roles?.student) {
+            reqBody = { departmentIds: [this.commonService.getStudentInfo.departmentId], classNames: [this.commonService.getStudentInfo.className], sectionNames: [this.commonService.getStudentInfo.sectionName] };
+        } else {
+            reqBody = { departmentIds: this.associatedDepartments.map((dept) => dept.id) };
+        }
+        this.loader.show('Fetching Assignments');
+        this.assignmentService.getGroupedAssignments(0, 100, 'id', 'ASC', reqBody).subscribe((result) => {
+            this.groupedAssignments = result.content;
+            this.loader.hide();
         });
     }
 

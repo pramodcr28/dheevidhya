@@ -125,11 +125,14 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
         classes?.forEach((c) => {
             const classGroup = this.departmentConfigFormService.createClassFormGroup(c);
             this.classesArray.push(classGroup);
+            if (c.sections && c.sections.length > 0) {
+                const sectionsFromMaster = c.sections.map((section: any) => this.masterSectionCollection.find((ms) => ms.id === section.id) || section);
+                classGroup.get('selectedSections')?.patchValue(sectionsFromMaster, { emitEvent: false });
 
-            // Sync nested configurations if they exist (for Edit mode)
-            if (c.sections) {
                 const configs = classGroup.get('sectionConfigs') as FormArray;
-                c.sections.forEach((s: any) => configs.push(this.departmentConfigFormService.createSectionFormGroup(s)));
+                c.sections.forEach((s: any) => {
+                    configs.push(this.departmentConfigFormService.createSectionFormGroup(s));
+                });
             }
         });
     }
@@ -139,7 +142,6 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
         const selected = classGroup.get('selectedSections')?.value as any[];
         const configs = classGroup.get('sectionConfigs') as FormArray;
 
-        // 1. Remove configs that were unselected
         for (let i = configs.length - 1; i >= 0; i--) {
             const currentId = configs.at(i).value.id;
             if (!selected.find((s) => s.id === currentId)) {
@@ -147,11 +149,9 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
             }
         }
 
-        // 2. Add new unique instances for newly selected sections
         selected.forEach((s) => {
             const exists = configs.controls.some((ctrl) => ctrl.value.id === s.id);
             if (!exists) {
-                // IMPORTANT: createSectionFormGroup creates a unique instance
                 configs.push(this.departmentConfigFormService.createSectionFormGroup(s));
             }
         });
@@ -197,14 +197,10 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
             })
             .subscribe((res) => {
                 this.allStaff = res.content ?? [];
-                this.distributeStaff();
+                const assignedIds = this.selectedDepartmentConfig?.associatedStaffs || [];
+                this.sourceStaff = this.allStaff.filter((s) => !assignedIds.includes(s.id));
+                this.targetStaff = this.allStaff.filter((s) => assignedIds.includes(s.id));
             });
-    }
-
-    distributeStaff(): void {
-        const assignedIds = this.selectedDepartmentConfig?.associatedStaffs || [];
-        this.sourceStaff = this.allStaff.filter((s) => !assignedIds.includes(s.id));
-        this.targetStaff = this.allStaff.filter((s) => assignedIds.includes(s.id));
     }
 
     calculateAcademicYear(): void {
@@ -236,15 +232,6 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
         });
     }
 
-    // Staff logic ...
-    moveToTarget(user: any): void {
-        this.targetStaff.push(user);
-        this.sourceStaff = this.sourceStaff.filter((u) => u.id !== user.id);
-    }
-    moveToSource(user: any): void {
-        this.sourceStaff.push(user);
-        this.targetStaff = this.targetStaff.filter((u) => u.id !== user.id);
-    }
     onDragStart(event: DragEvent, user: any, origin: string): void {
         event.dataTransfer?.setData('text', JSON.stringify({ user, origin }));
     }
@@ -274,15 +261,32 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
         window.history.back();
     }
     get filteredSourceStaff() {
-        return this.sourceStaff.filter((u) => u.fullName?.toLowerCase().includes(this.searchSource.toLowerCase()));
+        return this.sourceStaff;
     }
+
     get filteredTargetStaff() {
-        return this.targetStaff.filter((u) => u.fullName?.toLowerCase().includes(this.searchTarget.toLowerCase()));
+        return this.targetStaff;
     }
+
     moveAllToTarget() {
-        this.filteredSourceStaff.forEach((u) => this.moveToTarget(u));
+        const toMove = [...this.filteredSourceStaff];
+        toMove.forEach((u) => this.moveToTarget(u));
     }
+
     moveAllToSource() {
-        this.filteredTargetStaff.forEach((u) => this.moveToSource(u));
+        const toMove = [...this.filteredTargetStaff];
+        toMove.forEach((u) => this.moveToSource(u));
+    }
+
+    moveToTarget(user: any): void {
+        if (!user?.id) return;
+        this.targetStaff.push(user);
+        this.sourceStaff = this.sourceStaff.filter((u) => u.id !== user.id);
+    }
+
+    moveToSource(user: any): void {
+        if (!user?.id) return;
+        this.sourceStaff.push(user);
+        this.targetStaff = this.targetStaff.filter((u) => u.id !== user.id);
     }
 }
