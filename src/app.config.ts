@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter, Router, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
 import Aura from '@primeng/themes/aura';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { catchError, Observable, throwError } from 'rxjs';
 import { appRoutes } from './app.routes';
@@ -20,7 +20,8 @@ export const appConfig: ApplicationConfig = {
         providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } }),
         ...provideAppStore,
         FormsModule,
-        MessageService
+        MessageService,
+        ConfirmationService
     ]
 };
 function errorHandlerInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {

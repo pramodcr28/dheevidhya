@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar'; // Added
 import { BadgeModule } from 'primeng/badge'; // Added
 import { ButtonModule } from 'primeng/button';
@@ -44,27 +44,31 @@ export class DepartmentSetupComponent implements OnInit {
     selectedDepartmentId = null;
     activeTabIndex = null;
     activeClass: IMasterClass | null = null;
-
+    confirmationService = inject(ConfirmationService);
     ngOnInit() {
         this.activatedRoute.params.subscribe((params) => {
             const deptId = params['id'];
             if (deptId) {
                 this.selectedDepartmentId = deptId;
-                this.departmentConfigService.fetchAcademicYears(deptId).subscribe(
-                    (data) => {
-                        this.academicYears = data || [];
-                        this.loader.hide();
-                        if (this.academicYears.length > 0) {
-                            this.selectAcademicYear(this.academicYears[0]?.deptConfigId);
-                        }
-                    },
-                    (error) => {
-                        this.loader.hide();
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch academic years' });
-                    }
-                );
+                this.apiCall(deptId);
             }
         });
+    }
+
+    apiCall(deptId) {
+        this.departmentConfigService.fetchAcademicYears(deptId).subscribe(
+            (data) => {
+                this.academicYears = data || [];
+                this.loader.hide();
+                if (this.academicYears.length > 0) {
+                    this.selectAcademicYear(this.academicYears[0]?.deptConfigId);
+                }
+            },
+            (error) => {
+                this.loader.hide();
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch academic years' });
+            }
+        );
     }
 
     selectAcademicYear(id: string) {
@@ -155,5 +159,37 @@ export class DepartmentSetupComponent implements OnInit {
         if (this.selectedAcademicYear) {
             this.router.navigate(['/edit-academic-year', this.selectedAcademicYear.deptConfigId]);
         }
+    }
+
+    confirmDelete(id: string): void {
+        this.confirmationService.confirm({
+            header: 'Confirm Deletion',
+            message: 'Are you sure you want to delete this academic year?',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => this.deleteAcademicYear(id)
+        });
+    }
+
+    deleteAcademicYear(id: string): void {
+        this.departmentConfigService.delete(id).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Deleted',
+                    detail: 'Academic year deleted successfully'
+                });
+
+                this.selectedAcademicYear = null;
+                this.apiCall(this.selectedDepartmentId);
+            },
+            error: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to delete academic year'
+                });
+            }
+        });
     }
 }

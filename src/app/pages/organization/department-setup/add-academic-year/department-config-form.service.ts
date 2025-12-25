@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { IDepartmentConfig } from '../../models/org.model';
+import { IDepartmentConfig } from '../../../models/org.model';
 
 @Injectable({ providedIn: 'root' })
 export class DepartmentConfigFormService {

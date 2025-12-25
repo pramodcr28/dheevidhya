@@ -38,7 +38,7 @@ export class CommonService {
     protected readonly applicationConfigService = inject(ApplicationConfigService);
     private store = inject(Store<{ userProfile: UserProfileState }>);
 
-    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ADMIN_BASE_URL + 'api/profile-configs');
+    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ADMIN_BASE_URL + 'profile-configs');
 
     branch: IBranch | null = null;
     associatedDepartments: IDepartmentConfig[] = [];

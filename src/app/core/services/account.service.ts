@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { SwitchAcademicYearDTO } from '../model/account.model';
 import { Account } from '../model/auth';
 import { addBranch, loadUserProfile } from '../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
@@ -36,7 +37,7 @@ export class AccountService {
                     const claims = this.getAccountClaims(token);
 
                     if (claims) {
-                        this.http.get<any>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'api/config/' + claims.id)).subscribe((result) => {
+                        this.http.get<any>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'config')).subscribe((result) => {
                             let branch = null;
                             for (let department of result.departments) {
                                 branch = JSON.parse(JSON.stringify(department.branch));
@@ -56,8 +57,11 @@ export class AccountService {
                 shareReplay()
             );
     }
+    getAcademicYears(): Observable<string[]> {
+        return this.http.get<string[]>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'config/academic-years'));
+    }
 
-    private fetch(): Observable<Account> {
-        return this.http.get<Account>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + 'api/account'));
+    switchAcademicYear(academicYear: string): Observable<SwitchAcademicYearDTO> {
+        return this.http.post<SwitchAcademicYearDTO>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + `config/switch/${academicYear}`), {});
     }
 }

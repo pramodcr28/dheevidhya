@@ -17,7 +17,7 @@ export class ProfileConfigService {
     protected readonly http = inject(HttpClient);
     protected readonly applicationConfigService = inject(ApplicationConfigService);
 
-    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'api/profile-configs');
+    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'profile-configs');
 
     create(profileConfig: NewProfileConfig): Observable<EntityResponseType> {
         return this.http.post<IProfileConfig>(this.resourceUrl, profileConfig, { observe: 'response' });

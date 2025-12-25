@@ -1,15 +1,21 @@
-import { Component } from '@angular/core';
-import { MenuItem } from 'primeng/api';
-import { RouterLink, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink, RouterModule } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { MenuItem, MessageService } from 'primeng/api';
+import { DropdownModule } from 'primeng/dropdown';
 import { StyleClassModule } from 'primeng/styleclass';
-import { AppConfigurator } from './app.configurator';
+import { AccountService } from '../services/account.service';
 import { LayoutService } from '../services/layout.service';
+import { addToken, loadUserProfile } from '../store/user-profile/user-profile.actions';
+import { UserProfileState } from '../store/user-profile/user-profile.reducer';
+import { AppConfigurator } from './app.configurator';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator,RouterLink],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, RouterLink, DropdownModule, FormsModule, ReactiveFormsModule],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -38,6 +44,10 @@ import { LayoutService } from '../services/layout.service';
         </div>
 
         <div class="layout-topbar-actions">
+            <!-- ✅ Academic Year Switch (NEW) -->
+            <div class="flex items-center mr-3">
+                <p-dropdown [options]="academicYears" [(ngModel)]="selectedAcademicYear" placeholder="Academic Year" styleClass="w-40" [disabled]="loading || academicYears.length <= 1" (onChange)="onAcademicYearChange()"> </p-dropdown>
+            </div>
             <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
@@ -71,15 +81,15 @@ import { LayoutService } from '../services/layout.service';
                     <!-- <a [routerLink]="'/auth/login'">
                         <button type="button" class="layout-topbar-action">
                             <i class="pi pi-fw pi-sign-out"></i>
-                            <span>Logout</span>         
+                            <span>Logout</span>
                         </button>
                     </a> -->
-                   <a [routerLink]="'/profile'">
-                        <button type="button"  class="layout-topbar-action">
+                    <a [routerLink]="'/profile'">
+                        <button type="button" class="layout-topbar-action">
                             <i class="pi pi-user"></i>
                             <span>Profile</span>
                         </button>
-                   </a>  
+                    </a>
                 </div>
             </div>
         </div>
@@ -87,10 +97,62 @@ import { LayoutService } from '../services/layout.service';
 })
 export class AppTopbar {
     items!: MenuItem[];
-
+    accountingService = inject(AccountService);
+    academicYears: string[] = [];
+    selectedAcademicYear!: string;
+    loading = false;
+    private store = inject(Store<{ userProfile: UserProfileState }>);
     constructor(public layoutService: LayoutService) {}
-
+    messageService = inject(MessageService);
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
+    }
+
+    ngOnInit(): void {
+        this.loadAcademicYears();
+    }
+
+    onAcademicYearChange(): void {
+        if (!this.selectedAcademicYear) return;
+
+        this.loading = true;
+
+        this.accountingService.switchAcademicYear(this.selectedAcademicYear).subscribe({
+            next: (response) => {
+                this.store.dispatch(addToken({ token: response.token }));
+
+                // 👤 update profile
+                this.store.dispatch(loadUserProfile({ userConfig: response.profile }));
+
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Academic Year Switched',
+                    detail: `Switched to ${this.selectedAcademicYear}`
+                });
+
+                this.loading = false;
+            },
+            error: () => {
+                this.loading = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Unable to switch academic year'
+                });
+            }
+        });
+    }
+
+    loadAcademicYears(): void {
+        this.accountingService.getAcademicYears().subscribe({
+            next: (years) => {
+                this.academicYears = years;
+
+                // backend already returns DESC → latest first
+                if (years.length) {
+                    this.selectedAcademicYear = years[0];
+                }
+            }
+        });
     }
 }

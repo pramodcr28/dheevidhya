@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ApiLoaderComponent } from './app/core/layout/loaderComponent';
 import { AccountService } from './app/core/services/account.service';
@@ -13,9 +14,10 @@ import { getBranch, selectUserConfig } from './app/core/store/user-profile/user-
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterModule, ApiLoaderComponent, CommonModule, ToastModule],
+    imports: [RouterModule, ApiLoaderComponent, CommonModule, ToastModule, ConfirmDialogModule],
     template: ` <p-toast></p-toast>
         <!-- API Loader Component -->
+        <p-confirmDialog> </p-confirmDialog>
         <app-api-loader></app-api-loader>
         <router-outlet></router-outlet>`
 })

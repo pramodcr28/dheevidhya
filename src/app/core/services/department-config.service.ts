@@ -81,7 +81,7 @@ export class DepartmentConfigService {
         return this.http.get<RestDepartmentConfig[]>(endpoint);
     }
 
-    delete(id: number): Observable<HttpResponse<{}>> {
+    delete(id: string): Observable<HttpResponse<{}>> {
         return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
     }
 

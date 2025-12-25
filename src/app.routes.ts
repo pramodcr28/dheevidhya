@@ -8,8 +8,8 @@ import { ExaminationComponent } from './app/pages/examination/examination.compon
 import { CategoryManagementComponent } from './app/pages/inventory-management/category-management/category-management.component';
 import { AssetsManagementComponent } from './app/pages/inventory-management/inventory-management.component';
 import { Notfound } from './app/pages/notfound/notfound';
-import { AddAcademicYearComponent } from './app/pages/organization/add-academic-year/add-academic-year.component';
 import { AssignmentManagementComponent } from './app/pages/organization/assignment-management/assignment-management.component';
+import { AddAcademicYearComponent } from './app/pages/organization/department-setup/add-academic-year/add-academic-year.component';
 import { DepartmentListComponent } from './app/pages/organization/department-setup/department-setup-list/department-setup-list.component';
 import { DepartmentSetupComponent } from './app/pages/organization/department-setup/department-setup.component';
 import { OrgTreeComponent } from './app/pages/organization/org-tree/org-tree.component';

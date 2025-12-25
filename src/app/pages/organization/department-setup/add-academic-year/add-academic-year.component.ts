@@ -16,14 +16,13 @@ import { StepsModule } from 'primeng/steps';
 import { ToastModule } from 'primeng/toast';
 import { finalize, map, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { CommonService } from '../../../core/services/common.service';
-import { DepartmentConfigService } from '../../../core/services/department-config.service';
-import { MasterDepartmentService } from '../../../core/services/master-department.service';
-import { MasterSectionService } from '../../../core/services/master-section.service';
-import { MasterSubjectService } from '../../../core/services/master-subject.service';
-import { IMasterDepartment, IMasterSection, IMasterSubject } from '../../models/org.model';
-import { UserService } from '../../service/user.service';
-import { IDepartmentConfig } from './../../models/org.model';
+import { CommonService } from '../../../../core/services/common.service';
+import { DepartmentConfigService } from '../../../../core/services/department-config.service';
+import { MasterDepartmentService } from '../../../../core/services/master-department.service';
+import { MasterSectionService } from '../../../../core/services/master-section.service';
+import { MasterSubjectService } from '../../../../core/services/master-subject.service';
+import { IDepartmentConfig, IMasterDepartment, IMasterSection, IMasterSubject } from '../../../models/org.model';
+import { UserService } from '../../../service/user.service';
 import { DepartmentConfigFormService } from './department-config-form.service';
 
 @Component({
