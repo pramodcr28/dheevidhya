@@ -33,7 +33,6 @@ export class AppComponent {
             if (department != null) {
                 const subejcts = department.department.classes.flatMap((cls) => cls.sections).flatMap((sec) => sec.subjects);
                 if (studentRole && department) {
-                    // Find the class and section details
                     const classObj = department.department.classes.find((cls) => cls.id === studentRole.classId);
                     const section = classObj?.sections.find((sec) => sec.id === studentRole.sectionId);
 

@@ -80,6 +80,7 @@ export interface IRoleConfigs {
     sportscoach?: ISportsCoachProfile | null;
     substituteteacher?: ISubstituteTeacherProfile | null;
     itadmin?: IITAdministratorProfile | null;
+    admin?: AdministratorProfile | null;
 }
 
 export interface IStudentProfile {
@@ -133,3 +134,5 @@ export interface IHeadMasterProfile {
 export interface IVicePrincipalProfile {
     responsibilities?: string | null;
 }
+
+export interface AdministratorProfile {}

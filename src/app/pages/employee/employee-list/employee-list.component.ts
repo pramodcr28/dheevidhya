@@ -22,7 +22,6 @@ import { Column, ExportColumn } from '../../../core/model/table.model';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { selectUserConfig } from '../../../core/store/user-profile/user-profile.selectors';
 import { SortService } from '../../../shared/sort';
 import { IProfileConfig, ITenantAuthority, ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -62,7 +61,7 @@ export class EmployeeListComponent {
     messageService = inject(MessageService);
     confirmationService = inject(ConfirmationService);
     loader = inject(ApiLoaderService);
-    currentUser: any;
+    // currentUser: any;
     commonService = inject(CommonService);
 
     ngOnInit() {
@@ -70,16 +69,23 @@ export class EmployeeListComponent {
             this.tenantAuthorities.set(result.body);
         });
 
-        this.store.select(selectUserConfig).subscribe((userConfig) => {
-            this.currentUser = userConfig.userId;
-        });
+        // this.store.select(selectUserConfig).subscribe((userConfig) => {
+        //     this.currentUser = userConfig.userId;
+        // });
 
         this.load();
     }
 
     load(): void {
         this.loader.show('Fetching Staff Data');
-        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': 'STAFF', 'departments.in': this.commonService.associatedDepartments.map((dpt) => dpt.id) }).subscribe({
+        let searchCriteria: any = { 'profileType.equals': 'STAFF' };
+
+        if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
+            searchCriteria['branchId.like'] = this.commonService.getUserInfo?.branchId;
+        } else {
+            searchCriteria['departments.in'] = this.commonService.associatedDepartments.map((dpt) => dpt.id);
+        }
+        this.studentService.search(0, 100, 'id', 'ASC', { ...searchCriteria }).subscribe({
             next: (res: any) => {
                 this.employeeProfiles.set(res.content);
                 this.loader.hide();
@@ -91,8 +97,6 @@ export class EmployeeListComponent {
         this.employee = {
             authorities: [],
             isTenantUser: true,
-            createdBy: this.currentUser,
-            lastModifiedBy: this.currentUser,
             activated: true,
             imageUrl: '',
             email: '',

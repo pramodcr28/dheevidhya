@@ -16,6 +16,7 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
+import { BranchService } from '../../../core/services/branch.service';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getAssociatedDepartments, getSubjectsByFilters } from '../../../core/store/user-profile/user-profile.selectors';
 import { IBranch } from '../../models/tenant.model';
@@ -92,12 +93,6 @@ export class EmployeeDialogComponent {
             this.selectedSubjects = [...this.selectedSubjects, ...profile.subjectIds];
         }
 
-        // for(let role in profile.roles){
-        //   if(profile.roles[role]?.subjectIds){
-        //     this.selectedSubjects =[...this.selectedSubjects,...profile.roles[role]?.subjectIds];
-        //   }
-        // }
-
         this._employeeProfile = profile;
     }
     get employeeProfile(): NewProfileConfig | IProfileConfig {
@@ -116,8 +111,8 @@ export class EmployeeDialogComponent {
     availableAuthorities: any[] = [];
     associatedDepartments: any[] = [];
     selectedDepartments: any;
-    associatedBranch: IBranch | undefined;
-
+    selectedBranch: any;
+    allBranches: IBranch[] = [];
     selectedClass: any;
     selectedSection: any;
     selectedGender: Gender = Gender.MALE;
@@ -131,6 +126,7 @@ export class EmployeeDialogComponent {
     departmentSpecificSubjects = [];
     selectedSubjects = [];
     commonService = inject(CommonService);
+    branchService = inject(BranchService);
     ngOnInit(): void {
         if (!this.employee.id)
             this.employee = {
@@ -147,6 +143,9 @@ export class EmployeeDialogComponent {
                 longitude: 77.5946,
                 ...this.employee
             };
+        this.branchService.query().subscribe((res) => {
+            this.allBranches = res.body || [];
+        });
         this.employeeForm = this.tenantUserFormService.createTenantUserFormGroup(this.employee);
         this.employeeProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.employeeProfile);
         this.contactNumber = this.employeeProfileForm.get('contactNumber').value;
@@ -156,6 +155,10 @@ export class EmployeeDialogComponent {
                 .map((authority: any) => {
                     return { name: authority.name };
                 });
+            if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
+                this.availableAuthorities = [];
+                this.availableAuthorities.push({ name: 'IT_ADMINISTRATOR' });
+            }
         });
 
         this.store.select(getAssociatedDepartments).subscribe((departments) => {
@@ -165,14 +168,9 @@ export class EmployeeDialogComponent {
         this.store.select(getSubjectsByFilters([...this.selectedDepartments.map((deprt) => deprt.id)])).subscribe((subjects) => {
             this.departmentSpecificSubjects = subjects;
         });
-
-        // this.store.select(getBranch).subscribe((branch) => {
-        //     this.branch = branch;
-        // });
     }
 
     onDepartmentSelection() {
-        // this.selectedDepartments.map()
         this.store.select(getSubjectsByFilters([...this.selectedDepartments.map((deprt) => deprt.id)])).subscribe((subjects) => {
             this.departmentSpecificSubjects = subjects;
         });
@@ -189,6 +187,31 @@ export class EmployeeDialogComponent {
             }
 
             this.generateUserProfile(updatedStudent);
+        }
+
+        if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN') && this.selectedBranch) {
+            const updatedStudent = this.tenantUserFormService.getTenantUser(this.employeeForm);
+            updatedStudent.branchId = this.selectedBranch;
+            const profileFormData = this.profileConfigFormService.getProfileConfig(this.employeeProfileForm);
+            this.employeeProfile = {
+                ...profileFormData,
+                id: profileFormData.id ?? null,
+                userId: updatedStudent.id?.toString(),
+                academicYear: '',
+                username: updatedStudent.login,
+                email: updatedStudent.email,
+                contactNumber: this.contactNumber,
+                fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
+                gender: this.selectedGender,
+                subjectIds: this.selectedSubjects ?? [],
+                departments: [],
+                roles: { itadmin: {} }
+            };
+
+            this.save.emit({
+                user: updatedStudent,
+                profile: this.employeeProfile
+            });
         }
     }
 

@@ -6,7 +6,7 @@ import { map, shareReplay } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { SwitchAcademicYearDTO } from '../model/account.model';
 import { Account } from '../model/auth';
-import { addBranch, loadUserProfile } from '../store/user-profile/user-profile.actions';
+import { addAuthorities, addBranch, loadUserProfile } from '../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
 import { ApplicationConfigService } from './application-config.service';
 
@@ -45,6 +45,7 @@ export class AccountService {
                             }
                             this.store.dispatch(addBranch({ branch: branch }));
                             this.store.dispatch(loadUserProfile({ userConfig: result }));
+                            this.store.dispatch(addAuthorities({ authorities: claims.authorities || [] }));
                         });
                         return {
                             ...claims,

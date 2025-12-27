@@ -7,6 +7,7 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AccountService } from '../services/account.service';
+import { CommonService } from '../services/common.service';
 import { LayoutService } from '../services/layout.service';
 import { addToken, loadUserProfile } from '../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
@@ -44,10 +45,12 @@ import { AppConfigurator } from './app.configurator';
         </div>
 
         <div class="layout-topbar-actions">
-            <!-- ✅ Academic Year Switch (NEW) -->
-            <div class="flex items-center mr-3">
-                <p-dropdown [options]="academicYears" [(ngModel)]="selectedAcademicYear" placeholder="Academic Year" styleClass="w-40" [disabled]="loading || academicYears.length <= 1" (onChange)="onAcademicYearChange()"> </p-dropdown>
-            </div>
+            @if (!commonService.getUserAuthorities.includes('SUPER_ADMIN') && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
+                <div class="flex items-center mr-3">
+                    <p-dropdown [options]="academicYears" [(ngModel)]="selectedAcademicYear" placeholder="Academic Year" styleClass="w-40" [disabled]="loading || academicYears.length <= 1" (onChange)="onAcademicYearChange()"> </p-dropdown>
+                </div>
+            }
+
             <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
@@ -104,6 +107,7 @@ export class AppTopbar {
     private store = inject(Store<{ userProfile: UserProfileState }>);
     constructor(public layoutService: LayoutService) {}
     messageService = inject(MessageService);
+    commonService = inject(CommonService);
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
     }

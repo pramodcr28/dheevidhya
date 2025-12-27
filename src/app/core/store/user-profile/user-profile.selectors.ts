@@ -9,6 +9,7 @@ export const selectUserRole = createSelector(selectUserProfileState, (state) => 
 // export const getAssociatedBaranch = createSelector(selectUserProfileState, (state) => state.userConfig?.branch);
 export const getToken = createSelector(selectUserProfileState, (state) => state.token);
 export const getBranch = createSelector(selectUserProfileState, (state) => state.branch);
+export const getAuthorities = createSelector(selectUserProfileState, (state) => state.authorities ?? []);
 export const getAssociatedDepartments = createSelector(selectUserProfileState, (state) =>
     state.userConfig?.departments.map((department: any) => {
         return { ...department, name: department.department?.name };

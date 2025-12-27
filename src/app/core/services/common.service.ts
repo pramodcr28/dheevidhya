@@ -7,7 +7,7 @@ import { IDepartmentConfig, Section } from '../../pages/models/org.model';
 import { IBranch } from '../../pages/models/tenant.model';
 import { IProfileConfig } from '../../pages/models/user.model';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
-import { getAllSectionEntities, getAssociatedDepartments, getBranch, getSubjectsByFilters, selectUserConfig } from '../store/user-profile/user-profile.selectors';
+import { getAllSectionEntities, getAssociatedDepartments, getAuthorities, getBranch, getSubjectsByFilters, selectUserConfig } from '../store/user-profile/user-profile.selectors';
 import { getUserAssociatedSubjects } from './../store/user-profile/user-profile.selectors';
 import { ApplicationConfigService } from './application-config.service';
 export type EntityResponseType = HttpResponse<IProfileConfig>;
@@ -49,7 +49,7 @@ export class CommonService {
 
     getStudentInfo = null;
     getUserInfo = null;
-
+    getUserAuthorities: string[] = [];
     constructor() {
         // Initialize values by subscribing once
         this.store.select(getBranch).subscribe((res) => {
@@ -74,7 +74,9 @@ export class CommonService {
         this.store.select(selectUserConfig).subscribe((res) => {
             this.currentUser = res;
         });
-
+        this.store.select(getAuthorities).subscribe((res) => {
+            this.getUserAuthorities = res ?? [];
+        });
         this.store.select(getUserAssociatedSubjects).subscribe((res) => {
             this.userAssociatedSubjects = res ?? [];
         });
