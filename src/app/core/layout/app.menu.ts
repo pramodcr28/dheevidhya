@@ -22,7 +22,18 @@ export class AppMenu {
 
     ngOnInit() {
         this.model = [
-            { label: 'Tenant', icon: 'pi pi-fw pi-home', routerLink: ['/tenant'] },
+            {
+                label: 'Tenant',
+                icon: 'pi pi-fw pi-home',
+                routerLink: ['/tenant'],
+                items: [
+                    {
+                        label: 'Tenant List',
+                        icon: 'pi pi-fw pi-list',
+                        routerLink: ['/tenant/list']
+                    }
+                ]
+            },
             {
                 label: 'Home',
                 items: [

@@ -10,38 +10,33 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Observable, Subscription, combineLatest, tap } from 'rxjs';
 import { DEFAULT_SORT_DATA, SORT } from '../../core/model/navigation.constants';
 import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from '../../core/model/pagination.constants';
-import { SortService, SortState, sortStateSignal } from '../../shared/sort';
+import { SortService, sortStateSignal } from '../../shared/sort';
 import { ITenant } from '../models/tenant.model';
 import { TenantService } from '../service/tenant.service';
 import { EntityArrayResponseType } from '../service/user.service';
+import { TenantDialogComponent } from './tenant-dialog/tenant-dialog.component';
 
 @Component({
     selector: 'jhi-tenant',
     templateUrl: './tenant.component.html',
-    imports: [RouterModule, FormsModule, SharedModule, TableModule, ButtonModule, TagModule, TooltipModule]
+    imports: [RouterModule, FormsModule, SharedModule, TableModule, ButtonModule, TagModule, TooltipModule, TenantDialogComponent]
 })
 export class TenantComponent implements OnInit {
     subscription: Subscription | null = null;
     tenants = signal<ITenant[]>([]);
     isLoading = false;
-
     sortState = sortStateSignal({});
-
     itemsPerPage = ITEMS_PER_PAGE;
     totalItems = 0;
     page = 1;
-
-    public readonly router = inject(Router);
-    protected readonly tenantService = inject(TenantService);
-    protected readonly activatedRoute = inject(ActivatedRoute);
-    protected readonly sortService = inject(SortService);
-    // protected dataUtils = inject(DataUtils);
-    // protected modalService = inject(NgbModal);
-    protected ngZone = inject(NgZone);
-
-    // Math reference for template
+    router = inject(Router);
+    tenantService = inject(TenantService);
+    activatedRoute = inject(ActivatedRoute);
+    sortService = inject(SortService);
+    ngZone = inject(NgZone);
     Math = Math;
-
+    dialogVisible = false;
+    selectedTenant: ITenant | null = null;
     trackId = (item: ITenant): number => this.tenantService.getTenantIdentifier(item);
 
     ngOnInit(): void {
@@ -53,24 +48,12 @@ export class TenantComponent implements OnInit {
             .subscribe();
     }
 
-    // byteSize(base64String: string): string {
-    //     return this.dataUtils.byteSize(base64String);
-    // }
-
-    // openFile(base64String: string, contentType: string | null | undefined): void {
-    //     return this.dataUtils.openFile(base64String, contentType);
-    // }
-
     delete(tenant: ITenant): void {
-        // const modalRef = this.modalService.open(TenantDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
-        // modalRef.componentInstance.tenant = tenant;
-        // // unsubscribe not needed because closed completes on modal close
-        // modalRef.closed
-        //     .pipe(
-        //         filter((reason) => reason === ITEM_DELETED_EVENT),
-        //         tap(() => this.load())
-        //     )
-        //     .subscribe();
+        if (confirm(`Are you sure you want to delete ${tenant.name}?`)) {
+            this.tenantService.delete(tenant.id!).subscribe(() => {
+                this.load(); // Refresh list after deletion
+            });
+        }
     }
 
     load(): void {
@@ -81,14 +64,6 @@ export class TenantComponent implements OnInit {
         });
     }
 
-    // navigateToWithComponentValues(event: SortState): void {
-    //     this.handleNavigation(this.page, event);
-    // }
-
-    // navigateToPage(page: number): void {
-    //     this.handleNavigation(page, this.sortState());
-    // }
-
     protected fillComponentAttributeFromRoute(params: ParamMap, data: Data): void {
         const page = params.get(PAGE_HEADER);
         this.page = +(page ?? 1);
@@ -97,12 +72,7 @@ export class TenantComponent implements OnInit {
 
     protected onResponseSuccess(response: EntityArrayResponseType): void {
         this.fillComponentAttributesFromResponseHeader(response.headers);
-        const dataFromBody = this.fillComponentAttributesFromResponseBody(response.body);
-        this.tenants.set(dataFromBody);
-    }
-
-    protected fillComponentAttributesFromResponseBody(data: ITenant[] | null): ITenant[] {
-        return data ?? [];
+        this.tenants.set(response.body ?? []);
     }
 
     protected fillComponentAttributesFromResponseHeader(headers: HttpHeaders): void {
@@ -121,19 +91,25 @@ export class TenantComponent implements OnInit {
         };
         return this.tenantService.query(queryObject).pipe(tap(() => (this.isLoading = false)));
     }
+    // // Add this method to your TenantComponent class
+    // navigateToEdit(tenant: ITenant): void {
+    //     this.router.navigate(['/tenant', 'edit'], {
+    //         state: { tenant: tenant } // Pass the full object here
+    //     });
+    // }
 
-    protected handleNavigation(page: number, sortState: SortState): void {
-        const queryParamsObj = {
-            page,
-            size: this.itemsPerPage,
-            sort: this.sortService.buildSortParam(sortState)
-        };
+    openCreate() {
+        this.selectedTenant = null;
+        this.dialogVisible = true;
+    }
 
-        this.ngZone.run(() => {
-            this.router.navigate(['./'], {
-                relativeTo: this.activatedRoute,
-                queryParams: queryParamsObj
-            });
-        });
+    openEdit(tenant: ITenant) {
+        this.selectedTenant = tenant;
+        this.dialogVisible = true;
+    }
+
+    onSaved(_: ITenant) {
+        this.dialogVisible = false;
+        this.load(); // refresh table
     }
 }

@@ -8,7 +8,7 @@
       <p-button
         label="Create a new Tenant"
         icon="pi pi-plus"
-        [routerLink]="['/tenant/new']"
+        (click)="openCreate()"
         severity="primary">
       </p-button>
     </div>
@@ -47,10 +47,7 @@
         <ng-template pTemplate="body" let-tenant>
           <tr class="border-b hover:bg-gray-50">
             <td class="p-3">
-              <a [routerLink]="['/tenant', tenant.id, 'view']"
-                 class="text-blue-600 hover:text-blue-800 underline">
                 {{ tenant.id }}
-              </a>
             </td>
             <td class="p-3">{{ tenant.name }}</td>
             <td class="p-3">{{ tenant.desc }}</td>
@@ -71,27 +68,17 @@
 
             <td class="p-3">
               <div class="flex gap-2 justify-center">
-                <p-button
-                  [routerLink]="['/tenant', tenant.id, 'view']"
-                  icon="pi pi-eye"
-                  [rounded]="true"
-                  [text]="true"
-                  severity="info"
-                  pTooltip="View"
-                  tooltipPosition="top"
-                 >
-                </p-button>
 
-                <p-button
-                  [routerLink]="['/tenant', tenant.id, 'edit']"
-                  icon="pi pi-pencil"
-                  [rounded]="true"
-                  [text]="true"
-                  severity="primary"
-                  pTooltip="Edit"
-                  tooltipPosition="top"
-               >
-                </p-button>
+              <p-button
+                icon="pi pi-pencil"
+                [rounded]="true"
+                [text]="true"
+                severity="primary"
+                pTooltip="Edit"
+                tooltipPosition="top"
+                (click)="openEdit(tenant)" 
+              >
+              </p-button>
 
                 <p-button
                   icon="pi pi-trash"
@@ -129,3 +116,9 @@
     }
   }
 </div>
+<app-tenant-dialog
+  [visible]="dialogVisible"
+  [tenant]="selectedTenant"
+  (saveSuccess)="onSaved($event)"
+  (cancel)="dialogVisible = false">
+</app-tenant-dialog>

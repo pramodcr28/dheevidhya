@@ -21,8 +21,6 @@ import { SchoolNoticeBoardComponent } from './app/pages/school-notice-board/scho
 import { StaffAttendanceManagementComponent } from './app/pages/staff-attendance-management/staff-attendance-management.component';
 import { BulkStudentUploadComponent } from './app/pages/students/bulk-student-upload/bulk-student-upload.component';
 import { StudentListComponent } from './app/pages/students/student-list/student-list.component';
-import { TenantDetailComponent } from './app/pages/tenant/tenant-detail/tenant-detail.component';
-import { TenantUpdateComponent } from './app/pages/tenant/tenant-update/tenant-update.component';
 import { TenantComponent } from './app/pages/tenant/tenant.component';
 
 export const appRoutes: Routes = [
@@ -44,25 +42,10 @@ export const appRoutes: Routes = [
                         path: 'list',
                         component: TenantComponent,
                         title: 'Tenant Management'
-                    },
-                    {
-                        path: 'new',
-                        component: TenantUpdateComponent,
-                        title: 'Create Tenant'
-                    },
-                    {
-                        path: ':id/view',
-                        component: TenantDetailComponent,
-                        title: 'View Tenant'
-                    },
-                    {
-                        path: ':id/edit',
-                        component: TenantUpdateComponent,
-                        title: 'Edit Tenant'
                     }
                 ]
             },
-            // { path: 'branch', component:  },
+
             { path: 'students', component: StudentListComponent },
             { path: 'bulk-student-upload', component: BulkStudentUploadComponent },
             { path: 'employees', component: EmployeeListComponent },
@@ -75,7 +58,7 @@ export const appRoutes: Routes = [
             { path: 'notice-board', component: SchoolNoticeBoardComponent },
             { path: 'staff-calendar', loadComponent: () => StaffAttendanceComponent, data: { title: 'My Calendar' } },
             { path: 'attendance-management', loadComponent: () => StaffAttendanceManagementComponent, data: { title: 'Attendance Management' } },
-            // { path: 'inventory', component: InventoryManagementComponent},
+
             {
                 path: 'inventory',
                 children: [
@@ -110,8 +93,6 @@ export const appRoutes: Routes = [
                 component: AddAcademicYearComponent
             },
             { path: 'profile', component: ProfileComponent }
-            // { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
-            // { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ]
     },
     { path: 'notfound', component: Notfound },

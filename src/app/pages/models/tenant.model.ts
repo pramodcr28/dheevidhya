@@ -1,18 +1,18 @@
-import dayjs from "dayjs/esm";
+import dayjs from 'dayjs/esm';
 
 export enum BranchType {
     HQ = 'HQ',
-  
-    BRANCH = 'BRANCH',
-  }
-  export enum TenantStatus {
+
+    BRANCH = 'BRANCH'
+}
+export enum TenantStatus {
     ACTIVE = 'ACTIVE',
-  
-    INACTIVE = 'INACTIVE',
-  }
-  
+
+    INACTIVE = 'INACTIVE'
+}
+
 export interface ITenant {
-    id: number;
+    id?: number;
     name?: string | null;
     desc?: string | null;
     regNo?: string | null;
@@ -22,14 +22,8 @@ export interface ITenant {
     email?: string | null;
     phone?: string | null;
     status?: keyof typeof TenantStatus | null;
-    createdBy?: string | null;
-    createdAt?: dayjs.Dayjs | null;
-    updatedBy?: string | null;
-    updatedAt?: dayjs.Dayjs | null;
-  }
-  
-  export type NewTenant = Omit<ITenant, 'id'> & { id: null };
-  
+}
+
 export interface IBranch {
     id: number;
     name?: string | null;
@@ -54,7 +48,6 @@ export interface IBranch {
     updatedBy?: string | null;
     updatedAt?: dayjs.Dayjs | null;
     tenant?: ITenant | null;
-  }
-  
-  export type NewBranch = Omit<IBranch, 'id'> & { id: null };
-  
+}
+
+export type NewBranch = Omit<IBranch, 'id'> & { id: null };

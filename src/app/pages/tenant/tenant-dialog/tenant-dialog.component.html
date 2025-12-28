@@ -1,0 +1,123 @@
+<p-toast></p-toast>
+
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '40rem' }"
+  (onHide)="onCancel()"
+  [header]="tenant?.id ? 'Edit Tenant' : 'Add Tenant'">
+
+  <form [formGroup]="editForm" class="flex flex-col gap-4">
+
+    <div>
+      <label class="block font-semibold mb-1">Name *</label>
+      <input pInputText formControlName="name" class="w-full" />
+      <small class="text-red-500"
+        *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched">
+        Name is required (min 3 chars)
+      </small>
+    </div>
+
+    <div>
+      <label class="block font-semibold mb-1">Email *</label>
+      <input pInputText type="email" formControlName="email" class="w-full" />
+      <small class="text-red-500"
+        *ngIf="editForm.get('email')?.invalid && editForm.get('email')?.touched">
+        Valid email required
+      </small>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block font-semibold mb-1">Phone</label>
+        <input pInputText formControlName="phone" class="w-full" />
+      </div>
+
+      <div>
+        <label class="block font-semibold mb-1">Status *</label>
+        <p-select
+          [options]="statusOptions"
+          optionLabel="label"
+          optionValue="value"
+          formControlName="status"
+          placeholder="Select status"
+          class="w-full">
+        </p-select>
+      </div>
+    </div>
+
+    <!-- Registration No & Tax ID -->
+<div class="grid grid-cols-2 gap-4">
+  <div>
+    <label class="block font-semibold mb-1">Registration No *</label>
+    <input pInputText formControlName="regNo" class="w-full" />
+    <small class="text-red-500"
+      *ngIf="editForm.get('regNo')?.invalid && editForm.get('regNo')?.touched">
+      Registration Number is required
+    </small>
+  </div>
+
+  <div>
+    <label class="block font-semibold mb-1">Tax ID</label>
+    <input pInputText formControlName="taxId" class="w-full" />
+  </div>
+</div>
+
+<!-- Establishment Date & Website -->
+<div class="grid grid-cols-2 gap-4">
+  <div>
+    <label class="block font-semibold mb-1">Established Date *</label>
+    <p-date-picker
+      formControlName="estDate"
+      dateFormat="yy-mm-dd"
+      showIcon="true"
+      class="w-full">
+    </p-date-picker>
+
+    <small class="text-red-500"
+      *ngIf="editForm.get('estDate')?.invalid && editForm.get('estDate')?.touched">
+      Establishment date is required
+    </small>
+  </div>
+
+  <div>
+    <label class="block font-semibold mb-1">Website</label>
+    <input
+      pInputText
+      formControlName="web"
+      placeholder="https://example.com"
+      class="w-full" />
+  </div>
+</div>
+
+
+    <div>
+      <label class="block font-semibold mb-1">Description</label>
+      <textarea
+        pTextarea
+        rows="3"
+        formControlName="desc"
+        class="w-full">
+      </textarea>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      severity="secondary"
+      (click)="onCancel()">
+    </p-button>
+
+    <p-button
+      label="Save"
+      icon="pi pi-check"
+      [loading]="isSaving"
+      [disabled]="editForm.invalid"
+      (click)="onSave()">
+    </p-button>
+  </ng-template>
+
+</p-dialog>
