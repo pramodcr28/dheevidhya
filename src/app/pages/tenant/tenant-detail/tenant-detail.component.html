@@ -1,0 +1,147 @@
+<div class="flex justify-center p-4">
+  <div class="w-full max-w-3xl">
+    @if (tenant(); as tenantRef) {
+      <div>
+        <h2 class="text-3xl font-bold mb-6">
+          <span>Tenant</span>
+        </h2>
+
+        <hr class="mb-6" />
+
+        <!-- Details Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+          <!-- ID -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">ID</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.id }}</span>
+            </dd>
+          </div>
+
+          <!-- Name -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Name</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.name }}</span>
+            </dd>
+          </div>
+
+          <!-- Description -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Desc</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.desc }}</span>
+            </dd>
+          </div>
+
+          <!-- Registration Number -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Reg No</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.regNo }}</span>
+            </dd>
+          </div>
+
+          <!-- Tax ID -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Tax Id</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.taxId }}</span>
+            </dd>
+          </div>
+
+          <!-- Establishment Date -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Est Date</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.estDate }}</span>
+            </dd>
+          </div>
+
+          <!-- Website -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Web</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.web }}</span>
+            </dd>
+          </div>
+
+          <!-- Email -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Email</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.email }}</span>
+            </dd>
+          </div>
+
+          <!-- Phone -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Phone</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.phone }}</span>
+            </dd>
+          </div>
+
+          <!-- Status -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Status</dt>
+            <dd class="text-gray-600">
+              <p-tag
+                [value]="tenantRef.status ?? 'INACTIVE'"
+                [severity]="tenantRef.status === 'ACTIVE' ? 'success' : 'warn'">
+              </p-tag>
+            </dd>
+          </div>
+
+          <!-- Created By -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Created By</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.createdBy }}</span>
+            </dd>
+          </div>
+
+          <!-- Created At -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Created At</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.createdAt }}</span>
+            </dd>
+          </div>
+
+          <!-- Updated By -->
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Updated By</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.updatedBy }}</span>
+            </dd>
+          </div>
+
+          <div class="flex flex-col">
+            <dt class="font-bold text-gray-700 mb-1">Updated At</dt>
+            <dd class="text-gray-600">
+              <span>{{ tenantRef.updatedAt }}</span>
+            </dd>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <p-button
+            label="Back"
+            icon="pi pi-arrow-left"
+            (click)="previousState()"
+            severity="info">
+          </p-button>
+
+          <p-button
+            [routerLink]="['/tenant', tenantRef.id, 'edit']"
+            label="Edit"
+            icon="pi pi-pencil"
+            severity="primary">
+          </p-button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

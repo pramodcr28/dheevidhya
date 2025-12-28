@@ -82,21 +82,12 @@ export class StudentListComponent {
     messageService = inject(MessageService);
     confirmationService = inject(ConfirmationService);
     loader = inject(ApiLoaderService);
-    // currentUser: any;
-    // branch: IBranch;
     commonService = inject(CommonService);
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);
         });
 
-        // this.store.select(selectUserConfig).subscribe((userConfig) => {
-        //     this.currentUser = userConfig.userId;
-        // });
-
-        // this.store.select(getBranch).subscribe((branch) => {
-        //     this.branch = branch;
-        // });
         this.load();
     }
 

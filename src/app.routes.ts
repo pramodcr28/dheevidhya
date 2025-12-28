@@ -21,6 +21,9 @@ import { SchoolNoticeBoardComponent } from './app/pages/school-notice-board/scho
 import { StaffAttendanceManagementComponent } from './app/pages/staff-attendance-management/staff-attendance-management.component';
 import { BulkStudentUploadComponent } from './app/pages/students/bulk-student-upload/bulk-student-upload.component';
 import { StudentListComponent } from './app/pages/students/student-list/student-list.component';
+import { TenantDetailComponent } from './app/pages/tenant/tenant-detail/tenant-detail.component';
+import { TenantUpdateComponent } from './app/pages/tenant/tenant-update/tenant-update.component';
+import { TenantComponent } from './app/pages/tenant/tenant.component';
 
 export const appRoutes: Routes = [
     {
@@ -29,6 +32,37 @@ export const appRoutes: Routes = [
         component: AppLayout,
         children: [
             { path: '', component: Dashboard },
+            {
+                path: 'tenant',
+                children: [
+                    {
+                        path: '',
+                        redirectTo: 'list',
+                        pathMatch: 'full'
+                    },
+                    {
+                        path: 'list',
+                        component: TenantComponent,
+                        title: 'Tenant Management'
+                    },
+                    {
+                        path: 'new',
+                        component: TenantUpdateComponent,
+                        title: 'Create Tenant'
+                    },
+                    {
+                        path: ':id/view',
+                        component: TenantDetailComponent,
+                        title: 'View Tenant'
+                    },
+                    {
+                        path: ':id/edit',
+                        component: TenantUpdateComponent,
+                        title: 'Edit Tenant'
+                    }
+                ]
+            },
+            // { path: 'branch', component:  },
             { path: 'students', component: StudentListComponent },
             { path: 'bulk-student-upload', component: BulkStudentUploadComponent },
             { path: 'employees', component: EmployeeListComponent },

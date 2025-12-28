@@ -111,30 +111,6 @@ export class StaffAttendanceManagementComponent implements OnInit {
         this.loadAttendanceLogs();
     }
 
-    // loadTodayStats() {
-    //     const today = new Date().toISOString().split('T')[0];
-
-    //     this.staffAttendanceService
-    //         .searchAttendance({
-    //             filters: {
-    //                 attendanceDateRange: [today, today]
-    //             },
-    //             page: 0,
-    //             size: 1000
-    //         })
-    //         .subscribe({
-    //             next: (response) => {
-    //                 const records = response.content;
-    //                 this.todayStats = {
-    //                     present: records.filter((r: any) => r.status === 'PRESENT').length,
-    //                     absent: records.filter((r: any) => r.status === 'ABSENT').length,
-    //                     late: records.filter((r: any) => r.status === 'LATE').length,
-    //                     leave: records.filter((r: any) => r.status === 'LEAVE').length
-    //                 };
-    //             }
-    //         });
-    // }
-
     loadAttendanceLogs() {
         this.loadingLogs = true;
         const filters: any = {};
