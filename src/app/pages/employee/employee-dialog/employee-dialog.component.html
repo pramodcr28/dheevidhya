@@ -1,25 +1,34 @@
-<p-dialog [(visible)]="visible" [style]="{ width: '80vw' }" [header]="employee && employee.id ? 'Edit Staff' : 'Add Staff'" [modal]="true">
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-    <!-- Staff Form Section -->
-    <div class="col-span-1 md:col-span-6">
-      <h3 class="text-lg font-bold mb-4">Basic Information</h3>
-      <form [formGroup]="employeeForm" class="flex flex-col gap-4">
-        <!-- Login details -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="login" class="block font-bold mb-2">Registration Id</label>
-            <input type="text" pInputText id="login" formControlName="login" autofocus fluid />
-            <small class="text-red-500" *ngIf="employeeForm.get('login')?.invalid && (submitted || employeeForm.get('login')?.touched)">
-              Registration ID is required.
-            </small>
-          </div>
+<p-dialog 
+  [(visible)]="visible" 
+  [style]="{ width: '90vw', maxWidth: '1400px' }" 
+  [header]="employee && employee.id ? 'Edit Staff' : 'Add Staff'" 
+  [modal]="true"
+  [maximizable]="true">
+  
+  <div class="space-y-6">
+    <!-- Basic User Information Section -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
+      <h3 class="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+        <i class="pi pi-user text-blue-600"></i>
+        Basic Information
+      </h3>
+      @if(employeeForm){
+     <form [formGroup]="employeeForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Registration ID -->
         <div>
-          <label class="block font-bold mb-2">Roles</label>
+          <label for="login" class="block font-semibold mb-2 text-gray-700">Registration ID *</label>
+          <input type="text" pInputText id="login" formControlName="login" class="w-full" />
+          <small class="text-red-500" *ngIf="employeeForm.get('login')?.invalid && (submitted || employeeForm.get('login')?.touched)">
+            Registration ID is required.
+          </small>
+        </div>
+
+        <!-- Authorities -->
+        <div>
+          <label class="block font-semibold mb-2 text-gray-700">Roles *</label>
           <p-multi-select
             [options]="availableAuthorities"
-            name="authorities"
             formControlName="authorities"
-            required="true"
             optionLabel="name"
             placeholder="Select Authority"
             [style]="{ width: '100%' }">
@@ -28,206 +37,268 @@
             Authority is required.
           </small>
         </div>
-        </div>
 
-        <!-- Personal details -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="firstName" class="block font-bold mb-2">First Name</label>
-            <input type="text" pInputText id="firstName" formControlName="firstName" fluid />
-            <small class="text-red-500" *ngIf="employeeForm.get('firstName')?.invalid && (submitted || employeeForm.get('firstName')?.touched)">
-              First Name is required.
-            </small>
-          </div>
-          <div>
-            <label for="lastName" class="block font-bold mb-2">Last Name</label>
-            <input type="text" pInputText id="lastName" formControlName="lastName" fluid />
-            <small class="text-red-500" *ngIf="employeeForm.get('lastName')?.invalid && (submitted || employeeForm.get('lastName')?.touched)">
-              Last Name is required.
-            </small>
-          </div>
-        </div>
-
-
-            <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="email" class="block font-bold mb-2">Email</label>
-            <input type="text" pInputText id="email" formControlName="email" fluid />
-            <small class="text-red-500" *ngIf="employeeForm.get('email')?.invalid && (submitted || employeeForm.get('email')?.touched)">
-              Email is required.
-            </small>
-          </div>
-        </div>
-
-          <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="contactNumber" class="block font-bold mb-2">Contact Number</label>
-            <input type="text" pInputText id="contactNumber"   [ngModelOptions]="{standalone: true}" [(ngModel)]="contactNumber" fluid />
-            <!-- <small class="text-red-500">
-              Contact Number is required.
-            </small> -->
-          </div>
-        </div>
-        <!-- Address section title -->
-        <div class="mt-2">
-          <h3 class="text-lg font-bold">Address Details</h3>
-        </div>
-
-        <!-- Address Line 1 -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="houseNumber" class="block font-bold mb-2">House Number</label>
-            <input type="text" pInputText id="houseNumber" formControlName="houseNumber" fluid />
-          </div>
-          <div>
-            <label for="street" class="block font-bold mb-2">Street</label>
-            <input type="text" pInputText id="street" formControlName="street" fluid />
-          </div>
-        </div>
-
-        <!-- Address Line 2 -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="locality" class="block font-bold mb-2">Locality</label>
-            <input type="text" pInputText id="locality" formControlName="locality" fluid />
-            <small class="text-red-500" *ngIf="employeeForm.get('locality')?.invalid && (submitted || employeeForm.get('locality')?.touched)">
-              Locality is required.
-            </small>
-          </div>
-          <div>
-            <label for="landmark" class="block font-bold mb-2">Landmark</label>
-            <input type="text" pInputText id="landmark" formControlName="landmark" fluid />
-          </div>
-        </div>
-
-        <!-- Address Line 3 -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="taluk" class="block font-bold mb-2">Taluk</label>
-            <input type="text" pInputText id="taluk" formControlName="taluk" fluid />
-          </div>
-          <div>
-            <label for="district" class="block font-bold mb-2">District</label>
-            <input type="text" pInputText id="district" formControlName="district" fluid />
-            <small class="text-red-500" *ngIf="employeeForm.get('district')?.invalid && (submitted || employeeForm.get('district')?.touched)">
-              District is required.
-            </small>
-          </div>
-        </div>
-
-        <!-- Address Line 4 -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="state" class="block font-bold mb-2">State</label>
-            <input type="text" pInputText id="state" formControlName="state" fluid />
-            <small class="text-red-500" *ngIf="employeeForm.get('state')?.invalid && (submitted || employeeForm.get('state')?.touched)">
-              State is required.
-            </small>
-          </div>
-          <div>
-            <label for="country" class="block font-bold mb-2">Country</label>
-            <input type="text" pInputText id="country" formControlName="country" fluid />
-            <small class="text-red-500" *ngIf="employeeForm.get('country')?.invalid && (submitted || employeeForm.get('country')?.touched)">
-              Country is required.
-            </small>
-          </div>
-        </div>
-
-        <!-- Postal Code -->
+        <!-- First Name -->
         <div>
-          <label for="postalCode" class="block font-bold mb-2">Postal Code</label>
-          <input type="text" pInputText id="postalCode" formControlName="postalCode" fluid />
+          <label for="firstName" class="block font-semibold mb-2 text-gray-700">First Name *</label>
+          <input type="text" pInputText id="firstName" formControlName="firstName" class="w-full" />
+          <small class="text-red-500" *ngIf="employeeForm.get('firstName')?.invalid && (submitted || employeeForm.get('firstName')?.touched)">
+            First Name is required.
+          </small>
+        </div>
+
+        <!-- Last Name -->
+        <div>
+          <label for="lastName" class="block font-semibold mb-2 text-gray-700">Last Name *</label>
+          <input type="text" pInputText id="lastName" formControlName="lastName" class="w-full" />
+          <small class="text-red-500" *ngIf="employeeForm.get('lastName')?.invalid && (submitted || employeeForm.get('lastName')?.touched)">
+            Last Name is required.
+          </small>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block font-semibold mb-2 text-gray-700">Email *</label>
+          <input type="email" pInputText id="email" formControlName="email" class="w-full" />
+          <small class="text-red-500" *ngIf="employeeForm.get('email')?.invalid && (submitted || employeeForm.get('email')?.touched)">
+            Valid email is required.
+          </small>
+        </div>
+
+        <!-- Address Fields -->
+        <div>
+          <label for="houseNumber" class="block font-semibold mb-2 text-gray-700">House Number</label>
+          <input type="text" pInputText id="houseNumber" formControlName="houseNumber" class="w-full" />
+        </div>
+
+        <div>
+          <label for="street" class="block font-semibold mb-2 text-gray-700">Street</label>
+          <input type="text" pInputText id="street" formControlName="street" class="w-full" />
+        </div>
+
+        <div>
+          <label for="locality" class="block font-semibold mb-2 text-gray-700">Locality *</label>
+          <input type="text" pInputText id="locality" formControlName="locality" class="w-full" />
+          <small class="text-red-500" *ngIf="employeeForm.get('locality')?.invalid && (submitted || employeeForm.get('locality')?.touched)">
+            Locality is required.
+          </small>
+        </div>
+
+        <div>
+          <label for="landmark" class="block font-semibold mb-2 text-gray-700">Landmark</label>
+          <input type="text" pInputText id="landmark" formControlName="landmark" class="w-full" />
+        </div>
+
+        <div>
+          <label for="district" class="block font-semibold mb-2 text-gray-700">District *</label>
+          <input type="text" pInputText id="district" formControlName="district" class="w-full" />
+          <small class="text-red-500" *ngIf="employeeForm.get('district')?.invalid && (submitted || employeeForm.get('district')?.touched)">
+            District is required.
+          </small>
+        </div>
+
+        <div>
+          <label for="state" class="block font-semibold mb-2 text-gray-700">State *</label>
+          <input type="text" pInputText id="state" formControlName="state" class="w-full" />
+          <small class="text-red-500" *ngIf="employeeForm.get('state')?.invalid && (submitted || employeeForm.get('state')?.touched)">
+            State is required.
+          </small>
+        </div>
+
+        <div>
+          <label for="country" class="block font-semibold mb-2 text-gray-700">Country *</label>
+          <input type="text" pInputText id="country" formControlName="country" class="w-full" />
+          <small class="text-red-500" *ngIf="employeeForm.get('country')?.invalid && (submitted || employeeForm.get('country')?.touched)">
+            Country is required.
+          </small>
+        </div>
+
+        <div>
+          <label for="postalCode" class="block font-semibold mb-2 text-gray-700">Postal Code *</label>
+          <input type="text" pInputText id="postalCode" formControlName="postalCode" class="w-full" />
           <small class="text-red-500" *ngIf="employeeForm.get('postalCode')?.invalid && (submitted || employeeForm.get('postalCode')?.touched)">
             Postal Code is required.
           </small>
         </div>
+
+           <!-- Branch Selection (SUPER_ADMIN only) -->
+                @if(commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
+                  <div class="md:col-span-2">
+                    <label class="block font-semibold mb-2 text-gray-700">Branch *</label>
+                    <p-select
+                      [options]="allBranches"
+                      id="postalCode"
+                       formControlName="branchId" 
+                      optionLabel="name"
+                      optionValue="id"
+                      placeholder="Select Branch"
+                      [style]="{ width: '100%' }">
+                    </p-select>
+                    <small class="text-red-500" *ngIf=" employeeForm.get('branchId')?.invalid && (submitted || employeeForm.get('branchId')?.touched)">
+                      Branch is required.
+                    </small>
+                  </div>
+                }
+
       </form>
+      }
+ 
     </div>
 
-    <!-- Profile Form Section -->
-    <div class="col-span-1 md:col-span-6">
-      <h3 class="text-lg font-bold mb-4">Academic Information</h3>
-      <form [formGroup]="employeeProfileForm" class="flex flex-col gap-4">
-        <!-- Gender Selection -->
-        <div>
-          <label class="block font-bold mb-2">Gender</label>
-          <p-select
-            [options]="genderOptions"
-            [(ngModel)]="selectedGender"
-            [ngModelOptions]="{standalone: true}"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Select Gender"
-            [style]="{ width: '100%' }">
-          </p-select>
-          <small class="text-red-500" *ngIf="submitted && !selectedGender">
-            Gender is required.
-          </small>
-        </div>
+    <!-- Academic Year Profiles Section with Tabs -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+      <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
+        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+          <i class="pi pi-calendar text-purple-600"></i>
+          Academic Year Profiles
+        </h3>
+        <p-button 
+          icon="pi pi-plus" 
+          label="Add Profile" 
+          (onClick)="addNewProfile()"
+          [outlined]="true"
+          severity="success"
+          size="small">
+        </p-button>
+      </div>
 
-        <!-- Branch Selection (Only for SUPER_ADMIN) -->
-        @if(commonService.getUserAuthorities.includes('SUPER_ADMIN')){
-        <div class="mb-4">
-          <label class="block font-bold mb-2">Branch</label>
-          <p-select
-            [options]="allBranches"
-            [(ngModel)]="selectedBranch"
-            [ngModelOptions]="{standalone: true}"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Select Branch"
-            [style]="{ width: '100%' }">
-          </p-select>
-          <small class="text-red-500" *ngIf="submitted && !selectedBranch">
-            Branch is required.
-          </small>
-        </div>
-        }@else {
+      <p-tabView 
+        [activeIndex]="activeProfileIndex()"
+        (onChange)="onTabChange($event)"
+        [scrollable]="true">
+        
+        @for (profile of profileConfigs(); track profile.academicYear; let idx = $index) {
+          <p-tabPanel>
+            <ng-template pTemplate="header">
+              <div class="flex items-center gap-3 px-2">
+                <i class="pi pi-calendar-plus text-blue-600"></i>
+                <span class="font-semibold">{{ profile.academicYear }}</span>
+                @if (profileConfigs().length > 1) {
+                  <button 
+                    type="button"
+                    class="ml-2 text-red-500 hover:text-red-700 transition-colors"
+                    (click)="deleteProfile(idx); $event.stopPropagation()">
+                    <i class="pi pi-times"></i>
+                  </button>
+                }
+              </div>
+            </ng-template>
 
-        <!-- Department Selection -->
-        <div class="mt-2">
-          <label class="block font-bold mb-2">Department</label>
-          <p-multi-select
-            [options]="associatedDepartments"
-            [(ngModel)]="selectedDepartments"
-            [ngModelOptions]="{standalone: true}"
-            (onChange)="onDepartmentSelection()"
-            optionLabel="name"
-            placeholder="Select Department"
-            [style]="{ width: '100%' }">
-          </p-multi-select>
-          <small class="text-red-500" *ngIf="submitted && !selectedDepartments">
-            Department is required.
-          </small>
-        </div>
-         @if(selectedDepartments){
-       <div class="mt-2">
-          <label class="block font-bold mb-2">Subjects</label>
-          <p-multi-select
-            [options]="departmentSpecificSubjects"
-            optionLabel="name"
-            optionValue="id"
-            [(ngModel)]="selectedSubjects"
-            [ngModelOptions]="{standalone: true}"
-            placeholder="Select Subjects"
-            [style]="{ width: '100%' }">
-          </p-multi-select>
-          <!-- <small class="text-red-500" *ngIf="submitted && !selectedDepartments">
-            Department is required.
-          </small> -->
-        </div>
+            <div class="p-6 space-y-6">
+              <form [formGroup]="profileForms.get(idx)!" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Contact Number -->
+                <div>
+                  <label class="block font-semibold mb-2 text-gray-700">Contact Number</label>
+                  <input 
+                    type="text" 
+                    pInputText 
+                    [(ngModel)]="profileData.get(idx)!.contactNumber"
+                    [ngModelOptions]="{standalone: true}"
+                    class="w-full" />
+                </div>
 
+                <div>
+                  <label class="block font-semibold mb-2 text-gray-700">Gender *</label>
+                  <p-select
+                    [options]="genderOptions"
+                    [(ngModel)]="profileData.get(idx)!.selectedGender"
+                    [ngModelOptions]="{standalone: true}"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Select Gender"
+                    [style]="{ width: '100%' }">
+                  </p-select>
+                  <small class="text-red-500" *ngIf="submitted && !profileData.get(idx)?.selectedGender">
+                    Gender is required.
+                  </small>
+                </div>
+
+                             
+                @if(!commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
+                  <div class="md:col-span-2">
+                    <label class="block font-semibold mb-2 text-gray-700">Departments *</label>
+                    <p-multi-select
+                      [options]="associatedDepartments"
+                      [(ngModel)]="profileData.get(idx)!.selectedDepartments"
+                      [ngModelOptions]="{standalone: true}"
+                      (onChange)="onDepartmentSelection(idx)"
+                      optionLabel="name"
+                      placeholder="Select Departments"
+                      [style]="{ width: '100%' }">
+                    </p-multi-select>
+                    <small class="text-red-500" *ngIf="submitted && (!profileData.get(idx)?.selectedDepartments || profileData.get(idx)!.selectedDepartments.length === 0)">
+                      At least one department is required.
+                    </small>
+                  </div>
+
+                  @if(profileData.get(idx)?.selectedDepartments && profileData.get(idx)!.selectedDepartments.length > 0) {
+                    <div class="md:col-span-2">
+                      <label class="block font-semibold mb-2 text-gray-700">Subjects</label>
+                      <p-multi-select
+                        [options]="profileData.get(idx)!.departmentSpecificSubjects"
+                        optionLabel="name"
+                        optionValue="id"
+                        [(ngModel)]="profileData.get(idx)!.selectedSubjects"
+                        [ngModelOptions]="{standalone: true}"
+                        placeholder="Select Subjects"
+                        [style]="{ width: '100%' }">
+                      </p-multi-select>
+                    </div>
+                  }
+                }
+
+              </form>
+
+              <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h4 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <i class="pi pi-info-circle text-blue-600"></i>
+                  Profile Summary
+                </h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span class="text-gray-600">Academic Year:</span>
+                    <span class="ml-2 font-medium">{{ profile.academicYear }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-600">Gender:</span>
+                    <span class="ml-2 font-medium">{{ profileData.get(idx)?.selectedGender || 'Not set' }}</span>
+                  </div>
+                  <div class="col-span-2">
+                    <span class="text-gray-600">Departments:</span>
+                    <span class="ml-2 font-medium">
+                      <!-- {{ profileData.get(idx)?.selectedDepartments?.map(d => d.name).join(', ') || 'None selected' }} -->
+                    </span>
+                  </div>
+                  <div class="col-span-2">
+                    <span class="text-gray-600">Subjects:</span>
+                    <span class="ml-2 font-medium">
+                      {{ profileData.get(idx)?.selectedSubjects?.length || 0 }} selected
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </p-tabPanel>
         }
-  
-}
-
-       
-      </form>
+      </p-tabView>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
-    <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text" (click)="onCancel()"></p-button>
-    <p-button label="Save" icon="pi pi-check" (click)="onSave()"></p-button>
+    <p-button 
+      label="Cancel" 
+      icon="pi pi-times" 
+      [outlined]="true"
+      severity="secondary"
+      (click)="onCancel()">
+    </p-button>
+    <p-button 
+      label="Save" 
+      icon="pi pi-check" 
+      (click)="onSave()">
+    </p-button>
   </ng-template>
 </p-dialog>
+
+<p-confirmdialog />

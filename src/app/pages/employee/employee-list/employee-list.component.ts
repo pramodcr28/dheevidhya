@@ -23,7 +23,7 @@ import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { SortService } from '../../../shared/sort';
-import { IProfileConfig, ITenantAuthority, ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
+import { IProfileConfig, ITenantAuthority, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantAuthorityService } from '../../service/tenant-authority.service';
 import { UserService } from '../../service/user.service';
@@ -40,14 +40,12 @@ export class EmployeeListComponent {
     private store = inject(Store<{ userProfile: UserProfileState }>);
     studentDialog: boolean = false;
     employee!: NewTenantUser | ITenantUser;
-    // employeeProfile!: NewProfileConfig | IProfileConfig | any;
     submitted: boolean = false;
     exportColumns!: ExportColumn[];
     cols!: Column[];
     subscription: Subscription | null = null;
     tenantAuthorities = signal<ITenantAuthority[]>([]);
     isLoading = false;
-    // employeeProfiles = signal<IProfileConfig[] | null>([]);
     employees = signal<ITenantUser[]>([]);
     itemsPerPage = ITEMS_PER_PAGE;
     totalItems = 0;
@@ -73,17 +71,30 @@ export class EmployeeListComponent {
 
     load(): void {
         this.loader.show('Fetching Staff Data');
-        // let searchCriteria: any = { 'profileType.equals': 'STAFF' };
+        let filterParams = {};
+        if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
+            filterParams = {
+                'authorities.name.equals': 'IT_ADMINISTRATOR'
+            };
+        } else {
+            filterParams = {
+                'branch_id.equals': this.commonService.branch?.id,
+                'authorities.name.nin': ['IT_ADMINISTRATOR', 'STUDENT']
+            };
+        }
 
-        // if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
-        //     searchCriteria['branchId.like'] = this.commonService.getUserInfo?.branchId;
-        // } else {
-        //     searchCriteria['departments.in'] = this.commonService.associatedDepartments.map((dpt) => dpt.id);
-        // }
-        this.employeeService.userSearch(0, 100, 'id', 'ASC', {}).subscribe({
+        this.employeeService.userSearch(0, 100, 'id', 'ASC', filterParams).subscribe({
             next: (res: any) => {
                 this.employees.set(res.content);
                 this.loader.hide();
+            },
+            error: (error) => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to load staff data'
+                });
             }
         });
     }
@@ -95,10 +106,12 @@ export class EmployeeListComponent {
             activated: true,
             imageUrl: '',
             email: '',
+            firstName: '',
+            lastName: '',
+            login: '',
             passwordHash: 'User@123'
-        } as NewTenantUser | any;
+        } as NewTenantUser;
 
-        // this.employeeProfile = {} as NewProfileConfig;
         this.submitted = false;
         this.studentDialog = true;
     }
@@ -109,39 +122,96 @@ export class EmployeeListComponent {
         this.loader.hide();
     }
 
-    onEmployeeSave(userConfig: { user: NewTenantUser | ITenantUser; profile: NewProfileConfig | IProfileConfig | any }) {
+    onEmployeeSave(data: { user: NewTenantUser | ITenantUser; profiles: IProfileConfig[] }) {
         this.submitted = true;
-        for (let role in userConfig.profile.roles) {
-            if (userConfig.profile.roles[role] == null) {
-                delete userConfig.profile.roles[role];
-            }
+
+        // Validate that at least one profile exists
+        if (!data.profiles || data.profiles.length === 0) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'At least one profile configuration is required'
+            });
+            return;
         }
-        this.loader.show('Updating new Staff');
-        userConfig.profile.profileType = 'STAFF';
-        userConfig.user.passwordHash = 'User@123';
-        this.employeeService.create(userConfig).subscribe((result) => {
-            this.hideDialog();
-            this.load();
-            this.messageService.add({ text: 'Congrats! Record created!', closeIcon: 'close' });
+
+        this.loader.show('Saving Staff Data');
+
+        // Clean up profile roles
+        data.profiles.forEach((profile) => {
+            if (profile.roles) {
+                for (let role in profile.roles) {
+                    if (profile.roles[role] == null) {
+                        delete profile.roles[role];
+                    }
+                }
+            }
+            profile.profileType = 'STAFF';
+        });
+
+        data.user.passwordHash = 'User@123';
+
+        const userConfig = {
+            user: data.user,
+            profiles: data.profiles
+        };
+
+        this.employeeService.create(userConfig).subscribe({
+            next: (result) => {
+                this.hideDialog();
+                this.load();
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: `Staff record created successfully with ${data.profiles.length} profile(s)`
+                });
+            },
+            error: (error) => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to save staff data'
+                });
+            }
         });
     }
 
-    deleteEmployee(employee: IProfileConfig) {
-        this.employeeService.delete(+employee.userId, null).subscribe((res) => {
-            this.load();
+    deleteEmployee(employee: ITenantUser) {
+        this.confirmationService.confirm({
+            message: `Are you sure you want to delete ${employee.firstName} ${employee.lastName}?`,
+            header: 'Delete Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this.loader.show('Deleting Staff');
+                this.employeeService.delete(+employee.id!, null).subscribe({
+                    next: (res) => {
+                        this.load();
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Staff deleted successfully'
+                        });
+                    },
+                    error: (error) => {
+                        this.loader.hide();
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to delete staff'
+                        });
+                    }
+                });
+            }
         });
     }
 
     getAuthorityNames(authorities: any): string {
-        return authorities?.map((a: any) => a.name).join(', ');
+        return authorities?.map((a: any) => a.name).join(', ') || 'N/A';
     }
 
-    editEmployee(employee: IProfileConfig) {
+    editEmployee(employee: ITenantUser) {
         this.studentDialog = true;
         this.employee = { ...employee };
-        // this.profileService.find(+employee.userId).subscribe((result: any) => {
-        //     this.employee = result.body && (result.body as any).user ? (result.body as any).user : (employee as any);
-        // this.employeeProfile = { ...result.body };
-        // });
     }
 }

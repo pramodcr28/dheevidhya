@@ -189,7 +189,6 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
     }
 
     protected loadStaffData(): void {
-        debugger;
         let filterParams = {
             'branch_id.equals': this.commonService.branch?.id,
             'authorities.name.ne': 'STUDENT'

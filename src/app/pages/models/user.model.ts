@@ -1,4 +1,3 @@
-import dayjs from 'dayjs/esm';
 import { Gender } from '../../core/model/auth';
 
 export interface ITenantAuthority {
@@ -39,7 +38,7 @@ export interface ITenantUser {
     activationKey?: string | null;
     resetKey?: string | null;
     branchId?: number | null;
-    resetDate?: dayjs.Dayjs | null;
+    resetDate?: string | null;
     isTenantUser?: boolean | null;
     authorities?: ITenantAuthority[] | null;
     profile?: IProfileConfig | null;

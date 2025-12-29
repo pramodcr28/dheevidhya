@@ -3,7 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ApplicationConfigService } from '../../core/services/application-config.service';
 // import { EntityResponseType } from '../../core/services/common.service';
-import dayjs from 'dayjs/esm';
 import { environment } from '../../../environments/environment';
 import { isPresent } from '../../core/services/operators';
 import { createRequestOption } from '../../core/services/request-util';
@@ -95,15 +94,13 @@ export class UserService {
 
     protected convertDateFromClient<T extends ITenantUser | NewTenantUser | PartialUpdateTenantUser>(tenantUser: T): RestOf<T> {
         return {
-            ...tenantUser,
-            resetDate: tenantUser.resetDate?.toJSON() ?? null
+            ...tenantUser
         };
     }
 
     protected convertDateFromServer(restTenantUser: RestTenantUser): ITenantUser {
         return {
-            ...restTenantUser,
-            resetDate: restTenantUser.resetDate ? dayjs(restTenantUser.resetDate) : undefined
+            ...restTenantUser
         };
     }
 

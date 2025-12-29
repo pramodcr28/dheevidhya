@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
+import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
@@ -13,6 +14,7 @@ import { MultiSelect } from 'primeng/multiselect';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
+import { TabViewModule } from 'primeng/tabview';
 import { TextareaModule } from 'primeng/textarea';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
@@ -20,26 +22,7 @@ import { BranchService } from '../../../core/services/branch.service';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getAssociatedDepartments, getSubjectsByFilters } from '../../../core/store/user-profile/user-profile.selectors';
 import { IBranch } from '../../models/tenant.model';
-import {
-    IGuardianProfile,
-    IHeadMasterProfile,
-    IHeadOfDepartmentProfile,
-    IITAdministratorProfile,
-    ILecturerProfile,
-    IPrincipalProfile,
-    IProfessorProfile,
-    IProfileConfig,
-    IRoleConfigs,
-    ISportsCoachProfile,
-    IStudentProfile,
-    ISubstituteTeacherProfile,
-    ITeacherProfile,
-    ITenantAuthority,
-    ITenantUser,
-    IVicePrincipalProfile,
-    NewProfileConfig,
-    NewTenantUser
-} from '../../models/user.model';
+import { IProfileConfig, IRoleConfigs, ITenantAuthority, ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigFormService } from '../../service/profile-config-form.service';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantUserFormService } from '../../service/tenant-user-form.service';
@@ -65,286 +48,325 @@ import { CommonService } from './../../../core/services/common.service';
         ReactiveFormsModule,
         ToggleButtonModule,
         FormsModule,
-        MultiSelect
+        MultiSelect,
+        TabViewModule
     ],
     templateUrl: './employee-dialog.component.html',
-    styles: ``
+    styles: ``,
+    providers: [ConfirmationService]
 })
 export class EmployeeDialogComponent {
     studentService = inject(UserService);
     tenantUserFormService = inject(TenantUserFormService);
     profileConfigFormService = inject(ProfileConfigFormService);
     private store = inject(Store<{ userProfile: UserProfileState }>);
-    employeeProfiles = signal<IProfileConfig[] | null>([]);
     commonService = inject(CommonService);
     employeeProfileService = inject(ProfileConfigService);
+    branchService = inject(BranchService);
+    confirmationService = inject(ConfirmationService);
+
     @Input() visible: boolean = false;
     @Input() statuses: any[] = [];
     @Input() set employee(employee: NewTenantUser | ITenantUser) {
         this._employee = employee;
-
-        if (employee) {
-            this.employeeProfileService.search(0, 100, 'id', 'ASC', {}).subscribe((res) => {
-                this.employeeProfiles = res.content;
-            });
+        if (employee?.id) {
+            this.loadEmployeeProfiles(employee.id);
+        } else {
+            this.initializeNewEmployee();
         }
     }
     get employee(): NewTenantUser | ITenantUser {
         return this._employee;
     }
 
-    // @Input() set employeeProfile(profile: NewProfileConfig | IProfileConfig) {
-    //     if (profile.subjectIds) {
-    //         this.selectedSubjects = [...this.selectedSubjects, ...profile.subjectIds];
-    //     }
-
-    //     this._employeeProfile = profile;
-    // }
-    // get employeeProfile(): NewProfileConfig | IProfileConfig {
-    //     return this._employeeProfile;
-    // }
-
-    @Output() save = new EventEmitter<{ user: NewTenantUser | ITenantUser; profile: NewProfileConfig | IProfileConfig | any }>();
+    @Output() save = new EventEmitter<{ user: NewTenantUser | ITenantUser; profiles: IProfileConfig[] }>();
     @Output() cancel = new EventEmitter<void>();
 
     private _employee!: NewTenantUser | ITenantUser;
-    private _employeeProfile!: NewProfileConfig | IProfileConfig;
 
     employeeForm!: FormGroup;
-    employeeProfileForm!: FormGroup;
+    profileForms: Map<number, FormGroup> = new Map();
     submitted: boolean = false;
     availableAuthorities: any[] = [];
     associatedDepartments: any[] = [];
-    selectedDepartments: any;
-    selectedBranch: any;
     allBranches: IBranch[] = [];
-    selectedClass: any;
-    selectedSection: any;
-    selectedGender: Gender = Gender.MALE;
+
+    // Profile configs management
+    profileConfigs = signal<IProfileConfig[]>([]);
+    activeProfileIndex = signal<number>(0);
+
+    // Profile-specific data
+    profileData: Map<
+        number,
+        {
+            selectedDepartments: any[];
+            selectedGender: Gender;
+            contactNumber: string;
+            departmentSpecificSubjects: any[];
+            selectedSubjects: any[];
+        }
+    > = new Map();
+
     genderOptions: any[] = [
         { label: 'Female', value: 'FEMALE' },
         { label: 'Male', value: 'MALE' },
         { label: 'Other', value: 'OTHER' }
     ];
-    // branch: IBranch | any;
-    contactNumber: any;
-    departmentSpecificSubjects = [];
-    selectedSubjects = [];
-    branchService = inject(BranchService);
 
-    onTabChange(profile) {
-        if (this.employeeForm) {
-            this.tenantUserFormService.resetForm(this.employeeForm, profile);
-        }
-    }
     ngOnInit(): void {
-        if (!this.employee.id)
+        this.initializeEmployeeForm();
+        this.loadAuthorities();
+        this.loadDepartments();
+    }
+
+    initializeEmployeeForm(): void {
+        if (!this.employee.id) {
             this.employee = {
-                houseNumber: '123',
-                street: 'Main Street',
-                locality: 'Greenwood',
-                landmark: 'Near City Park',
-                taluk: 'Central',
-                district: 'Metro District',
-                state: 'Karnataka',
+                houseNumber: '',
+                street: '',
+                locality: '',
+                landmark: '',
+                taluk: '',
+                district: '',
+                state: '',
                 country: 'India',
-                postalCode: '560001',
-                latitude: 12.9716,
-                longitude: 77.5946,
+                postalCode: '',
                 ...this.employee
             };
-
+        }
         this.employeeForm = this.tenantUserFormService.createTenantUserFormGroup(this.employee);
-        // this.employeeProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.employeeProfile);
-        this.contactNumber = this.employeeProfileForm.get('contactNumber').value;
-        this.studentService.getAuthorities().subscribe((response: any) => {
-            this.availableAuthorities = response.body
-                .filter((authority: any) => authority.name != 'STUDENT' && authority.name != 'GUARDIAN')
-                .map((authority: any) => {
-                    return { name: authority.name };
+    }
+
+    initializeNewEmployee(): void {
+        const currentYear = new Date().getFullYear();
+        const newProfile: NewProfileConfig = {
+            id: null,
+            userId: null,
+            academicYear: `${currentYear}-${currentYear + 1}`,
+            username: '',
+            email: '',
+            fullName: '',
+            contactNumber: '',
+            gender: Gender.MALE,
+            profileType: 'STAFF',
+            departments: [],
+            roles: {},
+            subjectIds: []
+        };
+        this.profileConfigs.set([newProfile as IProfileConfig]);
+        this.initializeProfileData(0, newProfile as IProfileConfig);
+    }
+
+    loadEmployeeProfiles(userId: number): void {
+        this.employeeProfileService.search(0, 100, 'academicYear', 'DESC', { 'userId.equals': userId.toString() }).subscribe((res: any) => {
+            const profiles = res.content || [];
+            if (profiles.length === 0) {
+                this.initializeNewEmployee();
+            } else {
+                this.profileConfigs.set(profiles);
+                profiles.forEach((profile: IProfileConfig, index: number) => {
+                    this.initializeProfileData(index, profile);
                 });
+            }
+        });
+    }
+
+    initializeProfileData(index: number, profile: IProfileConfig): void {
+        const profileForm = this.profileConfigFormService.createProfileConfigFormGroup(profile);
+        this.profileForms.set(index, profileForm);
+
+        this.profileData.set(index, {
+            selectedDepartments: profile.departments ? this.associatedDepartments.filter((d) => profile.departments?.includes(d.id)) : [],
+            selectedGender: (profile.gender as Gender) || Gender.MALE,
+            contactNumber: profile.contactNumber || '',
+            departmentSpecificSubjects: [],
+            selectedSubjects: profile.subjectIds || []
+        });
+
+        if (profile.departments?.length) {
+            this.loadSubjectsForProfile(index, profile.departments);
+        }
+    }
+
+    loadAuthorities(): void {
+        this.studentService.getAuthorities().subscribe((response: any) => {
+            this.availableAuthorities = response.body.filter((authority: any) => authority.name !== 'STUDENT' && authority.name !== 'GUARDIAN').map((authority: any) => ({ name: authority.name }));
+
             if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
-                this.availableAuthorities = [];
-                this.availableAuthorities.push({ name: 'IT_ADMINISTRATOR' });
+                this.availableAuthorities = [{ name: 'IT_ADMINISTRATOR' }];
                 this.branchService.query().subscribe((res) => {
                     this.allBranches = res.body || [];
                 });
             }
         });
+    }
 
+    loadDepartments(): void {
         this.store.select(getAssociatedDepartments).subscribe((departments) => {
             this.associatedDepartments = departments;
-            this.selectedDepartments = this.associatedDepartments.filter((department) => this._employeeProfile.departments?.includes(department.id));
-        });
-        this.store.select(getSubjectsByFilters([...this.selectedDepartments.map((deprt) => deprt.id)])).subscribe((subjects) => {
-            this.departmentSpecificSubjects = subjects;
         });
     }
 
-    onDepartmentSelection() {
-        this.store.select(getSubjectsByFilters([...this.selectedDepartments.map((deprt) => deprt.id)])).subscribe((subjects) => {
-            this.departmentSpecificSubjects = subjects;
+    loadSubjectsForProfile(profileIndex: number, departmentIds: string[]): void {
+        this.store.select(getSubjectsByFilters(departmentIds)).subscribe((subjects) => {
+            const data = this.profileData.get(profileIndex);
+            if (data) {
+                data.departmentSpecificSubjects = subjects;
+                this.profileData.set(profileIndex, data);
+            }
         });
     }
 
-    onSave() {
-        if (this.selectedDepartments.length) {
-            this.submitted = true;
-            const updatedStudent = this.tenantUserFormService.getTenantUser(this.employeeForm);
+    onDepartmentSelection(profileIndex: number): void {
+        const data = this.profileData.get(profileIndex);
+        if (data?.selectedDepartments) {
+            const departmentIds = data.selectedDepartments.map((d) => d.id);
+            this.loadSubjectsForProfile(profileIndex, departmentIds);
+        }
+    }
 
-            if (!updatedStudent.id) {
-                updatedStudent.branchId = this.commonService.branch.id;
-                updatedStudent.passwordHash = '';
+    onTabChange(event: any): void {
+        this.activeProfileIndex.set(event.index);
+    }
+
+    addNewProfile(): void {
+        const currentYear = new Date().getFullYear();
+        const existingYears = this.profileConfigs().map((p) => p.academicYear);
+
+        // Find next available academic year
+        let nextYear = currentYear;
+        let academicYear = `${nextYear}-${nextYear + 1}`;
+        while (existingYears.includes(academicYear)) {
+            nextYear++;
+            academicYear = `${nextYear}-${nextYear + 1}`;
+        }
+
+        const newProfile: NewProfileConfig = {
+            id: null,
+            userId: this.employee.id?.toString() || null,
+            academicYear,
+            username: this.employeeForm.get('login')?.value || '',
+            email: this.employeeForm.get('email')?.value || '',
+            fullName: `${this.employeeForm.get('firstName')?.value || ''} ${this.employeeForm.get('lastName')?.value || ''}`,
+            contactNumber: '',
+            gender: Gender.MALE,
+            profileType: 'STAFF',
+            departments: [],
+            roles: {},
+            subjectIds: []
+        };
+
+        const profiles = [...this.profileConfigs(), newProfile as IProfileConfig];
+        this.profileConfigs.set(profiles);
+
+        const newIndex = profiles.length - 1;
+        this.initializeProfileData(newIndex, newProfile as IProfileConfig);
+        this.activeProfileIndex.set(newIndex);
+    }
+
+    deleteProfile(profileIndex: number): void {
+        const profile = this.profileConfigs()[profileIndex];
+
+        this.confirmationService.confirm({
+            message: `Are you sure you want to delete the profile for ${profile.academicYear}?`,
+            header: 'Delete Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                const profiles = this.profileConfigs().filter((_, i) => i !== profileIndex);
+                this.profileConfigs.set(profiles);
+                this.profileForms.delete(profileIndex);
+                this.profileData.delete(profileIndex);
+
+                if (this.activeProfileIndex() >= profiles.length) {
+                    this.activeProfileIndex.set(Math.max(0, profiles.length - 1));
+                }
+            }
+        });
+    }
+
+    getCurrentProfileData() {
+        return (
+            this.profileData.get(this.activeProfileIndex()) || {
+                selectedDepartments: [],
+                selectedGender: Gender.MALE,
+                contactNumber: '',
+                departmentSpecificSubjects: [],
+                selectedSubjects: []
+            }
+        );
+    }
+
+    onSave(): void {
+        this.submitted = true;
+
+        if (this.employeeForm.invalid) {
+            return;
+        }
+
+        const updatedEmployee = this.tenantUserFormService.getTenantUser(this.employeeForm);
+
+        if (!updatedEmployee.id) {
+            updatedEmployee.branchId = this.commonService.branch.id;
+            updatedEmployee.passwordHash = 'User@123';
+        }
+
+        // Build all profile configs
+        const profiles: IProfileConfig[] = [];
+        this.profileConfigs().forEach((profile, index) => {
+            const data = this.profileData.get(index);
+            const profileForm = this.profileForms.get(index);
+
+            if (data && profileForm) {
+                const profileConfig: IProfileConfig = {
+                    ...profile,
+                    userId: updatedEmployee.id?.toString() || null,
+                    academicYear: profile.academicYear,
+                    username: updatedEmployee.login,
+                    email: updatedEmployee.email,
+                    fullName: `${updatedEmployee.firstName} ${updatedEmployee.lastName}`,
+                    contactNumber: data.contactNumber,
+                    gender: data.selectedGender,
+                    departments: data.selectedDepartments.map((d) => d.id),
+                    subjectIds: data.selectedSubjects,
+                    roles: this.generateRoleConfig(updatedEmployee.authorities!, profile.roles || {})
+                };
+                profiles.push(profileConfig);
+            }
+        });
+
+        this.save.emit({
+            user: updatedEmployee,
+            profiles
+        });
+    }
+
+    generateRoleConfig(authorities: ITenantAuthority[], existingRoles: any): IRoleConfigs {
+        const roleConfig: IRoleConfigs | any = {};
+        const data = this.getCurrentProfileData();
+
+        authorities?.forEach((authority) => {
+            const roleName = authority?.name;
+            if (existingRoles?.[roleName]) {
+                roleConfig[roleName.toLowerCase()] = existingRoles[roleName];
+                return;
             }
 
-            this.generateUserProfile(updatedStudent);
-        }
-
-        if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN') && this.selectedBranch) {
-            const updatedStudent = this.tenantUserFormService.getTenantUser(this.employeeForm);
-            updatedStudent.branchId = this.selectedBranch;
-            const profileFormData = this.profileConfigFormService.getProfileConfig(this.employeeProfileForm);
-            // this.employeeProfile = {
-            //     ...profileFormData,
-            //     id: profileFormData.id ?? null,
-            //     userId: updatedStudent.id?.toString(),
-            //     academicYear: '',
-            //     username: updatedStudent.login,
-            //     email: updatedStudent.email,
-            //     contactNumber: this.contactNumber,
-            //     fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
-            //     gender: this.selectedGender,
-            //     subjectIds: this.selectedSubjects ?? [],
-            //     departments: [],
-            //     roles: { itadmin: {} }
-            // };
-
-            // this.save.emit({
-            //     user: updatedStudent,
-            //     profile: this.employeeProfile
-            // });
-        }
-    }
-
-    async generateUserProfile(updatedStudent: ITenantUser | NewTenantUser) {
-        const profileFormData = this.profileConfigFormService.getProfileConfig(this.employeeProfileForm);
-        // this.employeeProfile = {
-        //     ...profileFormData,
-        //     id: profileFormData.id ?? null,
-        //     userId: updatedStudent.id?.toString(),
-        //     academicYear: this.selectedDepartments[0]?.academicYear,
-        //     username: updatedStudent.login,
-        //     email: updatedStudent.email,
-        //     contactNumber: this.contactNumber,
-        //     fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
-        //     gender: this.selectedGender,
-        //     subjectIds: this.selectedSubjects ?? [],
-        //     departments: [...this.selectedDepartments.map((deprt) => deprt.id)],
-        //     roles: await this.generateRoleConfig(updatedStudent.authorities!, profileFormData.roles)
-        // };
-
-        // this.save.emit({
-        //     user: updatedStudent,
-        //     profile: this.employeeProfile
-        // });
-    }
-
-    generateRoleConfig(authorities: ITenantAuthority[] | null, existingRoles: any): IRoleConfigs {
-        const roleConfig: IRoleConfigs | any = {};
-        authorities?.forEach((authority) => {
-            switch (authority?.name) {
-                case 'STUDENT':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.employee = {
-                            classId: this.selectedClass?.id ?? null,
-                            sectionId: this.selectedSection?.id ?? null,
-                            rollNumber: null
-                        } as IStudentProfile;
-                    }
-
-                    break;
-                case 'GUARDIAN':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.parent = {
-                            studentIds: []
-                        } as IGuardianProfile;
-                    }
-                    break;
+            switch (roleName) {
                 case 'TEACHER':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.teacher = {
-                            subjectIds: this.selectedSubjects ?? []
-                        } as ITeacherProfile;
-                    }
-
-                    break;
                 case 'LECTURER':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.lecturer = {
-                            subjectIds: this.selectedSubjects ?? []
-                        } as ILecturerProfile;
-                    }
-                    break;
                 case 'PROFESSOR':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.professor = {
-                            subjectIds: this.selectedSubjects ?? []
-                        } as IProfessorProfile;
-                    }
-
-                    break;
                 case 'HEAD_OF_DEPARTMENT':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.headofdepartment = {
-                            subjectIds: this.selectedSubjects ?? []
-                        } as IHeadOfDepartmentProfile;
-                    }
-
-                    break;
                 case 'HEAD_MASTER':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.headmaster = {
-                            subjectIds: this.selectedSubjects ?? []
-                        } as IHeadMasterProfile;
-                    }
-
-                    break;
                 case 'PRINCIPAL':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.principal = {
-                            subjectIds: this.selectedSubjects ?? []
-                        } as IPrincipalProfile;
-                    }
-
-                    break;
                 case 'VICE_PRINCIPAL':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.viceprincipal = {
-                            subjectIds: this.selectedSubjects ?? []
-                        } as IVicePrincipalProfile;
-                    }
-
+                case 'SUBSTITUTE_TEACHER':
+                    roleConfig[roleName.toLowerCase().replace('_', '')] = {
+                        subjectIds: data.selectedSubjects || []
+                    };
                     break;
                 case 'SPORTS_COACH':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.sportscoach = {} as ISportsCoachProfile;
-                    }
-
-                    break;
-                case 'SUBSTITUTE_TEACHER':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.substituteteacher = {
-                            subjectIds: this.selectedSubjects ?? []
-                        } as ISubstituteTeacherProfile;
-                    }
-
-                    break;
                 case 'IT_ADMINISTRATOR':
-                    if (!existingRoles?.[authority.name]) {
-                        roleConfig.itadmin = {} as IITAdministratorProfile;
-                    }
-                    break;
-                default:
+                    roleConfig[roleName.toLowerCase().replace('_', '')] = {};
                     break;
             }
         });
@@ -352,7 +374,7 @@ export class EmployeeDialogComponent {
         return roleConfig;
     }
 
-    onCancel() {
+    onCancel(): void {
         this.cancel.emit();
     }
 }

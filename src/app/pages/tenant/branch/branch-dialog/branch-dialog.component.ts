@@ -102,7 +102,7 @@ export class BranchDialogComponent implements OnInit {
         const branchData = this.branchFormService.getBranch(this.editForm);
 
         branchData.tenant = this.tenantId;
-        debugger;
+
         const request$ = branchData.id ? this.branchService.update(branchData) : this.branchService.create(branchData);
 
         request$.pipe(finalize(() => (this.isSaving = false))).subscribe({

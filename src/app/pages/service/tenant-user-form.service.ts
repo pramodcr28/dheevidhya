@@ -1,34 +1,17 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-import dayjs from 'dayjs/esm';
-
-import { DATE_TIME_FORMAT } from '../../core/model/constants';
 import { ITenantUser, NewTenantUser } from '../models/user.model';
 
-/**
- * A partial Type with required key is used as form input.
- */
 type PartialWithRequiredKeyOf<T extends { id: unknown }> = Partial<Omit<T, 'id'>> & { id: T['id'] };
 
-/**
- * Type for createFormGroup and resetForm argument.
- * It accepts ITenantUser for edit and NewTenantUserFormGroupInput for create.
- */
 type TenantUserFormGroupInput = ITenantUser | PartialWithRequiredKeyOf<NewTenantUser>;
 
-/**
- * Type that converts some properties for forms.
- */
 type FormValueOf<T extends ITenantUser | NewTenantUser> = Omit<T, 'resetDate'> & {
     resetDate?: string | null;
 };
 
 type TenantUserFormRawValue = FormValueOf<ITenantUser>;
-
-type NewTenantUserFormRawValue = FormValueOf<NewTenantUser>;
-
-type TenantUserFormDefaults = Pick<NewTenantUser, 'id' | 'activated' | 'resetDate' | 'isTenantUser' | 'authorities'>;
 
 type TenantUserFormGroupContent = {
     id: FormControl<TenantUserFormRawValue['id'] | NewTenantUser['id']>;
@@ -64,10 +47,9 @@ export type TenantUserFormGroup = FormGroup<TenantUserFormGroupContent>;
 @Injectable({ providedIn: 'root' })
 export class TenantUserFormService {
     createTenantUserFormGroup(tenantUser: TenantUserFormGroupInput = { id: null }): TenantUserFormGroup {
-        const tenantUserRawValue = this.convertTenantUserToTenantUserRawValue({
-            ...this.getFormDefaults(),
+        const tenantUserRawValue = {
             ...tenantUser
-        });
+        };
         return new FormGroup<TenantUserFormGroupContent>({
             id: new FormControl(
                 { value: tenantUserRawValue.id, disabled: true },
@@ -123,43 +105,13 @@ export class TenantUserFormService {
     }
 
     getTenantUser(form: TenantUserFormGroup): ITenantUser | NewTenantUser {
-        return this.convertTenantUserRawValueToTenantUser(form.getRawValue() as TenantUserFormRawValue | NewTenantUserFormRawValue);
+        return { ...form.getRawValue() } as unknown as ITenantUser | NewTenantUser;
     }
 
     resetForm(form: TenantUserFormGroup, tenantUser: TenantUserFormGroupInput): void {
-        const tenantUserRawValue = this.convertTenantUserToTenantUserRawValue({ ...this.getFormDefaults(), ...tenantUser });
-        form.reset(
-            {
-                ...tenantUserRawValue,
-                id: { value: tenantUserRawValue.id, disabled: true }
-            } as any /* cast to workaround https://github.com/angular/angular/issues/46458 */
-        );
-    }
-
-    private getFormDefaults(): TenantUserFormDefaults {
-        const currentTime = dayjs();
-
-        return {
-            id: null,
-            activated: false,
-            resetDate: currentTime,
-            isTenantUser: false,
-            authorities: []
-        };
-    }
-
-    private convertTenantUserRawValueToTenantUser(rawTenantUser: TenantUserFormRawValue | NewTenantUserFormRawValue): ITenantUser | NewTenantUser {
-        return {
-            ...rawTenantUser,
-            resetDate: dayjs(rawTenantUser.resetDate, DATE_TIME_FORMAT)
-        };
-    }
-
-    private convertTenantUserToTenantUserRawValue(tenantUser: ITenantUser | (Partial<NewTenantUser> & TenantUserFormDefaults)): TenantUserFormRawValue | PartialWithRequiredKeyOf<NewTenantUserFormRawValue> {
-        return {
+        form.reset({
             ...tenantUser,
-            resetDate: tenantUser.resetDate ? tenantUser.resetDate?.format(DATE_TIME_FORMAT) : undefined,
-            authorities: tenantUser.authorities ?? []
-        };
+            id: { value: tenantUser.id, disabled: true }
+        } as any);
     }
 }
