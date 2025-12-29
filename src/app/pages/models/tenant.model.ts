@@ -47,7 +47,7 @@ export interface IBranch {
     createdAt?: dayjs.Dayjs | null;
     updatedBy?: string | null;
     updatedAt?: dayjs.Dayjs | null;
-    tenant?: ITenant | null;
+    tenant?: number | null;
 }
 
 export type NewBranch = Omit<IBranch, 'id'> & { id: null };

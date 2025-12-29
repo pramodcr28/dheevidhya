@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
@@ -41,6 +41,7 @@ import {
     NewTenantUser
 } from '../../models/user.model';
 import { ProfileConfigFormService } from '../../service/profile-config-form.service';
+import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantUserFormService } from '../../service/tenant-user-form.service';
 import { UserService } from '../../service/user.service';
 import { CommonService } from './../../../core/services/common.service';
@@ -74,30 +75,34 @@ export class EmployeeDialogComponent {
     tenantUserFormService = inject(TenantUserFormService);
     profileConfigFormService = inject(ProfileConfigFormService);
     private store = inject(Store<{ userProfile: UserProfileState }>);
-
+    employeeProfiles = signal<IProfileConfig[] | null>([]);
+    commonService = inject(CommonService);
+    employeeProfileService = inject(ProfileConfigService);
     @Input() visible: boolean = false;
     @Input() statuses: any[] = [];
     @Input() set employee(employee: NewTenantUser | ITenantUser) {
         this._employee = employee;
 
-        if (this.employeeForm) {
-            this.tenantUserFormService.resetForm(this.employeeForm, employee);
+        if (employee) {
+            this.employeeProfileService.search(0, 100, 'id', 'ASC', {}).subscribe((res) => {
+                this.employeeProfiles = res.content;
+            });
         }
     }
     get employee(): NewTenantUser | ITenantUser {
         return this._employee;
     }
 
-    @Input() set employeeProfile(profile: NewProfileConfig | IProfileConfig) {
-        if (profile.subjectIds) {
-            this.selectedSubjects = [...this.selectedSubjects, ...profile.subjectIds];
-        }
+    // @Input() set employeeProfile(profile: NewProfileConfig | IProfileConfig) {
+    //     if (profile.subjectIds) {
+    //         this.selectedSubjects = [...this.selectedSubjects, ...profile.subjectIds];
+    //     }
 
-        this._employeeProfile = profile;
-    }
-    get employeeProfile(): NewProfileConfig | IProfileConfig {
-        return this._employeeProfile;
-    }
+    //     this._employeeProfile = profile;
+    // }
+    // get employeeProfile(): NewProfileConfig | IProfileConfig {
+    //     return this._employeeProfile;
+    // }
 
     @Output() save = new EventEmitter<{ user: NewTenantUser | ITenantUser; profile: NewProfileConfig | IProfileConfig | any }>();
     @Output() cancel = new EventEmitter<void>();
@@ -125,8 +130,13 @@ export class EmployeeDialogComponent {
     contactNumber: any;
     departmentSpecificSubjects = [];
     selectedSubjects = [];
-    commonService = inject(CommonService);
     branchService = inject(BranchService);
+
+    onTabChange(profile) {
+        if (this.employeeForm) {
+            this.tenantUserFormService.resetForm(this.employeeForm, profile);
+        }
+    }
     ngOnInit(): void {
         if (!this.employee.id)
             this.employee = {
@@ -143,11 +153,9 @@ export class EmployeeDialogComponent {
                 longitude: 77.5946,
                 ...this.employee
             };
-        this.branchService.query().subscribe((res) => {
-            this.allBranches = res.body || [];
-        });
+
         this.employeeForm = this.tenantUserFormService.createTenantUserFormGroup(this.employee);
-        this.employeeProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.employeeProfile);
+        // this.employeeProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.employeeProfile);
         this.contactNumber = this.employeeProfileForm.get('contactNumber').value;
         this.studentService.getAuthorities().subscribe((response: any) => {
             this.availableAuthorities = response.body
@@ -158,6 +166,9 @@ export class EmployeeDialogComponent {
             if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
                 this.availableAuthorities = [];
                 this.availableAuthorities.push({ name: 'IT_ADMINISTRATOR' });
+                this.branchService.query().subscribe((res) => {
+                    this.allBranches = res.body || [];
+                });
             }
         });
 
@@ -193,49 +204,49 @@ export class EmployeeDialogComponent {
             const updatedStudent = this.tenantUserFormService.getTenantUser(this.employeeForm);
             updatedStudent.branchId = this.selectedBranch;
             const profileFormData = this.profileConfigFormService.getProfileConfig(this.employeeProfileForm);
-            this.employeeProfile = {
-                ...profileFormData,
-                id: profileFormData.id ?? null,
-                userId: updatedStudent.id?.toString(),
-                academicYear: '',
-                username: updatedStudent.login,
-                email: updatedStudent.email,
-                contactNumber: this.contactNumber,
-                fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
-                gender: this.selectedGender,
-                subjectIds: this.selectedSubjects ?? [],
-                departments: [],
-                roles: { itadmin: {} }
-            };
+            // this.employeeProfile = {
+            //     ...profileFormData,
+            //     id: profileFormData.id ?? null,
+            //     userId: updatedStudent.id?.toString(),
+            //     academicYear: '',
+            //     username: updatedStudent.login,
+            //     email: updatedStudent.email,
+            //     contactNumber: this.contactNumber,
+            //     fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
+            //     gender: this.selectedGender,
+            //     subjectIds: this.selectedSubjects ?? [],
+            //     departments: [],
+            //     roles: { itadmin: {} }
+            // };
 
-            this.save.emit({
-                user: updatedStudent,
-                profile: this.employeeProfile
-            });
+            // this.save.emit({
+            //     user: updatedStudent,
+            //     profile: this.employeeProfile
+            // });
         }
     }
 
     async generateUserProfile(updatedStudent: ITenantUser | NewTenantUser) {
         const profileFormData = this.profileConfigFormService.getProfileConfig(this.employeeProfileForm);
-        this.employeeProfile = {
-            ...profileFormData,
-            id: profileFormData.id ?? null,
-            userId: updatedStudent.id?.toString(),
-            academicYear: this.selectedDepartments[0]?.academicYear,
-            username: updatedStudent.login,
-            email: updatedStudent.email,
-            contactNumber: this.contactNumber,
-            fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
-            gender: this.selectedGender,
-            subjectIds: this.selectedSubjects ?? [],
-            departments: [...this.selectedDepartments.map((deprt) => deprt.id)],
-            roles: await this.generateRoleConfig(updatedStudent.authorities!, profileFormData.roles)
-        };
+        // this.employeeProfile = {
+        //     ...profileFormData,
+        //     id: profileFormData.id ?? null,
+        //     userId: updatedStudent.id?.toString(),
+        //     academicYear: this.selectedDepartments[0]?.academicYear,
+        //     username: updatedStudent.login,
+        //     email: updatedStudent.email,
+        //     contactNumber: this.contactNumber,
+        //     fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
+        //     gender: this.selectedGender,
+        //     subjectIds: this.selectedSubjects ?? [],
+        //     departments: [...this.selectedDepartments.map((deprt) => deprt.id)],
+        //     roles: await this.generateRoleConfig(updatedStudent.authorities!, profileFormData.roles)
+        // };
 
-        this.save.emit({
-            user: updatedStudent,
-            profile: this.employeeProfile
-        });
+        // this.save.emit({
+        //     user: updatedStudent,
+        //     profile: this.employeeProfile
+        // });
     }
 
     generateRoleConfig(authorities: ITenantAuthority[] | null, existingRoles: any): IRoleConfigs {

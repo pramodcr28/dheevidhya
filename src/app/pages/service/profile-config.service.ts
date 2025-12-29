@@ -44,6 +44,18 @@ export class ProfileConfigService {
         return this.http.get<IProfileConfig[]>(this.resourceUrl, { params: options, observe: 'response' });
     }
 
+    search<T>(page: number = 0, size: number = 10, sortBy: string = 'id', sortDirection: string = 'ASC', filters: any = {}): Observable<any> {
+        const searchRequest = {
+            page: page,
+            size: size,
+            sortBy: sortBy,
+            sortDirection: sortDirection,
+            filters: filters
+        };
+
+        return this.http.post<any>(this.resourceUrl + `/search`, searchRequest);
+    }
+
     delete(id: number): Observable<HttpResponse<{}>> {
         return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
     }

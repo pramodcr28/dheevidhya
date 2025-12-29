@@ -93,7 +93,7 @@ export class StudentListComponent {
 
     load(): void {
         this.loader.show('Fetching Student Data');
-        this.studentService.search(0, 100, 'id', 'ASC', { 'profileType.equals': 'STUDENT', 'departments.in': this.commonService.associatedDepartments.map((dpt) => dpt.id) }).subscribe({
+        this.studentService.userSearch(0, 100, 'id', 'ASC', { 'profileType.equals': 'STUDENT', 'departments.in': this.commonService.associatedDepartments.map((dpt) => dpt.id) }).subscribe({
             next: (res: any) => {
                 this.students.set(res.content);
                 this.loader.hide();
@@ -191,7 +191,7 @@ export class StudentListComponent {
         this.selectedStudentProfile = student as any;
         if (gaurdianId) {
             this.studentService.find(gaurdianId).subscribe((result: any) => {
-                this.studentService.search(0, 10, 'id', 'ASC', { 'user_id.in': [gaurdianId] }).subscribe((profiles) => {
+                this.studentService.userSearch(0, 10, 'id', 'ASC', { 'user_id.in': [gaurdianId] }).subscribe((profiles) => {
                     if (profiles.content) {
                         this.selectedGaurdianProfile = profiles.content[0];
                         this.selectedGaurdian = { ...result.body };

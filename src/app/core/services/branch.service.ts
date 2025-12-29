@@ -32,7 +32,7 @@ export class BranchService {
 
     protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ADMIN_BASE_URL + 'api/branches');
 
-    create(branch: NewBranch): Observable<EntityResponseType> {
+    create(branch: IBranch): Observable<EntityResponseType> {
         const copy = this.convertDateFromClient(branch);
         return this.http.post<RestBranch>(this.resourceUrl, copy, { observe: 'response' }).pipe(map((res) => this.convertResponseFromServer(res)));
     }
@@ -54,6 +54,18 @@ export class BranchService {
     query(req?: any): Observable<EntityArrayResponseType> {
         const options = createRequestOption(req);
         return this.http.get<RestBranch[]>(this.resourceUrl, { params: options, observe: 'response' }).pipe(map((res) => this.convertResponseArrayFromServer(res)));
+    }
+
+    search<T>(page: number = 0, size: number = 10, sortBy: string = 'id', sortDirection: string = 'ASC', filters: any = {}): Observable<any> {
+        const searchRequest = {
+            page: page,
+            size: size,
+            sortBy: sortBy,
+            sortDirection: sortDirection,
+            filters: filters
+        };
+
+        return this.http.post<any>(`${this.resourceUrl}/search`, searchRequest);
     }
 
     delete(id: number): Observable<HttpResponse<{}>> {

@@ -189,17 +189,17 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
     }
 
     protected loadStaffData(): void {
-        this.userService
-            .userSearch(0, 100, 'id', 'ASC', {
-                'branch_id.equals': this.commonService.branch?.id,
-                'authorities.name.ne': 'STUDENT'
-            })
-            .subscribe((res) => {
-                this.allStaff = res.content ?? [];
-                const assignedIds = this.selectedDepartmentConfig?.associatedStaffs || [];
-                this.sourceStaff = this.allStaff.filter((s) => !assignedIds.includes(s.id));
-                this.targetStaff = this.allStaff.filter((s) => assignedIds.includes(s.id));
-            });
+        debugger;
+        let filterParams = {
+            'branch_id.equals': this.commonService.branch?.id,
+            'authorities.name.ne': 'STUDENT'
+        };
+        this.userService.userSearch(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
+            this.allStaff = res.content ?? [];
+            const assignedIds = this.selectedDepartmentConfig?.associatedStaffs || [];
+            this.sourceStaff = this.allStaff.filter((s) => !assignedIds.includes(s.id));
+            this.targetStaff = this.allStaff.filter((s) => assignedIds.includes(s.id));
+        });
     }
 
     calculateAcademicYear(): void {

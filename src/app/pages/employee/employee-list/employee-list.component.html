@@ -1,7 +1,7 @@
 
     <p-table
         #dt
-        [value]="employeeProfiles()!"
+        [value]="employees()!"
         [rows]="10"
         [columns]="cols"
         [paginator]="true"
@@ -32,22 +32,27 @@
                     Contact Number
                     <p-sortIcon field="name" />
                 </th>
+                   <th pSortableColumn="email" style="min-width:12rem">
+                    Email
+                    <p-sortIcon field="email" />
+                </th>
                 <th  style="min-width:12rem">
                     User Name
                 </th>
-                <th pSortableColumn="price" style="min-width: 8rem">
+                <th pSortableColumn="authorities" style="min-width: 8rem">
                     Authorities
-                    <p-sortIcon field="price" />
+                    <p-sortIcon field="authorities" />
                 </th>
                 <th style="min-width: 4rem"></th>
             </tr>
         </ng-template>
         <ng-template #body let-employee>
             <tr>
-                <td style="min-width: 12rem">{{ employee.fullName }}</td>
+                <td style="min-width: 12rem">{{ employee.firstName  + " " + employee.firstName }}</td>
                 <td style="min-width: 12rem">{{ employee.contactNumber }}</td>
-                <td>{{ employee.username }}</td>
-                <td style="min-width: 12rem">{{ getAuthorityNames(employee.roles) }}</td>
+                       <td style="min-width: 12rem">{{ employee.email }}</td>
+                <td style="min-width: 12rem">{{ employee.login }}</td>
+                <td style="min-width: 12rem">{{ getAuthorityNames(employee.authorities) }}</td>
                 <td class="">
                     <i class="pi pi-user-edit hover:text-primary-600 px-3 cursor-pointer" (click)="editEmployee(employee)" ></i>
                     <i class="pi pi-trash hover:text-primary-600 px-3 cursor-pointer" (click)="deleteEmployee(employee)" ></i>
@@ -60,7 +65,6 @@
         <app-employee-dialog 
         [visible]="studentDialog" 
         [employee]="employee" 
-        [employeeProfile]="employeeProfile"
         (save)="onEmployeeSave($event)"
         (cancel)="hideDialog()">
       </app-employee-dialog>

@@ -91,12 +91,6 @@ export class TenantComponent implements OnInit {
         };
         return this.tenantService.query(queryObject).pipe(tap(() => (this.isLoading = false)));
     }
-    // // Add this method to your TenantComponent class
-    // navigateToEdit(tenant: ITenant): void {
-    //     this.router.navigate(['/tenant', 'edit'], {
-    //         state: { tenant: tenant } // Pass the full object here
-    //     });
-    // }
 
     openCreate() {
         this.selectedTenant = null;
@@ -106,6 +100,10 @@ export class TenantComponent implements OnInit {
     openEdit(tenant: ITenant) {
         this.selectedTenant = tenant;
         this.dialogVisible = true;
+    }
+
+    viewBranches(tenant: ITenant): void {
+        this.router.navigate(['/tenant', tenant.id, 'branch']);
     }
 
     onSaved(_: ITenant) {

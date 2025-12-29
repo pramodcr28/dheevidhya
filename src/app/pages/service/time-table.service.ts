@@ -7,6 +7,7 @@ import { ApplicationConfigService } from '../../core/services/application-config
 import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
 import { getSubjectsByFilters } from '../../core/store/user-profile/user-profile.selectors';
 import { Teacher, TimeTable } from '../models/time-table';
+import { ProfileConfigService } from './profile-config.service';
 import { UserService } from './user.service';
 
 @Injectable({
@@ -16,6 +17,7 @@ export class TimeTableService {
     private http = inject(HttpClient);
     private store = inject(Store<{ userProfile: UserProfileState }>);
     private userService = inject(UserService);
+    private profileService = inject(ProfileConfigService);
     private applicationConfigService = inject(ApplicationConfigService);
     public teachers: Teacher[] = [];
     public classes: any[] = [];
@@ -122,7 +124,7 @@ export class TimeTableService {
             });
         });
         this.store.select(getSubjectsByFilters([this.timeTable.department.id])).subscribe((subjects) => {
-            this.userService
+            this.profileService
                 .search(0, 100, 'id', 'ASC', {
                     'profileType.equals': 'STAFF',
                     'departments.in': [this.timeTable.department.id],

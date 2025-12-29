@@ -40,19 +40,20 @@ export class EmployeeListComponent {
     private store = inject(Store<{ userProfile: UserProfileState }>);
     studentDialog: boolean = false;
     employee!: NewTenantUser | ITenantUser;
-    employeeProfile!: NewProfileConfig | IProfileConfig | any;
+    // employeeProfile!: NewProfileConfig | IProfileConfig | any;
     submitted: boolean = false;
     exportColumns!: ExportColumn[];
     cols!: Column[];
     subscription: Subscription | null = null;
     tenantAuthorities = signal<ITenantAuthority[]>([]);
     isLoading = false;
-    employeeProfiles = signal<IProfileConfig[] | null>([]);
+    // employeeProfiles = signal<IProfileConfig[] | null>([]);
+    employees = signal<ITenantUser[]>([]);
     itemsPerPage = ITEMS_PER_PAGE;
     totalItems = 0;
     page = 1;
     router = inject(Router);
-    studentService = inject(UserService);
+    employeeService = inject(UserService);
     profileService = inject(ProfileConfigService);
     authorityService = inject(TenantAuthorityService);
     activatedRoute = inject(ActivatedRoute);
@@ -61,33 +62,27 @@ export class EmployeeListComponent {
     messageService = inject(MessageService);
     confirmationService = inject(ConfirmationService);
     loader = inject(ApiLoaderService);
-    // currentUser: any;
     commonService = inject(CommonService);
 
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);
         });
-
-        // this.store.select(selectUserConfig).subscribe((userConfig) => {
-        //     this.currentUser = userConfig.userId;
-        // });
-
         this.load();
     }
 
     load(): void {
         this.loader.show('Fetching Staff Data');
-        let searchCriteria: any = { 'profileType.equals': 'STAFF' };
+        // let searchCriteria: any = { 'profileType.equals': 'STAFF' };
 
-        if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
-            searchCriteria['branchId.like'] = this.commonService.getUserInfo?.branchId;
-        } else {
-            searchCriteria['departments.in'] = this.commonService.associatedDepartments.map((dpt) => dpt.id);
-        }
-        this.studentService.search(0, 100, 'id', 'ASC', { ...searchCriteria }).subscribe({
+        // if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
+        //     searchCriteria['branchId.like'] = this.commonService.getUserInfo?.branchId;
+        // } else {
+        //     searchCriteria['departments.in'] = this.commonService.associatedDepartments.map((dpt) => dpt.id);
+        // }
+        this.employeeService.userSearch(0, 100, 'id', 'ASC', {}).subscribe({
             next: (res: any) => {
-                this.employeeProfiles.set(res.content);
+                this.employees.set(res.content);
                 this.loader.hide();
             }
         });
@@ -103,7 +98,7 @@ export class EmployeeListComponent {
             passwordHash: 'User@123'
         } as NewTenantUser | any;
 
-        this.employeeProfile = {} as NewProfileConfig;
+        // this.employeeProfile = {} as NewProfileConfig;
         this.submitted = false;
         this.studentDialog = true;
     }
@@ -124,7 +119,7 @@ export class EmployeeListComponent {
         this.loader.show('Updating new Staff');
         userConfig.profile.profileType = 'STAFF';
         userConfig.user.passwordHash = 'User@123';
-        this.studentService.create(userConfig).subscribe((result) => {
+        this.employeeService.create(userConfig).subscribe((result) => {
             this.hideDialog();
             this.load();
             this.messageService.add({ text: 'Congrats! Record created!', closeIcon: 'close' });
@@ -132,26 +127,21 @@ export class EmployeeListComponent {
     }
 
     deleteEmployee(employee: IProfileConfig) {
-        this.studentService.delete(+employee.userId, null).subscribe((res) => {
+        this.employeeService.delete(+employee.userId, null).subscribe((res) => {
             this.load();
         });
     }
 
     getAuthorityNames(authorities: any): string {
-        let result = ' ';
-        for (let authority in authorities) {
-            if (authorities[authority] != null) {
-                result += authority;
-            }
-        }
-        return result;
+        return authorities?.map((a: any) => a.name).join(', ');
     }
 
     editEmployee(employee: IProfileConfig) {
-        this.studentService.find(+employee.userId).subscribe((result: any) => {
-            this.employeeProfile = employee;
-            this.employee = { ...result.body };
-            this.studentDialog = true;
-        });
+        this.studentDialog = true;
+        this.employee = { ...employee };
+        // this.profileService.find(+employee.userId).subscribe((result: any) => {
+        //     this.employee = result.body && (result.body as any).user ? (result.body as any).user : (employee as any);
+        // this.employeeProfile = { ...result.body };
+        // });
     }
 }

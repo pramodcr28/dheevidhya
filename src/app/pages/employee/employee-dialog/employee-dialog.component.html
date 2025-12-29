@@ -166,23 +166,23 @@
         </div>
 
         <!-- Branch Selection (Only for SUPER_ADMIN) -->
-@if(commonService.getUserAuthorities.includes('SUPER_ADMIN')){
-<div class="mb-4">
-  <label class="block font-bold mb-2">Branch</label>
-  <p-select
-    [options]="allBranches"
-    [(ngModel)]="selectedBranch"
-    [ngModelOptions]="{standalone: true}"
-    optionLabel="name"
-    optionValue="id"
-    placeholder="Select Branch"
-    [style]="{ width: '100%' }">
-  </p-select>
-  <small class="text-red-500" *ngIf="submitted && !selectedBranch">
-    Branch is required.
-  </small>
-</div>
-}@else {
+        @if(commonService.getUserAuthorities.includes('SUPER_ADMIN')){
+        <div class="mb-4">
+          <label class="block font-bold mb-2">Branch</label>
+          <p-select
+            [options]="allBranches"
+            [(ngModel)]="selectedBranch"
+            [ngModelOptions]="{standalone: true}"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select Branch"
+            [style]="{ width: '100%' }">
+          </p-select>
+          <small class="text-red-500" *ngIf="submitted && !selectedBranch">
+            Branch is required.
+          </small>
+        </div>
+        }@else {
 
         <!-- Department Selection -->
         <div class="mt-2">

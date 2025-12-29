@@ -17,6 +17,7 @@ import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { IDepartmentAcademicYear, IMasterClass, IMasterDepartment } from '../../models/org.model'; // Import IMasterClass
+import { ProfileConfigService } from '../../service/profile-config.service';
 import { UserService } from '../../service/user.service';
 
 @Component({
@@ -31,6 +32,7 @@ export class DepartmentSetupComponent implements OnInit {
     commonService = inject(CommonService);
     departmentConfigService = inject(DepartmentConfigService);
     userService = inject(UserService);
+    profileService = inject(ProfileConfigService);
     private messageService = inject(MessageService);
     private activatedRoute = inject(ActivatedRoute);
     private router = inject(Router);
@@ -100,7 +102,7 @@ export class DepartmentSetupComponent implements OnInit {
 
     fetchDepartmentStaff() {
         if (!this.selectedMasterDepartment?.id) return;
-        this.userService
+        this.profileService
             .search(0, 100, 'id', 'ASC', {
                 'departments.in': [this.selectedMasterDepartment.id],
                 'profileType.equals': 'STAFF'

@@ -119,18 +119,6 @@ export class UserService {
         });
     }
 
-    search<T>(page: number = 0, size: number = 10, sortBy: string = 'id', sortDirection: string = 'ASC', filters: any = {}): Observable<any> {
-        const searchRequest = {
-            page: page,
-            size: size,
-            sortBy: sortBy,
-            sortDirection: sortDirection,
-            filters: filters
-        };
-
-        return this.http.post<any>(`${environment.ServerUrl + environment.UAA_BASE_URL}profile-configs/search`, searchRequest);
-    }
-
     userSearch<T>(page: number = 0, size: number = 10, sortBy: string = 'id', sortDirection: string = 'ASC', filters: any = {}): Observable<any> {
         const searchRequest = {
             page: page,

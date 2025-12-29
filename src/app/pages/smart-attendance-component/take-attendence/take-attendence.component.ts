@@ -19,6 +19,7 @@ import { getSubjectsByFilters } from '../../../core/store/user-profile/user-prof
 import { AttendanceException, AttendanceRequest, AttendanceStatus } from '../../models/attendence.model';
 import { IMasterSubject, Section } from '../../models/org.model';
 import { IProfileConfig } from '../../models/user.model';
+import { ProfileConfigService } from '../../service/profile-config.service';
 import { StudentAttendenceServiceService } from '../../service/student-attendence-service.service';
 import { UserService } from '../../service/user.service';
 
@@ -33,6 +34,7 @@ export class TakeAttendenceComponent {
     selectedTimePeriod: any = null;
     attendenceService = inject(StudentAttendenceServiceService);
     commonService = inject(CommonService);
+    profileService = inject(ProfileConfigService);
     selectedSection: Section | null;
     selectedSubject: IMasterSubject;
     slotDate: Date | undefined = new Date();
@@ -71,7 +73,7 @@ export class TakeAttendenceComponent {
         this.currentAttendence = [];
         this.loader.show('Fetching Student Attendence');
 
-        this.studentService
+        this.profileService
             .search(0, 100, 'id', 'ASC', {
                 'profileType.equals': 'STUDENT',
                 'roles.student.section_id.equals': this.selectedSection.sectionId,

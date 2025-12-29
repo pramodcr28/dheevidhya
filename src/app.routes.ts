@@ -21,6 +21,7 @@ import { SchoolNoticeBoardComponent } from './app/pages/school-notice-board/scho
 import { StaffAttendanceManagementComponent } from './app/pages/staff-attendance-management/staff-attendance-management.component';
 import { BulkStudentUploadComponent } from './app/pages/students/bulk-student-upload/bulk-student-upload.component';
 import { StudentListComponent } from './app/pages/students/student-list/student-list.component';
+import { BranchComponent } from './app/pages/tenant/branch/branch.component';
 import { TenantComponent } from './app/pages/tenant/tenant.component';
 
 export const appRoutes: Routes = [
@@ -42,6 +43,11 @@ export const appRoutes: Routes = [
                         path: 'list',
                         component: TenantComponent,
                         title: 'Tenant Management'
+                    },
+                    {
+                        path: ':tenantId/branch',
+                        component: BranchComponent,
+                        title: 'Tenant Branches'
                     }
                 ]
             },

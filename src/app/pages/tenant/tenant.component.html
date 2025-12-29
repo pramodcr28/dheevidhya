@@ -40,7 +40,7 @@
             <th class="p-3 text-left font-bold">Email</th>
             <th class="p-3 text-left font-bold">Phone</th>
             <th class="p-3 text-left font-bold">Status</th>
-            <th class="p-3 text-center font-bold w-24">Actions</th>
+            <th class="p-3 text-center font-bold w-32">Actions</th>
           </tr>
         </ng-template>
 
@@ -68,6 +68,17 @@
 
             <td class="p-3">
               <div class="flex gap-2 justify-center">
+
+              <p-button
+                icon="pi pi-sitemap"
+                [rounded]="true"
+                [text]="true"
+                severity="info"
+                pTooltip="Manage Branches"
+                tooltipPosition="top"
+                (click)="viewBranches(tenant)" 
+              >
+              </p-button>
 
               <p-button
                 icon="pi pi-pencil"

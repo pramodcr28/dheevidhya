@@ -1,0 +1,213 @@
+<p-toast></p-toast>
+
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '80%' }"
+  (onHide)="onCancel()"
+  [header]="branch?.id ? 'Edit Branch' : 'Add Branch'">
+
+  <form [formGroup]="editForm" class="flex flex-col gap-4">
+
+    <!-- Row 1: Name, Code, Type -->
+    <div class="grid grid-cols-3 gap-4">
+      <div>
+        <label class="block font-semibold mb-1">Name *</label>
+        <input pInputText formControlName="name" class="w-full" placeholder="Branch Name" />
+        <small class="text-red-500"
+          *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched">
+          Name is required (min 3 chars)
+        </small>
+      </div>
+
+      <div>
+        <label class="block font-semibold mb-1">Code *</label>
+        <input pInputText formControlName="code" class="w-full" placeholder="e.g., BRH001" />
+        <small class="text-red-500"
+          *ngIf="editForm.get('code')?.invalid && editForm.get('code')?.touched">
+          Code is required
+        </small>
+      </div>
+
+      <div>
+        <label class="block font-semibold mb-1">Type *</label>
+        <p-select
+          [options]="branchTypes"
+          optionLabel="label"
+          optionValue="value"
+          formControlName="type"
+          placeholder="Select type"
+          class="w-full">
+        </p-select>
+        <small class="text-red-500"
+          *ngIf="editForm.get('type')?.invalid && editForm.get('type')?.touched">
+          Type is required
+        </small>
+      </div>
+    </div>
+
+    <!-- Row 2: Board, Phone, Email -->
+    <div class="grid grid-cols-3 gap-4">
+      <div>
+        <label class="block font-semibold mb-1">Board</label>
+        <input pInputText formControlName="board" class="w-full" placeholder="Board Name" />
+      </div>
+
+      <div>
+        <label class="block font-semibold mb-1">Phone *</label>
+        <input pInputText formControlName="phone" class="w-full" placeholder="Phone" />
+        <small class="text-red-500"
+          *ngIf="editForm.get('phone')?.invalid && editForm.get('phone')?.touched">
+          Phone is required
+        </small>
+      </div>
+
+      <div>
+        <label class="block font-semibold mb-1">Email *</label>
+        <input pInputText type="email" formControlName="email" class="w-full" placeholder="Email" />
+        <small class="text-red-500"
+          *ngIf="editForm.get('email')?.invalid && editForm.get('email')?.touched">
+          Valid email required
+        </small>
+      </div>
+    </div>
+
+    <!-- Address Section -->
+    <div class="bg-gray-50 p-3 rounded-lg">
+      <h3 class="font-semibold mb-3 text-gray-700">Address Information</h3>
+
+      <!-- Row 3: Street, Locality -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block font-semibold mb-1">Street *</label>
+          <input pInputText formControlName="street" class="w-full" placeholder="Street Address" />
+          <small class="text-red-500"
+            *ngIf="editForm.get('street')?.invalid && editForm.get('street')?.touched">
+            Street is required
+          </small>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Locality *</label>
+          <input pInputText formControlName="locality" class="w-full" placeholder="Locality" />
+          <small class="text-red-500"
+            *ngIf="editForm.get('locality')?.invalid && editForm.get('locality')?.touched">
+            Locality is required
+          </small>
+        </div>
+      </div>
+
+      <!-- Row 4: Landmark, Taluk -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block font-semibold mb-1">Landmark</label>
+          <input pInputText formControlName="landmark" class="w-full" placeholder="Landmark" />
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Taluk</label>
+          <input pInputText formControlName="taluk" class="w-full" placeholder="Taluk" />
+        </div>
+      </div>
+
+      <!-- Row 5: District, State, Country -->
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <div>
+          <label class="block font-semibold mb-1">District *</label>
+          <input pInputText formControlName="district" class="w-full" placeholder="District" />
+          <small class="text-red-500"
+            *ngIf="editForm.get('district')?.invalid && editForm.get('district')?.touched">
+            District is required
+          </small>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">State *</label>
+          <p-select
+            [options]="stateOptions"
+            optionLabel="label"
+            optionValue="value"
+            formControlName="state"
+            placeholder="Select state"
+            class="w-full"
+            filter="true">
+          </p-select>
+          <small class="text-red-500"
+            *ngIf="editForm.get('state')?.invalid && editForm.get('state')?.touched">
+            State is required
+          </small>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Country *</label>
+          <p-select
+            [options]="countryOptions"
+            optionLabel="label"
+            optionValue="value"
+            formControlName="country"
+            placeholder="Select country"
+            class="w-full">
+          </p-select>
+          <small class="text-red-500"
+            *ngIf="editForm.get('country')?.invalid && editForm.get('country')?.touched">
+            Country is required
+          </small>
+        </div>
+      </div>
+
+      <!-- Row 6: Postal Code, Latitude, Longitude -->
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="block font-semibold mb-1">Postal Code *</label>
+          <input pInputText formControlName="postalCode" class="w-full" placeholder="Postal Code" />
+          <small class="text-red-500"
+            *ngIf="editForm.get('postalCode')?.invalid && editForm.get('postalCode')?.touched">
+            Postal Code is required
+          </small>
+        </div>
+
+        <!-- <div>
+          <label class="block font-semibold mb-1">Latitude</label>
+          
+          <input pInputNumber formControlName="latitude" class="w-full" placeholder="Latitude" />
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Longitude</label>
+          <input pInputNumber formControlName="longitude" class="w-full" placeholder="Longitude" />
+        </div> -->
+      </div>
+    </div>
+
+    <!-- Row 7: Status -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center">
+        <p-checkbox
+          formControlName="active"
+          [binary]="true"
+          inputId="active">
+        </p-checkbox>
+        <label for="active" class="ml-2 font-semibold cursor-pointer">Active</label>
+      </div>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      severity="secondary"
+      (click)="onCancel()">
+    </p-button>
+
+    <p-button
+      label="Save"
+      icon="pi pi-check"
+      [loading]="isSaving"
+      [disabled]="editForm.invalid"
+      (click)="onSave()">
+    </p-button>
+  </ng-template>
+
+</p-dialog>
