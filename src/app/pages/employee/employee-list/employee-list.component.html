@@ -124,9 +124,9 @@
         [visible]="studentDialog" 
         [employee]="employee" 
         (save)="onEmployeeSave($event)"
+        (saveUser)="onUserSave($event)"
         (cancel)="hideDialog()">
     </app-employee-dialog>
 }
-
 <p-confirmdialog [style]="{ width: '450px' }" />
 <p-toast position="top-right" />

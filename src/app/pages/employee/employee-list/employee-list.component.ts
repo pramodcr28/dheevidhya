@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, NgZone, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -21,7 +20,6 @@ import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
 import { Column, ExportColumn } from '../../../core/model/table.model';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
-import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { SortService } from '../../../shared/sort';
 import { IProfileConfig, ITenantAuthority, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -37,7 +35,6 @@ import { EmployeeDialogComponent } from './../employee-dialog/employee-dialog.co
     providers: [MessageService, ConfirmationService]
 })
 export class EmployeeListComponent {
-    private store = inject(Store<{ userProfile: UserProfileState }>);
     studentDialog: boolean = false;
     employee!: NewTenantUser | ITenantUser;
     submitted: boolean = false;
@@ -72,13 +69,14 @@ export class EmployeeListComponent {
     load(): void {
         this.loader.show('Fetching Staff Data');
         let filterParams = {};
+
         if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
             filterParams = {
                 'authorities.name.equals': 'IT_ADMINISTRATOR'
             };
         } else {
             filterParams = {
-                'branch_id.equals': this.commonService.branch?.id,
+                'branch_id.eq': this.commonService.branch?.id,
                 'authorities.name.nin': ['IT_ADMINISTRATOR', 'STUDENT']
             };
         }
@@ -122,15 +120,14 @@ export class EmployeeListComponent {
         this.loader.hide();
     }
 
-    onEmployeeSave(data: { user: NewTenantUser | ITenantUser; profiles: IProfileConfig[] }) {
+    onEmployeeSave(data: { user: NewTenantUser | ITenantUser; profile: IProfileConfig }) {
         this.submitted = true;
 
-        // Validate that at least one profile exists
-        if (!data.profiles || data.profiles.length === 0) {
+        if (!data.profile) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Warning',
-                detail: 'At least one profile configuration is required'
+                detail: 'Profile configuration is required'
             });
             return;
         }
@@ -138,22 +135,22 @@ export class EmployeeListComponent {
         this.loader.show('Saving Staff Data');
 
         // Clean up profile roles
-        data.profiles.forEach((profile) => {
-            if (profile.roles) {
-                for (let role in profile.roles) {
-                    if (profile.roles[role] == null) {
-                        delete profile.roles[role];
-                    }
+        if (data.profile.roles) {
+            for (let role in data.profile.roles) {
+                if (data.profile.roles[role] == null) {
+                    delete data.profile.roles[role];
                 }
             }
-            profile.profileType = 'STAFF';
-        });
+        }
+        data.profile.profileType = 'STAFF';
 
-        data.user.passwordHash = 'User@123';
+        if (!data.user.id) {
+            data.user.passwordHash = 'User@123';
+        }
 
         const userConfig = {
             user: data.user,
-            profiles: data.profiles
+            profile: data.profile
         };
 
         this.employeeService.create(userConfig).subscribe({
@@ -163,7 +160,7 @@ export class EmployeeListComponent {
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
-                    detail: `Staff record created successfully with ${data.profiles.length} profile(s)`
+                    detail: 'Staff profile saved successfully'
                 });
             },
             error: (error) => {
@@ -172,6 +169,47 @@ export class EmployeeListComponent {
                     severity: 'error',
                     summary: 'Error',
                     detail: 'Failed to save staff data'
+                });
+            }
+        });
+    }
+
+    onUserSave(user: NewTenantUser | ITenantUser) {
+        this.submitted = true;
+
+        if (!user.id) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Cannot save user without ID. Please create user with profile first.'
+            });
+            return;
+        }
+
+        this.loader.show('Updating User Information');
+
+        // Send only user data (no profile)
+        const userConfig = {
+            user: user,
+            profile: null
+        };
+
+        this.employeeService.create(userConfig).subscribe({
+            next: (result) => {
+                this.load();
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'User information updated successfully'
+                });
+                this.loader.hide();
+            },
+            error: (error) => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to update user information'
                 });
             }
         });

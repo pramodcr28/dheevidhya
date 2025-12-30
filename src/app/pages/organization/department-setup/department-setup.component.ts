@@ -134,19 +134,21 @@ export class DepartmentSetupComponent implements OnInit {
     async saveSetup() {
         if (!this.selectedMasterDepartment || !this.selectedDepartment) return;
         this.selectedMasterDepartment.department = this.selectedDepartment;
-        this.selectedMasterDepartment.branch = this.commonService.branch;
+        this.selectedMasterDepartment.branch = this.commonService.branch?.id;
         this.loader.show('Updating Department Configuration...');
-        this.departmentConfigService.update(this.selectedMasterDepartment).subscribe(
-            () => {
-                this.loader.hide();
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Department Configuration Updated Successfully!' });
-                setTimeout(() => this.goBack(), 1000);
-            },
-            () => {
-                this.loader.hide();
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update configuration' });
-            }
-        );
+        if (this.selectedMasterDepartment.branch) {
+            this.departmentConfigService.update(this.selectedMasterDepartment).subscribe(
+                () => {
+                    this.loader.hide();
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Department Configuration Updated Successfully!' });
+                    setTimeout(() => this.goBack(), 1000);
+                },
+                () => {
+                    this.loader.hide();
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update configuration' });
+                }
+            );
+        }
     }
 
     goBack() {

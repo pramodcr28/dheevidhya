@@ -50,7 +50,7 @@ export type NewTenantUser = Omit<ITenantUser, 'id'> & { id: null };
 
 export interface IProfileConfig {
     id: number;
-    userId?: String | null;
+    userId?: string | null;
     academicYear?: string | null;
     username?: string | null;
     email?: string | null;

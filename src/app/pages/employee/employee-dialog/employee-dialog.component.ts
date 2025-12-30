@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -21,8 +21,8 @@ import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
 import { BranchService } from '../../../core/services/branch.service';
+import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments, getSubjectsByFilters } from '../../../core/store/user-profile/user-profile.selectors';
 import { IBranch } from '../../models/tenant.model';
 import { IProfileConfig, IRoleConfigs, ITenantAuthority, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -30,11 +30,9 @@ import { TenantUserFormService } from '../../service/tenant-user-form.service';
 import { UserService } from '../../service/user.service';
 import { CommonService } from './../../../core/services/common.service';
 
-// UI Model for profile data
 interface ProfileUIData {
     profile: IProfileConfig;
     selectedDepartments: any[];
-    departmentSpecificSubjects: any[];
     dateRange: Date[] | null;
 }
 
@@ -74,12 +72,12 @@ export class EmployeeDialogComponent {
     branchService = inject(BranchService);
     confirmationService = inject(ConfirmationService);
     messageService = inject(MessageService);
-
+    departmentConfigService = inject(DepartmentConfigService);
     @Input() visible: boolean = false;
     @Input() set employee(employee: NewTenantUser | ITenantUser) {
         this._employee = employee;
         if (employee?.id) {
-            this.loadEmployeeProfiles(employee.id);
+            this.loadEmployeeProfiles(employee.id.toString());
         } else {
             this.initializeNewEmployee();
         }
@@ -88,7 +86,8 @@ export class EmployeeDialogComponent {
         return this._employee;
     }
 
-    @Output() save = new EventEmitter<{ user: NewTenantUser | ITenantUser; profiles: IProfileConfig[] }>();
+    @Output() save = new EventEmitter<{ user: NewTenantUser | ITenantUser; profile: IProfileConfig }>();
+    @Output() saveUser = new EventEmitter<NewTenantUser | ITenantUser>();
     @Output() cancel = new EventEmitter<void>();
 
     private _employee!: NewTenantUser | ITenantUser;
@@ -97,11 +96,15 @@ export class EmployeeDialogComponent {
     submitted: boolean = false;
     availableAuthorities: any[] = [];
     associatedDepartments: any[] = [];
+    associatedSubjects: any[] = [];
     allBranches: IBranch[] = [];
 
-    // Simple list of profile UI data
     profilesList = signal<ProfileUIData[]>([]);
     activeProfileIndex = signal<number>(0);
+    hasUnsavedChanges = signal<boolean>(false);
+    hasUnsavedUserChanges = signal<boolean>(false);
+    originalProfileData: ProfileUIData | null = null;
+    originalUserData: any = null;
 
     genderOptions: any[] = [
         { label: 'Female', value: 'FEMALE' },
@@ -112,7 +115,7 @@ export class EmployeeDialogComponent {
     ngOnInit(): void {
         this.initializeEmployeeForm();
         this.loadAuthorities();
-        this.loadDepartments();
+        this.getAssociatedDepartmentsOnAcademicyear();
     }
 
     initializeEmployeeForm(): void {
@@ -131,12 +134,19 @@ export class EmployeeDialogComponent {
             };
         }
         this.employeeForm = this.tenantUserFormService.createTenantUserFormGroup(this.employee);
+
+        // Track user form changes
+        this.employeeForm.valueChanges.subscribe(() => {
+            this.hasUnsavedUserChanges.set(true);
+        });
+
+        this.saveOriginalUserData();
     }
 
     initializeNewEmployee(): void {
         const currentYear = new Date().getFullYear();
-        const startDate = new Date(currentYear, 3, 1); // April 1st
-        const endDate = new Date(currentYear + 1, 2, 31); // March 31st
+        const startDate = new Date(currentYear, 3, 1);
+        const endDate = new Date(currentYear + 1, 2, 31);
 
         const newProfile: IProfileConfig = {
             id: null as any,
@@ -157,33 +167,36 @@ export class EmployeeDialogComponent {
             {
                 profile: newProfile,
                 selectedDepartments: [],
-                departmentSpecificSubjects: [],
                 dateRange: [startDate, endDate]
             }
         ]);
+
+        this.saveOriginalProfileData();
     }
 
-    loadEmployeeProfiles(userId: number): void {
-        this.employeeProfileService.search(0, 100, 'academicYear', 'DESC', { 'userId.equals': userId.toString() }).subscribe((res: any) => {
+    loadEmployeeProfiles(userId: string): void {
+        this.employeeProfileService.search(0, 100, 'academicYear', 'DESC', { 'userId.eq': userId }).subscribe((res: any) => {
             const profiles = res.content || [];
             if (profiles.length === 0) {
                 this.initializeNewEmployee();
             } else {
-                const profilesUIData: ProfileUIData[] = profiles.map((profile: IProfileConfig) => ({
-                    profile: profile,
-                    selectedDepartments: profile.departments ? this.associatedDepartments.filter((d) => profile.departments?.includes(d.id)) : [],
-                    departmentSpecificSubjects: [],
-                    dateRange: this.parseAcademicYear(profile.academicYear || '')
-                }));
+                const profilesUIData: ProfileUIData[] = profiles
+                    .map((profile: IProfileConfig) => ({
+                        profile,
+                        selectedDepartments: profile.departments ? this.associatedDepartments.filter((d) => profile.departments?.includes(d.id)) : [],
+                        departmentSpecificSubjects: [],
+                        dateRange: this.parseAcademicYear(profile.academicYear || '')
+                    }))
+                    .sort((a, b) => {
+                        const aTime = a.dateRange?.[0]?.getTime() ?? 0;
+                        const bTime = b.dateRange?.[0]?.getTime() ?? 0;
+
+                        return bTime - aTime;
+                    });
 
                 this.profilesList.set(profilesUIData);
 
-                // Load subjects for each profile
-                profilesUIData.forEach((item, index) => {
-                    if (item.profile.departments?.length) {
-                        this.loadSubjectsForProfile(index, item.profile.departments);
-                    }
-                });
+                this.saveOriginalProfileData();
             }
         });
     }
@@ -197,43 +210,59 @@ export class EmployeeDialogComponent {
                 this.branchService.query().subscribe((res) => {
                     this.allBranches = res.body || [];
                 });
+            } else {
+                this.availableAuthorities = this.availableAuthorities.filter((authority: any) => authority.name !== 'IT_ADMINISTRATOR' && authority.name !== 'SUPER_ADMIN');
             }
         });
     }
 
-    loadDepartments(): void {
-        this.store.select(getAssociatedDepartments).subscribe((departments) => {
-            this.associatedDepartments = departments;
-        });
-    }
+    loadSubjectsForProfile(): void {
+        const seen = new Set<string>();
 
-    loadSubjectsForProfile(profileIndex: number, departmentIds: string[]): void {
-        this.store.select(getSubjectsByFilters(departmentIds)).subscribe((subjects) => {
-            const profiles = this.profilesList();
-            if (profiles[profileIndex]) {
-                profiles[profileIndex].departmentSpecificSubjects = subjects;
-                this.profilesList.set([...profiles]);
-            }
-        });
-    }
-
-    onDepartmentSelection(profileIndex: number): void {
-        const profileData = this.profilesList()[profileIndex];
-        if (profileData?.selectedDepartments?.length) {
-            const departmentIds = profileData.selectedDepartments.map((d) => d.id);
-            this.loadSubjectsForProfile(profileIndex, departmentIds);
-        }
+        this.associatedSubjects = this.associatedDepartments
+            .flatMap((dep) => dep.department.classes ?? [])
+            .flatMap((cls) => cls.sections ?? [])
+            .flatMap((sec) => sec.subjects ?? [])
+            .filter((subject) => {
+                if (seen.has(subject.id)) return false;
+                seen.add(subject.id);
+                return true;
+            });
     }
 
     onTabChange(event: any): void {
-        this.activeProfileIndex.set(event.index);
+        if (this.hasUnsavedChanges()) {
+            this.confirmationService.confirm({
+                message: 'You have unsaved changes. Do you want to discard them?',
+                header: 'Unsaved Changes',
+                icon: 'pi pi-exclamation-triangle',
+                accept: () => {
+                    this.discardChanges();
+                    this.activeProfileIndex.set(event.index);
+                    this.saveOriginalProfileData();
+                },
+                reject: () => {}
+            });
+        } else {
+            this.activeProfileIndex.set(event.index);
+            this.saveOriginalProfileData();
+        }
+        this.getAssociatedDepartmentsOnAcademicyear();
     }
 
     addNewProfile(): void {
+        if (this.hasUnsavedChanges()) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Unsaved Changes',
+                detail: 'Please save or discard changes before adding a new profile'
+            });
+            return;
+        }
+
         const currentYear = new Date().getFullYear();
         const existingYears = this.profilesList().map((p) => p.profile.academicYear);
 
-        // Find next available academic year
         let nextYear = currentYear;
         let startDate = new Date(nextYear, 3, 1);
         let endDate = new Date(nextYear + 1, 2, 31);
@@ -261,21 +290,41 @@ export class EmployeeDialogComponent {
             subjectIds: []
         };
 
-        const profiles = [
-            ...this.profilesList(),
+        const profiles: ProfileUIData[] = [
             {
                 profile: newProfile,
                 selectedDepartments: [],
                 departmentSpecificSubjects: [],
                 dateRange: [startDate, endDate]
-            }
-        ];
+            },
+            ...this.profilesList()
+        ].sort((a, b) => {
+            const aTime = a.dateRange?.[0]?.getTime() ?? 0;
+            const bTime = b.dateRange?.[0]?.getTime() ?? 0;
+            return bTime - aTime;
+        });
 
         this.profilesList.set(profiles);
-        this.activeProfileIndex.set(profiles.length - 1);
+
+        const newIndex = profiles.findIndex((p) => p.profile === newProfile);
+
+        this.activeProfileIndex.set(newIndex);
+
+        this.saveOriginalProfileData();
     }
 
+    hasNewProfile = computed(() => this.profilesList().some((p) => p.profile?.id == null));
+
     deleteProfile(profileIndex: number): void {
+        if (this.profilesList().length === 1) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Cannot Delete',
+                detail: 'At least one profile is required'
+            });
+            return;
+        }
+
         const profileData = this.profilesList()[profileIndex];
 
         this.confirmationService.confirm({
@@ -283,11 +332,19 @@ export class EmployeeDialogComponent {
             header: 'Delete Confirmation',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                const profiles = this.profilesList().filter((_, i) => i !== profileIndex);
-                this.profilesList.set(profiles);
+                if (!profileData.profile.id) {
+                    const profiles = this.profilesList().filter((_, i) => i !== profileIndex);
+                    this.profilesList.set(profiles);
 
-                if (this.activeProfileIndex() >= profiles.length) {
-                    this.activeProfileIndex.set(Math.max(0, profiles.length - 1));
+                    if (this.activeProfileIndex() >= profiles.length) {
+                        this.activeProfileIndex.set(Math.max(0, profiles.length - 1));
+                    }
+                } else {
+                    this.employeeProfileService.delete(profileData.profile.id).subscribe({
+                        next: () => {
+                            this.loadEmployeeProfiles(profileData.profile.userId);
+                        }
+                    });
                 }
             }
         });
@@ -303,20 +360,20 @@ export class EmployeeDialogComponent {
             if (profiles[index]) {
                 profiles[index].dateRange = dates;
                 this.profilesList.set([...profiles]);
+                this.markAsChanged();
             }
         }
     }
 
-    onAcademicYearChange(profileIndex: number): void {
-        const profileData = this.profilesList()[profileIndex];
-        const dates = profileData?.dateRange;
+    onAcademicYearChange(profileIndex: number, value: Date[]): void {
+        if (!value || value.filter((v) => v != null).length !== 2) {
+            return;
+        }
 
-        if (!dates || dates.length !== 2) return;
-
-        const startDate = dates[0];
-        const endDate = dates[1];
-
-        const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+        const startDate = new Date(value[0]);
+        const endInput = new Date(value[1]);
+        const endDate = new Date(endInput.getFullYear(), endInput.getMonth() + 1, 0);
+        const diffTime = endDate.getTime() - startDate.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         if (diffDays < 360 || diffDays > 370) {
@@ -325,15 +382,70 @@ export class EmployeeDialogComponent {
                 summary: 'Invalid Range',
                 detail: 'Academic year must be approximately one year (365 days)'
             });
-            const profiles = this.profilesList();
-            profiles[profileIndex].dateRange = null;
-            this.profilesList.set([...profiles]);
+
+            this.profilesList.update((list) => {
+                const updated = [...list];
+                updated[profileIndex] = {
+                    ...updated[profileIndex],
+                    dateRange: null
+                };
+                return updated;
+            });
+
             return;
         }
 
-        const profiles = this.profilesList();
-        profiles[profileIndex].profile.academicYear = this.formatAcademicYear(startDate, endDate);
-        this.profilesList.set([...profiles]);
+        this.profilesList.update((list) => {
+            const updated = [...list];
+
+            updated[profileIndex] = {
+                ...updated[profileIndex],
+                dateRange: [startDate, endDate],
+                profile: {
+                    ...updated[profileIndex].profile,
+                    academicYear: this.formatAcademicYear(startDate, endDate)
+                }
+            };
+
+            return updated;
+        });
+
+        this.markAsChanged();
+    }
+
+    markAsChanged(): void {
+        this.hasUnsavedChanges.set(true);
+    }
+
+    saveOriginalProfileData(): void {
+        const currentProfile = this.profilesList()[this.activeProfileIndex()];
+        if (currentProfile) {
+            this.originalProfileData = JSON.parse(JSON.stringify(currentProfile));
+        }
+        this.hasUnsavedChanges.set(false);
+    }
+
+    saveOriginalUserData(): void {
+        if (this.employeeForm) {
+            this.originalUserData = JSON.parse(JSON.stringify(this.employeeForm.value));
+        }
+        this.hasUnsavedUserChanges.set(false);
+    }
+
+    discardChanges(): void {
+        if (this.originalProfileData) {
+            const profiles = this.profilesList();
+            profiles[this.activeProfileIndex()] = JSON.parse(JSON.stringify(this.originalProfileData));
+            this.profilesList.set([...profiles]);
+        }
+        this.hasUnsavedChanges.set(false);
+    }
+
+    discardUserChanges(): void {
+        if (this.originalUserData && this.employeeForm) {
+            this.employeeForm.patchValue(this.originalUserData);
+        }
+        this.hasUnsavedUserChanges.set(false);
     }
 
     onSave(): void {
@@ -348,42 +460,91 @@ export class EmployeeDialogComponent {
             return;
         }
 
-        for (let i = 0; i < this.profilesList().length; i++) {
-            const profileData = this.profilesList()[i];
-            if (!profileData.dateRange || profileData.dateRange.length !== 2) {
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Validation Error',
-                    detail: 'Please select academic year range for all profiles'
-                });
-                this.activeProfileIndex.set(i);
-                return;
-            }
+        const activeIndex = this.activeProfileIndex();
+        const profileData = this.profilesList()[activeIndex];
+
+        if (!profileData.dateRange || profileData.dateRange.length !== 2) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Validation Error',
+                detail: 'Please select academic year range'
+            });
+            return;
         }
 
         const updatedEmployee = this.tenantUserFormService.getTenantUser(this.employeeForm);
 
         if (!updatedEmployee.id) {
             updatedEmployee.passwordHash = 'User@123';
+            if (!this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
+                updatedEmployee.branchId = this.commonService.branch?.id || null;
+            }
         }
 
-        const profiles: IProfileConfig[] = this.profilesList().map((profileData) => {
-            return {
-                ...profileData.profile,
-                userId: updatedEmployee.id?.toString() || null,
-                academicYear: profileData.profile.academicYear,
-                username: updatedEmployee.login,
-                email: updatedEmployee.email,
-                fullName: `${updatedEmployee.firstName} ${updatedEmployee.lastName}`,
-                departments: profileData.selectedDepartments.map((d) => d.id),
-                subjectIds: profileData.profile.subjectIds || [],
-                roles: this.generateRoleConfig(updatedEmployee.authorities!, profileData)
-            };
-        });
+        const profile: IProfileConfig = {
+            ...profileData.profile,
+            userId: updatedEmployee.id?.toString() || null,
+            academicYear: profileData.profile.academicYear,
+            username: updatedEmployee.login,
+            email: updatedEmployee.email,
+            fullName: `${updatedEmployee.firstName} ${updatedEmployee.lastName}`,
+            departments: profileData.selectedDepartments.map((d) => d.id),
+            subjectIds: profileData.profile.subjectIds || [],
+            roles: this.generateRoleConfig(updatedEmployee.authorities!, profileData)
+        };
 
         this.save.emit({
             user: updatedEmployee,
-            profiles
+            profile
+        });
+
+        this.hasUnsavedChanges.set(false);
+        this.hasUnsavedUserChanges.set(false);
+        this.saveOriginalProfileData();
+        this.saveOriginalUserData();
+    }
+
+    onSaveUser(): void {
+        this.submitted = true;
+
+        if (this.employeeForm.invalid) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Validation Error',
+                detail: 'Please fill all required fields in user information'
+            });
+            return;
+        }
+
+        const updatedEmployee = this.tenantUserFormService.getTenantUser(this.employeeForm);
+
+        if (!updatedEmployee.id) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Cannot Save',
+                detail: 'User must be created with a profile first. Use "Save Profile" button instead.'
+            });
+            return;
+        }
+
+        if (!updatedEmployee.passwordHash || updatedEmployee.passwordHash === 'User@123') {
+            updatedEmployee.passwordHash = null as any;
+        }
+
+        this.saveUser.emit(updatedEmployee);
+
+        this.hasUnsavedUserChanges.set(false);
+        this.saveOriginalUserData();
+    }
+
+    getAssociatedDepartmentsOnAcademicyear() {
+        let filterParams = {
+            branch: this.commonService.branch?.id || 0,
+            academicYear: undefined
+        };
+        this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
+            this.associatedDepartments = res.content.map((re) => ({ ...re, name: re.department.name }));
+            this.loadSubjectsForProfile();
         });
     }
 
@@ -397,6 +558,7 @@ export class EmployeeDialogComponent {
                 roleConfig[roleName.toLowerCase()] = profileData.profile.roles[roleName.toLowerCase()];
                 return;
             }
+
             switch (roleName) {
                 case 'TEACHER':
                 case 'LECTURER':
@@ -421,7 +583,18 @@ export class EmployeeDialogComponent {
     }
 
     onCancel(): void {
-        this.cancel.emit();
+        if (this.hasUnsavedChanges() || this.hasUnsavedUserChanges()) {
+            this.confirmationService.confirm({
+                message: 'You have unsaved changes. Do you want to discard them?',
+                header: 'Unsaved Changes',
+                icon: 'pi pi-exclamation-triangle',
+                accept: () => {
+                    this.cancel.emit();
+                }
+            });
+        } else {
+            this.cancel.emit();
+        }
     }
 
     formatAcademicYear(startDate: Date, endDate: Date): string {
@@ -435,10 +608,7 @@ export class EmployeeDialogComponent {
         if (match) {
             const startYear = parseInt(match[1]);
             const endYear = parseInt(match[2]);
-            return [
-                new Date(startYear, 3, 1), // April 1st
-                new Date(endYear, 2, 31) // March 31st
-            ];
+            return [new Date(startYear, 3, 1), new Date(endYear, 2, 31)];
         }
         return null;
     }

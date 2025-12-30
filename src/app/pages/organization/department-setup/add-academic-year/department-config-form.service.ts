@@ -60,7 +60,7 @@ export class DepartmentConfigFormService {
         return {
             id: raw.id,
             status: raw.status,
-            branch: raw.branch,
+            branch: raw.branch.id,
             department: {
                 ...raw.department,
                 classes: formattedClasses
