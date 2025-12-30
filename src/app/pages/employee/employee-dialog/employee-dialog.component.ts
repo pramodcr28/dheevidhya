@@ -2,9 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -16,18 +17,26 @@ import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
 import { TabViewModule } from 'primeng/tabview';
 import { TextareaModule } from 'primeng/textarea';
+import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
 import { BranchService } from '../../../core/services/branch.service';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getAssociatedDepartments, getSubjectsByFilters } from '../../../core/store/user-profile/user-profile.selectors';
 import { IBranch } from '../../models/tenant.model';
-import { IProfileConfig, IRoleConfigs, ITenantAuthority, ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
-import { ProfileConfigFormService } from '../../service/profile-config-form.service';
+import { IProfileConfig, IRoleConfigs, ITenantAuthority, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantUserFormService } from '../../service/tenant-user-form.service';
 import { UserService } from '../../service/user.service';
 import { CommonService } from './../../../core/services/common.service';
+
+// UI Model for profile data
+interface ProfileUIData {
+    profile: IProfileConfig;
+    selectedDepartments: any[];
+    departmentSpecificSubjects: any[];
+    dateRange: Date[] | null;
+}
 
 @Component({
     selector: 'app-employee-dialog',
@@ -44,29 +53,29 @@ import { CommonService } from './../../../core/services/common.service';
         InputIconModule,
         IconFieldModule,
         ConfirmDialogModule,
-        SelectModule,
         ReactiveFormsModule,
         ToggleButtonModule,
         FormsModule,
         MultiSelect,
-        TabViewModule
+        TabViewModule,
+        DatePickerModule,
+        ToastModule
     ],
     templateUrl: './employee-dialog.component.html',
     styles: ``,
-    providers: [ConfirmationService]
+    providers: [ConfirmationService, MessageService]
 })
 export class EmployeeDialogComponent {
     studentService = inject(UserService);
     tenantUserFormService = inject(TenantUserFormService);
-    profileConfigFormService = inject(ProfileConfigFormService);
     private store = inject(Store<{ userProfile: UserProfileState }>);
     commonService = inject(CommonService);
     employeeProfileService = inject(ProfileConfigService);
     branchService = inject(BranchService);
     confirmationService = inject(ConfirmationService);
+    messageService = inject(MessageService);
 
     @Input() visible: boolean = false;
-    @Input() statuses: any[] = [];
     @Input() set employee(employee: NewTenantUser | ITenantUser) {
         this._employee = employee;
         if (employee?.id) {
@@ -85,27 +94,14 @@ export class EmployeeDialogComponent {
     private _employee!: NewTenantUser | ITenantUser;
 
     employeeForm!: FormGroup;
-    profileForms: Map<number, FormGroup> = new Map();
     submitted: boolean = false;
     availableAuthorities: any[] = [];
     associatedDepartments: any[] = [];
     allBranches: IBranch[] = [];
 
-    // Profile configs management
-    profileConfigs = signal<IProfileConfig[]>([]);
+    // Simple list of profile UI data
+    profilesList = signal<ProfileUIData[]>([]);
     activeProfileIndex = signal<number>(0);
-
-    // Profile-specific data
-    profileData: Map<
-        number,
-        {
-            selectedDepartments: any[];
-            selectedGender: Gender;
-            contactNumber: string;
-            departmentSpecificSubjects: any[];
-            selectedSubjects: any[];
-        }
-    > = new Map();
 
     genderOptions: any[] = [
         { label: 'Female', value: 'FEMALE' },
@@ -139,10 +135,13 @@ export class EmployeeDialogComponent {
 
     initializeNewEmployee(): void {
         const currentYear = new Date().getFullYear();
-        const newProfile: NewProfileConfig = {
-            id: null,
+        const startDate = new Date(currentYear, 3, 1); // April 1st
+        const endDate = new Date(currentYear + 1, 2, 31); // March 31st
+
+        const newProfile: IProfileConfig = {
+            id: null as any,
             userId: null,
-            academicYear: `${currentYear}-${currentYear + 1}`,
+            academicYear: this.formatAcademicYear(startDate, endDate),
             username: '',
             email: '',
             fullName: '',
@@ -153,8 +152,15 @@ export class EmployeeDialogComponent {
             roles: {},
             subjectIds: []
         };
-        this.profileConfigs.set([newProfile as IProfileConfig]);
-        this.initializeProfileData(0, newProfile as IProfileConfig);
+
+        this.profilesList.set([
+            {
+                profile: newProfile,
+                selectedDepartments: [],
+                departmentSpecificSubjects: [],
+                dateRange: [startDate, endDate]
+            }
+        ]);
     }
 
     loadEmployeeProfiles(userId: number): void {
@@ -163,29 +169,23 @@ export class EmployeeDialogComponent {
             if (profiles.length === 0) {
                 this.initializeNewEmployee();
             } else {
-                this.profileConfigs.set(profiles);
-                profiles.forEach((profile: IProfileConfig, index: number) => {
-                    this.initializeProfileData(index, profile);
+                const profilesUIData: ProfileUIData[] = profiles.map((profile: IProfileConfig) => ({
+                    profile: profile,
+                    selectedDepartments: profile.departments ? this.associatedDepartments.filter((d) => profile.departments?.includes(d.id)) : [],
+                    departmentSpecificSubjects: [],
+                    dateRange: this.parseAcademicYear(profile.academicYear || '')
+                }));
+
+                this.profilesList.set(profilesUIData);
+
+                // Load subjects for each profile
+                profilesUIData.forEach((item, index) => {
+                    if (item.profile.departments?.length) {
+                        this.loadSubjectsForProfile(index, item.profile.departments);
+                    }
                 });
             }
         });
-    }
-
-    initializeProfileData(index: number, profile: IProfileConfig): void {
-        const profileForm = this.profileConfigFormService.createProfileConfigFormGroup(profile);
-        this.profileForms.set(index, profileForm);
-
-        this.profileData.set(index, {
-            selectedDepartments: profile.departments ? this.associatedDepartments.filter((d) => profile.departments?.includes(d.id)) : [],
-            selectedGender: (profile.gender as Gender) || Gender.MALE,
-            contactNumber: profile.contactNumber || '',
-            departmentSpecificSubjects: [],
-            selectedSubjects: profile.subjectIds || []
-        });
-
-        if (profile.departments?.length) {
-            this.loadSubjectsForProfile(index, profile.departments);
-        }
     }
 
     loadAuthorities(): void {
@@ -209,18 +209,18 @@ export class EmployeeDialogComponent {
 
     loadSubjectsForProfile(profileIndex: number, departmentIds: string[]): void {
         this.store.select(getSubjectsByFilters(departmentIds)).subscribe((subjects) => {
-            const data = this.profileData.get(profileIndex);
-            if (data) {
-                data.departmentSpecificSubjects = subjects;
-                this.profileData.set(profileIndex, data);
+            const profiles = this.profilesList();
+            if (profiles[profileIndex]) {
+                profiles[profileIndex].departmentSpecificSubjects = subjects;
+                this.profilesList.set([...profiles]);
             }
         });
     }
 
     onDepartmentSelection(profileIndex: number): void {
-        const data = this.profileData.get(profileIndex);
-        if (data?.selectedDepartments) {
-            const departmentIds = data.selectedDepartments.map((d) => d.id);
+        const profileData = this.profilesList()[profileIndex];
+        if (profileData?.selectedDepartments?.length) {
+            const departmentIds = profileData.selectedDepartments.map((d) => d.id);
             this.loadSubjectsForProfile(profileIndex, departmentIds);
         }
     }
@@ -231,23 +231,28 @@ export class EmployeeDialogComponent {
 
     addNewProfile(): void {
         const currentYear = new Date().getFullYear();
-        const existingYears = this.profileConfigs().map((p) => p.academicYear);
+        const existingYears = this.profilesList().map((p) => p.profile.academicYear);
 
         // Find next available academic year
         let nextYear = currentYear;
-        let academicYear = `${nextYear}-${nextYear + 1}`;
+        let startDate = new Date(nextYear, 3, 1);
+        let endDate = new Date(nextYear + 1, 2, 31);
+        let academicYear = this.formatAcademicYear(startDate, endDate);
+
         while (existingYears.includes(academicYear)) {
             nextYear++;
-            academicYear = `${nextYear}-${nextYear + 1}`;
+            startDate = new Date(nextYear, 3, 1);
+            endDate = new Date(nextYear + 1, 2, 31);
+            academicYear = this.formatAcademicYear(startDate, endDate);
         }
 
-        const newProfile: NewProfileConfig = {
-            id: null,
+        const newProfile: IProfileConfig = {
+            id: null as any,
             userId: this.employee.id?.toString() || null,
             academicYear,
-            username: this.employeeForm.get('login')?.value || '',
-            email: this.employeeForm.get('email')?.value || '',
-            fullName: `${this.employeeForm.get('firstName')?.value || ''} ${this.employeeForm.get('lastName')?.value || ''}`,
+            username: '',
+            email: '',
+            fullName: '',
             contactNumber: '',
             gender: Gender.MALE,
             profileType: 'STAFF',
@@ -256,26 +261,30 @@ export class EmployeeDialogComponent {
             subjectIds: []
         };
 
-        const profiles = [...this.profileConfigs(), newProfile as IProfileConfig];
-        this.profileConfigs.set(profiles);
+        const profiles = [
+            ...this.profilesList(),
+            {
+                profile: newProfile,
+                selectedDepartments: [],
+                departmentSpecificSubjects: [],
+                dateRange: [startDate, endDate]
+            }
+        ];
 
-        const newIndex = profiles.length - 1;
-        this.initializeProfileData(newIndex, newProfile as IProfileConfig);
-        this.activeProfileIndex.set(newIndex);
+        this.profilesList.set(profiles);
+        this.activeProfileIndex.set(profiles.length - 1);
     }
 
     deleteProfile(profileIndex: number): void {
-        const profile = this.profileConfigs()[profileIndex];
+        const profileData = this.profilesList()[profileIndex];
 
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete the profile for ${profile.academicYear}?`,
+            message: `Are you sure you want to delete the profile for ${profileData.profile.academicYear}?`,
             header: 'Delete Confirmation',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                const profiles = this.profileConfigs().filter((_, i) => i !== profileIndex);
-                this.profileConfigs.set(profiles);
-                this.profileForms.delete(profileIndex);
-                this.profileData.delete(profileIndex);
+                const profiles = this.profilesList().filter((_, i) => i !== profileIndex);
+                this.profilesList.set(profiles);
 
                 if (this.activeProfileIndex() >= profiles.length) {
                     this.activeProfileIndex.set(Math.max(0, profiles.length - 1));
@@ -284,54 +293,92 @@ export class EmployeeDialogComponent {
         });
     }
 
-    getCurrentProfileData() {
-        return (
-            this.profileData.get(this.activeProfileIndex()) || {
-                selectedDepartments: [],
-                selectedGender: Gender.MALE,
-                contactNumber: '',
-                departmentSpecificSubjects: [],
-                selectedSubjects: []
+    getDateRangeForProfile(index: number): Date[] | null {
+        return this.profilesList()[index]?.dateRange || null;
+    }
+
+    setDateRangeForProfile(index: number, dates: Date[] | null): void {
+        if (dates && dates.length === 2) {
+            const profiles = this.profilesList();
+            if (profiles[index]) {
+                profiles[index].dateRange = dates;
+                this.profilesList.set([...profiles]);
             }
-        );
+        }
+    }
+
+    onAcademicYearChange(profileIndex: number): void {
+        const profileData = this.profilesList()[profileIndex];
+        const dates = profileData?.dateRange;
+
+        if (!dates || dates.length !== 2) return;
+
+        const startDate = dates[0];
+        const endDate = dates[1];
+
+        const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 360 || diffDays > 370) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Invalid Range',
+                detail: 'Academic year must be approximately one year (365 days)'
+            });
+            const profiles = this.profilesList();
+            profiles[profileIndex].dateRange = null;
+            this.profilesList.set([...profiles]);
+            return;
+        }
+
+        const profiles = this.profilesList();
+        profiles[profileIndex].profile.academicYear = this.formatAcademicYear(startDate, endDate);
+        this.profilesList.set([...profiles]);
     }
 
     onSave(): void {
         this.submitted = true;
 
         if (this.employeeForm.invalid) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Validation Error',
+                detail: 'Please fill all required fields in user information'
+            });
             return;
+        }
+
+        for (let i = 0; i < this.profilesList().length; i++) {
+            const profileData = this.profilesList()[i];
+            if (!profileData.dateRange || profileData.dateRange.length !== 2) {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Validation Error',
+                    detail: 'Please select academic year range for all profiles'
+                });
+                this.activeProfileIndex.set(i);
+                return;
+            }
         }
 
         const updatedEmployee = this.tenantUserFormService.getTenantUser(this.employeeForm);
 
         if (!updatedEmployee.id) {
-            updatedEmployee.branchId = this.commonService.branch.id;
             updatedEmployee.passwordHash = 'User@123';
         }
 
-        // Build all profile configs
-        const profiles: IProfileConfig[] = [];
-        this.profileConfigs().forEach((profile, index) => {
-            const data = this.profileData.get(index);
-            const profileForm = this.profileForms.get(index);
-
-            if (data && profileForm) {
-                const profileConfig: IProfileConfig = {
-                    ...profile,
-                    userId: updatedEmployee.id?.toString() || null,
-                    academicYear: profile.academicYear,
-                    username: updatedEmployee.login,
-                    email: updatedEmployee.email,
-                    fullName: `${updatedEmployee.firstName} ${updatedEmployee.lastName}`,
-                    contactNumber: data.contactNumber,
-                    gender: data.selectedGender,
-                    departments: data.selectedDepartments.map((d) => d.id),
-                    subjectIds: data.selectedSubjects,
-                    roles: this.generateRoleConfig(updatedEmployee.authorities!, profile.roles || {})
-                };
-                profiles.push(profileConfig);
-            }
+        const profiles: IProfileConfig[] = this.profilesList().map((profileData) => {
+            return {
+                ...profileData.profile,
+                userId: updatedEmployee.id?.toString() || null,
+                academicYear: profileData.profile.academicYear,
+                username: updatedEmployee.login,
+                email: updatedEmployee.email,
+                fullName: `${updatedEmployee.firstName} ${updatedEmployee.lastName}`,
+                departments: profileData.selectedDepartments.map((d) => d.id),
+                subjectIds: profileData.profile.subjectIds || [],
+                roles: this.generateRoleConfig(updatedEmployee.authorities!, profileData)
+            };
         });
 
         this.save.emit({
@@ -340,17 +387,16 @@ export class EmployeeDialogComponent {
         });
     }
 
-    generateRoleConfig(authorities: ITenantAuthority[], existingRoles: any): IRoleConfigs {
+    generateRoleConfig(authorities: ITenantAuthority[], profileData: ProfileUIData): IRoleConfigs {
         const roleConfig: IRoleConfigs | any = {};
-        const data = this.getCurrentProfileData();
 
         authorities?.forEach((authority) => {
             const roleName = authority?.name;
-            if (existingRoles?.[roleName]) {
-                roleConfig[roleName.toLowerCase()] = existingRoles[roleName];
+
+            if (profileData.profile.roles?.[roleName.toLowerCase()]) {
+                roleConfig[roleName.toLowerCase()] = profileData.profile.roles[roleName.toLowerCase()];
                 return;
             }
-
             switch (roleName) {
                 case 'TEACHER':
                 case 'LECTURER':
@@ -360,13 +406,13 @@ export class EmployeeDialogComponent {
                 case 'PRINCIPAL':
                 case 'VICE_PRINCIPAL':
                 case 'SUBSTITUTE_TEACHER':
-                    roleConfig[roleName.toLowerCase().replace('_', '')] = {
-                        subjectIds: data.selectedSubjects || []
+                    roleConfig[roleName.toLowerCase().replace(/_/g, '')] = {
+                        subjectIds: profileData.profile.subjectIds || []
                     };
                     break;
                 case 'SPORTS_COACH':
                 case 'IT_ADMINISTRATOR':
-                    roleConfig[roleName.toLowerCase().replace('_', '')] = {};
+                    roleConfig[roleName.toLowerCase().replace(/_/g, '')] = {};
                     break;
             }
         });
@@ -376,5 +422,24 @@ export class EmployeeDialogComponent {
 
     onCancel(): void {
         this.cancel.emit();
+    }
+
+    formatAcademicYear(startDate: Date, endDate: Date): string {
+        const startYear = startDate.getFullYear();
+        const endYear = endDate.getFullYear();
+        return `${startYear}-${endYear}`;
+    }
+
+    parseAcademicYear(academicYear: string): Date[] | null {
+        const match = academicYear.match(/(\d{4})-(\d{4})/);
+        if (match) {
+            const startYear = parseInt(match[1]);
+            const endYear = parseInt(match[2]);
+            return [
+                new Date(startYear, 3, 1), // April 1st
+                new Date(endYear, 2, 31) // March 31st
+            ];
+        }
+        return null;
     }
 }
