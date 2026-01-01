@@ -1,5 +1,5 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -46,7 +46,7 @@ export class CommonService {
     associatedSubjects: any[] = [];
     currentUser: any = null;
     userAssociatedSubjects: any[] = [];
-
+    showMenuItems = signal(true);
     getStudentInfo = null;
     getUserInfo = null;
     getUserAuthorities: string[] = [];

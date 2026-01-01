@@ -12,6 +12,7 @@ import { mergeMap } from 'rxjs';
 import { AppFloatingConfigurator } from '../../layout/app.floatingconfigurator';
 import { AccountService } from '../../services/account.service';
 import { AuthServerProvider } from '../../services/auth-jwt.service';
+import { CommonService } from '../../services/common.service';
 import { clearUserProfile } from '../../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../../store/user-profile/user-profile.reducer';
 
@@ -32,7 +33,7 @@ export class Login {
     forgotPasswordSuccess = signal(false);
     forgotPasswordError = signal(false);
     isResetting = signal(false);
-
+    commonService = inject(CommonService);
     loginForm = new FormGroup({
         username: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -71,11 +72,14 @@ export class Login {
             .pipe(mergeMap(() => this.accountService.identity()))
             .subscribe({
                 next: () => {
+                    this.commonService.showMenuItems.set(false);
                     this.isLoading.set(false);
                     this.authenticationError.set(false);
-
                     if (!this.router.getCurrentNavigation()) {
                         this.router.navigate(['']);
+                        setTimeout(() => {
+                            this.commonService.showMenuItems.set(true);
+                        }, 500);
                     }
                 },
                 error: () => {
