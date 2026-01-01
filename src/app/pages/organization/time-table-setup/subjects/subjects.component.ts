@@ -44,7 +44,6 @@ export class SubjectsComponent implements OnInit {
     }
 
     calculateTotalHours(subjects: IMasterSubject[]): number {
-        console.log(subjects);
         return subjects.reduce((sum, sub) => sum + sub.periodsPerWeek, 0);
     }
 

@@ -109,6 +109,7 @@ export class TimeTableService {
 
     onDepartmentChange() {
         this.timeTable.settings.academicYear = this.timeTable.department.academicYear;
+        this.classes = [];
         this.timeTable.department.department.classes.forEach((cls) => {
             cls.sections.forEach((section: any) => {
                 this.classes.push({
