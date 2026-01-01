@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, NgZone, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -21,9 +20,8 @@ import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
 import { Column, ExportColumn } from '../../../core/model/table.model';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
-import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { SortService } from '../../../shared/sort';
-import { IProfileConfig, ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
+import { IProfileConfig, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantAuthorityService } from '../../service/tenant-authority.service';
 import { UserService } from '../../service/user.service';
@@ -54,14 +52,12 @@ import { StudentDialogComponent } from '../student-dialog/student-dialog.compone
     providers: [MessageService, ConfirmationService]
 })
 export class StudentListComponent {
-    private store = inject(Store<{ userProfile: UserProfileState }>);
     studentDialog: boolean = false;
     guardianDialog: boolean = false;
     student!: NewTenantUser | ITenantUser;
-    studentProfile!: NewProfileConfig | IProfileConfig | any;
     selectedGaurdian!: NewTenantUser | ITenantUser;
-    selectedGaurdianProfile!: NewProfileConfig | IProfileConfig | any;
-    selectedStudentProfile!: NewProfileConfig | IProfileConfig | any;
+    selectedGaurdianProfile!: IProfileConfig | any;
+    selectedStudentProfile!: IProfileConfig | any;
     submitted: boolean = false;
     exportColumns!: ExportColumn[];
     cols!: Column[];
@@ -83,22 +79,35 @@ export class StudentListComponent {
     confirmationService = inject(ConfirmationService);
     loader = inject(ApiLoaderService);
     commonService = inject(CommonService);
+
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);
         });
-
         this.load();
     }
 
     load(): void {
         this.loader.show('Fetching Student Data');
-        this.studentService.userSearch(0, 100, 'id', 'ASC', { 'profileType.equals': 'STUDENT', 'departments.in': this.commonService.associatedDepartments.map((dpt) => dpt.id) }).subscribe({
-            next: (res: any) => {
-                this.students.set(res.content);
-                this.loader.hide();
-            }
-        });
+        this.studentService
+            .userSearch(0, 100, 'id', 'ASC', {
+                'branch_id.eq': this.commonService.branch?.id,
+                'authorities.name.in': ['STUDENT']
+            })
+            .subscribe({
+                next: (res: any) => {
+                    this.students.set(res.content);
+                    this.loader.hide();
+                },
+                error: (error) => {
+                    this.loader.hide();
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to load student data'
+                    });
+                }
+            });
     }
 
     openNew() {
@@ -108,87 +117,159 @@ export class StudentListComponent {
             activated: true,
             imageUrl: '',
             email: 'NA',
+            firstName: '',
+            lastName: '',
+            login: '',
             passwordHash: 'User@123'
         } as NewTenantUser | any;
 
-        this.studentProfile = {} as NewProfileConfig;
         this.submitted = false;
         this.studentDialog = true;
     }
 
     hideDialog() {
-        this.loader.hide();
         this.studentDialog = false;
-        this.guardianDialog = false;
         this.submitted = false;
+        this.loader.hide();
     }
 
-    onStudentSave(userConfig: { user: NewTenantUser | ITenantUser; profile: NewProfileConfig | IProfileConfig | any }) {
+    onStudentSave(data: { user: NewTenantUser | ITenantUser; profile: IProfileConfig }) {
         this.submitted = true;
 
-        for (let role in userConfig.profile?.roles) {
-            if (userConfig.profile.roles[role] == null) {
-                delete userConfig.profile.roles[role];
-            }
+        if (!data.profile) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Profile configuration is required'
+            });
+            return;
         }
 
-        userConfig.user.branchId = this.commonService.branch.id;
-        userConfig.profile.profileType = 'STUDENT';
-        this.loader.show('Adding new Student');
-        this.studentService.create(userConfig).subscribe((result) => {
-            this.hideDialog();
-            this.load();
-            this.messageService.add({ text: 'Congrats! Record created!', closeIcon: 'close' });
+        this.loader.show('Saving Student Data');
+
+        // Clean up profile roles
+        if (data.profile.roles) {
+            for (let role in data.profile.roles) {
+                if (data.profile.roles[role] == null) {
+                    delete data.profile.roles[role];
+                }
+            }
+        }
+        data.profile.profileType = 'STUDENT';
+
+        if (!data.user.id) {
+            data.user.passwordHash = 'User@123';
+        }
+
+        const userConfig = {
+            user: data.user,
+            profile: data.profile
+        };
+
+        this.studentService.create(userConfig).subscribe({
+            next: (result) => {
+                this.hideDialog();
+                this.load();
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Student profile saved successfully'
+                });
+            },
+            error: (error) => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to save student data'
+                });
+            }
         });
     }
 
-    onGuardianSave(userConfig: { user: NewTenantUser | ITenantUser; profile: NewProfileConfig | IProfileConfig | any }) {
-        this.loader.show('Updating Guardian Info');
-        if (!userConfig.user.id) {
-            for (let role in userConfig.profile?.roles) {
-                if (userConfig.profile.roles[role] == null) {
-                    delete userConfig.profile.roles[role];
-                }
-            }
+    onUserSave(user: NewTenantUser | ITenantUser) {
+        this.submitted = true;
 
-            userConfig.user.branchId = this.commonService.branch.id;
-            userConfig.profile.profileType = 'GUARDIAN';
-            this.loader.show('Adding new Student');
-            this.studentService.create(userConfig).subscribe((result: any) => {
-                if (this.selectedStudentProfile.roles?.student) {
-                    this.selectedStudentProfile.roles.student.guardianId = result.body?.user.id.toString();
-                }
-                this.profileService.update(this.selectedStudentProfile as IProfileConfig).subscribe((result) => {
-                    setTimeout(() => {
-                        this.hideDialog();
-                        this.load();
-                        this.messageService.add({ text: 'Congrats! Record updated!', closeIcon: 'close' });
-                    });
-                });
+        if (!user.id) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Cannot save user without ID. Please create user with profile first.'
             });
+            return;
         }
+
+        this.loader.show('Updating User Information');
+
+        // Send only user data (no profile)
+        const userConfig = {
+            user: user,
+            profile: null
+        };
+
+        this.studentService.create(userConfig).subscribe({
+            next: (result) => {
+                this.load();
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'User information updated successfully'
+                });
+                this.loader.hide();
+            },
+            error: (error) => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to update user information'
+                });
+            }
+        });
     }
 
     deleteStudent(student: IProfileConfig) {
-        this.loader.show('Deleting Student');
-        this.studentService.delete(+student.userId, +student.roles?.student?.guardianId).subscribe((res) => {
-            this.load();
-            this.loader.hide();
-            this.messageService.add({ severity: 'worn', summary: 'Worn Message', detail: 'Student Deleted Successful!!!' });
+        this.confirmationService.confirm({
+            message: `Are you sure you want to delete ${student.fullName}?`,
+            header: 'Delete Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this.loader.show('Deleting Student');
+                this.studentService.delete(+student.userId, +student.roles?.student?.guardianId).subscribe({
+                    next: (res) => {
+                        this.load();
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Student deleted successfully'
+                        });
+                    },
+                    error: (error) => {
+                        this.loader.hide();
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to delete student'
+                        });
+                    }
+                });
+            }
         });
     }
 
     editStudent(student: IProfileConfig) {
-        this.studentService.find(+student.userId).subscribe((result: any) => {
-            this.studentProfile = student;
-            this.student = { ...result.body };
-            this.studentDialog = true;
-        });
+        // this.studentService.find(+student.userId).subscribe((result: any) => {
+        //     this.student = { ...result.body };
+        //     this.studentDialog = true;
+        // });
+        this.studentDialog = true;
+        this.student = { ...student };
     }
 
     addOrEditGuardian(student: IProfileConfig) {
         let gaurdianId = student.roles?.student?.guardianId;
         this.selectedStudentProfile = student as any;
+
         if (gaurdianId) {
             this.studentService.find(gaurdianId).subscribe((result: any) => {
                 this.studentService.userSearch(0, 10, 'id', 'ASC', { 'user_id.in': [gaurdianId] }).subscribe((profiles) => {
@@ -208,17 +289,62 @@ export class StudentListComponent {
                 activated: true,
                 imageUrl: '',
                 email: '',
+                firstName: '',
+                lastName: '',
+                login: '',
                 passwordHash: 'User@1234'
             } as NewTenantUser | any;
 
             this.selectedGaurdianProfile = {
                 departments: student.departments
-            } as NewProfileConfig;
+            } as any;
             this.guardianDialog = true;
         }
     }
 
     hideGuardianDialog() {
         this.guardianDialog = false;
+    }
+
+    onGuardianSave(userConfig: { user: NewTenantUser | ITenantUser; profile: IProfileConfig | any }) {
+        this.loader.show('Updating Guardian Info');
+
+        if (!userConfig.user.id) {
+            for (let role in userConfig.profile?.roles) {
+                if (userConfig.profile.roles[role] == null) {
+                    delete userConfig.profile.roles[role];
+                }
+            }
+
+            userConfig.user.branchId = this.commonService.branch.id;
+            userConfig.profile.profileType = 'GUARDIAN';
+
+            this.studentService.create(userConfig).subscribe({
+                next: (result: any) => {
+                    if (this.selectedStudentProfile.roles?.student) {
+                        this.selectedStudentProfile.roles.student.guardianId = result.body?.user.id.toString();
+                    }
+                    this.profileService.update(this.selectedStudentProfile as IProfileConfig).subscribe((result) => {
+                        setTimeout(() => {
+                            this.hideGuardianDialog();
+                            this.load();
+                            this.messageService.add({
+                                severity: 'success',
+                                summary: 'Success',
+                                detail: 'Guardian information saved successfully'
+                            });
+                        });
+                    });
+                },
+                error: (error) => {
+                    this.loader.hide();
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to save guardian information'
+                    });
+                }
+            });
+        }
     }
 }

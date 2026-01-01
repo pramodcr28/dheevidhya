@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -18,8 +18,10 @@ import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { AuthServerProvider } from '../../core/services/auth-jwt.service';
+import { CommonService } from '../../core/services/common.service';
 import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
 import { selectUserConfig } from '../../core/store/user-profile/user-profile.selectors';
+import { TenantAuthorityService } from '../service/tenant-authority.service';
 
 interface UserProfile {
     id: string;
@@ -114,6 +116,7 @@ interface UserRoles {
 
 @Component({
     selector: 'app-profile',
+    standalone: true,
     imports: [
         ButtonModule,
         ToastModule,
@@ -141,18 +144,22 @@ export class ProfileComponent {
     passwordForm!: FormGroup;
     loading = false;
     private store = inject(Store<{ userProfile: UserProfileState }>);
-    // Real user profile data from API
-    userProfile: UserProfile;
-
-    constructor(
-        private fb: FormBuilder,
-        private passwordService: AuthServerProvider,
-        private messageService: MessageService
-    ) {}
+    userProfile!: UserProfile;
+    authorityService = inject(TenantAuthorityService);
+    commonService = inject(CommonService);
+    tenantAuthorities = signal<any[]>([]);
+    messageService = inject(MessageService);
+    passwordService = inject(AuthServerProvider);
+    fb = inject(FormBuilder);
 
     ngOnInit() {
+        this.authorityService.query().subscribe((result: any) => {
+            this.tenantAuthorities.set(result.body || []);
+            console.log('Tenant Authorities:', result.body);
+        });
         this.store.select(selectUserConfig).subscribe((userConfig) => {
             this.userProfile = userConfig;
+            console.log('User Roles (Service):', this.commonService.getUserAuthorities);
         });
         this.passwordForm = this.fb.group({
             currentPassword: ['', Validators.required],
@@ -160,63 +167,49 @@ export class ProfileComponent {
             isTenantUser: [true]
         });
     }
-    confirmLogout() {}
 
-    onSubmit() {
-        if (this.passwordForm.invalid) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Please fill all required fields correctly.'
-            });
-            return;
-        }
-
-        this.loading = true;
-
-        this.passwordService.changePassword(this.passwordForm.value).subscribe(
-            (response) => {
-                this.loading = false;
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Password changed successfully!'
-                });
-                const isTenantUser = this.passwordForm.get('isTenantUser')?.value;
-                this.passwordForm.reset({ isTenantUser });
-            },
-            (error) => {
-                this.loading = false;
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.message || 'Failed to change password. Please try again.'
-                });
-            }
-        );
+    // Helper to check role against commonService.getUserAuthorities
+    hasRole(roleName: string): boolean {
+        const userAuthorities = this.commonService.getUserAuthorities;
+        return userAuthorities?.includes(roleName);
     }
 
     getActiveRole(): string {
-        const roles = this.userProfile.roles;
-        if (roles.itadmin) return 'IT Admin';
-        if (roles.principal) return 'Principal';
-        if (roles.headmaster) return 'Headmaster';
-        if (roles.headofdepartment) return 'Head of Department';
-        if (roles.teacher) return 'Teacher';
-        if (roles.student) return 'Student';
+        // Priority logic for displaying the primary role
+        if (this.hasRole('SUPER_ADMIN')) return 'Super Admin';
+        if (this.hasRole('IT_ADMINISTRATOR')) return 'IT Admin';
+        if (this.hasRole('PRINCIPAL')) return 'Principal';
+        if (this.hasRole('VICE_PRINCIPAL')) return 'Vice Principal';
+        if (this.hasRole('HEAD_MASTER')) return 'Headmaster';
+        if (this.hasRole('HEAD_OF_DEPARTMENT')) return 'HOD';
+        if (this.hasRole('TEACHER')) return 'Teacher';
+        if (this.hasRole('LECTURER')) return 'Lecturer';
+        if (this.hasRole('STUDENT')) return 'Student';
         return 'User';
     }
 
     getRoleSeverity(role: string): 'success' | 'info' | 'warn' | 'danger' {
         const severityMap: { [key: string]: 'success' | 'info' | 'warn' | 'danger' } = {
+            'Super Admin': 'danger',
             'IT Admin': 'danger',
             Principal: 'success',
+            'Vice Principal': 'success',
             Headmaster: 'success',
-            'Head of Department': 'info',
+            HOD: 'info',
             Teacher: 'info',
+            Lecturer: 'info',
             Student: 'warn'
         };
         return severityMap[role] || 'info';
+    }
+
+    // Formats snake_case strings for UI (e.g. "HEAD_MASTER" -> "Head Master")
+    formatRoleName(role: string): string {
+        if (!role) return '';
+        return role
+            .split('_')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
     }
 
     formatClassName(name: string): string {
@@ -240,24 +233,48 @@ export class ProfileComponent {
         if (!fullName) return '';
         return fullName
             .split(' ')
-            .map((name) => name.charAt(0))
+            .map((n) => n[0])
             .join('')
             .toUpperCase()
             .substring(0, 2);
     }
 
     getTotalClasses(): number {
-        return this.userProfile.departments.reduce((total, dept) => total + dept.department?.classes?.length, 0);
+        return this.userProfile?.departments?.reduce((total, dept) => total + (dept.department?.classes?.length || 0), 0) || 0;
     }
 
     getTotalSections(): number {
-        return this.userProfile.departments.reduce((total, dept) => total + dept.department?.classes?.reduce((classTotal, cls) => classTotal + cls.sections?.length, 0), 0);
+        return this.userProfile?.departments?.reduce((total, dept) => total + (dept.department?.classes?.reduce((classTotal, cls) => classTotal + (cls.sections?.length || 0), 0) || 0), 0) || 0;
     }
 
     getTotalSubjects(): number {
-        return this.userProfile.departments?.reduce(
-            (total, dept) => total + dept.department?.classes?.reduce((classTotal, cls) => classTotal + cls?.sections?.reduce((sectionTotal, section) => sectionTotal + (section?.subjects?.length ?? 0), 0), 0),
-            0
+        return (
+            this.userProfile?.departments?.reduce(
+                (total, dept) => total + (dept.department?.classes?.reduce((classTotal, cls) => classTotal + (cls?.sections?.reduce((sectionTotal, section) => sectionTotal + (section?.subjects?.length ?? 0), 0) || 0), 0) || 0),
+                0
+            ) || 0
         );
+    }
+
+    confirmLogout() {}
+
+    onSubmit() {
+        if (this.passwordForm.invalid) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill all required fields correctly.' });
+            return;
+        }
+        this.loading = true;
+        this.passwordService.changePassword(this.passwordForm.value).subscribe({
+            next: (response) => {
+                this.loading = false;
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Password changed successfully!' });
+                const isTenantUser = this.passwordForm.get('isTenantUser')?.value;
+                this.passwordForm.reset({ isTenantUser });
+            },
+            error: (error) => {
+                this.loading = false;
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message || 'Failed to change password. Please try again.' });
+            }
+        });
     }
 }

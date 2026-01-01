@@ -1,129 +1,80 @@
-<div class="mx-auto p-3" >
+<div class="mx-auto p-3">
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-  
+
   @if (userProfile) {
-    <!-- Profile Header Card -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg mb-6 overflow-hidden">
       <div class="bg-gradient-to-r from-primary-500 to-primary-600 dark:from-primary-600 dark:to-primary-700 text-white p-8 relative overflow-hidden">
-  <div class="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 justify-between">
-    
-    <!-- Left: Avatar + Info -->
-    <div class="flex items-center md:items-start gap-6 flex-grow">
-      <!-- Avatar -->
-      <div class="flex-shrink-0">
-        <p-avatar 
-          [label]="getAvatarInitials()"
-          size="xlarge" 
-          shape="circle"
-          styleClass="text-2xl font-bold"
-          class="border-4 border-white dark:border-gray-200 shadow-lg bg-white/20 backdrop-blur">
-        </p-avatar>
-      </div>
-
-      <!-- User Info -->
-      <div class="text-center md:text-left flex-grow">
-        <h1 class="text-3xl font-bold mb-2">{{userProfile.fullName}}</h1>
-        <div class="flex flex-col md:flex-row items-center md:items-start gap-3 mb-3">
-          <p-tag 
-            [value]="getActiveRole()" 
-            [severity]="getRoleSeverity(getActiveRole())"
-            class="text-sm">
-          </p-tag>
-          <p-tag 
-            [value]="userProfile.gender" 
-            severity="info" 
-            class="text-sm">
-          </p-tag>
-        </div>
-        <p class="text-lg opacity-90 mb-1">{{userProfile.username}}</p>
-        <p class="text-sm opacity-75">User ID: {{userProfile.userId}}</p>
-      </div>
-    </div>
-
-    <!-- Right: Academic Info + Logout -->
-    <div class="text-center md:text-right  gap-4">
-      <div>
-       
-        <div class="flex gap-3 items-center">
-          <div>
-        <p class="text-sm opacity-75 mb-1">Academic Year</p>
-        <p class="text-lg font-semibold">{{userProfile.academicYear}}</p>
-        </div>
-          <!-- 🔹 Logout Button -->
-      <a [routerLink]="'/auth/login'">
-        <button 
-          type="button" 
-          class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 
-                 rounded-lg text-sm font-medium shadow-md transition">
-          <i class="pi pi-fw pi-sign-out"></i>
-          <span>Logout</span>         
-        </button>
-      </a>
-        </div>
-        <div class="mt-3 grid grid-cols-3 gap-4 text-center">
-          <div>
-            <p class="text-2xl font-bold">{{getTotalClasses()}}</p>
-            <p class="text-xs opacity-75">Classes</p>
+        <div class="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 justify-between">
+          <div class="flex items-center md:items-start gap-6 flex-grow">
+            <div class="flex-shrink-0">
+              <p-avatar [label]="getAvatarInitials()" size="xlarge" shape="circle" styleClass="text-2xl font-bold" class="border-4 border-white dark:border-gray-200 shadow-lg bg-white/20 backdrop-blur"></p-avatar>
+            </div>
+            <div class="text-center md:text-left flex-grow">
+              <h1 class="text-3xl font-bold mb-2">{{userProfile.fullName}}</h1>
+              <div class="flex flex-col md:flex-row items-center md:items-start gap-3 mb-3">
+                <p-tag [value]="getActiveRole()" [severity]="getRoleSeverity(getActiveRole())" class="text-sm"></p-tag>
+                <p-tag [value]="userProfile.gender" severity="info" class="text-sm"></p-tag>
+              </div>
+              <p class="text-lg opacity-90 mb-1">{{userProfile.username}}</p>
+              <p class="text-sm opacity-75">User ID: {{userProfile.userId}}</p>
+            </div>
           </div>
-          <div>
-            <p class="text-2xl font-bold">{{getTotalSections()}}</p>
-            <p class="text-xs opacity-75">Sections</p>
-          </div>
-          <div>
-            <p class="text-2xl font-bold">{{getTotalSubjects()}}</p>
-            <p class="text-xs opacity-75">Subjects</p>
+
+          <div class="text-center md:text-right gap-4">
+            <div class="flex gap-3 items-center">
+              <div>
+                <p class="text-sm opacity-75 mb-1">Academic Year</p>
+                <p class="text-lg font-semibold">{{userProfile.academicYear}}</p>
+              </div>
+              <a [routerLink]="'/auth/login'">
+                <button type="button" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium shadow-md transition">
+                  <i class="pi pi-fw pi-sign-out"></i>
+                  <span>Logout</span>         
+                </button>
+              </a>
+            </div>
+            <div class="mt-3 grid grid-cols-3 gap-4 text-center">
+              <div><p class="text-2xl font-bold">{{getTotalClasses()}}</p><p class="text-xs opacity-75">Classes</p></div>
+              <div><p class="text-2xl font-bold">{{getTotalSections()}}</p><p class="text-xs opacity-75">Sections</p></div>
+              <div><p class="text-2xl font-bold">{{getTotalSubjects()}}</p><p class="text-xs opacity-75">Subjects</p></div>
+            </div>
           </div>
         </div>
       </div>
 
-    
-    </div>
-  </div>
-</div>
-
-
-      <!-- Profile Content -->
       <div class="p-6">
         <p-tabView>
-          <!-- Personal Information Tab -->
           <p-tabPanel header="Personal Information" leftIcon="pi pi-user">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
                 <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Full Name</div>
                 <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.fullName}}</div>
               </div>
-              
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
                 <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Email Address</div>
                 <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.email}}</div>
               </div>
-              
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
                 <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Contact Number</div>
                 <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.contactNumber}}</div>
               </div>
-              
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
                 <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Username</div>
                 <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.username}}</div>
               </div>
-              
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
                 <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Gender</div>
                 <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.gender}}</div>
               </div>
-              
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
                 <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">User ID</div>
                 <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.userId}}</div>
               </div>
-
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
                 <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Reports To</div>
                 <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.reportsTo || 'No direct supervisor'}}</div>
               </div>
-
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
                 <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Academic Year</div>
                 <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.academicYear}}</div>
@@ -131,123 +82,80 @@
             </div>
           </p-tabPanel>
 
-          <!-- Department Information Tab -->
           <p-tabPanel header="Department Details" leftIcon="pi pi-building">
-  <div class="mt-6 space-y-8" *ngFor="let deptAssignment of userProfile.departments">
+            <div class="mt-6 space-y-8" *ngFor="let deptAssignment of userProfile.departments">
+              <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start mb-6">
+                  <div>
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white">{{ formatDepartmentName(deptAssignment.department.name) }}</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Code: {{ deptAssignment.department.code }}</p>
+                  </div>
+                  <div class="text-right">
+                    <p-tag [value]="deptAssignment.status ? 'Active' : 'Inactive'" [severity]="deptAssignment.status ? 'success' : 'danger'"></p-tag>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-6">
+                  <div class="bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-900 dark:to-primary-800 rounded-xl p-4 shadow-sm">
+                    <p class="text-3xl font-extrabold text-primary-600 dark:text-primary-300">{{ deptAssignment.department.classes.length }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Classes</p>
+                  </div>
+                  <div class="bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900 dark:to-green-800 rounded-xl p-4 shadow-sm">
+                    <p class="text-3xl font-extrabold text-green-600 dark:text-green-300">{{ getTotalSections() }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Sections</p>
+                  </div>
+                  <div class="bg-gradient-to-br from-indigo-100 to-indigo-50 dark:from-indigo-900 dark:to-indigo-800 rounded-xl p-4 shadow-sm">
+                    <p class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-300">{{ getTotalSubjects() }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Subjects</p>
+                  </div>
+                </div>
+                <div class="bg-blue-50 dark:bg-blue-900/40 rounded-xl p-4 border border-blue-200 dark:border-blue-700">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Academic Period</p>
+                  <p class="text-lg font-semibold text-blue-800 dark:text-blue-200">
+                    {{ deptAssignment.academicStart | date:'dd MMM yyyy' }} – {{ deptAssignment.academicEnd | date:'dd MMM yyyy' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </p-tabPanel>
 
-    <!-- 🔹 Department Card -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-200 dark:border-gray-700">
-      <!-- Header -->
-      <div class="flex justify-between items-start mb-6">
-        <div>
-          <h3 class="text-2xl font-bold text-gray-800 dark:text-white">
-            {{ formatDepartmentName(deptAssignment.department.name) }}
-          </h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400">
-            Code: {{ deptAssignment.department.code }}
-          </p>
-        </div>
-        <div class="text-right">
-          <p-tag 
-            [value]="deptAssignment.status ? 'Active' : 'Inactive'" 
-            [severity]="deptAssignment.status ? 'success' : 'danger'">
-          </p-tag>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-6">
-        <div class="bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-900 dark:to-primary-800 rounded-xl p-4 shadow-sm">
-          <p class="text-3xl font-extrabold text-primary-600 dark:text-primary-300">
-            {{ deptAssignment.department.classes.length }}
-          </p>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Classes</p>
-        </div>
-        <div class="bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900 dark:to-green-800 rounded-xl p-4 shadow-sm">
-          <p class="text-3xl font-extrabold text-green-600 dark:text-green-300">
-            {{ getTotalSections() }}
-          </p>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Sections</p>
-        </div>
-        <div class="bg-gradient-to-br from-indigo-100 to-indigo-50 dark:from-indigo-900 dark:to-indigo-800 rounded-xl p-4 shadow-sm">
-          <p class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-300">
-            {{ getTotalSubjects() }}
-          </p>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Subjects</p>
-        </div>
-      </div>
-
-      <!-- Academic Period -->
-      <div class="bg-blue-50 dark:bg-blue-900/40 rounded-xl p-4 border border-blue-200 dark:border-blue-700">
-        <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Academic Period</p>
-        <p class="text-lg font-semibold text-blue-800 dark:text-blue-200">
-          {{ deptAssignment.academicStart | date:'dd MMM yyyy' }} – 
-          {{ deptAssignment.academicEnd | date:'dd MMM yyyy' }}
-        </p>
-      </div>
-    </div>
-
-  </div>
-</p-tabPanel>
-
-
-          <!-- Roles & Permissions Tab -->
           <p-tabPanel header="Roles & Permissions" leftIcon="pi pi-shield">
             <div class="mt-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
                   <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Active Role</div>
-                  <div>
-                    <p-tag 
-                      [value]="getActiveRole()" 
-                      [severity]="getRoleSeverity(getActiveRole())"
-                      class="text-sm">
-                    </p-tag>
-                  </div>
+                  <div><p-tag [value]="getActiveRole()" [severity]="getRoleSeverity(getActiveRole())" class="text-sm"></p-tag></div>
                 </div>
-
                 <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
                   <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">System Access Level</div>
                   <div class="font-semibold text-gray-800 dark:text-white">
-                    {{userProfile.roles.itadmin ? 'Administrator' : 'Standard User'}}
+                    {{ (hasRole('IT_ADMINISTRATOR') || hasRole('SUPER_ADMIN')) ? 'Administrator' : 'Standard User' }}
                   </div>
                 </div>
               </div>
 
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 mb-6">
-                <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Available Roles</h4>
+                <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Available System Roles</h4>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div *ngFor="let role of [
-                    {key: 'student', label: 'Student'}, 
-                    {key: 'parent', label: 'Parent'}, 
-                    {key: 'teacher', label: 'Teacher'}, 
-                    {key: 'lecturer', label: 'Lecturer'},
-                    {key: 'professor', label: 'Professor'}, 
-                    {key: 'headofdepartment', label: 'HOD'}, 
-                    {key: 'headmaster', label: 'Headmaster'}, 
-                    {key: 'principal', label: 'Principal'},
-                    {key: 'viceprincipal', label: 'Vice Principal'}, 
-                    {key: 'sportscoach', label: 'Sports Coach'}, 
-                    {key: 'itadmin', label: 'IT Admin'}
-                  ]" class="flex items-center gap-2">
-                    <i [class]="userProfile.roles[role.key] !== null ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-gray-400'"></i>
-                    <span [class]="userProfile.roles[role.key] !== null ? 'text-gray-800 dark:text-white font-medium' : 'text-gray-400 dark:text-gray-500'">
-                      {{role.label}}
-                    </span>
-                  </div>
+                  @for (auth of tenantAuthorities(); track auth.id) {
+                    <div class="flex items-center gap-2">
+                      <i [class]="hasRole(auth.name) ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-gray-400'"></i>
+                      <span [class]="hasRole(auth.name) ? 'text-gray-800 dark:text-white font-medium' : 'text-gray-400 dark:text-gray-500'">
+                        {{ formatRoleName(auth.name) }}
+                      </span>
+                    </div>
+                  }
                 </div>
               </div>
 
-              <div class="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border-l-4 border-blue-400" *ngIf="userProfile.roles.itadmin">
+              <div class="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border-l-4 border-blue-400" *ngIf="hasRole('IT_ADMINISTRATOR')">
                 <h5 class="font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
-                  <i class="pi pi-info-circle"></i>
-                  IT Administrator Access
+                  <i class="pi pi-info-circle"></i> IT Administrator Access
                 </h5>
                 <p class="text-blue-700 dark:text-blue-300 text-sm">
                   You have administrator privileges in the system. This includes access to system configurations, 
                   user management, and technical administration features.
                 </p>
-                <div class="mt-3" *ngIf="userProfile.roles.itadmin.responsibilities">
+                <div class="mt-3" *ngIf="userProfile.roles.itadmin?.responsibilities">
                   <p class="text-sm text-blue-600 dark:text-blue-400">
                     <strong>Responsibilities:</strong> {{userProfile.roles.itadmin.responsibilities}}
                   </p>
@@ -256,107 +164,44 @@
             </div>
           </p-tabPanel>
 
-          <!-- Security Tab -->
-         <p-tabPanel header="Security Settings" leftIcon="pi pi-lock">
-  <div class="mt-6">
-    <div class="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-md">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        <!-- 🔹 Change Password Form -->
-        <div>
-          <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
-            <i class="pi pi-lock text-primary-500"></i>
-            Change Password
-          </h3>
-          
-          <form [formGroup]="passwordForm" (ngSubmit)="onSubmit()">
-            <!-- Current Password -->
-            <div class="mb-6">
-              <label for="currentPassword" class="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-                Current Password <span class="text-red-500">*</span>
-              </label>
-              <p-password 
-                id="currentPassword"
-                formControlName="currentPassword"
-                [toggleMask]="true"
-                styleClass="w-full"
-                placeholder="Enter current password"
-                class="w-full"
-                inputStyleClass="w-full">
-              </p-password>
-              <small 
-                class="text-red-500 text-sm mt-1 block"
-                *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched">
-                Current password is required
-              </small>
+          <p-tabPanel header="Security Settings" leftIcon="pi pi-lock">
+            <div class="mt-6">
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-md">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-2"><i class="pi pi-lock text-primary-500"></i> Change Password</h3>
+                    <form [formGroup]="passwordForm" (ngSubmit)="onSubmit()">
+                      <div class="mb-6">
+                        <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300">Current Password <span class="text-red-500">*</span></label>
+                        <p-password formControlName="currentPassword" [toggleMask]="true" styleClass="w-full" placeholder="Enter current password" class="w-full" inputStyleClass="w-full"></p-password>
+                        <small class="text-red-500 text-sm mt-1 block" *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched">Current password is required</small>
+                      </div>
+                      <div class="mb-6">
+                        <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300">New Password <span class="text-red-500">*</span></label>
+                        <p-password formControlName="newPassword" [toggleMask]="true" styleClass="w-full" [feedback]="true" placeholder="Enter new password" class="w-full" inputStyleClass="w-full"></p-password>
+                        <small class="text-red-500 text-sm mt-1 block" *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched">New password must be at least 8 characters</small>
+                      </div>
+                      <div class="flex gap-3">
+                        <p-button type="submit" label="Update Password" icon="pi pi-check" [loading]="loading" [disabled]="passwordForm.invalid" styleClass="bg-primary-500 hover:bg-primary-600 border-0 px-6 py-3"></p-button>
+                        <p-button type="button" label="Cancel" icon="pi pi-times" (onClick)="passwordForm.reset()" severity="secondary" styleClass="px-6 py-3"></p-button>
+                      </div>
+                    </form>
+                  </div>
+                  <div>
+                    <div class="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border-l-4 border-blue-400">
+                      <h4 class="font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2"><i class="pi pi-info-circle"></i> Password Security Tips</h4>
+                      <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                        <li>• Use at least 8 characters with a mix of letters, numbers, and symbols</li>
+                        <li>• Avoid using personal information or common words</li>
+                        <li>• Change your password regularly</li>
+                        <li>• Don't share your password with others</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-                    
-            <!-- New Password -->
-            <div class="mb-6">
-              <label for="newPassword" class="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-                New Password <span class="text-red-500">*</span>
-              </label>
-              <p-password 
-                id="newPassword"
-                formControlName="newPassword"
-                [toggleMask]="true"
-                styleClass="w-full"
-                [feedback]="true"
-                placeholder="Enter new password"
-                class="w-full"
-                inputStyleClass="w-full">
-              </p-password>
-              <small 
-                class="text-red-500 text-sm mt-1 block"
-                *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched">
-                New password must be at least 8 characters
-              </small>
-            </div>
-                            
-            <!-- Buttons -->
-            <div class="flex gap-3">
-              <p-button 
-                type="submit"
-                label="Update Password"
-                icon="pi pi-check"
-                [loading]="loading"
-                [disabled]="passwordForm.invalid"
-                styleClass="bg-primary-500 hover:bg-primary-600 border-0 px-6 py-3">
-              </p-button>
-              
-              <p-button 
-                type="button"
-                label="Cancel"
-                icon="pi pi-times"
-                (onClick)="passwordForm.reset()"
-                severity="secondary"
-                styleClass="px-6 py-3">
-              </p-button>
-            </div>
-          </form>
-        </div>
-
-        <!-- 🔹 Security Tips -->
-        <div>
-          <div class="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border-l-4 border-blue-400">
-            <h4 class="font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
-              <i class="pi pi-info-circle"></i>
-              Password Security Tips
-            </h4>
-            <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-              <li>• Use at least 8 characters with a mix of letters, numbers, and symbols</li>
-              <li>• Avoid using personal information or common words</li>
-              <li>• Change your password regularly</li>
-              <li>• Don't share your password with others</li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</p-tabPanel>
-
+          </p-tabPanel>
         </p-tabView>
       </div>
     </div>

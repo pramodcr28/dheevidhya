@@ -1,80 +1,151 @@
-
-    <p-toast></p-toast>
-    <p-table
-        #dt
-        [value]="students()!"
-        [rows]="10"
-        [columns]="cols"
-        [paginator]="true"
-        [globalFilterFields]="['firstName']"
-        [tableStyle]="{ 'min-width': '75rem' }"
-        [rowHover]="false"
-        dataKey="id"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Students"
-        [showCurrentPageReport]="true"
-        [rowsPerPageOptions]="[10, 20, 30]">
-        <ng-template #caption>
-            <div class="flex items-center justify-between">
-                <h5 class="m-0">All Students List</h5>
-                <span class="flex items-center justify-between gap-3">
-                    <p-iconfield>
-                        <p-inputicon styleClass="pi pi-search" />
-                    </p-iconfield>
-                    <p-button  icon="pi pi-filter" rounded="true" (onClick)="openNew()" />
-                    <p-button  icon="pi pi-plus" rounded="true" (onClick)="openNew()" />
+<p-table
+    #dt
+    [value]="students()!"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [globalFilterFields]="['firstName', 'lastName', 'email']"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Students"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]"
+    styleClass="p-datatable-striped">
+    
+    <ng-template pTemplate="caption">
+        <div class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+            <h5 class="m-0 text-xl font-bold text-gray-800">All Students List</h5>
+            <span class="flex items-center justify-between gap-3">
+                <p-iconfield>
+                    <p-inputicon styleClass="pi pi-search" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        placeholder="Search students..."
+                        class="w-64" />
+                </p-iconfield>
+                <p-button  
+                    icon="pi pi-plus" 
+                    label="Add Student"
+                    [rounded]="true" 
+                    (onClick)="openNew()" />
+            </span>
+        </div>
+    </ng-template>
+    
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="min-width: 12rem">Name</th>
+            <th pSortableColumn="contactNumber" style="min-width:12rem">
+                Contact Number
+                <p-sortIcon field="contactNumber" />
+            </th>
+            <th pSortableColumn="email" style="min-width:12rem">
+                Email
+                <p-sortIcon field="email" />
+            </th>
+            <th style="min-width:12rem">
+                User Name
+            </th>
+            <th pSortableColumn="authorities" style="min-width: 12rem">
+                Authorities
+                <p-sortIcon field="authorities" />
+            </th>
+            <th style="min-width: 8rem" class="text-center">Actions</th>
+        </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-student>
+        <tr class="hover:bg-blue-50 transition-colors">
+                <td style="min-width: 12rem">
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-user text-blue-600"></i>
+                    <span class="font-medium">{{ student.firstName + " " + student.lastName }}</span>
+                </div>
+            </td>
+             <td style="min-width: 12rem">{{ student.contactNumber || 'N/A' }}</td>
+            <td style="min-width: 12rem">{{ student.email }}</td>
+            <td style="min-width: 12rem">
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+                    {{ student.login }}
                 </span>
-              
-            </div>
-        </ng-template>
-        <ng-template #header>
-            <tr>
-                <th style="min-width: 12rem">Name</th>
-                <!-- <th pSortableColumn="name" style="min-width:12rem">
-                    Contact Number
-                    <p-sortIcon field="name" />
-                </th> -->
-                <th  style="min-width:12rem">
-                    User Name
-                </th>
-                <th style="min-width: 4rem"></th>
-            </tr>
-        </ng-template>
-        <ng-template #body let-student>
-            <tr>
-               <td style="min-width: 12rem">{{ student.fullName }}</td>
-                <!-- <td style="min-width: 12rem">{{ student.contactNumber }}</td> -->
-                <td>{{ student.username }}</td>
+            </td>
+            <td style="min-width: 12rem">
+                <div class="flex flex-wrap gap-1">
+                    @for (auth of student.authorities; track auth.name) {
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                            {{ auth.name }}
+                        </span>
+                    }
+                </div>
+            </td>
+            <td class="text-center">
+                <div class="flex justify-center gap-2">
+                    <button 
+                        type="button"
+                        class="p-2 hover:bg-blue-100 rounded-full transition-colors"
+                        (click)="editStudent(student)"
+                        title="Edit Student">
+                        <i class="pi pi-user-edit text-blue-600 text-lg"></i>
+                    </button>
+                    <button 
+                        type="button"
+                        class="p-2 hover:bg-green-100 rounded-full transition-colors"
+                        (click)="addOrEditGuardian(student)"
+                        title="Manage Guardian">
+                        <i class="pi pi-user-plus text-green-600 text-lg"></i>
+                    </button>
+                    <button 
+                        type="button"
+                        class="p-2 hover:bg-red-100 rounded-full transition-colors"
+                        (click)="deleteStudent(student)"
+                        title="Delete Student">
+                        <i class="pi pi-trash text-red-600 text-lg"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="5" class="text-center py-8">
+                <div class="flex flex-col items-center gap-3">
+                    <i class="pi pi-users text-gray-400 text-5xl"></i>
+                    <p class="text-gray-600 text-lg">No students found</p>
+                    <p-button 
+                        label="Add First Student" 
+                        icon="pi pi-plus" 
+                        (onClick)="openNew()"
+                        [outlined]="true">
+                    </p-button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
 
-                <td class="">
-                    <i class="pi pi-user-edit hover:text-primary-600 px-3 cursor-pointer" (click)="editStudent(student)" ></i>
-                    <i class="pi pi-user-plus hover:text-primary-600 px-3 cursor-pointer" (click)="addOrEditGuardian(student)" ></i>
-                    <i class="pi pi-trash hover:text-primary-600 px-3 cursor-pointer" (click)="deleteStudent(student)" ></i>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
-
-     @if( this.studentDialog){ 
-        <app-student-dialog 
+@if(this.studentDialog) {
+    <app-student-dialog 
         [visible]="studentDialog" 
         [student]="student" 
-        [studentProfile]="studentProfile"
         (save)="onStudentSave($event)"
+        (saveUser)="onUserSave($event)"
         (cancel)="hideDialog()">
-      </app-student-dialog>
-    }
+    </app-student-dialog>
+}
 
-    
-    @if( this.guardianDialog){
-        <app-guardian-dialog 
+@if(this.guardianDialog) {
+    <app-guardian-dialog 
         [visible]="guardianDialog" 
         [gaurdian]="selectedGaurdian" 
         [guardianProfile]="selectedGaurdianProfile"
         [studentProfile]="selectedStudentProfile"
         (save)="onGuardianSave($event)"
         (cancel)="hideGuardianDialog()">
-      </app-guardian-dialog>
-    
-    }
+    </app-guardian-dialog>
+}
 
-  <p-confirmdialog [style]="{ width: '450px' }" />    
+<p-confirmdialog [style]="{ width: '450px' }" />
+<p-toast position="top-right" />
