@@ -544,6 +544,17 @@ export class EmployeeDialogComponent {
         };
         this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
             this.associatedDepartments = res.content.map((re) => ({ ...re, name: re.department.name }));
+
+            this.profilesList.update((list) =>
+                list
+                    .map((profileUI) => ({
+                        ...profileUI,
+                        selectedDepartments: profileUI.profile.departments ? this.associatedDepartments.filter((d) => profileUI.profile.departments?.includes(d.id)) : [],
+                        dateRange: this.parseAcademicYear(profileUI.profile.academicYear || '')
+                    }))
+                    .sort((a, b) => (b.dateRange?.[0]?.getTime() ?? 0) - (a.dateRange?.[0]?.getTime() ?? 0))
+            );
+
             this.loadSubjectsForProfile();
         });
     }
