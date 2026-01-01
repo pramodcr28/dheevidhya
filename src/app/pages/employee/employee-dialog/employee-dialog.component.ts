@@ -15,7 +15,7 @@ import { MultiSelect } from 'primeng/multiselect';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
-import { TabViewModule } from 'primeng/tabview';
+import { TabsModule } from 'primeng/tabs';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
@@ -55,7 +55,7 @@ interface ProfileUIData {
         ToggleButtonModule,
         FormsModule,
         MultiSelect,
-        TabViewModule,
+        TabsModule,
         DatePickerModule,
         ToastModule
     ],
@@ -231,6 +231,8 @@ export class EmployeeDialogComponent {
     }
 
     onTabChange(event: any): void {
+        const newIndex = typeof event === 'number' ? event : event.index;
+
         if (this.hasUnsavedChanges()) {
             this.confirmationService.confirm({
                 message: 'You have unsaved changes. Do you want to discard them?',
@@ -238,13 +240,15 @@ export class EmployeeDialogComponent {
                 icon: 'pi pi-exclamation-triangle',
                 accept: () => {
                     this.discardChanges();
-                    this.activeProfileIndex.set(event.index);
+                    this.activeProfileIndex.set(newIndex);
                     this.saveOriginalProfileData();
                 },
-                reject: () => {}
+                reject: () => {
+                    // Revert to original tab - tabs will handle this automatically
+                }
             });
         } else {
-            this.activeProfileIndex.set(event.index);
+            this.activeProfileIndex.set(newIndex);
             this.saveOriginalProfileData();
         }
         this.getAssociatedDepartmentsOnAcademicyear();

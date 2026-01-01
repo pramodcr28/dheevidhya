@@ -118,10 +118,10 @@
                 <p-button icon="pi pi-plus" label="Add Profile" (onClick)="addNewProfile()" [outlined]="true" severity="success" size="small" [disabled]="hasNewProfile()"> </p-button>
             </div>
 
-            <p-tabView [activeIndex]="activeProfileIndex()" (onChange)="onTabChange($event)" [scrollable]="true">
-                @for (profileData of profilesList(); track profileData.profile.academicYear; let idx = $index) {
-                    <p-tabPanel>
-                        <ng-template pTemplate="header">
+            <p-tabs [value]="activeProfileIndex()" [scrollable]="true" (valueChange)="onTabChange($event)">
+                <p-tablist>
+                    @for (profileData of profilesList(); track profileData.profile.academicYear; let idx = $index) {
+                        <p-tab [value]="idx">
                             <div class="flex items-center gap-2 px-2">
                                 <i class="pi pi-calendar-plus text-blue-600"></i>
 
@@ -143,9 +143,14 @@
                                     </button>
                                 }
                             </div>
-                        </ng-template>
+                        </p-tab>
+                    }
+                </p-tablist>
 
-                        <div class="p-6 space-y-6">
+                <p-tabpanels>
+                    @for (profileData of profilesList(); track profileData.profile.academicYear; let idx = $index) {
+                        <p-tabpanel [value]="idx">
+                            <div class="p-6 space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block font-semibold mb-2 text-gray-700">
@@ -289,17 +294,18 @@
                                 </div>
                             </div>
 
-                            <!-- Action Buttons for Current Profile -->
-                            @if (idx === activeProfileIndex()) {
-                                <div class="flex gap-3 justify-end border-t pt-4">
-                                    <p-button label="Discard Changes" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" [disabled]="!hasUnsavedChanges()" (click)="discardChanges()"> </p-button>
-                                    <p-button label="Save Profile" icon="pi pi-check" severity="success" size="small" [disabled]="!hasUnsavedChanges()" (click)="onSave()"> </p-button>
-                                </div>
-                            }
-                        </div>
-                    </p-tabPanel>
-                }
-            </p-tabView>
+                                <!-- Action Buttons for Current Profile -->
+                                @if (idx === activeProfileIndex()) {
+                                    <div class="flex gap-3 justify-end border-t pt-4">
+                                        <p-button label="Discard Changes" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" [disabled]="!hasUnsavedChanges()" (click)="discardChanges()"> </p-button>
+                                        <p-button label="Save Profile" icon="pi pi-check" severity="success" size="small" [disabled]="!hasUnsavedChanges()" (click)="onSave()"> </p-button>
+                                    </div>
+                                }
+                            </div>
+                        </p-tabpanel>
+                    }
+                </p-tabpanels>
+            </p-tabs>
         </div>
     </div>
 

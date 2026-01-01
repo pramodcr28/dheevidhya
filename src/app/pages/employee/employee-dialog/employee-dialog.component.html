@@ -128,10 +128,10 @@
                 <p-button icon="pi pi-plus" label="Add Profile" (onClick)="addNewProfile()" [outlined]="true" severity="success" size="small" [disabled]="hasNewProfile()"> </p-button>
             </div>
 
-            <p-tabView [activeIndex]="activeProfileIndex()" (onChange)="onTabChange($event)" [scrollable]="true">
-                @for (profileData of profilesList(); track profileData.profile.academicYear; let idx = $index) {
-                    <p-tabPanel>
-                        <ng-template pTemplate="header">
+            <p-tabs [value]="activeProfileIndex()" [scrollable]="true" (valueChange)="onTabChange($event)">
+                <p-tablist>
+                    @for (profileData of profilesList(); track profileData.profile.academicYear; let idx = $index) {
+                        <p-tab [value]="idx">
                             <div class="flex items-center gap-2 px-2">
                                 <i class="pi pi-calendar-plus text-blue-600"></i>
 
@@ -153,139 +153,146 @@
                                     </button>
                                 }
                             </div>
-                        </ng-template>
+                        </p-tab>
+                    }
+                </p-tablist>
 
-                        <div class="p-6 space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block font-semibold mb-2 text-gray-700">
-                                        Academic Year Period *
-                                        <span class="text-xs text-gray-500 font-normal ml-2"> (Must be one year duration) </span>
-                                    </label>
+                <p-tabpanels>
+                    @for (profileData of profilesList(); track profileData.profile.academicYear; let idx = $index) {
+                        <p-tabpanel [value]="idx">
+                            <div class="p-6 space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block font-semibold mb-2 text-gray-700">
+                                            Academic Year Period *
+                                            <span class="text-xs text-gray-500 font-normal ml-2"> (Must be one year duration) </span>
+                                        </label>
 
-                                    <p-datepicker
-                                        [ngModel]="profilesList()[idx]?.dateRange"
-                                        (ngModelChange)="onAcademicYearChange(idx, $event)"
-                                        [ngModelOptions]="{ standalone: true }"
-                                        selectionMode="range"
-                                        view="month"
-                                        dateFormat="MM yy"
-                                        [showIcon]="true"
-                                        [iconDisplay]="'input'"
-                                        placeholder="Select academic year range"
-                                        [style]="{ width: '100%' }"
-                                        appendTo="body"
-                                    >
-                                    </p-datepicker>
-
-                                    <small class="text-blue-600 block mt-1">
-                                        <i class="pi pi-info-circle"></i>
-                                        Academic Year:
-                                        <strong>{{ profilesList()[idx]?.profile?.academicYear || 'Not selected' }}</strong>
-                                    </small>
-
-                                    <small class="text-red-500" *ngIf="submitted && (!profilesList()[idx]?.dateRange || profilesList()[idx]?.dateRange?.length !== 2)"> Academic year range is required. </small>
-                                </div>
-
-                                <div>
-                                    <label class="block font-semibold mb-2 text-gray-700">Contact Number</label>
-                                    <input type="text" pInputText [(ngModel)]="profileData.profile.contactNumber" (ngModelChange)="markAsChanged()" class="w-full" />
-                                </div>
-
-                                <div>
-                                    <label class="block font-semibold mb-2 text-gray-700">Gender *</label>
-                                    <p-select [options]="genderOptions" [(ngModel)]="profileData.profile.gender" (onChange)="markAsChanged()" optionLabel="label" optionValue="value" placeholder="Select Gender" [style]="{ width: '100%' }"> </p-select>
-                                    <small class="text-red-500" *ngIf="submitted && !profileData.profile.gender"> Gender is required. </small>
-                                </div>
-
-                                @if (!commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
-                                    <div class="md:col-span-2">
-                                        <label class="block font-semibold mb-2 text-gray-700">Departments *</label>
-                                        <p-multi-select
-                                            [options]="associatedDepartments"
-                                            [(ngModel)]="profileData.selectedDepartments"
-                                            optionLabel="name"
-                                            placeholder="Select Departments"
+                                        <p-datepicker
+                                            [ngModel]="profilesList()[idx]?.dateRange"
+                                            (ngModelChange)="onAcademicYearChange(idx, $event)"
+                                            [ngModelOptions]="{ standalone: true }"
+                                            selectionMode="range"
+                                            view="month"
+                                            dateFormat="MM yy"
+                                            [showIcon]="true"
+                                            [iconDisplay]="'input'"
+                                            placeholder="Select academic year range"
                                             [style]="{ width: '100%' }"
+                                            appendTo="body"
                                         >
-                                        </p-multi-select>
-                                        <small class="text-red-500" *ngIf="submitted && (!profileData.selectedDepartments || profileData.selectedDepartments.length === 0)"> At least one department is required. </small>
+                                        </p-datepicker>
+
+                                        <small class="text-blue-600 block mt-1">
+                                            <i class="pi pi-info-circle"></i>
+                                            Academic Year:
+                                            <strong>{{ profilesList()[idx]?.profile?.academicYear || 'Not selected' }}</strong>
+                                        </small>
+
+                                        <small class="text-red-500" *ngIf="submitted && (!profilesList()[idx]?.dateRange || profilesList()[idx]?.dateRange?.length !== 2)"> Academic year range is required. </small>
                                     </div>
-                                    @if (profileData.selectedDepartments && profileData.selectedDepartments.length > 0) {
+
+                                    <div>
+                                        <label class="block font-semibold mb-2 text-gray-700">Contact Number</label>
+                                        <input type="text" pInputText [(ngModel)]="profileData.profile.contactNumber" (ngModelChange)="markAsChanged()" class="w-full" />
+                                    </div>
+
+                                    <div>
+                                        <label class="block font-semibold mb-2 text-gray-700">Gender *</label>
+                                        <p-select [options]="genderOptions" [(ngModel)]="profileData.profile.gender" (onChange)="markAsChanged()" optionLabel="label" optionValue="value" placeholder="Select Gender" [style]="{ width: '100%' }"> </p-select>
+                                        <small class="text-red-500" *ngIf="submitted && !profileData.profile.gender"> Gender is required. </small>
+                                    </div>
+
+                                    @if (!commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
                                         <div class="md:col-span-2">
-                                            <label class="block font-semibold mb-2 text-gray-700">Subjects</label>
+                                            <label class="block font-semibold mb-2 text-gray-700">Departments *</label>
                                             <p-multi-select
-                                                [options]="associatedSubjects"
-                                                optionLabel="name"
-                                                optionValue="id"
-                                                [(ngModel)]="profileData.profile.subjectIds"
+                                                [options]="associatedDepartments"
+                                                [(ngModel)]="profileData.selectedDepartments"
                                                 (onChange)="markAsChanged()"
-                                                placeholder="Select Subjects"
+                                                optionLabel="name"
+                                                placeholder="Select Departments"
                                                 [style]="{ width: '100%' }"
                                             >
                                             </p-multi-select>
+                                            <small class="text-red-500" *ngIf="submitted && (!profileData.selectedDepartments || profileData.selectedDepartments.length === 0)"> At least one department is required. </small>
                                         </div>
+                                        @if (profileData.selectedDepartments && profileData.selectedDepartments.length > 0) {
+                                            <div class="md:col-span-2">
+                                                <label class="block font-semibold mb-2 text-gray-700">Subjects</label>
+                                                <p-multi-select
+                                                    [options]="associatedSubjects"
+                                                    optionLabel="name"
+                                                    optionValue="id"
+                                                    [(ngModel)]="profileData.profile.subjectIds"
+                                                    (onChange)="markAsChanged()"
+                                                    placeholder="Select Subjects"
+                                                    [style]="{ width: '100%' }"
+                                                >
+                                                </p-multi-select>
+                                            </div>
+                                        }
                                     }
+                                </div>
+
+                                <!-- Profile Summary Card -->
+                                <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                    <h4 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <i class="pi pi-info-circle text-blue-600"></i>
+                                        Profile Summary
+                                    </h4>
+                                    <div class="grid grid-cols-2 gap-3 text-sm">
+                                        <div class="col-span-2">
+                                            <span class="text-gray-600">Academic Year:</span>
+                                            <span class="ml-2 font-medium text-blue-700">
+                                                {{ profileData.profile.academicYear || 'Not selected' }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">Start Date:</span>
+                                            <span class="ml-2 font-medium">
+                                                {{ getDateRangeForProfile(idx)?.[0] | date: 'dd MMM yyyy' }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">End Date:</span>
+                                            <span class="ml-2 font-medium">
+                                                {{ getDateRangeForProfile(idx)?.[1] | date: 'dd MMM yyyy' }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">Gender:</span>
+                                            <span class="ml-2 font-medium">{{ profileData.profile.gender || 'Not set' }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">Contact:</span>
+                                            <span class="ml-2 font-medium">{{ profileData.profile.contactNumber || 'N/A' }}</span>
+                                        </div>
+                                        <div class="col-span-2">
+                                            <span class="text-gray-600">Departments:</span>
+                                            <span class="ml-2 font-medium">
+                                                {{ profileData.selectedDepartments?.length || 0 }} selected
+                                            </span>
+                                        </div>
+                                        <div class="col-span-2">
+                                            <span class="text-gray-600">Subjects:</span>
+                                            <span class="ml-2 font-medium"> {{ profileData.profile.subjectIds?.length || 0 }} selected </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons for Current Profile -->
+                                @if (idx === activeProfileIndex()) {
+                                    <div class="flex gap-3 justify-end border-t pt-4">
+                                        <p-button label="Discard Changes" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" [disabled]="!hasUnsavedChanges()" (click)="discardChanges()"> </p-button>
+                                        <p-button label="Save Profile" icon="pi pi-check" severity="success" size="small" [disabled]="!hasUnsavedChanges()" (click)="onSave()"> </p-button>
+                                    </div>
                                 }
                             </div>
-
-                            <!-- Profile Summary Card -->
-                            <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                                <h4 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                    <i class="pi pi-info-circle text-blue-600"></i>
-                                    Profile Summary
-                                </h4>
-                                <div class="grid grid-cols-2 gap-3 text-sm">
-                                    <div class="col-span-2">
-                                        <span class="text-gray-600">Academic Year:</span>
-                                        <span class="ml-2 font-medium text-blue-700">
-                                            {{ profileData.profile.academicYear || 'Not selected' }}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600">Start Date:</span>
-                                        <span class="ml-2 font-medium">
-                                            {{ getDateRangeForProfile(idx)?.[0] | date: 'dd MMM yyyy' }}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600">End Date:</span>
-                                        <span class="ml-2 font-medium">
-                                            {{ getDateRangeForProfile(idx)?.[1] | date: 'dd MMM yyyy' }}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600">Gender:</span>
-                                        <span class="ml-2 font-medium">{{ profileData.profile.gender || 'Not set' }}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600">Contact:</span>
-                                        <span class="ml-2 font-medium">{{ profileData.profile.contactNumber || 'N/A' }}</span>
-                                    </div>
-                                    <div class="col-span-2">
-                                        <span class="text-gray-600">Departments:</span>
-                                        <span class="ml-2 font-medium">
-                                            {{ profileData.selectedDepartments }}
-                                        </span>
-                                    </div>
-                                    <div class="col-span-2">
-                                        <span class="text-gray-600">Subjects:</span>
-                                        <span class="ml-2 font-medium"> {{ profileData.profile.subjectIds?.length || 0 }} selected </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Action Buttons for Current Profile -->
-                            @if (idx === activeProfileIndex()) {
-                                <div class="flex gap-3 justify-end border-t pt-4">
-                                    <p-button label="Discard Changes" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" [disabled]="!hasUnsavedChanges()" (click)="discardChanges()"> </p-button>
-                                    <p-button label="Save Profile" icon="pi pi-check" severity="success" size="small" [disabled]="!hasUnsavedChanges()" (click)="onSave()"> </p-button>
-                                </div>
-                            }
-                        </div>
-                    </p-tabPanel>
-                }
-            </p-tabView>
+                        </p-tabpanel>
+                    }
+                </p-tabpanels>
+            </p-tabs>
         </div>
     </div>
 
