@@ -48,7 +48,8 @@ export const appRoutes: Routes = [
                         path: ':tenantId/branch',
                         component: BranchComponent,
                         title: 'Tenant Branches'
-                    }
+                    },
+                    { path: 'employees', component: EmployeeListComponent }
                 ]
             },
 
