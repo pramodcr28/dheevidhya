@@ -33,18 +33,13 @@ export class DetailedReportsComponent {
     attendanceDateRange: Date[] = [];
     ngOnInit() {
         this.selectedSection = [];
-        // this.attendenceService.currentDate = new Date().toLocaleDateString('en-US', {
-        //   year: 'numeric',
-        //   month: 'long',
-        //   day: 'numeric'
-        // });
         this.getReports();
     }
 
     getReports() {
         console.log();
         let reqBody = {
-            academicYear: '2025-2026',
+            academicYear: this.commonService.currentUser.academicYear,
             departmentIds: this.selectedSection.map((sec) => sec.departmentId),
             classIds: this.selectedSection.map((sec) => sec.classId),
             sectionIds: this.selectedSection.map((sec) => sec.sectionId)
@@ -57,15 +52,13 @@ export class DetailedReportsComponent {
         if (this.selectedSubject.length) {
             reqBody['subjectIds'] = [...this.selectedSubject.map((sub) => sub.code)];
         }
-
         if (this.attendanceDateRange?.length === 2) {
-            reqBody['attendanceDateRange'] = this.attendanceDateRange.map((d) => d.toISOString().split('T')[0]);
+            reqBody['attendanceDateRange'] = this.attendanceDateRange.map((d) => this.commonService.formatDateForApi(d));
         }
 
         this.attendenceService.getReports(0, 100, 'id', 'ASC', reqBody).subscribe({
             next: (res: any) => {
                 this.classAttendanceReport = res.content;
-                // console.log(this.classAttendanceReport);
             }
         });
     }

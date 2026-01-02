@@ -47,7 +47,6 @@ export class TakeAttendenceComponent {
     students = signal<any[] | null>([]);
     today: Date = new Date();
     takeAttandence = false;
-    ngOnInit() {}
     onSectionChange() {
         this.store.select(getSubjectsByFilters([this.selectedSection.departmentId], [this.selectedSection.classId], [this.selectedSection.sectionId])).subscribe((subjects) => {
             this.subjects = subjects;
@@ -111,7 +110,6 @@ export class TakeAttendenceComponent {
                             });
 
                             this.loader.hide();
-                            console.log(this.currentAttendence);
                         });
                 }
             });
@@ -129,29 +127,27 @@ export class TakeAttendenceComponent {
 
     saveAttendance() {
         if (this.selectedSubject) {
-            this.commonService.currentUser.subscribe((user) => {
-                let todayAttendence: AttendanceRequest = {
-                    id: null,
-                    academicYear: user.academicYear,
-                    semester: 'Fall',
-                    departmentId: this.selectedSection.departmentId,
-                    classId: this.selectedSection.classId,
-                    sectionId: this.selectedSection.sectionId,
-                    subjectCode: this.selectedSubject.code,
-                    subjectName: this.selectedSubject.name,
-                    instructorName: user.username,
-                    instructorId: user.userId,
-                    sessionDate: formatDate(this.slotDate, this.commonService.dateFormate, 'en-US'),
-                    scheduleDay: 'monday',
-                    startTime: '10:00:00',
-                    endTime: '11:00:00',
-                    period: 0,
-                    exceptions: this.currentAttendence.filter((attendence) => attendence.status != 'PRESENT')
-                };
+            let todayAttendence: AttendanceRequest = {
+                id: null,
+                academicYear: this.commonService.currentUser.academicYear,
+                semester: 'Fall',
+                departmentId: this.selectedSection.departmentId,
+                classId: this.selectedSection.classId,
+                sectionId: this.selectedSection.sectionId,
+                subjectCode: this.selectedSubject.code,
+                subjectName: this.selectedSubject.name,
+                instructorName: this.commonService.currentUser.username,
+                instructorId: this.commonService.currentUser.userId,
+                sessionDate: formatDate(this.slotDate, this.commonService.dateFormate, 'en-US'),
+                scheduleDay: 'monday',
+                startTime: '10:00:00',
+                endTime: '11:00:00',
+                period: 0,
+                exceptions: this.currentAttendence.filter((attendence) => attendence.status != 'PRESENT')
+            };
 
-                this.attendenceService.create(todayAttendence).subscribe((res) => {
-                    this.messageService.add({ text: 'Congrats! Record created!', closeIcon: 'close' });
-                });
+            this.attendenceService.create(todayAttendence).subscribe((res) => {
+                this.messageService.add({ text: 'Congrats! Record created!', summary: 'Success', severity: 'success', closeIcon: 'close' });
             });
         } else {
             this.messageService.add({

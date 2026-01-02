@@ -1,16 +1,20 @@
 <p-table
     #dt
     [value]="students()!"
-    [rows]="10"
+    [rows]="itemsPerPage"
     [columns]="cols"
     [paginator]="true"
+    [lazy]="true"
+    [totalRecords]="totalItems"
+    (onLazyLoad)="onPageChange($event)"
+    (onSort)="onSort($event)"
     [globalFilterFields]="['firstName', 'lastName', 'email']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [rowHover]="true"
     dataKey="id"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Students"
     [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[10, 20, 30]"
+    [rowsPerPageOptions]="[10, 20, 30, 50]"
     styleClass="p-datatable-striped">
     
     <ng-template pTemplate="caption">
@@ -22,6 +26,7 @@
                     <input 
                         pInputText 
                         type="text" 
+                        (input)="dt.filterGlobal($any($event.target).value, 'contains')"
                         placeholder="Search students..."
                         class="w-64" />
                 </p-iconfield>
@@ -58,13 +63,13 @@
     
     <ng-template pTemplate="body" let-student>
         <tr class="hover:bg-blue-50 transition-colors">
-                <td style="min-width: 12rem">
+            <td style="min-width: 12rem">
                 <div class="flex items-center gap-2">
                     <i class="pi pi-user text-blue-600"></i>
                     <span class="font-medium">{{ student.firstName + " " + student.lastName }}</span>
                 </div>
             </td>
-             <td style="min-width: 12rem">{{ student.contactNumber || 'N/A' }}</td>
+            <td style="min-width: 12rem">{{ student.contactNumber || 'N/A' }}</td>
             <td style="min-width: 12rem">{{ student.email }}</td>
             <td style="min-width: 12rem">
                 <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
@@ -110,7 +115,7 @@
     
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td colspan="5" class="text-center py-8">
+            <td colspan="6" class="text-center py-8">
                 <div class="flex flex-col items-center gap-3">
                     <i class="pi pi-users text-gray-400 text-5xl"></i>
                     <p class="text-gray-600 text-lg">No students found</p>

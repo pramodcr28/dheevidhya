@@ -12,10 +12,9 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getBranch, getDepartmentById } from '../../../core/store/user-profile/user-profile.selectors';
+import { getDepartmentById } from '../../../core/store/user-profile/user-profile.selectors';
 import { ExaminationDTO, ExamResult, StudentResult } from '../../models/examination.model';
 import { IDepartmentConfig, Section } from '../../models/org.model';
-import { IBranch } from '../../models/tenant.model';
 import { ExaminationService } from '../../service/examination.service';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { UserService } from '../../service/user.service';
@@ -28,7 +27,7 @@ import { UserService } from '../../service/user.service';
     providers: [ConfirmationService, MessageService]
 })
 export class UploadResultComponent implements OnInit {
-    currentBranch: IBranch;
+    // currentBranch: IBranch;
     exams: any[] = [];
     selectedExam: ExaminationDTO;
     sections: Section[] = [];
@@ -51,17 +50,17 @@ export class UploadResultComponent implements OnInit {
     public isSaving = false;
 
     ngOnInit(): void {
-        this.store.select(getBranch).subscribe((branch) => {
-            this.currentBranch = branch;
-            this.getExams();
-        });
+        // this.store.select(getBranch).subscribe((branch) => {
+        //     this.currentBranch = branch;
+        // });
+        this.getExams();
     }
 
     getExams() {
         this.isLoading = true;
         this.examinationService
             .search(0, 100, 'id', 'ASC', {
-                'branchId.equals': this.currentBranch.id?.toString()
+                'branchId.equals': this.commonService.branch?.id?.toString()
             })
             .subscribe({
                 next: (res) => {

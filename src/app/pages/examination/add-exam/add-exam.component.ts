@@ -18,10 +18,9 @@ import { ToastModule } from 'primeng/toast';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments, getBranch } from '../../../core/store/user-profile/user-profile.selectors';
+import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
 import { ExaminationDTO, ExamStatusLabels, ExamTypeLabels } from '../../models/examination.model';
 import { IDepartmentConfig } from '../../models/org.model';
-import { IBranch } from '../../models/tenant.model';
 import { Subject } from '../../models/time-table';
 import { ExaminationService } from '../../service/examination.service';
 import { ExamSlotsComponent } from '../exam-slots/exam-slots.component';
@@ -57,7 +56,7 @@ export class AddExamComponent {
     private store = inject(Store<{ userProfile: UserProfileState }>);
     associatedDepartments: any[] = [];
     selectedDepartment: IDepartmentConfig;
-    currentBranch: IBranch;
+    // currentBranch: IBranch;
     treeNodes: TreeNode[] = [];
     selectedSubjects: TreeNode[] = [];
     submitted = false;
@@ -81,14 +80,14 @@ export class AddExamComponent {
             this.associatedDepartments = departments;
         });
 
-        this.store.select(getBranch).subscribe((branch) => {
-            this.currentBranch = branch;
-        });
+        // this.store.select(getBranch).subscribe((branch) => {
+        //     this.currentBranch = branch;
+        // });
 
         this.examForm = this.fb.group({
             totalMarks: [null, Validators.required],
             departmentId: [null, Validators.required],
-            branchId: [null, Validators.required],
+            branchId: [this.commonService.branch?.id?.toString(), Validators.required],
             examType: [null, Validators.required],
             resultDeclarationDate: [null]
         });
@@ -97,7 +96,7 @@ export class AddExamComponent {
 
     getExams() {
         this.loader.show('Fetching Exams List');
-        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.equals': this.currentBranch.id?.toString() }).subscribe((res) => {
+        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString() }).subscribe((res) => {
             this.exams = res.content;
             this.loader.hide();
         });
@@ -168,7 +167,7 @@ export class AddExamComponent {
     onDepartmentChange() {
         if (this.selectedDepartment) {
             this.examForm.get('departmentId').setValue(this.selectedDepartment?.id);
-            this.examForm.get('branchId').setValue(this.currentBranch.id);
+            this.examForm.get('branchId').setValue(this.commonService.branch?.id?.toString());
             this.treeNodes = this.selectedDepartment?.department.classes?.map((cls) => ({
                 label: 'Class: ' + cls.name,
                 key: cls.name,
@@ -197,7 +196,7 @@ export class AddExamComponent {
             const keyParts = subject.key?.split(':') ?? [];
             if (keyParts.length !== 4) return;
 
-            const [className, sectionName, _subName, _subId] = keyParts;
+            const [_subName, _subId] = keyParts;
 
             const timeTableSubject: Subject = {
                 color: this.commonService.themeGradients[index],
@@ -276,7 +275,6 @@ export class AddExamComponent {
 
         function collectMatchesWithParentDetection(node: TreeNode): boolean {
             if (!node.children || node.children.length === 0) {
-                // Leaf node
                 const isMatch = subjectKeys.has(node.key);
                 if (isMatch) selected.push(node);
                 return isMatch;
@@ -333,7 +331,6 @@ export class AddExamComponent {
                 });
             });
             this.clearDailogCache();
-            // this.displayDialog = false;
         }
     }
 

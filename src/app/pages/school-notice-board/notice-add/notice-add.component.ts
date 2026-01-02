@@ -313,7 +313,7 @@ export class NoticeAddComponent implements OnInit, OnChanges {
 
         const notice: Notice = {
             id: this.editMode && this.noticeData ? this.noticeData.id : null,
-            academicYear: this.commonService.getUserInfo.academicYear,
+            academicYear: this.commonService.currentUser.academicYear,
             categoryType: raw.categoryType as CategoryType,
             title: raw.title ?? '',
             content: raw.content ?? '',

@@ -51,7 +51,6 @@ export class CommonService {
     getUserInfo = null;
     getUserAuthorities: string[] = [];
     constructor() {
-        // Initialize values by subscribing once
         this.store.select(getBranch).subscribe((res) => {
             this.branch = res;
         });

@@ -114,22 +114,18 @@ export class SchoolNoticeBoardComponent implements OnInit {
     loadNotices() {
         this.loading = true;
         this.loader.show('Fetching notices...');
-
         const filters: any = {
-            'branchId.like': this.commonService.getUserInfo.branchId
+            'branchId.eq': this.commonService.branch?.id
         };
 
-        // Category filter
         if (this.selectedCategory !== 'ALL') {
             filters['categoryType.equals'] = this.selectedCategory;
         }
 
-        // Priority filter
         if (this.selectedPriority) {
             filters['priority.equals'] = this.selectedPriority;
         }
 
-        // Search filter
         if (this.searchText.trim()) {
             filters['title.contains'] = this.searchText.trim();
         }

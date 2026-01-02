@@ -127,7 +127,7 @@ export class StaffAttendanceManagementComponent implements OnInit {
             filters['departmentId.in'] = this.logFilters.departments;
         }
 
-        filters['branchId.like'] = this.commonService.getUserInfo?.branchId;
+        filters['branchId.eq'] = this.commonService.branch?.id?.toString() || '';
 
         this.staffAttendanceService.searchAttendance({ filters: filters, page: 0, size: 100 }).subscribe({
             next: (response) => {

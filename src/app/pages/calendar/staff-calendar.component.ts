@@ -243,7 +243,7 @@ export class StaffAttendanceComponent implements OnInit {
                         sortDirection: 'desc',
                         filters: {
                             'categoryType.equals': 'HOLIDAY',
-                            'branchId.like': this.commonService.getUserInfo?.branchId
+                            'branchId.eq': this.commonService?.branch?.id
                         }
                     };
                     this.notificationService.search(request).subscribe((result) => {
@@ -443,10 +443,10 @@ export class StaffAttendanceComponent implements OnInit {
             this.selectedDayAttendance = {
                 staffId: this.commonService.getUserInfo.userId,
                 staffName: this.commonService.getUserInfo.fullName,
-                branchId: this.commonService.getUserInfo.branchId,
+                branchId: this.commonService.branch?.id?.toString() || '',
                 departmentId: this.commonService.getUserInfo.departmentId,
                 departmentName: this.commonService.getUserInfo.departmentName,
-                branchName: this.commonService.getUserInfo.branchName,
+                branchName: this.commonService.branch?.name || '',
                 attendanceDate: this.datePipe.transform(day.date, 'yyyy-MM-dd') || '',
                 status: 'PRESENT',
                 checkInTime: undefined,
@@ -510,8 +510,8 @@ export class StaffAttendanceComponent implements OnInit {
             staffName: this.commonService.getUserInfo.fullName,
             departmentId: this.commonService.getUserInfo.departmentId,
             departmentName: this.commonService.getUserInfo.departmentName,
-            branchId: this.commonService.getUserInfo.branchId,
-            branchName: this.commonService.getUserInfo.branchName,
+            branchId: this.commonService.branch?.id?.toString() || '',
+            branchName: this.commonService.branch?.name || '',
             attendanceDate: this.datePipe.transform(now, 'yyyy-MM-dd'),
             checkInTime: this.datePipe.transform(now, 'HH:mm:ss'),
             status: 'PRESENT'

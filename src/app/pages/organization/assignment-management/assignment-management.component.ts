@@ -199,26 +199,24 @@ export class AssignmentManagementComponent implements OnInit {
             filters: {}
         };
 
-        this.commonService.currentUser.subscribe((user) => {
-            searchRequest.filters['assignmentId'] = this.selectedAssignment.id;
-            if (this.isStudentView) {
-                searchRequest.filters['studentId.like'] = user.userId;
-            }
-            this.loader.show('Fetching Assignments');
-            this.assignmentService.searchSubmission(searchRequest).subscribe((response) => {
-                this.loader.hide();
-                if (user?.roles?.student) {
-                    if (response?.content.length) {
-                        this.assignmentSubmission = response?.content[0];
-                        this.showSubmitDialog = true;
-                    } else {
-                        this.newAssignmentSubmission(user);
-                    }
+        searchRequest.filters['assignmentId'] = this.selectedAssignment.id;
+        if (this.isStudentView) {
+            searchRequest.filters['studentId.like'] = this.commonService.currentUser.userId;
+        }
+        this.loader.show('Fetching Assignments');
+        this.assignmentService.searchSubmission(searchRequest).subscribe((response) => {
+            this.loader.hide();
+            if (this.commonService.currentUser?.roles?.student) {
+                if (response?.content.length) {
+                    this.assignmentSubmission = response?.content[0];
+                    this.showSubmitDialog = true;
                 } else {
-                    this.currentView = 'submissions';
-                    this.assignmentSubmissions = response?.content;
+                    this.newAssignmentSubmission(this.commonService.currentUser);
                 }
-            });
+            } else {
+                this.currentView = 'submissions';
+                this.assignmentSubmissions = response?.content;
+            }
         });
     }
 

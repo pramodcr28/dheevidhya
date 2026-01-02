@@ -67,7 +67,9 @@ export class StudentListComponent {
     students = signal<any[] | null>([]);
     itemsPerPage = ITEMS_PER_PAGE;
     totalItems = 0;
-    page = 1;
+    page = 0; // Changed to 0-based for API
+    sortField = 'id';
+    sortOrder: 'ASC' | 'DESC' = 'ASC';
     router = inject(Router);
     studentService = inject(UserService);
     profileService = inject(ProfileConfigService);
@@ -90,13 +92,14 @@ export class StudentListComponent {
     load(): void {
         this.loader.show('Fetching Student Data');
         this.studentService
-            .userSearch(0, 100, 'id', 'ASC', {
+            .userSearch(this.page, this.itemsPerPage, this.sortField, this.sortOrder, {
                 'branch_id.eq': this.commonService.branch?.id,
                 'authorities.name.in': ['STUDENT']
             })
             .subscribe({
                 next: (res: any) => {
                     this.students.set(res.content);
+                    this.totalItems = res.totalElements || 0;
                     this.loader.hide();
                 },
                 error: (error) => {
@@ -108,6 +111,19 @@ export class StudentListComponent {
                     });
                 }
             });
+    }
+
+    onPageChange(event: any): void {
+        this.itemsPerPage = event.rows;
+        this.page = Math.floor(event.first / event.rows);
+        this.load();
+    }
+
+    onSort(event: any): void {
+        this.sortField = event.field || 'id';
+        this.sortOrder = event.order === 1 ? 'ASC' : 'DESC';
+        this.page = 0; // Reset to first page on sort
+        this.load();
     }
 
     openNew() {
@@ -258,10 +274,6 @@ export class StudentListComponent {
     }
 
     editStudent(student: IProfileConfig) {
-        // this.studentService.find(+student.userId).subscribe((result: any) => {
-        //     this.student = { ...result.body };
-        //     this.studentDialog = true;
-        // });
         this.studentDialog = true;
         this.student = { ...student };
     }
