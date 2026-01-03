@@ -17,13 +17,13 @@ import { AppConfigurator } from './app.configurator';
     selector: 'app-topbar',
     standalone: true,
     imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, RouterLink, DropdownModule, FormsModule, ReactiveFormsModule],
-    template: ` <div class="layout-topbar">
+    template: `<div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
                 <i class="pi pi-bars"></i>
             </button>
             <a class="layout-topbar-logo" routerLink="/">
-                <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-auto md:w-auto">
                     <path
                         fill-rule="evenodd"
                         clip-rule="evenodd"
@@ -40,24 +40,32 @@ import { AppConfigurator } from './app.configurator';
                         />
                     </g>
                 </svg>
-                <span>Dheevidhya</span>
+                <span class="logo-text whitespace-nowrap text-sm sm:text-base md:text-lg hidden xs:inline">Dheevidhya</span>
             </a>
         </div>
 
         <div class="layout-topbar-actions">
             @if (!commonService.getUserAuthorities.includes('SUPER_ADMIN') && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
-                <div class="flex items-center mr-3">
-                    <p-dropdown [options]="academicYears" [(ngModel)]="selectedAcademicYear" placeholder="Academic Year" styleClass="w-40" [disabled]="loading || academicYears.length <= 1" (onChange)="onAcademicYearChange()"> </p-dropdown>
+                <div class="flex items-center mr-2 sm:mr-3">
+                    <p-dropdown
+                        [options]="academicYears"
+                        [(ngModel)]="selectedAcademicYear"
+                        placeholder="Academic Year"
+                        styleClass="w-24 sm:w-32 md:w-40 text-xs sm:text-sm"
+                        [disabled]="loading || academicYears.length <= 1"
+                        (onChange)="onAcademicYearChange()"
+                    >
+                    </p-dropdown>
                 </div>
             }
 
-            <div class="layout-config-menu">
-                <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
-                    <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
+            <div class="layout-config-menu flex gap-1 sm:gap-2">
+                <button type="button" class="layout-topbar-action p-2 sm:p-2.5 min-w-[2rem] sm:min-w-[2.5rem] min-h-[2rem] sm:min-h-[2.5rem]" (click)="toggleDarkMode()">
+                    <i [ngClass]="{ 'pi text-sm sm:text-base': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>
-                <div class="relative">
+                <div class="relative hidden sm:block">
                     <button
-                        class="layout-topbar-action layout-topbar-action-highlight"
+                        class="layout-topbar-action layout-topbar-action-highlight p-2 sm:p-2.5 min-w-[2rem] sm:min-w-[2.5rem] min-h-[2rem] sm:min-h-[2.5rem]"
                         pStyleClass="@next"
                         enterFromClass="hidden"
                         enterActiveClass="animate-scalein"
@@ -65,28 +73,26 @@ import { AppConfigurator } from './app.configurator';
                         leaveActiveClass="animate-fadeout"
                         [hideOnOutsideClick]="true"
                     >
-                        <i class="pi pi-palette"></i>
+                        <i class="pi pi-palette text-sm sm:text-base"></i>
                     </button>
                     <app-configurator />
                 </div>
             </div>
 
-            <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
-                <i class="pi pi-ellipsis-v"></i>
+            <button
+                class="layout-topbar-menu-button layout-topbar-action p-2 sm:p-2.5 min-w-[2rem] sm:min-w-[2.5rem] min-h-[2rem] sm:min-h-[2.5rem]"
+                pStyleClass="@next"
+                enterFromClass="hidden"
+                enterActiveClass="animate-scalein"
+                leaveToClass="hidden"
+                leaveActiveClass="animate-fadeout"
+                [hideOnOutsideClick]="true"
+            >
+                <i class="pi pi-ellipsis-v text-sm sm:text-base"></i>
             </button>
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <!-- <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-calendar"></i>
-                        <span>Calendar</span>
-                    </button> -->
-                    <!-- <a [routerLink]="'/auth/login'">
-                        <button type="button" class="layout-topbar-action">
-                            <i class="pi pi-fw pi-sign-out"></i>
-                            <span>Logout</span>
-                        </button>
-                    </a> -->
                     <a [routerLink]="'/profile'">
                         <button type="button" class="layout-topbar-action">
                             <i class="pi pi-user"></i>
@@ -108,6 +114,7 @@ export class AppTopbar {
     constructor(public layoutService: LayoutService) {}
     messageService = inject(MessageService);
     commonService = inject(CommonService);
+
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
     }
@@ -125,7 +132,6 @@ export class AppTopbar {
             next: (response) => {
                 this.store.dispatch(addToken({ token: response.token }));
 
-                // 👤 update profile
                 this.store.dispatch(loadUserProfile({ userConfig: response.profile }));
 
                 this.messageService.add({
@@ -151,8 +157,6 @@ export class AppTopbar {
         this.accountingService.getAcademicYears().subscribe({
             next: (years) => {
                 this.academicYears = years;
-
-                // backend already returns DESC → latest first
                 if (years.length) {
                     this.selectedAcademicYear = years[0];
                 }
