@@ -5,30 +5,33 @@
     [columns]="cols"
     [paginator]="true"
     [globalFilterFields]="['firstName', 'lastName', 'email']"
-    [tableStyle]="{ 'min-width': '75rem' }"
+    [tableStyle]="{ 'min-width': '100%' }"
     [rowHover]="true"
     dataKey="id"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Staff"
     [showCurrentPageReport]="true"
     [rowsPerPageOptions]="[10, 20, 30]"
-    styleClass="p-datatable-striped">
+    styleClass="p-datatable-striped"
+    [responsive]="true"
+    [responsiveLayout]="'scroll'">
     
     <ng-template pTemplate="caption">
-        <div class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
-            <h5 class="m-0 text-xl font-bold text-gray-800">All Staff List</h5>
-            <span class="flex items-center justify-between gap-3">
-                <p-iconfield>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+            <h5 class="m-0 text-lg sm:text-xl font-bold text-gray-800">All Staff List</h5>
+            <span class="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto gap-2 sm:gap-3">
+                <p-iconfield class="w-full sm:w-auto">
                     <p-inputicon styleClass="pi pi-search" />
                     <input 
                         pInputText 
                         type="text" 
                         placeholder="Search staff..."
-                        class="w-64" />
+                        class="w-full sm:w-64 text-sm" />
                 </p-iconfield>
                 <p-button  
                     icon="pi pi-plus" 
                     label="Add Staff"
-                    [rounded]="true" 
+                    [rounded]="true"
+                    styleClass="w-full sm:w-auto text-sm justify-center"
                     (onClick)="openNew()" />
             </span>
         </div>
@@ -36,65 +39,65 @@
     
     <ng-template pTemplate="header">
         <tr>
-            <th style="min-width: 12rem">Name</th>
-            <th pSortableColumn="contactNumber" style="min-width:12rem">
+            <th class="min-w-[10rem] text-xs sm:text-sm">Name</th>
+            <th pSortableColumn="contactNumber" class="min-w-[10rem] text-xs sm:text-sm">
                 Contact Number
                 <p-sortIcon field="contactNumber" />
             </th>
-            <th pSortableColumn="email" style="min-width:12rem">
+            <th pSortableColumn="email" class="min-w-[10rem] text-xs sm:text-sm">
                 Email
                 <p-sortIcon field="email" />
             </th>
-            <th style="min-width:12rem">
+            <th class="min-w-[10rem] text-xs sm:text-sm">
                 User Name
             </th>
-            <th pSortableColumn="authorities" style="min-width: 12rem">
+            <th pSortableColumn="authorities" class="min-w-[10rem] text-xs sm:text-sm">
                 Authorities
                 <p-sortIcon field="authorities" />
             </th>
-            <th style="min-width: 8rem" class="text-center">Actions</th>
+            <th class="min-w-[8rem] text-center text-xs sm:text-sm">Actions</th>
         </tr>
     </ng-template>
     
     <ng-template pTemplate="body" let-employee>
         <tr class="hover:bg-blue-50 transition-colors">
-            <td style="min-width: 12rem">
+            <td class="min-w-[10rem]">
                 <div class="flex items-center gap-2">
-                    <i class="pi pi-user text-blue-600"></i>
-                    <span class="font-medium">{{ employee.firstName + " " + employee.lastName }}</span>
+                    <i class="pi pi-user text-blue-600 text-sm"></i>
+                    <span class="font-medium text-xs sm:text-sm">{{ employee.firstName + " " + employee.lastName }}</span>
                 </div>
             </td>
-            <td style="min-width: 12rem">{{ employee.contactNumber || 'N/A' }}</td>
-            <td style="min-width: 12rem">{{ employee.email }}</td>
-            <td style="min-width: 12rem">
-                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+            <td class="min-w-[10rem] text-xs sm:text-sm">{{ employee.contactNumber || 'N/A' }}</td>
+            <td class="min-w-[10rem] text-xs sm:text-sm break-all">{{ employee.email }}</td>
+            <td class="min-w-[10rem]">
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
                     {{ employee.login }}
                 </span>
             </td>
-            <td style="min-width: 12rem">
+            <td class="min-w-[10rem]">
                 <div class="flex flex-wrap gap-1">
                     @for (auth of employee.authorities; track auth.name) {
-                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                        <span class="bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-xs">
                             {{ auth.name }}
                         </span>
                     }
                 </div>
             </td>
             <td class="text-center">
-                <div class="flex justify-center gap-2">
+                <div class="flex justify-center gap-1 sm:gap-2">
                     <button 
                         type="button"
-                        class="p-2 hover:bg-blue-100 rounded-full transition-colors"
+                        class="p-1.5 sm:p-2 hover:bg-blue-100 rounded-full transition-colors"
                         (click)="editEmployee(employee)"
                         title="Edit Staff">
-                        <i class="pi pi-user-edit text-blue-600 text-lg"></i>
+                        <i class="pi pi-user-edit text-blue-600 text-base sm:text-lg"></i>
                     </button>
                     <button 
                         type="button"
-                        class="p-2 hover:bg-red-100 rounded-full transition-colors"
+                        class="p-1.5 sm:p-2 hover:bg-red-100 rounded-full transition-colors"
                         (click)="deleteEmployee(employee)"
                         title="Delete Staff">
-                        <i class="pi pi-trash text-red-600 text-lg"></i>
+                        <i class="pi pi-trash text-red-600 text-base sm:text-lg"></i>
                     </button>
                 </div>
             </td>
@@ -103,14 +106,15 @@
     
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td colspan="6" class="text-center py-8">
-                <div class="flex flex-col items-center gap-3">
-                    <i class="pi pi-users text-gray-400 text-5xl"></i>
-                    <p class="text-gray-600 text-lg">No staff members found</p>
+            <td colspan="6" class="text-center py-6 sm:py-8">
+                <div class="flex flex-col items-center gap-2 sm:gap-3">
+                    <i class="pi pi-users text-gray-400 text-4xl sm:text-5xl"></i>
+                    <p class="text-gray-600 text-base sm:text-lg">No staff members found</p>
                     <p-button 
                         label="Add First Staff Member" 
                         icon="pi pi-plus" 
                         (onClick)="openNew()"
+                        styleClass="text-sm"
                         [outlined]="true">
                     </p-button>
                 </div>
@@ -128,5 +132,5 @@
         (cancel)="hideDialog()">
     </app-employee-dialog>
 }
-<p-confirmdialog [style]="{ width: '450px' }" />
+<p-confirmdialog [style]="{ width: '90vw', 'max-width': '450px' }" />
 <p-toast position="top-right" />

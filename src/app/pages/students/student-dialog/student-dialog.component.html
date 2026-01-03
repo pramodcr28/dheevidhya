@@ -1,106 +1,104 @@
-<p-dialog [(visible)]="visible" [style]="{ width: '90vw', maxWidth: '1400px' }" [header]="student && student.id ? 'Edit Student' : 'Add Student'" [modal]="true" [maximizable]="true" (onHide)="onCancel()" [closable]="!hasUnsavedChanges()">
-    <div class="space-y-6">
-        <!-- Unsaved Changes Warning -->
+<p-dialog [(visible)]="visible" [style]="{ width: '95vw', maxWidth: '1400px' }" [header]="student && student.id ? 'Edit Student' : 'Add Student'" [modal]="true" [maximizable]="true" (onHide)="onCancel()" [closable]="!hasUnsavedChanges()">
+    <div class="space-y-4 md:space-y-6">
         @if (hasUnsavedChanges() || hasUnsavedUserChanges()) {
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-3">
-                <i class="pi pi-exclamation-triangle text-yellow-600 text-2xl"></i>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 md:p-4 flex items-start sm:items-center gap-3">
+                <i class="pi pi-exclamation-triangle text-yellow-600 text-xl md:text-2xl mt-1 sm:mt-0"></i>
                 <div class="flex-1">
-                    <h4 class="font-semibold text-yellow-800">Unsaved Changes</h4>
+                    <h4 class="font-semibold text-yellow-800 text-sm md:text-base">Unsaved Changes</h4>
                     @if (hasUnsavedUserChanges()) {
-                        <p class="text-sm text-yellow-700">• You have unsaved changes in user information</p>
+                        <p class="text-xs md:text-sm text-yellow-700">• You have unsaved changes in user information</p>
                     }
                     @if (hasUnsavedChanges()) {
-                        <p class="text-sm text-yellow-700">• You have unsaved changes in the current profile</p>
+                        <p class="text-xs md:text-sm text-yellow-700">• You have unsaved changes in the current profile</p>
                     }
                 </div>
             </div>
         }
 
-        <!-- Basic User Information Section -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 md:p-6 rounded-lg border border-blue-200">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                <h3 class="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
                     <i class="pi pi-user text-blue-600"></i>
                     Basic Information
                 </h3>
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
                     @if (student && student.id) {
-                        <p-button label="Discard User Changes" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" [disabled]="!hasUnsavedUserChanges()" (click)="discardUserChanges()"> </p-button>
-                        <p-button label="Save User" icon="pi pi-save" severity="info" size="small" [disabled]="!hasUnsavedUserChanges()" (click)="onSaveUser()"> </p-button>
+                        <p-button label="Discard" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" class="flex-1 sm:flex-none" [disabled]="!hasUnsavedUserChanges()" (click)="discardUserChanges()"> </p-button>
+                        <p-button label="Save User" icon="pi pi-save" severity="info" size="small" class="flex-1 sm:flex-none" [disabled]="!hasUnsavedUserChanges()" (click)="onSaveUser()"> </p-button>
                     }
                 </div>
             </div>
             @if (studentForm) {
-                <form [formGroup]="studentForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div>
-                        <label for="login" class="block font-semibold mb-2 text-gray-700">Registration ID *</label>
+                <form [formGroup]="studentForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="flex flex-col">
+                        <label for="login" class="block font-semibold mb-1 text-sm text-gray-700">Registration ID *</label>
                         <input type="text" pInputText id="login" formControlName="login" class="w-full" />
                         <small class="text-red-500" *ngIf="studentForm.get('login')?.invalid && (submitted || studentForm.get('login')?.touched)"> Registration ID is required. </small>
                     </div>
 
-                    <div>
-                        <label for="firstName" class="block font-semibold mb-2 text-gray-700">First Name *</label>
+                    <div class="flex flex-col">
+                        <label for="firstName" class="block font-semibold mb-1 text-sm text-gray-700">First Name *</label>
                         <input type="text" pInputText id="firstName" formControlName="firstName" class="w-full" />
                         <small class="text-red-500" *ngIf="studentForm.get('firstName')?.invalid && (submitted || studentForm.get('firstName')?.touched)"> First Name is required. </small>
                     </div>
 
-                    <div>
-                        <label for="lastName" class="block font-semibold mb-2 text-gray-700">Last Name *</label>
+                    <div class="flex flex-col">
+                        <label for="lastName" class="block font-semibold mb-1 text-sm text-gray-700">Last Name *</label>
                         <input type="text" pInputText id="lastName" formControlName="lastName" class="w-full" />
                         <small class="text-red-500" *ngIf="studentForm.get('lastName')?.invalid && (submitted || studentForm.get('lastName')?.touched)"> Last Name is required. </small>
                     </div>
 
-                    <div>
-                        <label for="email" class="block font-semibold mb-2 text-gray-700">Email</label>
+                    <div class="flex flex-col">
+                        <label for="email" class="block font-semibold mb-1 text-sm text-gray-700">Email</label>
                         <input type="email" pInputText id="email" formControlName="email" class="w-full" />
                     </div>
 
-                    <div>
-                        <label for="houseNumber" class="block font-semibold mb-2 text-gray-700">House Number</label>
+                    <div class="flex flex-col">
+                        <label for="houseNumber" class="block font-semibold mb-1 text-sm text-gray-700">House Number</label>
                         <input type="text" pInputText id="houseNumber" formControlName="houseNumber" class="w-full" />
                     </div>
 
-                    <div>
-                        <label for="street" class="block font-semibold mb-2 text-gray-700">Street</label>
+                    <div class="flex flex-col">
+                        <label for="street" class="block font-semibold mb-1 text-sm text-gray-700">Street</label>
                         <input type="text" pInputText id="street" formControlName="street" class="w-full" />
                     </div>
 
-                    <div>
-                        <label for="locality" class="block font-semibold mb-2 text-gray-700">Locality *</label>
+                    <div class="flex flex-col">
+                        <label for="locality" class="block font-semibold mb-1 text-sm text-gray-700">Locality *</label>
                         <input type="text" pInputText id="locality" formControlName="locality" class="w-full" />
                         <small class="text-red-500" *ngIf="studentForm.get('locality')?.invalid && (submitted || studentForm.get('locality')?.touched)"> Locality is required. </small>
                     </div>
 
-                    <div>
-                        <label for="landmark" class="block font-semibold mb-2 text-gray-700">Landmark</label>
+                    <div class="flex flex-col">
+                        <label for="landmark" class="block font-semibold mb-1 text-sm text-gray-700">Landmark</label>
                         <input type="text" pInputText id="landmark" formControlName="landmark" class="w-full" />
                     </div>
 
-                    <div>
-                        <label for="taluk" class="block font-semibold mb-2 text-gray-700">Taluk</label>
+                    <div class="flex flex-col">
+                        <label for="taluk" class="block font-semibold mb-1 text-sm text-gray-700">Taluk</label>
                         <input type="text" pInputText id="taluk" formControlName="taluk" class="w-full" />
                     </div>
 
-                    <div>
-                        <label for="district" class="block font-semibold mb-2 text-gray-700">District *</label>
+                    <div class="flex flex-col">
+                        <label for="district" class="block font-semibold mb-1 text-sm text-gray-700">District *</label>
                         <input type="text" pInputText id="district" formControlName="district" class="w-full" />
                         <small class="text-red-500" *ngIf="studentForm.get('district')?.invalid && (submitted || studentForm.get('district')?.touched)"> District is required. </small>
                     </div>
 
-                    <div>
-                        <label for="state" class="block font-semibold mb-2 text-gray-700">State *</label>
+                    <div class="flex flex-col">
+                        <label for="state" class="block font-semibold mb-1 text-sm text-gray-700">State *</label>
                         <input type="text" pInputText id="state" formControlName="state" class="w-full" />
                         <small class="text-red-500" *ngIf="studentForm.get('state')?.invalid && (submitted || studentForm.get('state')?.touched)"> State is required. </small>
                     </div>
 
-                    <div>
-                        <label for="country" class="block font-semibold mb-2 text-gray-700">Country *</label>
+                    <div class="flex flex-col">
+                        <label for="country" class="block font-semibold mb-1 text-sm text-gray-700">Country *</label>
                         <input type="text" pInputText id="country" formControlName="country" class="w-full" />
                         <small class="text-red-500" *ngIf="studentForm.get('country')?.invalid && (submitted || studentForm.get('country')?.touched)"> Country is required. </small>
                     </div>
 
-                    <div>
-                        <label for="postalCode" class="block font-semibold mb-2 text-gray-700">Postal Code *</label>
+                    <div class="flex flex-col">
+                        <label for="postalCode" class="block font-semibold mb-1 text-sm text-gray-700">Postal Code *</label>
                         <input type="text" pInputText id="postalCode" formControlName="postalCode" class="w-full" />
                         <small class="text-red-500" *ngIf="studentForm.get('postalCode')?.invalid && (submitted || studentForm.get('postalCode')?.touched)"> Postal Code is required. </small>
                     </div>
@@ -108,38 +106,33 @@
             }
         </div>
 
-        <!-- Academic Year Profiles Section with Tabs -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-            <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
-                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50 gap-3">
+                <h3 class="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
                     <i class="pi pi-calendar text-purple-600"></i>
                     Academic Year Profiles
                 </h3>
-                <p-button icon="pi pi-plus" label="Add Profile" (onClick)="addNewProfile()" [outlined]="true" severity="success" size="small" [disabled]="hasNewProfile()"> </p-button>
+                <p-button icon="pi pi-plus" label="Add Profile" (onClick)="addNewProfile()" [outlined]="true" severity="success" size="small" class="w-full sm:w-auto" [disabled]="hasNewProfile()"> </p-button>
             </div>
 
             <p-tabs [value]="activeProfileIndex()" [scrollable]="true" (valueChange)="onTabChange($event)">
                 <p-tablist>
                     @for (profileData of profilesList(); track profileData.profile.academicYear; let idx = $index) {
                         <p-tab [value]="idx">
-                            <div class="flex items-center gap-2 px-2">
-                                <i class="pi pi-calendar-plus text-blue-600"></i>
-
-                                <span class="font-semibold">
-                                    {{ profileData.profile.academicYear || 'New Academic Year' }}
+                            <div class="flex items-center gap-2 px-1 whitespace-nowrap">
+                                <i class="pi pi-calendar-plus text-blue-600 text-sm"></i>
+                                <span class="font-semibold text-sm">
+                                    {{ profileData.profile.academicYear || 'New Year' }}
                                 </span>
-
                                 @if (profileData.profile.id == null) {
-                                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-semibold"> NEW </span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-bold uppercase"> NEW </span>
                                 }
-
                                 @if (idx === activeProfileIndex() && hasUnsavedChanges()) {
-                                    <i class="pi pi-circle-fill text-orange-500 text-xs" title="Unsaved changes"> </i>
+                                    <i class="pi pi-circle-fill text-orange-500 text-[8px]" title="Unsaved changes"> </i>
                                 }
-
                                 @if (profilesList().length > 1) {
-                                    <button type="button" class="ml-2 text-red-500 hover:text-red-700 transition-colors" (click)="deleteProfile(idx); $event.stopPropagation()">
-                                        <i class="pi pi-times"></i>
+                                    <button type="button" class="ml-1 text-red-500 hover:text-red-700 p-1" (click)="deleteProfile(idx); $event.stopPropagation()">
+                                        <i class="pi pi-times text-xs"></i>
                                     </button>
                                 }
                             </div>
@@ -150,155 +143,149 @@
                 <p-tabpanels>
                     @for (profileData of profilesList(); track profileData.profile.academicYear; let idx = $index) {
                         <p-tabpanel [value]="idx">
-                            <div class="p-6 space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block font-semibold mb-2 text-gray-700">
-                                        Academic Year Period *
-                                        <span class="text-xs text-gray-500 font-normal ml-2"> (Must be one year duration) </span>
-                                    </label>
+                            <div class="p-4 md:p-6 space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                    <div>
+                                        <label class="block font-semibold mb-1 text-sm text-gray-700">
+                                            Academic Year Period *
+                                            <span class="text-[10px] text-gray-500 font-normal block sm:inline sm:ml-2"> (Must be one year duration) </span>
+                                        </label>
+                                        <p-datepicker
+                                            [ngModel]="profilesList()[idx]?.dateRange"
+                                            (ngModelChange)="onAcademicYearChange(idx, $event)"
+                                            [ngModelOptions]="{ standalone: true }"
+                                            selectionMode="range"
+                                            view="month"
+                                            dateFormat="MM yy"
+                                            [showIcon]="true"
+                                            [iconDisplay]="'input'"
+                                            placeholder="Select range"
+                                            [style]="{ width: '100%' }"
+                                            appendTo="body"
+                                        >
+                                        </p-datepicker>
+                                        <small class="text-blue-600 block mt-1 text-xs">
+                                            <i class="pi pi-info-circle text-[10px]"></i>
+                                            Year: <strong>{{ profilesList()[idx]?.profile?.academicYear || 'Not selected' }}</strong>
+                                        </small>
+                                        <small class="text-red-500" *ngIf="submitted && (!profilesList()[idx]?.dateRange || profilesList()[idx]?.dateRange?.length !== 2)"> Academic year range is required. </small>
+                                    </div>
 
-                                    <p-datepicker
-                                        [ngModel]="profilesList()[idx]?.dateRange"
-                                        (ngModelChange)="onAcademicYearChange(idx, $event)"
-                                        [ngModelOptions]="{ standalone: true }"
-                                        selectionMode="range"
-                                        view="month"
-                                        dateFormat="MM yy"
-                                        [showIcon]="true"
-                                        [iconDisplay]="'input'"
-                                        placeholder="Select academic year range"
-                                        [style]="{ width: '100%' }"
-                                        appendTo="body"
-                                    >
-                                    </p-datepicker>
+                                    <div>
+                                        <label class="block font-semibold mb-1 text-sm text-gray-700">Contact Number</label>
+                                        <input type="text" pInputText [(ngModel)]="profileData.profile.contactNumber" (ngModelChange)="markAsChanged()" class="w-full" />
+                                    </div>
 
-                                    <small class="text-blue-600 block mt-1">
-                                        <i class="pi pi-info-circle"></i>
-                                        Academic Year:
-                                        <strong>{{ profilesList()[idx]?.profile?.academicYear || 'Not selected' }}</strong>
-                                    </small>
+                                    <div>
+                                        <label class="block font-semibold mb-1 text-sm text-gray-700">Gender *</label>
+                                        <p-select [options]="genderOptions" [(ngModel)]="profileData.profile.gender" (onChange)="markAsChanged()" optionLabel="label" optionValue="value" placeholder="Select Gender" [style]="{ width: '100%' }"> </p-select>
+                                        <small class="text-red-500" *ngIf="submitted && !profileData.profile.gender"> Gender is required. </small>
+                                    </div>
 
-                                    <small class="text-red-500" *ngIf="submitted && (!profilesList()[idx]?.dateRange || profilesList()[idx]?.dateRange?.length !== 2)"> Academic year range is required. </small>
-                                </div>
-
-                                <div>
-                                    <label class="block font-semibold mb-2 text-gray-700">Contact Number</label>
-                                    <input type="text" pInputText [(ngModel)]="profileData.profile.contactNumber" (ngModelChange)="markAsChanged()" class="w-full" />
-                                </div>
-
-                                <div>
-                                    <label class="block font-semibold mb-2 text-gray-700">Gender *</label>
-                                    <p-select [options]="genderOptions" [(ngModel)]="profileData.profile.gender" (onChange)="markAsChanged()" optionLabel="label" optionValue="value" placeholder="Select Gender" [style]="{ width: '100%' }"> </p-select>
-                                    <small class="text-red-500" *ngIf="submitted && !profileData.profile.gender"> Gender is required. </small>
-                                </div>
-
-                                <div class="md:col-span-2">
-                                    <label class="block font-semibold mb-2 text-gray-700">Department *</label>
-                                    <p-select
-                                        [options]="commonService.associatedDepartments"
-                                        [(ngModel)]="profileData.selectedDepartment"
-                                        (onChange)="markAsChanged()"
-                                        optionLabel="name"
-                                        placeholder="Select Department"
-                                        [style]="{ width: '100%' }"
-                                    >
-                                    </p-select>
-                                    <small class="text-red-500" *ngIf="submitted && !profileData.selectedDepartment"> Department is required. </small>
-                                </div>
-
-                                @if (profileData.selectedDepartment) {
                                     <div class="md:col-span-2">
-                                        <label class="block font-semibold mb-2 text-gray-700">Class *</label>
+                                        <label class="block font-semibold mb-1 text-sm text-gray-700">Department *</label>
                                         <p-select
-                                            [options]="profileData.selectedDepartment?.department?.classes"
-                                            [(ngModel)]="profileData.selectedClass"
+                                            [options]="commonService.associatedDepartments"
+                                            [(ngModel)]="profileData.selectedDepartment"
                                             (onChange)="markAsChanged()"
                                             optionLabel="name"
-                                            placeholder="Select Class"
+                                            placeholder="Select Department"
                                             [style]="{ width: '100%' }"
                                         >
                                         </p-select>
-                                        <small class="text-red-500" *ngIf="submitted && !profileData.selectedClass"> Class is required. </small>
+                                        <small class="text-red-500" *ngIf="submitted && !profileData.selectedDepartment"> Department is required. </small>
                                     </div>
-                                }
 
-                                @if (profileData.selectedClass) {
-                                    <div class="md:col-span-2">
-                                        <label class="block font-semibold mb-2 text-gray-700">Section *</label>
-                                        <p-select
-                                            [options]="profileData.selectedClass?.sections"
-                                            [(ngModel)]="profileData.selectedSection"
-                                            (onChange)="markAsChanged()"
-                                            optionLabel="name"
-                                            placeholder="Select Section"
-                                            [style]="{ width: '100%' }"
-                                        >
-                                        </p-select>
-                                        <small class="text-red-500" *ngIf="submitted && !profileData.selectedSection"> Section is required. </small>
-                                    </div>
-                                }
-                            </div>
+                                    @if (profileData.selectedDepartment) {
+                                        <div class="md:col-span-2">
+                                            <label class="block font-semibold mb-1 text-sm text-gray-700">Class *</label>
+                                            <p-select
+                                                [options]="profileData.selectedDepartment?.department?.classes"
+                                                [(ngModel)]="profileData.selectedClass"
+                                                (onChange)="markAsChanged()"
+                                                optionLabel="name"
+                                                placeholder="Select Class"
+                                                [style]="{ width: '100%' }"
+                                            >
+                                            </p-select>
+                                            <small class="text-red-500" *ngIf="submitted && !profileData.selectedClass"> Class is required. </small>
+                                        </div>
+                                    }
 
-                            <!-- Profile Summary Card -->
-                            <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                                <h4 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                    <i class="pi pi-info-circle text-blue-600"></i>
-                                    Profile Summary
-                                </h4>
-                                <div class="grid grid-cols-2 gap-3 text-sm">
-                                    <div class="col-span-2">
-                                        <span class="text-gray-600">Academic Year:</span>
-                                        <span class="ml-2 font-medium text-blue-700">
-                                            {{ profileData.profile.academicYear || 'Not selected' }}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600">Start Date:</span>
-                                        <span class="ml-2 font-medium">
-                                            {{ getDateRangeForProfile(idx)?.[0] | date: 'dd MMM yyyy' }}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600">End Date:</span>
-                                        <span class="ml-2 font-medium">
-                                            {{ getDateRangeForProfile(idx)?.[1] | date: 'dd MMM yyyy' }}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600">Gender:</span>
-                                        <span class="ml-2 font-medium">{{ profileData.profile.gender || 'Not set' }}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600">Contact:</span>
-                                        <span class="ml-2 font-medium">{{ profileData.profile.contactNumber || 'N/A' }}</span>
-                                    </div>
-                                    <div class="col-span-2">
-                                        <span class="text-gray-600">Department:</span>
-                                        <span class="ml-2 font-medium">
-                                            {{ profileData.selectedDepartment?.name || 'Not selected' }}
-                                        </span>
-                                    </div>
-                                    <div class="col-span-2">
-                                        <span class="text-gray-600">Class:</span>
-                                        <span class="ml-2 font-medium">
-                                            {{ profileData.selectedClass?.name || 'Not selected' }}
-                                        </span>
-                                    </div>
-                                    <div class="col-span-2">
-                                        <span class="text-gray-600">Section:</span>
-                                        <span class="ml-2 font-medium">
-                                            {{ profileData.selectedSection?.name || 'Not selected' }}
-                                        </span>
+                                    @if (profileData.selectedClass) {
+                                        <div class="md:col-span-2">
+                                            <label class="block font-semibold mb-1 text-sm text-gray-700">Section *</label>
+                                            <p-select
+                                                [options]="profileData.selectedClass?.sections"
+                                                [(ngModel)]="profileData.selectedSection"
+                                                (onChange)="markAsChanged()"
+                                                optionLabel="name"
+                                                placeholder="Select Section"
+                                                [style]="{ width: '100%' }"
+                                            >
+                                            </p-select>
+                                            <small class="text-red-500" *ngIf="submitted && !profileData.selectedSection"> Section is required. </small>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                    <h4 class="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm md:text-base">
+                                        <i class="pi pi-info-circle text-blue-600"></i>
+                                        Profile Summary
+                                    </h4>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-xs md:text-sm">
+                                        <div class="sm:col-span-2 border-b border-blue-100 pb-1">
+                                            <span class="text-gray-600">Academic Year:</span>
+                                            <span class="ml-2 font-bold text-blue-700">
+                                                {{ profileData.profile.academicYear || 'Not selected' }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">Start Date:</span>
+                                            <span class="ml-2 font-medium">
+                                                {{ getDateRangeForProfile(idx)?.[0] | date: 'dd MMM yyyy' }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">End Date:</span>
+                                            <span class="ml-2 font-medium">
+                                                {{ getDateRangeForProfile(idx)?.[1] | date: 'dd MMM yyyy' }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">Gender:</span>
+                                            <span class="ml-2 font-medium">{{ profileData.profile.gender || 'Not set' }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">Contact:</span>
+                                            <span class="ml-2 font-medium">{{ profileData.profile.contactNumber || 'N/A' }}</span>
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <span class="text-gray-600">Department:</span>
+                                            <span class="ml-2 font-medium text-gray-900">
+                                                {{ profileData.selectedDepartment?.name || 'Not selected' }}
+                                            </span>
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <span class="text-gray-600">Class:</span>
+                                            <span class="ml-2 font-medium text-gray-900">
+                                                {{ profileData.selectedClass?.name || 'Not selected' }}
+                                            </span>
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <span class="text-gray-600">Section:</span>
+                                            <span class="ml-2 font-medium text-gray-900">
+                                                {{ profileData.selectedSection?.name || 'Not selected' }}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                                <!-- Action Buttons for Current Profile -->
                                 @if (idx === activeProfileIndex()) {
-                                    <div class="flex gap-3 justify-end border-t pt-4">
-                                        <p-button label="Discard Changes" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" [disabled]="!hasUnsavedChanges()" (click)="discardChanges()"> </p-button>
-                                        <p-button label="Save Profile" icon="pi pi-check" severity="success" size="small" [disabled]="!hasUnsavedChanges()" (click)="onSave()"> </p-button>
+                                    <div class="flex flex-col sm:flex-row gap-3 justify-end border-t pt-4">
+                                        <p-button label="Discard Changes" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" class="w-full sm:w-auto order-2 sm:order-1" [disabled]="!hasUnsavedChanges()" (click)="discardChanges()"> </p-button>
+                                        <p-button label="Save Profile" icon="pi pi-check" severity="success" size="small" class="w-full sm:w-auto order-1 sm:order-2" [disabled]="!hasUnsavedChanges()" (click)="onSave()"> </p-button>
                                     </div>
                                 }
                             </div>
@@ -310,7 +297,9 @@
     </div>
 
     <ng-template pTemplate="footer">
-        <p-button label="Close" icon="pi pi-times" [outlined]="true" severity="secondary" (click)="onCancel()"> </p-button>
+        <div class="flex justify-end w-full">
+            <p-button label="Close" icon="pi pi-times" [outlined]="true" severity="secondary" (click)="onCancel()" class="w-full sm:w-auto"> </p-button>
+        </div>
     </ng-template>
 </p-dialog>
 
