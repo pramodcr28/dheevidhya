@@ -15,9 +15,8 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
+import { CommonService } from '../../../core/services/common.service';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getBranch } from '../../../core/store/user-profile/user-profile.selectors';
-import { IBranch } from '../../models/tenant.model';
 import { IGuardianProfile, IProfileConfig, IRoleConfigs, ITenantAuthority, ITenantUser, NewProfileConfig, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigFormService } from '../../service/profile-config-form.service';
 import { TenantUserFormService } from '../../service/tenant-user-form.service';
@@ -51,7 +50,7 @@ export class GuardianDialogComponent implements OnInit {
     tenantUserFormService = inject(TenantUserFormService);
     profileConfigFormService = inject(ProfileConfigFormService);
     private store = inject(Store<{ userProfile: UserProfileState }>);
-    branch: IBranch | any;
+    // branch: IBranch | any;
     @Input() visible: boolean = false;
     @Input() set gaurdian(value: NewTenantUser | ITenantUser) {
         this._gaurdian = value;
@@ -80,7 +79,7 @@ export class GuardianDialogComponent implements OnInit {
 
     private _gaurdian!: NewTenantUser | ITenantUser;
     private _guardianProfile!: NewProfileConfig | IProfileConfig;
-
+    commonService = inject(CommonService);
     guardianForm!: FormGroup;
     guardianProfileForm!: FormGroup;
     submitted: boolean = false;
@@ -95,9 +94,6 @@ export class GuardianDialogComponent implements OnInit {
     ngOnInit(): void {
         this.guardianForm = this.tenantUserFormService.createTenantUserFormGroup(this.gaurdian);
         this.guardianProfileForm = this.profileConfigFormService.createProfileConfigFormGroup(this.guardianProfile);
-        this.store.select(getBranch).subscribe((branch) => {
-            this.branch = branch;
-        });
     }
 
     onSave() {
@@ -122,7 +118,7 @@ export class GuardianDialogComponent implements OnInit {
             gender: this.selectedGender,
             roles: await this.generateRoleConfig(updatedGuardian.authorities!, profileFormData.roles)
         };
-        updatedGuardian.branchId = this.branch.id;
+        updatedGuardian.branchId = this.commonService?.branch?.id;
 
         this.save.emit({
             user: updatedGuardian,

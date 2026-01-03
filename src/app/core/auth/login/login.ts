@@ -72,14 +72,10 @@ export class Login {
             .pipe(mergeMap(() => this.accountService.identity()))
             .subscribe({
                 next: () => {
-                    this.commonService.showMenuItems.set(false);
                     this.isLoading.set(false);
                     this.authenticationError.set(false);
                     if (!this.router.getCurrentNavigation()) {
                         this.router.navigate(['']);
-                        setTimeout(() => {
-                            this.commonService.showMenuItems.set(true);
-                        }, 500);
                     }
                 },
                 error: () => {

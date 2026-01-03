@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Renderer2, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { CommonService } from '../services/common.service';
@@ -24,7 +24,7 @@ import { AppTopbar } from './app.topbar';
         <div class="layout-mask animate-fadein"></div>
     </div> `
 })
-export class AppLayout {
+export class AppLayout implements OnInit {
     overlayMenuOpenSubscription: Subscription;
 
     menuOutsideClickListener: any;
@@ -57,6 +57,7 @@ export class AppLayout {
             this.hideMenu();
         });
     }
+    ngOnInit(): void {}
 
     isOutsideClicked(event: MouseEvent) {
         const sidebarEl = document.querySelector('.layout-sidebar');

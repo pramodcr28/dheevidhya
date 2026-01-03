@@ -16,9 +16,8 @@ import * as XLSX from 'xlsx';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments, getBranch } from '../../../core/store/user-profile/user-profile.selectors';
+import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
 import { StudentExcelRow, ValidationResult } from '../../models/bulk-student-upload.model';
-import { IBranch } from '../../models/tenant.model';
 import { UserService } from '../../service/user.service';
 
 @Component({
@@ -44,7 +43,6 @@ export class BulkStudentUploadComponent implements OnInit {
     showStudentDetailDialog = false; // New dialog state
     selectedStudentDetail: StudentExcelRow | null = null; // Selected student for dialog
     submitted: boolean = false;
-    associatedBranch: IBranch | undefined;
     associatedDepartments: any[] = [];
     selectedDepartment: any;
     selectedClass: any;
@@ -59,10 +57,6 @@ export class BulkStudentUploadComponent implements OnInit {
             this.associatedDepartments = depts.map((department: any) => {
                 return { ...department, name: department.department?.name };
             });
-        });
-
-        this.store.select(getBranch).subscribe((branch) => {
-            this.associatedBranch = branch;
         });
     }
 
@@ -254,16 +248,14 @@ export class BulkStudentUploadComponent implements OnInit {
 
         this.loader.show('Saving students...');
 
-        // Prepare payload - deep clone to remove temporary properties from the signal array
         const studentsPayload = validStudents.map((s) => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { errors, isValid, rowNumber, ...rest } = s;
             return rest;
         });
 
         const payload = {
             students: studentsPayload,
-            branchId: this.associatedBranch?.id,
+            branchId: this.commonService?.branch?.id,
             departmentId: this.selectedDepartment?.id,
             departmentName: this.selectedDepartment?.department?.name,
             classId: this.selectedClass?.id,

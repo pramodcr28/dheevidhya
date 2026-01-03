@@ -1,6 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { MenuItem } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IDepartmentConfig, Section } from '../../pages/models/org.model';
@@ -10,7 +11,9 @@ import { UserProfileState } from '../store/user-profile/user-profile.reducer';
 import { getAllSectionEntities, getAssociatedDepartments, getAuthorities, getBranch, getSubjectsByFilters, selectUserConfig } from '../store/user-profile/user-profile.selectors';
 import { getUserAssociatedSubjects } from './../store/user-profile/user-profile.selectors';
 import { ApplicationConfigService } from './application-config.service';
+
 export type EntityResponseType = HttpResponse<IProfileConfig>;
+
 @Injectable({
     providedIn: 'root'
 })
@@ -46,10 +49,13 @@ export class CommonService {
     associatedSubjects: any[] = [];
     currentUser: any = null;
     userAssociatedSubjects: any[] = [];
-    showMenuItems = signal(true);
     getStudentInfo = null;
     getUserInfo = null;
     getUserAuthorities: string[] = [];
+
+    /* ================= MENU SOURCE ================= */
+    menuModel = signal<MenuItem[]>([]);
+
     constructor() {
         this.store.select(getBranch).subscribe((res) => {
             this.branch = res;
@@ -57,9 +63,10 @@ export class CommonService {
 
         this.store.select(getAssociatedDepartments).subscribe((res) => {
             this.associatedDepartments =
-                res?.map((department: any) => {
-                    return { ...department, name: department.department?.name };
-                }) ?? [];
+                res?.map((department: any) => ({
+                    ...department,
+                    name: department.department?.name
+                })) ?? [];
         });
 
         this.store.select(getAllSectionEntities).subscribe((res) => {
@@ -73,12 +80,159 @@ export class CommonService {
         this.store.select(selectUserConfig).subscribe((res) => {
             this.currentUser = res;
         });
+
         this.store.select(getAuthorities).subscribe((res) => {
             this.getUserAuthorities = res ?? [];
+            this.buildMenuModel();
         });
+
         this.store.select(getUserAssociatedSubjects).subscribe((res) => {
             this.userAssociatedSubjects = res ?? [];
         });
+    }
+
+    private hasRoles(roles: string[]): boolean {
+        return roles.some((r) => this.getUserAuthorities.includes(r));
+    }
+
+    private buildMenuModel(): void {
+        this.menuModel.set([
+            {
+                label: 'Home',
+                visible: true,
+                items: [
+                    {
+                        label: 'Dashboard',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/'],
+                        visible: true
+                    },
+                    {
+                        label: 'Students',
+                        icon: 'pi pi-fw pi-users',
+                        routerLink: ['/students'],
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
+                    },
+                    {
+                        label: 'Bulk Student Upload',
+                        icon: 'pi pi-fw pi-upload',
+                        routerLink: ['/bulk-student-upload'],
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
+                    },
+                    {
+                        label: 'Staff',
+                        icon: 'pi pi-fw pi-graduation-cap',
+                        routerLink: ['/employees'],
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR'])
+                    },
+                    {
+                        label: 'Calendar',
+                        icon: 'pi pi-fw pi-calendar',
+                        routerLink: ['/staff-calendar'],
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER', 'STUDENT'])
+                    },
+                    {
+                        label: 'Staff Attendence',
+                        icon: 'pi pi-fw pi-calendar-times',
+                        routerLink: ['/attendance-management'],
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR'])
+                    }
+                ]
+            },
+            {
+                label: 'Tenant Management',
+                icon: 'pi pi-fw pi-home',
+                routerLink: ['/tenant'],
+                visible: this.hasRoles(['SUPER_ADMIN']),
+                items: [
+                    {
+                        label: 'Tenant Setup',
+                        icon: 'pi pi-fw pi-list',
+                        routerLink: ['/tenant/list'],
+                        visible: true
+                    },
+                    {
+                        label: 'Staff',
+                        icon: 'pi pi-fw pi-graduation-cap',
+                        routerLink: ['/employees'],
+                        visible: true
+                    }
+                ]
+            },
+            {
+                label: 'Academics',
+                visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER', 'STUDENT']),
+                items: [
+                    {
+                        label: 'Time Table',
+                        icon: 'pi pi-fw pi-table',
+                        routerLink: ['/time-table-list'],
+                        visible: true
+                    },
+                    {
+                        label: 'Student Attendence',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/student-attendence'],
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
+                    },
+                    {
+                        label: 'Examination',
+                        icon: 'pi pi-fw pi-verified',
+                        routerLink: ['/examination'],
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER', 'STUDENT'])
+                    },
+                    {
+                        label: 'Assignment',
+                        icon: 'pi pi-fw pi-book',
+                        routerLink: ['/assignment'],
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER', 'STUDENT'])
+                    },
+                    {
+                        label: 'Notification',
+                        icon: 'pi pi-fw pi-bell',
+                        routerLink: ['/notice-board'],
+                        visible: true
+                    }
+                ]
+            },
+
+            {
+                label: 'Organization',
+                visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER', 'STUDENT']),
+                items: [
+                    {
+                        label: 'Department Setup',
+                        icon: 'pi pi-fw pi-building-columns',
+                        routerLink: ['/departments'],
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR'])
+                    },
+                    {
+                        label: 'Org Tree',
+                        icon: 'pi pi-fw pi-sitemap',
+                        routerLink: ['/org'],
+                        visible: this.hasRoles(['LECTURER', 'TEACHER', 'HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'STUDENT'])
+                    }
+                ]
+            },
+            {
+                label: 'Inventory',
+                visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR']),
+                items: [
+                    {
+                        label: 'Categories',
+                        icon: 'pi pi-fw pi-tags',
+                        routerLink: ['/inventory/categories'],
+                        visible: true
+                    },
+                    {
+                        label: 'Items',
+                        icon: 'pi pi-fw pi-box',
+                        routerLink: ['/inventory/assets'],
+                        visible: true
+                    }
+                ]
+            }
+        ]);
     }
 
     findProfileConfig(id: number): Observable<EntityResponseType> {

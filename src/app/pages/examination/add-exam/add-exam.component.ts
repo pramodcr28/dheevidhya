@@ -80,10 +80,6 @@ export class AddExamComponent {
             this.associatedDepartments = departments;
         });
 
-        // this.store.select(getBranch).subscribe((branch) => {
-        //     this.currentBranch = branch;
-        // });
-
         this.examForm = this.fb.group({
             totalMarks: [null, Validators.required],
             departmentId: [null, Validators.required],

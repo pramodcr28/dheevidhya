@@ -15,12 +15,12 @@ import { SelectModule } from 'primeng/select';
 import { SpeedDialModule } from 'primeng/speeddial';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
+import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments, getBranch } from '../../../core/store/user-profile/user-profile.selectors';
+import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
 import { IDepartmentConfig, IMasterDepartment } from '../../models/org.model';
-import { IBranch } from '../../models/tenant.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { UserService } from '../../service/user.service';
 
@@ -47,7 +47,7 @@ export class OrgTreeComponent {
     users = [];
     departmentConfigService = inject(DepartmentConfigService);
     profileService = inject(ProfileConfigService);
-    branch!: IBranch;
+    commonService = inject(CommonService);
     associatedDepartments: any[] = [];
     data: any = [];
     result: any;
@@ -61,9 +61,6 @@ export class OrgTreeComponent {
     dialogVisible = false;
 
     ngOnInit() {
-        this.store.select(getBranch).subscribe((branch) => {
-            this.branch = branch!;
-        });
         this.store.select(getAssociatedDepartments).subscribe((departments) => {
             this.associatedDepartments = departments;
             this.data = this.generateTreeData();
@@ -72,7 +69,7 @@ export class OrgTreeComponent {
 
     generateTreeData() {
         let data: TreeNode<any> = {
-            label: this.branch.name!,
+            label: this.commonService?.branch?.name || 'Organization',
             type: 'branch',
             expanded: true,
             children: this.generateDepartmentData(this.associatedDepartments)

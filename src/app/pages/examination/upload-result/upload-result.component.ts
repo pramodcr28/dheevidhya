@@ -50,9 +50,6 @@ export class UploadResultComponent implements OnInit {
     public isSaving = false;
 
     ngOnInit(): void {
-        // this.store.select(getBranch).subscribe((branch) => {
-        //     this.currentBranch = branch;
-        // });
         this.getExams();
     }
 

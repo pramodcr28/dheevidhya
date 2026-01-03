@@ -9,7 +9,7 @@ import { AccountService } from './app/core/services/account.service';
 import { CommonService } from './app/core/services/common.service';
 import { WebSocketService } from './app/core/services/websocket.service';
 import { UserProfileState } from './app/core/store/user-profile/user-profile.reducer';
-import { getBranch, selectUserConfig } from './app/core/store/user-profile/user-profile.selectors';
+import { selectUserConfig } from './app/core/store/user-profile/user-profile.selectors';
 
 @Component({
     selector: 'app-root',
@@ -48,25 +48,19 @@ export class AppComponent {
                         academicYear: user.academicYear || ''
                     };
                 } else {
-                    this.store.select(getBranch).subscribe((branch) => {
-                        this.commonService.getUserInfo = {
-                            subjectsNames: subejcts.filter((sub) => user.subjectIds?.includes(sub.id)).map((sub) => sub.name),
-                            subjectIds: user.subjectIds,
-                            fullName: user.fullName,
-                            userId: user.userId,
-                            branchId: branch?.id + '' || '',
-                            branchName: branch?.name || '',
-                            academicYear: user.academicYear || '',
-                            departmentName: department.department.name,
-                            departmentId: department.id
-                        };
-                    });
+                    this.commonService.getUserInfo = {
+                        subjectsNames: subejcts.filter((sub) => user.subjectIds?.includes(sub.id)).map((sub) => sub.name),
+                        subjectIds: user.subjectIds,
+                        fullName: user.fullName,
+                        userId: user.userId,
+                        branchId: this.commonService?.branch?.id + '' || '',
+                        branchName: this.commonService?.branch?.name || '',
+                        academicYear: user.academicYear || '',
+                        departmentName: department.department.name,
+                        departmentId: department.id
+                    };
                 }
             }
-
-            // this.commonService.getStudentInfo = {className: , sectionName: , classId: , sectionId:  , departmentName: , departmentId:  };
-            // this.associatedDepartments = departments;
-            // this.associatedDepartmentIds = departments.map((dept) => dept.id);
         });
         this.wsService.getMessages().subscribe((message) => {
             console.log('Web socket trigger ID' + message);
