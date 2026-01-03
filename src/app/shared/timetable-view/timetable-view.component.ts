@@ -81,51 +81,75 @@ export class TimetableViewComponent {
         const breaks: BreakConfig[] = this.displayTimeTableJson.settings?.breaks || [];
 
         this.displayTimeTableJson.classSections?.forEach((classSec: any) => {
+            const firstSchedule = classSec.schedules[0];
+            if (!firstSchedule || !firstSchedule.periods) return;
+
             const columns: any[] = [];
-            const periodsPerDay = classSec.schedules[0]?.periods?.length || 0;
+            let periodIndex = 0;
 
-            for (let p = 1; p <= periodsPerDay; p++) {
-                columns.push({
-                    type: 'period',
-                    index: p - 1
-                });
+            for (let i = 0; i < firstSchedule.periods.length; i++) {
+                const period = firstSchedule.periods[i];
 
-                const breakCfg = breaks.find((b) => b.afterPeriod == p);
-                if (breakCfg) {
+                if (period.type === 'lecture') {
                     columns.push({
-                        type: 'break',
-                        breakItem: breakCfg
+                        type: 'period',
+                        index: periodIndex
                     });
+                    periodIndex++;
+                    const breakCfg = breaks.find((b) => b.afterPeriod === periodIndex && b.enabled);
+                    if (breakCfg) {
+                        columns.push({
+                            type: 'break',
+                            breakItem: breakCfg
+                        });
+                    }
+                } else if (period.type === 'break') {
+                    continue;
                 }
             }
             (classSec as any)._columns = columns;
             (classSec as any)._columnsCount = columns.length + 1;
-
             classSec.schedules.forEach((schedule: any) => {
                 const cells: any[] = [];
                 schedule.dayName = this.getDayName(schedule.day);
 
-                columns.forEach((col) => {
-                    if (col.type === 'period') {
-                        const period = schedule.periods[col.index];
-                        cells.push({
-                            realPeriodIndex: col.index,
-                            dayIndex: schedule.day,
-                            type: period?.type === 'lecture' ? 'lecture' : period?.type === 'free' ? 'free' : 'free',
-                            name: period?.name,
-                            subject: period?.subject,
-                            instructor: period?.instructor,
-                            startTime: period?.startTime,
-                            endTime: period?.endTime,
-                            tooltip: period?.tooltip,
-                            cssClasses: period?.cssClasses,
-                            canDrop: true
-                        });
-                    } else {
+                const lecturePeriods = schedule.periods.filter((p: any) => p.type === 'lecture');
+
+                columns.forEach((col, colIdx) => {
+                    if (col.type === 'break') {
                         cells.push({
                             type: 'break',
                             breakItem: col.breakItem
                         });
+                    } else if (col.type === 'period') {
+                        const period = lecturePeriods[col.index];
+
+                        if (period) {
+                            cells.push({
+                                realPeriodIndex: col.index,
+                                dayIndex: schedule.day,
+                                type: 'lecture',
+                                name: period.name,
+                                subject: period.subject,
+                                instructor: period.instructor,
+                                startTime: period.startTime,
+                                endTime: period.endTime,
+                                tooltip: `${period.subject?.name || period.name}<br/>${period.startTime} - ${period.endTime}`,
+                                cssClasses: period.cssClasses,
+                                canDrop: false
+                            });
+                        } else {
+                            cells.push({
+                                realPeriodIndex: col.index,
+                                dayIndex: schedule.day,
+                                type: 'free',
+                                name: 'Free Period',
+                                startTime: '',
+                                endTime: '',
+                                tooltip: 'Free Period',
+                                canDrop: false
+                            });
+                        }
                     }
                 });
 
@@ -155,7 +179,7 @@ export class TimetableViewComponent {
             return;
         }
 
-        if (this.selectedPeriod && this.selectedPeriod.scheduleIndex === scheduleIndex && this.selectedPeriod.periodIndex === periodIndex) {
+        if (this.selectedPeriod && this.selectedPeriod.scheduleIndex === scheduleIndex && this.selectedPeriod.periodIndex === periodIndex && this.selectedPeriod.period === cell) {
             this.deselectPeriod(classSec);
             return;
         }
@@ -192,17 +216,21 @@ export class TimetableViewComponent {
 
                 classSec.schedules.forEach((schedule: any) => {
                     const dayConflicts = this.selectedPeriod.conflictInfo?.filter((conflict) => conflict.dayIndex == schedule.day) || [];
-                    console.log('Validating schedule for day:', schedule.day, 'with conflicts:', dayConflicts);
-                    schedule._cells.forEach((cell: any, cellIdx: number) => {
+
+                    schedule._cells.forEach((cell: any) => {
+                        if (cell.type === 'break') return;
+
                         let conflict = dayConflicts.find((conflict) => conflict.startTime == cell.startTime && conflict.endTime == cell.endTime);
                         cell.canDrop = true;
                         cell.tooltipText = cell.tooltip || `${cell.subject?.name || 'Free Period'}<br/>${cell.startTime} - ${cell.endTime}`;
+
                         if (conflict) {
                             cell.canDrop = false;
                             cell.tooltipText = `${conflict.conflict.instructorName} is busy in ${conflict.conflict.className} ${conflict.conflict.sectionName} on Day ${conflict.conflict.dayIndex} (${conflict.conflict.startTime} - ${conflict.conflict.endTime})`;
                         }
                     });
                 });
+
                 this.messageService.add({
                     severity: 'info',
                     summary: 'Period Selected',
@@ -226,7 +254,6 @@ export class TimetableViewComponent {
 
     isSelectedPeriod(scheduleIndex: number, periodIndex: number, cell: any): boolean {
         if (!this.selectedPeriod) return false;
-        // return this.selectedPeriod.scheduleIndex === scheduleIndex && this.selectedPeriod.periodIndex === periodIndex;
         return this.selectedPeriod.period === cell;
     }
 
@@ -239,15 +266,15 @@ export class TimetableViewComponent {
         this.selectedPeriod = null;
         this.validatingPeriodKey = null;
 
-        // Reset cells to default state for this class section only
         if (classSec?.schedules) {
             classSec.schedules.forEach((schedule: any) => {
-                schedule._cells.forEach((cell: any) => {
-                    // Reset states modified during conflict validation
-                    cell.canDrop = false; // or true based on your default rule
-                    cell.tooltipText = cell.tooltip || `${cell.subject?.name || 'Free Period'}<br/>${cell.startTime} - ${cell.endTime}`;
+                if (!schedule._cells) return;
 
-                    // If you track conflicts visually, reset those too:
+                schedule._cells.forEach((cell: any) => {
+                    if (cell.type === 'break') return;
+
+                    cell.canDrop = false;
+                    cell.tooltipText = cell.tooltip || `${cell.subject?.name || 'Free Period'}<br/>${cell.startTime} - ${cell.endTime}`;
                     delete cell.isConflict;
                 });
             });
@@ -265,23 +292,35 @@ export class TimetableViewComponent {
             return;
         }
 
-        const sourceSchedule = this.selectedPeriod.classSec.schedules.find((s) => s.day == this.selectedPeriod.scheduleIndex.toString());
+        const sourceSchedule = this.selectedPeriod.classSec.schedules.find((s: any) => s.day == this.selectedPeriod.scheduleIndex.toString());
+        const targetSchedule = classSec.schedules.find((s: any) => s.day == targetScheduleIndex.toString());
 
-        const targetSchedule = classSec.schedules.find((s) => s.day == targetScheduleIndex.toString());
+        // Get lecture periods only
+        const sourceLecturePeriods = sourceSchedule.periods.filter((p: any) => p.type === 'lecture');
+        const targetLecturePeriods = targetSchedule.periods.filter((p: any) => p.type === 'lecture');
 
-        const sourcePeriod = sourceSchedule.periods[this.selectedPeriod.periodIndex];
-        const targetPeriod = targetSchedule.periods[targetPeriodIndex];
+        const sourcePeriod = sourceLecturePeriods[this.selectedPeriod.periodIndex];
+        const targetPeriod = targetLecturePeriods[targetPeriodIndex];
 
-        // --- Swap ONLY logical properties, not time properties ---
+        if (!sourcePeriod || !targetPeriod) {
+            console.error('Invalid period selection');
+            return;
+        }
+
+        // Swap ONLY logical properties, not time properties
         const sourceCopy = { ...sourcePeriod };
         const targetCopy = { ...targetPeriod };
 
-        // Properties that should NOT be swapped
-        const fixedFields = ['startTime', 'endTime', 'duration'];
+        const fixedFields = ['startTime', 'endTime', 'duration', 'type'];
 
         Object.keys(sourcePeriod).forEach((key) => {
             if (!fixedFields.includes(key)) {
                 sourcePeriod[key] = targetCopy[key];
+            }
+        });
+
+        Object.keys(targetPeriod).forEach((key) => {
+            if (!fixedFields.includes(key)) {
                 targetPeriod[key] = sourceCopy[key];
             }
         });
