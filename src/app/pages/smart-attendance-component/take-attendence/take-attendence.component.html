@@ -1,18 +1,20 @@
 <p-toast></p-toast>
 
 <!-- Controls Bar -->
-<div class="flex items-center justify-between mb-6">
-  <div class="flex items-center space-x-4">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+ <div
+  class="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0"
+>
     <p-select 
       [options]="commonService.associatedSections" 
       [(ngModel)]="selectedSection" 
       optionLabel="sectionName"
       placeholder="Select Section"
-      class="w-48"
+      class="w-full"
       (onChange)="onSectionChange(); selectionChange()"
     >
       <ng-template let-section pTemplate="item">
-        {{ section.className }} -  {{ section.sectionName }}
+        {{ section.className }} - {{ section.sectionName }}
       </ng-template>
       <ng-template let-section pTemplate="selectedItem">
         {{ section?.className }} - {{ section?.sectionName }}
@@ -24,7 +26,7 @@
       [(ngModel)]="selectedSubject" 
       optionLabel="name"
       placeholder="Select Subject"
-      class="w-48"
+      class="w-full"
       (onChange)="selectionChange()"
     ></p-select>
 
@@ -35,20 +37,23 @@
       [iconDisplay]="'input'" 
       [showIcon]="true" 
       inputId="icondisplay" 
+      class="w-full sm:w-48"
     />
 
-    <div class="text-sm text-gray-600">
-      Students: <span class="font-medium">{{ currentAttendence?.length }}</span>
+    <div class="text-sm text-gray-600 col-span-2 sm:col-span-1">
+      Students:
+      <span class="font-medium">{{ currentAttendence?.length }}</span>
     </div>
-  </div>
+</div>
 
-  <div class="flex items-center space-x-3">
+
+  <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full lg:w-auto">
     <button 
       pButton 
       type="button" 
       label="Mark All PRESENT" 
       icon="pi pi-check" 
-      class="p-button-success p-button-outlined"
+      class="p-button-success p-button-outlined w-full sm:w-auto"
       [disabled]="
       !selectedSection || 
       !selectedSubject || 
@@ -60,7 +65,7 @@
       type="button" 
       label="Save Attendance" 
       icon="pi pi-save" 
-      class="p-button-primary"
+      class="p-button-primary w-full sm:w-auto"
       [disabled]="
         !selectedSection || 
         !selectedSubject || 
@@ -68,7 +73,6 @@
 "
       (click)="saveAttendance()"
     ></button>
-
   </div>
 </div>
 
@@ -80,7 +84,7 @@
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center space-x-3">
             <div 
-              class="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium text-lg"
+              class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-medium text-base sm:text-lg"
               [ngClass]="{
                 'bg-blue-500': student.status === 'PRESENT',
                 'bg-red-500': student.status === 'ABSENT',
@@ -90,8 +94,8 @@
               {{ student.studentName.charAt(0) }}
             </div>
             <div>
-              <h3 class="font-medium text-gray-900">{{ student.studentName }}</h3>
-              <p class="text-sm text-gray-500">ID: {{ student.studentId }}</p>
+              <h3 class="font-medium text-gray-900 text-sm sm:text-base">{{ student.studentName }}</h3>
+              <p class="text-xs sm:text-sm text-gray-500">ID: {{ student.studentId }}</p>
             </div>
           </div>
           <p-tag 
@@ -104,7 +108,7 @@
             pButton 
             type="button" 
             label="PRESENT" 
-            class="flex-1 p-button-sm"
+            class="flex-1 p-button-sm text-xs sm:text-sm"
             [class.p-button-success]="student.status === 'PRESENT'"
             [class.p-button-outlined]="student.status !== 'PRESENT'"
             (click)="updateAttendance(student, 'PRESENT')"
@@ -113,7 +117,7 @@
             pButton 
             type="button" 
             label="LATE" 
-            class="flex-1 p-button-sm"
+            class="flex-1 p-button-sm text-xs sm:text-sm"
             [class.p-button-warning]="student.status === 'LATE'"
             [class.p-button-outlined]="student.status !== 'LATE'"
             (click)="updateAttendance(student, 'LATE')"
@@ -122,7 +126,7 @@
             pButton 
             type="button" 
             label="ABSENT" 
-            class="flex-1 p-button-sm"
+            class="flex-1 p-button-sm text-xs sm:text-sm"
             [class.p-button-danger]="student.status === 'ABSENT'"
             [class.p-button-outlined]="student.status !== 'ABSENT'"
             (click)="updateAttendance(student, 'ABSENT')"
@@ -135,7 +139,7 @@
 @else if (selectedSection && selectedSubject && !isSelectedDateToday()) {
   <!-- Past Date Attendance Block -->
   <div class="flex flex-col items-center justify-center my-40 space-y-4">
-    <p class="text-gray-600 text-sm">
+    <p class="text-gray-600 text-sm text-center">
       Click below if you want to take attendance for that day.
     </p>
     <button 
@@ -151,7 +155,7 @@
 @else {
   <!-- Mandatory Fields Info Message -->
   <div  class="flex justify-center items-center my-40">
-    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center max-w-md">
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center max-w-md w-full">
       <div class="flex items-center justify-center">
         <h4 class="text-yellow-800 font-medium">Selection Required</h4>
       </div>

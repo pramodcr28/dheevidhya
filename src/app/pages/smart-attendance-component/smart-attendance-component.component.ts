@@ -1,22 +1,16 @@
-import { Component} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TakeAttendenceComponent } from './take-attendence/take-attendence.component';
-import { DetailedReportsComponent } from './detailed-reports/detailed-reports.component';
+import { Component } from '@angular/core';
+import { Tabs, TabsModule } from 'primeng/tabs';
 import { AttendenceReportComponent } from './attendence-report/attendence-report.component';
+import { DetailedReportsComponent } from './detailed-reports/detailed-reports.component';
+import { TakeAttendenceComponent } from './take-attendence/take-attendence.component';
 
 @Component({
-  selector: 'app-smart-attendance',
-  standalone: true,
-  imports: [
-    CommonModule,
-    TakeAttendenceComponent,
-    DetailedReportsComponent,
-    AttendenceReportComponent
-  ],
-  templateUrl: './smart-attendance-component.component.html',
+    selector: 'app-smart-attendance',
+    standalone: true,
+    imports: [CommonModule, Tabs, TakeAttendenceComponent, DetailedReportsComponent, AttendenceReportComponent, TabsModule],
+    templateUrl: './smart-attendance-component.component.html'
 })
 export class SmartAttendanceComponent {
-
-  activeTab: 'attendance' | 'reports' | 'detailed' = 'attendance';
-
+    activeTab: string = '0';
 }

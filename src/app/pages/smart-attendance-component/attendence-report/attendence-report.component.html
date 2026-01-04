@@ -1,38 +1,38 @@
   <!-- Attendance Overview Cards -->
-        <div class="mb-8">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">Attendance Overview</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="mb-6 sm:mb-8">
+          <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Attendance Overview</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             <!-- Average Attendance Rate -->
-            <div class="bg-blue-50 rounded-lg p-6 border border-blue-100">
+            <div class="bg-blue-50 rounded-lg p-4 sm:p-6 border border-blue-100">
               <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-blue-600">Average Attendance Rate</h3>
+                <h3 class="text-xs sm:text-sm font-medium text-blue-600">Average Attendance Rate</h3>
                 <i class="pi pi-chart-line text-blue-500"></i>
               </div>
-              <div class="text-3xl font-bold text-gray-900 mb-2">{{ attendanceStats.averageRate }}%</div>
-              <div class="flex items-center text-sm">
+              <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{{ attendanceStats.averageRate }}%</div>
+              <div class="flex items-center text-xs sm:text-sm">
                 <i class="pi pi-arrow-up text-green-500 mr-1"></i>
                 <span class="text-green-600">{{ attendanceStats.rateChange }}% from last month</span>
               </div>
             </div>
 
             <!-- Total Classes -->
-            <div class="bg-purple-50 rounded-lg p-6 border border-purple-100">
+            <div class="bg-purple-50 rounded-lg p-4 sm:p-6 border border-purple-100">
               <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-purple-600">Total Classes</h3>
+                <h3 class="text-xs sm:text-sm font-medium text-purple-600">Total Classes</h3>
                 <i class="pi pi-calendar text-purple-500"></i>
               </div>
-              <div class="text-3xl font-bold text-gray-900 mb-2">{{ attendanceStats.totalClasses }}</div>
-              <div class="text-sm text-gray-600">This semester</div>
+              <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{{ attendanceStats.totalClasses }}</div>
+              <div class="text-xs sm:text-sm text-gray-600">This semester</div>
             </div>
 
             <!-- Students at Risk -->
-            <div class="bg-orange-50 rounded-lg p-6 border border-orange-100">
+            <div class="bg-orange-50 rounded-lg p-4 sm:p-6 border border-orange-100">
               <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-orange-600">Students at Risk</h3>
+                <h3 class="text-xs sm:text-sm font-medium text-orange-600">Students at Risk</h3>
                 <i class="pi pi-exclamation-triangle text-orange-500"></i>
               </div>
-              <div class="text-3xl font-bold text-gray-900 mb-2">{{ attendanceStats.studentsAtRisk }}</div>
-              <div class="flex items-center text-sm">
+              <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{{ attendanceStats.studentsAtRisk }}</div>
+              <div class="flex items-center text-xs sm:text-sm">
                 <i class="pi pi-arrow-down text-red-500 mr-1"></i>
                 <span class="text-red-600">Below 75% attendance</span>
               </div>
@@ -41,38 +41,38 @@
         </div>
 
         <!-- Charts Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
           <!-- Attendance Trend Chart -->
-          <div class=" rounded-lg shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-lg font-semibold text-gray-900">Attendance Trend</h3>
+          <div class=" rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-0">
+              <h3 class="text-base sm:text-lg font-semibold text-gray-900">Attendance Trend</h3>
               <button class="text-blue-600 hover:text-blue-700 text-sm font-medium">View Details</button>
             </div>
             
             <!-- Chart Placeholder -->
-            <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg mb-4">
+            <div class="h-48 sm:h-64 flex items-center justify-center bg-gray-50 rounded-lg mb-4">
               <div class="text-center">
-                <i class="pi pi-chart-line text-4xl text-gray-400 mb-2"></i>
-                <p class="text-gray-500">Attendance trend chart would appear here</p>
+                <i class="pi pi-chart-line text-3xl sm:text-4xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500 text-sm">Attendance trend chart would appear here</p>
               </div>
             </div>
             
             <!-- Week Days -->
-            <div class="flex justify-between text-sm text-gray-600">
+            <div class="flex justify-between text-xs sm:text-sm text-gray-600 overflow-x-auto pb-1">
               <span>Mon</span>
               <span>Tue</span>
               <span>Wed</span>
               <span>Thu</span>
               <span>Fri</span>
             </div>
-            <div class="text-sm text-gray-500 mt-2">Last Week</div>
+            <div class="text-xs sm:text-sm text-gray-500 mt-2">Last Week</div>
           </div>
 
           <!-- Students with Low Attendance -->
-          <div class=" rounded-lg shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-lg font-semibold text-gray-900">Students with Low Attendance</h3>
-              <button class="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center">
+          <div class=" rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-0">
+              <h3 class="text-base sm:text-lg font-semibold text-gray-900">Students with Low Attendance</h3>
+              <button class="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center justify-center sm:justify-start">
                 View all students
                 <i class="pi pi-chevron-right ml-1"></i>
               </button>
@@ -81,17 +81,17 @@
             <div class="space-y-4">
                 @for (student of lowAttendanceStudents; track $index) {
                 <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
-                <div class="flex items-center space-x-3">
-                  <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center font-medium text-sm">
+                <div class="flex items-center space-x-3 min-w-0">
+                  <div class="w-8 h-8 sm:w-10 sm:h-10 bg-red-500 rounded-full flex items-center justify-center font-medium text-xs sm:text-sm flex-shrink-0">
                     {{ student.studentId }}
                   </div>
-                  <div>
-                    <h4 class="font-medium text-gray-900">{{ student.name }}</h4>
-                    <p class="text-sm text-gray-500">ID: {{ student.id }}</p>
+                  <div class="min-w-0">
+                    <h4 class="font-medium text-gray-900 text-sm truncate">{{ student.name }}</h4>
+                    <p class="text-xs text-gray-500">ID: {{ student.id }}</p>
                   </div>
                 </div>
-                <div class="text-right">
-                  <div class="text-lg font-semibold text-red-600">{{ student.attendanceRate }}%</div>
+                <div class="text-right flex-shrink-0">
+                  <div class="text-base sm:text-lg font-semibold text-red-600">{{ student.attendanceRate }}%</div>
                   <div class="text-xs text-gray-500">Attendance</div>
                 </div>
                </div>

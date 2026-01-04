@@ -1,89 +1,99 @@
-     <div class="rounded-lg shadow-sm">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">Detailed Attendance Reports</h2>
-          
-          <!-- Report Controls -->
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <div class="flex items-center space-x-4">
-                <!-- Section Filter -->
-                <p-multi-select 
-                  [options]="commonService.associatedSections" 
-                  [(ngModel)]="selectedSection"
-                  optionLabel="sectionName"
-                  placeholder="Section Name"
-                  class="w-48">
-                  <ng-template let-section pTemplate="item">
-                    {{ section.className }} - {{ section.sectionName }}
-                  </ng-template>
-                </p-multi-select>
+     <div class="rounded-lg shadow-sm p-4">
+<h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
+  Detailed Attendance Reports
+</h2>
 
-                <!-- Subject Filter -->
-                <p-multi-select 
-                  [options]="commonService.associatedSubjects" 
-                  [(ngModel)]="selectedSubject"
-                  optionLabel="name"
-                  placeholder="Subject"
-                  class="w-48">
-                </p-multi-select>
+<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4 sm:mb-6">
+  
+  <!-- Filters -->
+  <div
+    class="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0 w-full md:w-auto"
+  >
+      <!-- Section Filter -->
+      <p-multi-select 
+        [options]="commonService.associatedSections" 
+        [(ngModel)]="selectedSection"
+        optionLabel="sectionName"
+        placeholder="Section Name"
+        class="w-full sm:w-48">
+        <ng-template let-section pTemplate="item">
+          {{ section.className }} - {{ section.sectionName }}
+        </ng-template>
+      </p-multi-select>
 
-                <!-- Replaced Date Range Picker -->
-                <p-datepicker
-                  [(ngModel)]="attendanceDateRange"
-                  selectionMode="range"
-                  dateFormat="yy-mm-dd"
-                  [showClear]="true"
-                  placeholder="Select Date Range"
-                  class="w-60">
-                </p-datepicker>
+      <!-- Subject Filter -->
+      <p-multi-select 
+        [options]="commonService.associatedSubjects" 
+        [(ngModel)]="selectedSubject"
+        optionLabel="name"
+        placeholder="Subject"
+        class="w-full sm:w-48">
+      </p-multi-select>
 
-                <!-- Search Button -->
-                <button 
-                  pButton 
-                  type="button" 
-                  label="Search" 
-                  icon="pi pi-sync" 
-                  class="p-button-danger"
-                  (click)="getReports()">
-                </button>
-              </div>
+      <!-- Date Range Picker -->
+      <p-datepicker
+        [(ngModel)]="attendanceDateRange"
+        selectionMode="range"
+        dateFormat="yy-mm-dd"
+        [showClear]="true"
+        placeholder="Select Date Range"
+        class="w-full sm:w-60">
+      </p-datepicker>
 
-            
-            <div class="flex items-center space-x-2">
-              <button 
-                pButton 
-                type="button" 
-                label="Export to Excel" 
-                icon="pi pi-file-excel" 
-                class="p-button-success"
-                (click)="exportToExcel()"
-              ></button>
-              <button 
-                pButton 
-                type="button" 
-                label="Print" 
-                icon="pi pi-print" 
-                class="p-button-secondary"
-                (click)="printReport()"
-              ></button>
-            </div>
-          </div>
+      <!-- Search Button -->
+      <button 
+        pButton 
+        type="button" 
+        label="Search" 
+        icon="pi pi-sync" 
+        class="p-button-danger w-full sm:w-auto col-span-2 sm:col-span-1"
+        (click)="getReports()">
+      </button>
+  </div>
+
+  <!-- Action Buttons -->
+  <div
+    class="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:space-x-2 w-full md:w-auto justify-start md:justify-end"
+  >
+      <button 
+        pButton 
+        type="button" 
+        label="Export to Excel" 
+        icon="pi pi-file-excel" 
+        class="p-button-success w-full sm:w-auto"
+        (click)="exportToExcel()"
+      ></button>
+
+      <button 
+        pButton 
+        type="button" 
+        label="Print" 
+        icon="pi pi-print" 
+        class="p-button-secondary w-full sm:w-auto"
+        (click)="printReport()"
+      ></button>
+  </div>
+
+</div>
+
           
           <!-- Report Summary -->
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-blue-50 rounded-lg p-4 border border-blue-100">
-              <div class="text-sm font-medium text-blue-600 mb-1">Total Students</div>
-              <div class="text-2xl font-bold">{{ classAttendanceReport.length }}</div>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 sm:mb-6">
+            <div class="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-100">
+              <div class="text-xs sm:text-sm font-medium text-blue-600 mb-1">Total Students</div>
+              <div class="text-xl sm:text-2xl font-bold">{{ classAttendanceReport.length }}</div>
             </div>
-            <div class="bg-green-50 rounded-lg p-4 border border-green-100">
-              <div class="text-sm font-medium text-green-600 mb-1">Average Attendance</div>
-              <div class="text-2xl font-bold">{{ getAverageAttendance() }}%</div>
+            <div class="bg-green-50 rounded-lg p-3 sm:p-4 border border-green-100">
+              <div class="text-xs sm:text-sm font-medium text-green-600 mb-1">Average Attendance</div>
+              <div class="text-xl sm:text-2xl font-bold">{{ getAverageAttendance() }}%</div>
             </div>
-            <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-100">
-              <div class="text-sm font-medium text-yellow-600 mb-1">Best Attendance</div>
-              <div class="text-2xl font-bold">{{ getBestAttendance() }}%</div>
+            <div class="bg-yellow-50 rounded-lg p-3 sm:p-4 border border-yellow-100">
+              <div class="text-xs sm:text-sm font-medium text-yellow-600 mb-1">Best Attendance</div>
+              <div class="text-xl sm:text-2xl font-bold">{{ getBestAttendance() }}%</div>
             </div>
-            <div class="bg-red-50 rounded-lg p-4 border border-red-100">
-              <div class="text-sm font-medium text-red-600 mb-1">Worst Attendance</div>
-              <div class="text-2xl font-bold">{{ getWorstAttendance() }}%</div>
+            <div class="bg-red-50 rounded-lg p-3 sm:p-4 border border-red-100">
+              <div class="text-xs sm:text-sm font-medium text-red-600 mb-1">Worst Attendance</div>
+              <div class="text-xl sm:text-2xl font-bold">{{ getWorstAttendance() }}%</div>
             </div>
           </div>
           
