@@ -57,7 +57,7 @@ export class UploadResultComponent implements OnInit {
         this.isLoading = true;
         this.examinationService
             .search(0, 100, 'id', 'ASC', {
-                'branchId.equals': this.commonService.branch?.id?.toString()
+                'branchId.eq': this.commonService.branch?.id?.toString()
             })
             .subscribe({
                 next: (res) => {

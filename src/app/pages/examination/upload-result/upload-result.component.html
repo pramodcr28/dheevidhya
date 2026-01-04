@@ -53,8 +53,6 @@
         </div>
     </div>
 
-    <!-- Excel-like Results Table -->
-    <!-- Results Table -->
     <div class="overflow-x-auto" *ngIf="!isLoading && studentResults.length > 0">
         <table class="min-w-full border-collapse">
             <thead class="bg-gray-50 dark:bg-gray-700">
@@ -69,7 +67,6 @@
             </thead>
             <tbody>
                 <tr *ngFor="let student of studentResults; let i = index" class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
-                    <!-- Student Name -->
                     <td class="px-4 py-3 whitespace-nowrap sticky left-0 z-10 border-r border-gray-300 font-medium text-gray-900 dark:text-gray-50 min-w-[120px]">
                         <div class="flex items-center">
                             <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">

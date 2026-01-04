@@ -192,7 +192,7 @@ export class AddExamComponent {
             const keyParts = subject.key?.split(':') ?? [];
             if (keyParts.length !== 4) return;
 
-            const [_subName, _subId] = keyParts;
+            const [_subName, _subId] = keyParts.slice(-2);
 
             const timeTableSubject: Subject = {
                 color: this.commonService.themeGradients[index],
@@ -206,6 +206,7 @@ export class AddExamComponent {
                 timeTableSubjects.push(timeTableSubject);
             }
         });
+
         this.selectedSubjectsForTimeTable = [...timeTableSubjects];
     }
 

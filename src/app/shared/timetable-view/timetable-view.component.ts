@@ -87,33 +87,34 @@ export class TimetableViewComponent {
             const columns: any[] = [];
             let periodIndex = 0;
 
-            for (let i = 0; i < firstSchedule.periods.length; i++) {
-                const period = firstSchedule.periods[i];
+            // Only count lecture periods for indexing
+            const lecturePeriods = firstSchedule.periods.filter((p: any) => p.type === 'lecture');
+            for (let i = 0; i < lecturePeriods.length; i++) {
+                columns.push({
+                    type: 'period',
+                    index: periodIndex
+                });
+                periodIndex++;
 
-                if (period.type === 'lecture') {
+                // Check if there's a break after this period
+                const breakCfg = breaks.find((b) => b.afterPeriod === periodIndex && b.enabled);
+                if (breakCfg) {
                     columns.push({
-                        type: 'period',
-                        index: periodIndex
+                        type: 'break',
+                        breakItem: breakCfg
                     });
-                    periodIndex++;
-                    const breakCfg = breaks.find((b) => b.afterPeriod === periodIndex && b.enabled);
-                    if (breakCfg) {
-                        columns.push({
-                            type: 'break',
-                            breakItem: breakCfg
-                        });
-                    }
-                } else if (period.type === 'break') {
-                    continue;
                 }
             }
+
             (classSec as any)._columns = columns;
             (classSec as any)._columnsCount = columns.length + 1;
+
             classSec.schedules.forEach((schedule: any) => {
                 const cells: any[] = [];
                 schedule.dayName = this.getDayName(schedule.day);
 
-                const lecturePeriods = schedule.periods.filter((p: any) => p.type === 'lecture');
+                // Filter to get only lecture periods
+                const scheduleLecturePeriods = schedule.periods.filter((p: any) => p.type === 'lecture');
 
                 columns.forEach((col, colIdx) => {
                     if (col.type === 'break') {
@@ -122,7 +123,7 @@ export class TimetableViewComponent {
                             breakItem: col.breakItem
                         });
                     } else if (col.type === 'period') {
-                        const period = lecturePeriods[col.index];
+                        const period = scheduleLecturePeriods[col.index];
 
                         if (period) {
                             cells.push({
@@ -218,6 +219,7 @@ export class TimetableViewComponent {
                     const dayConflicts = this.selectedPeriod.conflictInfo?.filter((conflict) => conflict.dayIndex == schedule.day) || [];
 
                     schedule._cells.forEach((cell: any) => {
+                        // Skip break cells entirely
                         if (cell.type === 'break') return;
 
                         let conflict = dayConflicts.find((conflict) => conflict.startTime == cell.startTime && conflict.endTime == cell.endTime);
@@ -271,6 +273,7 @@ export class TimetableViewComponent {
                 if (!schedule._cells) return;
 
                 schedule._cells.forEach((cell: any) => {
+                    // Skip break cells
                     if (cell.type === 'break') return;
 
                     cell.canDrop = false;
@@ -295,7 +298,12 @@ export class TimetableViewComponent {
         const sourceSchedule = this.selectedPeriod.classSec.schedules.find((s: any) => s.day == this.selectedPeriod.scheduleIndex.toString());
         const targetSchedule = classSec.schedules.find((s: any) => s.day == targetScheduleIndex.toString());
 
-        // Get lecture periods only
+        if (!sourceSchedule || !targetSchedule) {
+            console.error('Invalid schedule selection');
+            return;
+        }
+
+        // Get lecture periods only - IMPORTANT: Filter out breaks
         const sourceLecturePeriods = sourceSchedule.periods.filter((p: any) => p.type === 'lecture');
         const targetLecturePeriods = targetSchedule.periods.filter((p: any) => p.type === 'lecture');
 
@@ -328,6 +336,13 @@ export class TimetableViewComponent {
         this.processForDisplay();
         this.deselectPeriod(classSec);
         this.timetableChange.emit(this.displayTimeTableJson);
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Periods swapped successfully',
+            life: 2000
+        });
     }
 
     onPublish(): void {
