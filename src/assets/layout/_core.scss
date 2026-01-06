@@ -24,16 +24,16 @@ a {
 }
 
 ::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
     background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    border-radius: 6px;
+    border-radius: 4px;
     background-color: var(--primary-color);
 }
 ::-webkit-scrollbar-track {
-    border-radius: 5px;
+    border-radius: 4px;
     background-color: transparent;
 }
 

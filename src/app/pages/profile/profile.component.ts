@@ -155,11 +155,9 @@ export class ProfileComponent {
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body || []);
-            console.log('Tenant Authorities:', result.body);
         });
         this.store.select(selectUserConfig).subscribe((userConfig) => {
             this.userProfile = userConfig;
-            console.log('User Roles (Service):', this.commonService.getUserAuthorities);
         });
         this.passwordForm = this.fb.group({
             currentPassword: ['', Validators.required],

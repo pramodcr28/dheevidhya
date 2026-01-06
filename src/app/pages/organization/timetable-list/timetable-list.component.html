@@ -273,7 +273,11 @@
     (onHide)="cancel()"
     [modal]="true"
     header="Timetable Preview"
-    [style]="{ width: '85vw' }">
+    [breakpoints]="{
+        '1200px': '90vw',
+        '992px': '95vw',
+        '768px': '100vw'
+    }">
     <app-timetable-view
         [timetableJson]="seletedTimeTable"
         [dailogeType]="'Edit'"

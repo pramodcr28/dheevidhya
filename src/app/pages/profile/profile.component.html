@@ -5,65 +5,47 @@
   @if (userProfile) {
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg mb-6 overflow-hidden">
       <!-- Header Section -->
-      <div class="bg-gradient-to-r from-primary-500 to-primary-600 dark:from-primary-600 dark:to-primary-700 text-white p-4 md:p-8 relative overflow-hidden">
-        <div class="relative z-10">
-          <!-- Top Section: Avatar + Info -->
-          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 md:gap-6 mb-4 md:mb-0">
-            <div class="flex-shrink-0">
-              <p-avatar 
-                [label]="getAvatarInitials()" 
-                size="xlarge" 
-                shape="circle" 
-                styleClass="text-2xl font-bold" 
-                class="border-4 border-white dark:border-gray-200 shadow-lg bg-white/20 backdrop-blur">
-              </p-avatar>
-            </div>
-            <div class="text-center sm:text-left flex-grow">
-              <h1 class="text-2xl md:text-3xl font-bold mb-2">{{userProfile.fullName}}</h1>
-              <div class="flex flex-wrap justify-center sm:justify-start gap-2 md:gap-3 mb-3">
-                <p-tag [value]="getActiveRole()" [severity]="getRoleSeverity(getActiveRole())" class="text-sm"></p-tag>
-                <p-tag [value]="userProfile.gender" severity="info" class="text-sm"></p-tag>
-              </div>
-              <p class="text-base md:text-lg opacity-90 mb-1">{{userProfile.username}}</p>
-              <p class="text-sm opacity-75">User ID: {{userProfile.userId}}</p>
-            </div>
+    <div class="bg-gradient-to-r from-primary-500 to-primary-600 dark:from-primary-600 dark:to-primary-700 text-white p-4 md:p-8 relative overflow-hidden">
+  <div class="relative z-10">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      
+      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 md:gap-6">
+        <div class="flex-shrink-0">
+          <p-avatar 
+            [label]="getAvatarInitials()" 
+            size="xlarge" 
+            shape="circle" 
+            styleClass="text-2xl font-bold" 
+            class="border-4 border-white dark:border-gray-200 shadow-lg bg-white/20 backdrop-blur">
+          </p-avatar>
+        </div>
+        <div class="text-center sm:text-left">
+          <h1 class="text-2xl md:text-3xl font-bold mb-2">{{userProfile.fullName}}</h1>
+          <div class="flex flex-wrap justify-center sm:justify-start gap-2 md:gap-3 mb-2">
+            <p-tag [value]="getActiveRole()" [severity]="getRoleSeverity(getActiveRole())" class="text-sm"></p-tag>
+            <p-tag [value]="userProfile.gender" severity="info" class="text-sm"></p-tag>
           </div>
-
-          <!-- Bottom Section: Academic Year + Stats + Logout -->
-          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-4">
-            <!-- Academic Year + Logout (2 columns on mobile) -->
-            <div class="grid grid-cols-2 sm:flex sm:flex-row items-center justify-center lg:justify-start gap-3">
-              <div class="text-center sm:text-left">
-                <p class="text-sm opacity-75 mb-1">Academic Year</p>
-                <p class="text-lg font-semibold">{{userProfile.academicYear}}</p>
-              </div>
-              <a [routerLink]="'/auth/login'" class="flex justify-center sm:justify-start">
-                <button type="button" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium shadow-md transition whitespace-nowrap">
-                  <i class="pi pi-fw pi-sign-out"></i>
-                  <span>Logout</span>         
-                </button>
-              </a>
-            </div>
-
-            <!-- Stats -->
-            <div class="grid grid-cols-3 gap-3 md:gap-4 text-center min-w-[240px]">
-              <div>
-                <p class="text-xl md:text-2xl font-bold">{{getTotalClasses()}}</p>
-                <p class="text-xs opacity-75">Classes</p>
-              </div>
-              <div>
-                <p class="text-xl md:text-2xl font-bold">{{getTotalSections()}}</p>
-                <p class="text-xs opacity-75">Sections</p>
-              </div>
-              <div>
-                <p class="text-xl md:text-2xl font-bold">{{getTotalSubjects()}}</p>
-                <p class="text-xs opacity-75">Subjects</p>
-              </div>
-            </div>
-          </div>
+          <p class="text-base opacity-90">{{userProfile.username}}</p>
+          <p class="text-xs opacity-75">ID: {{userProfile.userId}}</p>
         </div>
       </div>
 
+      <div class="flex flex-row md:flex-row items-center justify-center md:justify-end gap-6 border-t border-white/10 pt-4 md:border-0 md:pt-0">
+        <div class="text-center md:text-right">
+          <p class="text-xs opacity-75 mb-1 uppercase tracking-wider">Academic Year</p>
+          <p class="text-lg font-semibold">{{userProfile.academicYear}}</p>
+        </div>
+        <div class="h-10 w-px bg-white/20 hidden md:block"></div> <a [routerLink]="'/auth/login'">
+          <button type="button" class="flex items-center gap-2 px-5 py-2.5 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium shadow-md transition whitespace-nowrap border border-white/30">
+            <i class="pi pi-fw pi-sign-out"></i>
+            <span>Logout</span>         
+          </button>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
       <!-- Tabs Content -->
       <div class="p-4 md:p-6">
         <p-tabView styleClass="custom-tabview">
@@ -135,7 +117,7 @@
                 <div class="bg-blue-50 dark:bg-blue-900/40 rounded-xl p-4 border border-blue-200 dark:border-blue-700">
                   <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Academic Period</p>
                   <p class="text-base md:text-lg font-semibold text-blue-800 dark:text-blue-200">
-                    {{ deptAssignment.academicStart | date:'dd MMM yyyy' }} — {{ deptAssignment.academicEnd | date:'dd MMM yyyy' }}
+                    {{ deptAssignment.academicStart | date:'dd MMM yyyy' }} – {{ deptAssignment.academicEnd | date:'dd MMM yyyy' }}
                   </p>
                 </div>
               </div>
