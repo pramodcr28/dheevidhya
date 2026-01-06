@@ -44,9 +44,6 @@ export class EmployeeListComponent {
     tenantAuthorities = signal<ITenantAuthority[]>([]);
     isLoading = false;
     employees = signal<ITenantUser[]>([]);
-    itemsPerPage = ITEMS_PER_PAGE;
-    totalItems = 0;
-    page = 1;
     router = inject(Router);
     employeeService = inject(UserService);
     profileService = inject(ProfileConfigService);
@@ -58,7 +55,13 @@ export class EmployeeListComponent {
     confirmationService = inject(ConfirmationService);
     loader = inject(ApiLoaderService);
     commonService = inject(CommonService);
-
+    // pagination related code
+    itemsPerPage = ITEMS_PER_PAGE;
+    totalItems = 0;
+    page = 0;
+    sortField = 'id';
+    sortOrder: 'ASC' | 'DESC' = 'ASC';
+    // ----------------------------------
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);
@@ -81,9 +84,10 @@ export class EmployeeListComponent {
             };
         }
 
-        this.employeeService.userSearch(0, 100, 'id', 'ASC', filterParams).subscribe({
+        this.employeeService.userSearch(this.page, this.itemsPerPage, this.sortField, this.sortOrder, filterParams).subscribe({
             next: (res: any) => {
                 this.employees.set(res.content);
+                this.totalItems = res.totalElements || 0;
                 this.loader.hide();
             },
             error: (error) => {
@@ -95,6 +99,18 @@ export class EmployeeListComponent {
                 });
             }
         });
+    }
+    onPageChange(event: any): void {
+        this.itemsPerPage = event.rows;
+        this.page = Math.floor(event.first / event.rows);
+        this.load();
+    }
+
+    onSort(event: any): void {
+        this.sortField = event.field || 'id';
+        this.sortOrder = event.order === 1 ? 'ASC' : 'DESC';
+        this.page = 0; // Reset to first page on sort
+        this.load();
     }
 
     openNew() {

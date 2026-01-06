@@ -65,11 +65,7 @@ export class StudentListComponent {
     tenantAuthorities = signal<[]>([]);
     isLoading = false;
     students = signal<any[] | null>([]);
-    itemsPerPage = ITEMS_PER_PAGE;
-    totalItems = 0;
-    page = 0; // Changed to 0-based for API
-    sortField = 'id';
-    sortOrder: 'ASC' | 'DESC' = 'ASC';
+
     router = inject(Router);
     studentService = inject(UserService);
     profileService = inject(ProfileConfigService);
@@ -81,7 +77,13 @@ export class StudentListComponent {
     confirmationService = inject(ConfirmationService);
     loader = inject(ApiLoaderService);
     commonService = inject(CommonService);
-
+    // pagination related code
+    itemsPerPage = ITEMS_PER_PAGE;
+    totalItems = 0;
+    page = 0;
+    sortField = 'id';
+    sortOrder: 'ASC' | 'DESC' = 'ASC';
+    // ----------------------------------
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);

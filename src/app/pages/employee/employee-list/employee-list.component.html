@@ -1,16 +1,20 @@
 <p-table
     #dt
     [value]="employees()!"
-    [rows]="10"
+    [rows]="itemsPerPage"
     [columns]="cols"
     [paginator]="true"
+    [lazy]="true"
+    [totalRecords]="totalItems"
+    (onLazyLoad)="onPageChange($event)"
+    (onSort)="onSort($event)"
     [globalFilterFields]="['firstName', 'lastName', 'email']"
     [tableStyle]="{ 'min-width': '100%' }"
     [rowHover]="true"
     dataKey="id"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Staff"
     [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[10, 20, 30]"
+    [rowsPerPageOptions]="[10, 20, 30,50]"
     styleClass="p-datatable-striped"
     [responsive]="true"
     [responsiveLayout]="'scroll'">

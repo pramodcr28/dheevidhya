@@ -78,7 +78,7 @@ export class ReportsComponent {
     isLoading: Boolean;
     public examinationSubjects: any[] = [];
     ngOnInit() {
-        this.loadExams();
+        this.getExams();
         this.initializeCharts();
     }
 
@@ -88,13 +88,25 @@ export class ReportsComponent {
         }
     }
 
-    loadExams() {
+    getExams() {
+        this.isLoading = true;
         this.examinationService
-            .search(0, 100, 'id', 'DESC', {
-                'branchId.equals': this.commonService.branch.id || ''
+            .search(0, 100, 'id', 'ASC', {
+                'branchId.eq': this.commonService.branch?.id?.toString()
             })
-            .subscribe((res) => {
-                this.exams = res.content || [];
+            .subscribe({
+                next: (res) => {
+                    this.exams = res.content;
+                    this.isLoading = false;
+                },
+                error: () => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to load exams'
+                    });
+                    this.isLoading = false;
+                }
             });
     }
 
