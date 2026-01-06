@@ -220,19 +220,20 @@ export class TimetableListComponent implements OnInit {
             this.loader.hide();
             this.showTimetableDialog = false;
             this.seletedTimeTable = null;
+            this.apiCall();
         });
     }
 
     handleTimetableChange(updatedTimetable: DepartmentTimetable): void {
-        this.timeTableService.update(updatedTimetable, updatedTimetable.id || '').subscribe(() => {
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Timetable Updated successfully',
-                life: 2000
-            });
-            this.loader.hide();
-        });
+        // this.timeTableService.update(updatedTimetable, updatedTimetable.id || '').subscribe(() => {
+        //     this.messageService.add({
+        //         severity: 'success',
+        //         summary: 'Success',
+        //         detail: 'Timetable Updated successfully',
+        //         life: 2000
+        //     });
+        //     this.loader.hide();
+        // });
     }
 
     getAvailableStatusTransitions(currentStatus: string): string[] {
