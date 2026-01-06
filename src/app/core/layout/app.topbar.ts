@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MenuItem, MessageService } from 'primeng/api';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AccountService } from '../services/account.service';
 import { CommonService } from '../services/common.service';
@@ -16,7 +16,7 @@ import { AppConfigurator } from './app.configurator';
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, RouterLink, DropdownModule, FormsModule, ReactiveFormsModule],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, RouterLink, SelectModule, FormsModule, ReactiveFormsModule],
     template: `<div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -47,7 +47,7 @@ import { AppConfigurator } from './app.configurator';
         <div class="layout-topbar-actions">
             @if (!commonService.getUserAuthorities.includes('SUPER_ADMIN') && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
                 <div class="flex items-center mr-2 sm:mr-3">
-                    <p-dropdown
+                    <p-select
                         [options]="academicYears"
                         [(ngModel)]="selectedAcademicYear"
                         placeholder="Academic Year"
@@ -55,7 +55,7 @@ import { AppConfigurator } from './app.configurator';
                         [disabled]="loading || academicYears.length <= 1"
                         (onChange)="onAcademicYearChange()"
                     >
-                    </p-dropdown>
+                    </p-select>
                 </div>
             }
 
@@ -157,8 +157,8 @@ export class AppTopbar {
         this.accountingService.getAcademicYears().subscribe({
             next: (years) => {
                 this.academicYears = years;
-                if (years.length) {
-                    this.selectedAcademicYear = years[0];
+                if (years.length && this.commonService.currentUser.academicYear) {
+                    this.selectedAcademicYear = this.commonService.currentUser.academicYear;
                 }
             }
         });
