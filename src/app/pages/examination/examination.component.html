@@ -21,16 +21,16 @@
 
     <p-tabpanels class="overflow-y-auto flex-grow">
       <p-tabpanel value="0">
-        <app-add-exam></app-add-exam>
+        <app-add-exam [exams]="exams"></app-add-exam>
       </p-tabpanel>
       <!-- <p-tabpanel value="1">
         <app-quession-paper></app-quession-paper>
       </p-tabpanel> -->
        <p-tabpanel value="1">
-        <app-upload-result></app-upload-result>
+        <app-upload-result [exams]="exams"></app-upload-result>
       </p-tabpanel>
       <p-tabpanel value="2">
-        <app-reports></app-reports>
+        <app-reports [exams]="exams"></app-reports>
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>

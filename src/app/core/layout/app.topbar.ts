@@ -133,7 +133,7 @@ export class AppTopbar {
                 this.store.dispatch(addToken({ token: response.token }));
 
                 this.store.dispatch(loadUserProfile({ userConfig: response.profile }));
-
+                window.location.reload();
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Academic Year Switched',

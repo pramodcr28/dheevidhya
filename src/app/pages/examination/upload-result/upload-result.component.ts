@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -26,9 +26,9 @@ import { UserService } from '../../service/user.service';
     templateUrl: './upload-result.component.html',
     providers: [ConfirmationService, MessageService]
 })
-export class UploadResultComponent implements OnInit {
+export class UploadResultComponent {
     // currentBranch: IBranch;
-    exams: any[] = [];
+    @Input() exams: any[] = [];
     selectedExam: ExaminationDTO;
     sections: Section[] = [];
     selectedSection: Section;
@@ -48,32 +48,6 @@ export class UploadResultComponent implements OnInit {
 
     public isLoading = false;
     public isSaving = false;
-
-    ngOnInit(): void {
-        this.getExams();
-    }
-
-    getExams() {
-        this.isLoading = true;
-        this.examinationService
-            .search(0, 100, 'id', 'ASC', {
-                'branchId.eq': this.commonService.branch?.id?.toString()
-            })
-            .subscribe({
-                next: (res) => {
-                    this.exams = res.content;
-                    this.isLoading = false;
-                },
-                error: () => {
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to load exams'
-                    });
-                    this.isLoading = false;
-                }
-            });
-    }
 
     onExamChange() {
         this.selectedSection = null;

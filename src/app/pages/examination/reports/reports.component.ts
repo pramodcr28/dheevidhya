@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -54,7 +54,7 @@ export class ReportsComponent {
     private examinationService = inject(ExaminationService);
     private messageService = inject(MessageService);
     commonService = inject(CommonService);
-    exams: ExaminationDTO[] = [];
+    @Input() exams: any[] = [];
     selectedExam: ExaminationDTO | null = null;
 
     report: ExamReport = {
@@ -78,7 +78,6 @@ export class ReportsComponent {
     isLoading: Boolean;
     public examinationSubjects: any[] = [];
     ngOnInit() {
-        this.getExams();
         this.initializeCharts();
     }
 
@@ -86,28 +85,6 @@ export class ReportsComponent {
         if (this.selectedExam) {
             this.generateResults();
         }
-    }
-
-    getExams() {
-        this.isLoading = true;
-        this.examinationService
-            .search(0, 100, 'id', 'ASC', {
-                'branchId.eq': this.commonService.branch?.id?.toString()
-            })
-            .subscribe({
-                next: (res) => {
-                    this.exams = res.content;
-                    this.isLoading = false;
-                },
-                error: () => {
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to load exams'
-                    });
-                    this.isLoading = false;
-                }
-            });
     }
 
     onExamChange() {

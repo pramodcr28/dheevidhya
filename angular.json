@@ -46,7 +46,7 @@
                         "allowedCommonJsDependencies": ["quill-delta","sockjs-client", "stompjs", "chart.js", "xlsx", "file-saver", "pdfmake", "jspdf", "html2canvas"]
                     },
                     "configurations": {
-                        "production": {
+                        "prod": {
                             "optimization": true,
                             "sourceMap": false,
                             "namedChunks": false,
@@ -63,36 +63,50 @@
                                     "maximumError": "4kb"
                                 }
                             ],
-                            "outputHashing": "all"
+                            "outputHashing": "all",
+                            "fileReplacements": [
+                              {
+                                "replace": "src/environments/environment.ts",
+                                "with": "src/environments/environment.prod.ts"
+                              }
+                            ]
                         },
-                        "development": {
+                        "dev": {
                             "optimization": false,
                             "extractLicenses": false,
                             "sourceMap": true,
                             "fileReplacements": [
                               {
                                 "replace": "src/environments/environment.ts",
-                                "with": "src/environments/environment.development.ts"
+                                "with": "src/environments/environment.dev.ts"
                               }
                             ]
+                        },
+                         "local": {
+                            "optimization": false,
+                            "extractLicenses": false,
+                            "sourceMap": true
                         }
                     },
-                    "defaultConfiguration": "production"
+                    "defaultConfiguration": "prod"
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "proxyConfig": "proxy.conf.json"
+                        "proxyConfig": "proxy.conf.local.json"
                     },
                     "configurations": {
-                        "production": {
-                            "buildTarget": "dheevidhya:build:production"
+                        "prod": {
+                            "buildTarget": "dheevidhya:build:prod"
                         },
-                        "development": {
-                            "buildTarget": "dheevidhya:build:development"
+                        "dev": {
+                            "buildTarget": "dheevidhya:build:dev"
+                        },
+                         "local": {
+                            "buildTarget": "dheevidhya:build:local"
                         }
                     },
-                    "defaultConfiguration": "development"
+                    "defaultConfiguration": "local"
                 },
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n"

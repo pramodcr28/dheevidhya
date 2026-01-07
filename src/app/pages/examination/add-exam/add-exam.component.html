@@ -9,7 +9,7 @@
     <tr>
       <th>Exam Type</th>
       <th>Department</th>
-      <th>Branch</th>
+      <!-- <th>Branch</th> -->
       <th>Status</th>
       <th>Time Table</th>
     </tr>
@@ -18,7 +18,7 @@
     <tr>
       <td>{{ ExamTypeLabels[exam.examType] || exam.examType }}</td>
       <td>{{ exam.departmentId }}</td>
-      <td>{{ exam.branchId }}</td>
+      <!-- <td>{{ exam.branchId }}</td> -->
       <td>{{ ExamStatusLabels[exam.status] || exam.status }}</td>
       <td>
         <button 

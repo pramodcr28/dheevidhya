@@ -83,7 +83,7 @@ export class StudentListComponent {
     page = 0;
     sortField = 'id';
     sortOrder: 'ASC' | 'DESC' = 'ASC';
-    // ----------------------------------
+
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);

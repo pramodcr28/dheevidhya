@@ -1,211 +1,186 @@
 <div class="min-h-screen p-4 sm:p-6">
     <p-toast />
-    <p-tabView [(activeIndex)]="activeTab">
-        <!-- Attendance Logs Tab -->
-        <p-tabPanel>
-            <ng-template pTemplate="header">
+    
+    <p-tabs [value]="activeTab" (valueChange)="activeTab = $event">
+        <p-tablist>
+            <p-tab [value]="0">
                 <div class="flex items-center gap-2">
                     <i class="pi pi-list"></i>
                     <span>Attendance Logs</span>
                 </div>
-            </ng-template>
-
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-                <!-- Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Daily Attendance Records</h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">View and manage staff attendance logs</p>
-                    </div>
-                    <!-- <button 
-                        pButton 
-                        label="Export" 
-                        icon="pi pi-download"
-                        class="bg-green-600 hover:bg-green-700 border-green-600"
-                        (click)="exportLogs()"
-                    ></button> -->
-                </div>
-
-                <!-- Filters -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <p-date-picker 
-                        [(ngModel)]="logFilters.startDate" 
-                        [showIcon]="true" 
-                        placeholder="Start Date" 
-                        dateFormat="dd/mm/yy"
-                        class="w-full"
-                    />
-                    <p-date-picker 
-                        [(ngModel)]="logFilters.endDate" 
-                        [showIcon]="true" 
-                        placeholder="End Date" 
-                        dateFormat="dd/mm/yy"
-                        class="w-full"
-                    />
-                    <!-- <p-multiSelect 
-                        [(ngModel)]="logFilters.departments" 
-                        [options]="departments" 
-                        optionLabel="name" 
-                        optionValue="id" 
-                        placeholder="Select Departments"
-                        class="w-full"
-                    /> -->
-     <!-- Department Selection -->
-        <div>
-          <!-- <label class="block font-bold mb-2">Department</label> -->
-          <p-multi-select
-            [options]="associatedDepartments"
-            [(ngModel)]="logFilters.departments"
-            [ngModelOptions]="{standalone: true}"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Select Department"
-            [style]="{ width: '100%' }">
-          </p-multi-select>
-          <!-- <small class="text-red-500" *ngIf="submitted && !selectedDepartments">
-            Department is required.
-          </small> -->
-        </div>
-
-                    <button 
-                        pButton 
-                        label="Apply Filter" 
-                        icon="pi pi-filter"
-                        class="w-full md:w-auto bg-orange-600 hover:bg-orange-700 border-orange-600"
-                        (click)="applyFilters()"
-                    ></button>
-                </div>
-
-                <!-- Table -->
-                <div class="overflow-x-auto">
-                    <p-table 
-                        [value]="filteredLogs" 
-                        [loading]="loadingLogs"
-                        [paginator]="true"
-                        [rows]="15"
-                        [rowsPerPageOptions]="[15, 30, 50]"
-                        [showCurrentPageReport]="true"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-                        styleClass="p-datatable-sm"
-                    >
-                        <ng-template pTemplate="header">
-                            <tr class="bg-gray-50 dark:bg-gray-700">
-                                <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Date</th>
-                                <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Staff Member</th>
-                                <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Department</th>
-                                <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Check In</th>
-                                <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Check Out</th>
-                                <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Status</th>
-                                <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Remarks</th>
-                            </tr>
-                        </ng-template>
-
-                        <ng-template pTemplate="body" let-log>
-                            <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <td class="px-2 sm:px-4 py-2 sm:py-4 font-medium text-gray-900 dark:text-white">
-                                    {{ log.attendanceDate | date: 'dd MMM yyyy' }}
-                                </td>
-                                <td class="px-2 sm:px-4 py-2 sm:py-4">
-                                    <div class="flex items-center gap-2 sm:gap-3">
-                                        <p-avatar 
-                                            [label]="getInitials(log.staffName)" 
-                                            shape="circle"
-                                            size="normal"
-                                            styleClass="bg-orange-500 text-white"
-                                        ></p-avatar>
-                                        <span class="font-medium text-gray-900 dark:text-white text-sm sm:text-base">{{ log.staffName }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-2 sm:px-4 py-2 sm:py-4 text-gray-600 dark:text-gray-300 text-xs sm:text-sm">{{ log.departmentName || 'N/A' }}</td>
-                                <td class="px-2 sm:px-4 py-2 sm:py-4">
-                                    <span class="inline-flex items-center gap-1 text-green-600 dark:text-green-400 font-medium text-xs sm:text-sm">
-                                        <i class="pi pi-sign-in text-xs"></i>
-                                        {{ log.checkInTime || '-' }}
-                                    </span>
-                                </td>
-                                <td class="px-2 sm:px-4 py-2 sm:py-4">
-                                    <span class="inline-flex items-center gap-1 text-red-600 dark:text-red-400 font-medium text-xs sm:text-sm">
-                                        <i class="pi pi-sign-out text-xs"></i>
-                                        {{ log.checkOutTime || '-' }}
-                                    </span>
-                                </td>
-                                <td class="px-2 sm:px-4 py-2 sm:py-4">
-                                    <p-tag [value]="log.status" [severity]="getStatusSeverity(log.status)"></p-tag>
-                                </td>
-                                <td class="px-2 sm:px-4 py-2 sm:py-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">{{ log.remarks || '-' }}</td>
-                            </tr>
-                        </ng-template>
-
-                        <ng-template pTemplate="emptymessage">
-                            <tr>
-                                <td colspan="7" class="text-center py-12">
-                                    <i class="pi pi-inbox text-4xl sm:text-5xl text-gray-300 dark:text-gray-600 mb-3 block"></i>
-                                    <p class="text-gray-500 dark:text-gray-400">No attendance logs found</p>
-                                </td>
-                            </tr>
-                        </ng-template>
-                    </p-table>
-                </div>
-            </div>
-        </p-tabPanel>
-
-        <!-- Analytics Tab -->
-        <p-tabPanel>
-            <ng-template pTemplate="header">
+            </p-tab>
+            <p-tab [value]="1">
                 <div class="flex items-center gap-2">
                     <i class="pi pi-chart-pie"></i>
                     <span>Analytics</span>
                 </div>
-            </ng-template>
+            </p-tab>
+        </p-tablist>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                <!-- Department-wise Attendance -->
+        <p-tabpanels>
+            <p-tabpanel [value]="0">
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">Department-wise Attendance</h3>
-                    <div class="h-64 sm:h-80">
-                        <p-chart type="bar" [data]="departmentChartData" [options]="chartOptions" class="w-full h-full"></p-chart>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div>
+                            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Daily Attendance Records</h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">View and manage staff attendance logs</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <p-date-picker 
+                            [(ngModel)]="logFilters.startDate" 
+                            [showIcon]="true" 
+                            placeholder="Start Date" 
+                            dateFormat="dd/mm/yy"
+                            class="w-full"
+                        />
+                        <p-date-picker 
+                            [(ngModel)]="logFilters.endDate" 
+                            [showIcon]="true" 
+                            placeholder="End Date" 
+                            dateFormat="dd/mm/yy"
+                            class="w-full"
+                        />
+                        <div>
+                            <p-multi-select
+                                [options]="associatedDepartments"
+                                [(ngModel)]="logFilters.departments"
+                                [ngModelOptions]="{standalone: true}"
+                                optionLabel="name"
+                                optionValue="id"
+                                placeholder="Select Department"
+                                [style]="{ width: '100%' }">
+                            </p-multi-select>
+                        </div>
+
+                        <button 
+                            pButton 
+                            label="Apply Filter" 
+                            icon="pi pi-filter"
+                            class="w-full md:w-auto bg-orange-600 hover:bg-orange-700 border-orange-600"
+                            (click)="applyFilters()"
+                        ></button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <p-table 
+                            [value]="filteredLogs" 
+                            [loading]="loadingLogs"
+                            [paginator]="true"
+                            [rows]="15"
+                            [rowsPerPageOptions]="[15, 30, 50]"
+                            [showCurrentPageReport]="true"
+                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                            styleClass="p-datatable-sm"
+                        >
+                            <ng-template pTemplate="header">
+                                <tr class="bg-gray-50 dark:bg-gray-700">
+                                    <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Date</th>
+                                    <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Staff Member</th>
+                                    <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Department</th>
+                                    <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Check In</th>
+                                    <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Check Out</th>
+                                    <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Status</th>
+                                    <th class="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">Remarks</th>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="body" let-log>
+                                <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="px-2 sm:px-4 py-2 sm:py-4 font-medium text-gray-900 dark:text-white">
+                                        {{ log.attendanceDate | date: 'dd MMM yyyy' }}
+                                    </td>
+                                    <td class="px-2 sm:px-4 py-2 sm:py-4">
+                                        <div class="flex items-center gap-2 sm:gap-3">
+                                            <p-avatar 
+                                                [label]="getInitials(log.staffName)" 
+                                                shape="circle"
+                                                size="normal"
+                                                styleClass="bg-orange-500 text-white"
+                                            ></p-avatar>
+                                            <span class="font-medium text-gray-900 dark:text-white text-sm sm:text-base">{{ log.staffName }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-2 sm:px-4 py-2 sm:py-4 text-gray-600 dark:text-gray-300 text-xs sm:text-sm">{{ log.departmentName || 'N/A' }}</td>
+                                    <td class="px-2 sm:px-4 py-2 sm:py-4">
+                                        <span class="inline-flex items-center gap-1 text-green-600 dark:text-green-400 font-medium text-xs sm:text-sm">
+                                            <i class="pi pi-sign-in text-xs"></i>
+                                            {{ log.checkInTime || '-' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-2 sm:px-4 py-2 sm:py-4">
+                                        <span class="inline-flex items-center gap-1 text-red-600 dark:text-red-400 font-medium text-xs sm:text-sm">
+                                            <i class="pi pi-sign-out text-xs"></i>
+                                            {{ log.checkOutTime || '-' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-2 sm:px-4 py-2 sm:py-4">
+                                        <p-tag [value]="log.status" [severity]="getStatusSeverity(log.status)"></p-tag>
+                                    </td>
+                                    <td class="px-2 sm:px-4 py-2 sm:py-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">{{ log.remarks || '-' }}</td>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="7" class="text-center py-12">
+                                        <i class="pi pi-inbox text-4xl sm:text-5xl text-gray-300 dark:text-gray-600 mb-3 block"></i>
+                                        <p class="text-gray-500 dark:text-gray-400">No attendance logs found</p>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
                     </div>
                 </div>
+            </p-tabpanel>
 
-                <!-- Monthly Attendance Trend -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Attendance Trend</h3>
-                    <div class="h-64 sm:h-80">
-                        <p-chart type="line" [data]="monthlyTrendData" [options]="chartOptions" class="w-full h-full"></p-chart>
+            <p-tabpanel [value]="1">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">Department-wise Attendance</h3>
+                        <div class="h-64 sm:h-80">
+                            <p-chart type="bar" [data]="departmentChartData" [options]="chartOptions" class="w-full h-full"></p-chart>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Status Distribution -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">Status Distribution</h3>
-                    <div class="h-64 sm:h-80">
-                        <p-chart type="doughnut" [data]="statusDistributionData" [options]="pieChartOptions" class="w-full h-full"></p-chart>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Attendance Trend</h3>
+                        <div class="h-64 sm:h-80">
+                            <p-chart type="line" [data]="monthlyTrendData" [options]="chartOptions" class="w-full h-full"></p-chart>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Top Performers -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-6">Top Performers</h3>
-                    <div class="space-y-4">
-                        <div *ngFor="let performer of topPerformers; let i = index" 
-                             class="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl border border-orange-100 dark:border-orange-800 transition-all hover:shadow-md gap-3 sm:gap-0">
-                            <div class="flex items-center gap-2 sm:gap-3">
-                                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm sm:text-lg shadow-lg">
-                                    {{ i + 1 }}
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">Status Distribution</h3>
+                        <div class="h-64 sm:h-80">
+                            <p-chart type="doughnut" [data]="statusDistributionData" [options]="pieChartOptions" class="w-full h-full"></p-chart>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-6">Top Performers</h3>
+                        <div class="space-y-4">
+                            <div *ngFor="let performer of topPerformers; let i = index" 
+                                 class="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl border border-orange-100 dark:border-orange-800 transition-all hover:shadow-md gap-3 sm:gap-0">
+                                <div class="flex items-center gap-2 sm:gap-3">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm sm:text-lg shadow-lg">
+                                        {{ i + 1 }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="font-semibold text-gray-900 dark:text-white text-sm sm:text-base truncate">{{ performer.name }}</div>
+                                        <div class="text-xs text-gray-600 dark:text-gray-400">{{ performer.department }}</div>
+                                    </div>
                                 </div>
-                                <div class="min-w-0">
-                                    <div class="font-semibold text-gray-900 dark:text-white text-sm sm:text-base truncate">{{ performer.name }}</div>
-                                    <div class="text-xs text-gray-600 dark:text-gray-400">{{ performer.department }}</div>
+                                <div class="text-right">
+                                    <div class="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{{ performer.percentage }}%</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ performer.present }}/{{ performer.total }} days</div>
                                 </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{{ performer.percentage }}%</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ performer.present }}/{{ performer.total }} days</div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </p-tabPanel>
-    </p-tabView>
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
 </div>

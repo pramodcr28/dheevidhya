@@ -16,7 +16,6 @@
     [showCurrentPageReport]="true"
     [rowsPerPageOptions]="[10, 20, 30, 50]"
     styleClass="p-datatable-striped"
-    [responsive]="true"
     [responsiveLayout]="'scroll'">
     
     <ng-template pTemplate="caption">
@@ -97,13 +96,13 @@
                         title="Edit Student">
                         <i class="pi pi-user-edit text-blue-600 text-base sm:text-lg"></i>
                     </button>
-                    <button 
+                    <!-- <button 
                         type="button"
                         class="p-1.5 sm:p-2 hover:bg-green-100 rounded-full transition-colors"
                         (click)="addOrEditGuardian(student)"
                         title="Manage Guardian">
                         <i class="pi pi-user-plus text-green-600 text-base sm:text-lg"></i>
-                    </button>
+                    </button> -->
                     <button 
                         type="button"
                         class="p-1.5 sm:p-2 hover:bg-red-100 rounded-full transition-colors"

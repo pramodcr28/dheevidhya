@@ -95,7 +95,7 @@ export class TimeTableService {
     }
 
     generateTimeTable(request: any) {
-        if (environment.stage != 'dev') return this.http.post('https://dheevidhya.in/v3ai/generate-timetable', request);
+        if (environment.stage != 'local') return this.http.post('https://dheevidhya.in/v3ai/generate-timetable', request);
         else return this.http.post('http://localhost:8084/generate-timetable', request);
     }
 

@@ -1,5 +1,5 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { AccordionModule } from 'primeng/accordion';
@@ -61,7 +61,7 @@ export class AddExamComponent {
     selectedSubjects: TreeNode[] = [];
     submitted = false;
     examForm!: FormGroup;
-    exams: any[] = [];
+    @Input() exams: any[] = [];
     displayDialog = false;
     slotDailog = false;
     selectedExam: ExaminationDTO;
@@ -87,7 +87,6 @@ export class AddExamComponent {
             examType: [null, Validators.required],
             resultDeclarationDate: [null]
         });
-        this.getExams();
     }
 
     getExams() {
