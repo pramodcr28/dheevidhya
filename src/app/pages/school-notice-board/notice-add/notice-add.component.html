@@ -29,7 +29,7 @@
                 formControlName="title" 
                 placeholder="Enter notice title"
                 class="w-full" />
-              <small class="text-red-500" *ngIf="noticeForm.controls.title.invalid && noticeForm.controls.title.touched">
+              <small class="text-red-500" *ngIf="noticeForm.get('title')?.invalid && noticeForm.get('title')?.touched">
                 Title is required (min 5 characters)
               </small>
             </div>
@@ -80,7 +80,7 @@
             <ng-container [ngSwitch]="categoryType">
               
               <!-- Timetable -->
-              <div *ngSwitchCase="'TIMETABLE'" [formGroup]="noticeForm.controls.timetable">
+              <div *ngSwitchCase="'TIMETABLE'" formGroupName="timetable">
                 <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Effective Date</label>
                 <p-datepicker 
                   formControlName="effectiveDate" 
@@ -92,7 +92,7 @@
               </div>
 
               <!-- Attendance -->
-              <div *ngSwitchCase="'ATTENDANCE'" [formGroup]="noticeForm.controls.attendance" class="space-y-3">
+              <div *ngSwitchCase="'ATTENDANCE'" formGroupName="attendance" class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Attendance %</label>
@@ -128,7 +128,7 @@
               </div>
 
               <!-- Exam Announcement -->
-              <div *ngSwitchCase="'EXAM_ANNOUNCEMENT'" [formGroup]="noticeForm.controls.examAnnouncement" class="space-y-3">
+              <div *ngSwitchCase="'EXAM_ANNOUNCEMENT'" formGroupName="examAnnouncement" class="space-y-3">
                 <div>
                   <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Exam Title</label>
                   <input pInputText formControlName="examTitle" placeholder="Enter exam title" class="w-full" />
@@ -167,7 +167,11 @@
               </div>
 
               <!-- Exam Result -->
-              <div *ngSwitchCase="'EXAM_RESULT'" [formGroup]="noticeForm.controls.examResult" class="space-y-3">
+              <div *ngSwitchCase="'EXAM_RESULT'" formGroupName="examResult" class="space-y-3">
+                <div>
+                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Exam Title</label>
+                  <input pInputText formControlName="examTitle" placeholder="Enter exam title" class="w-full" />
+                </div>
                 <div>
                   <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Exam Type</label>
                   <p-select 
@@ -190,7 +194,7 @@
               </div>
 
               <!-- Holiday -->
-              <div *ngSwitchCase="'HOLIDAY'" [formGroup]="noticeForm.controls.holiday" class="space-y-3">
+              <div *ngSwitchCase="'HOLIDAY'" formGroupName="holiday" class="space-y-3">
                 <div>
                   <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Holiday Type</label>
                   <p-select 
@@ -204,7 +208,7 @@
                   </p-select>
                 </div>
                 
-                <div *ngIf="noticeForm.controls.holiday.controls.holidayType.value === 'Week_off'">
+                <div *ngIf="noticeForm.get('holiday.holidayType')?.value === 'Week_off'">
                   <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Week Off Day</label>
                   <p-select 
                     [options]="weekDays" 
@@ -216,7 +220,7 @@
                   </p-select>
                 </div>
 
-                <div *ngIf="noticeForm.controls.holiday.controls.holidayType.value !== 'Week_off'" class="grid grid-cols-2 gap-3">
+                <div *ngIf="noticeForm.get('holiday.holidayType')?.value !== 'Week_off'" class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Start Date</label>
                     <p-datepicker 
@@ -241,7 +245,7 @@
               </div>
 
               <!-- Meeting -->
-              <div *ngSwitchCase="'MEETING'" [formGroup]="noticeForm.controls.meeting" class="space-y-3">
+              <div *ngSwitchCase="'MEETING'" formGroupName="meeting" class="space-y-3">
                 <div>
                   <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Meeting Type</label>
                   <p-select 
@@ -279,7 +283,7 @@
               </div>
 
               <!-- Appreciation -->
-              <div *ngSwitchCase="'APPRECIATION'" [formGroup]="noticeForm.controls.appreciation" class="space-y-3">
+              <div *ngSwitchCase="'APPRECIATION'" formGroupName="appreciation" class="space-y-3">
                 <div>
                   <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Recipient IDs</label>
                   <input 
@@ -315,7 +319,7 @@
               </div>
 
               <!-- School Achievement -->
-              <div *ngSwitchCase="'SCHOOL_ACHIEVEMENT'" [formGroup]="noticeForm.controls.schoolAchievement" class="space-y-3">
+              <div *ngSwitchCase="'SCHOOL_ACHIEVEMENT'" formGroupName="schoolAchievement" class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Achievement Category</label>
@@ -350,7 +354,7 @@
               </div>
 
               <!-- Fest -->
-              <div *ngSwitchCase="'FEST'" [formGroup]="noticeForm.controls.fest" class="space-y-3">
+              <div *ngSwitchCase="'FEST'" formGroupName="fest" class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Fest Name</label>

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -12,8 +12,8 @@ import { PanelModule } from 'primeng/panel';
 import { SelectModule } from 'primeng/select';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { CommonService } from '../../../core/services/common.service';
-import { ExamType, ExamTypeLabels } from '../../models/examination.model';
-import { Attachment, CategoryType, Notice, Priority, Status, TargetType } from '../../models/notification.model';
+import { ExamTypeLabels } from '../../models/examination.model';
+import { CategoryType, Notice, Priority, Status, TargetType } from '../../models/notification.model';
 
 @Component({
     selector: 'app-notice-add',
@@ -107,64 +107,7 @@ export class NoticeAddComponent implements OnInit, OnChanges {
         { label: 'Sunday', value: 'SUNDAY' }
     ];
 
-    noticeForm!: FormGroup<{
-        categoryType: FormControl<CategoryType | null>;
-        title: FormControl<string | null>;
-        content: FormControl<string | null>;
-        priority: FormControl<Priority | null>;
-        targetAudience: FormGroup<{
-            type: FormControl<TargetType | null>;
-            targetIds: FormControl<string | null>;
-            includeAll: FormControl<boolean | null>;
-        }>;
-        attachments: FormControl<Attachment[] | null>;
-        timetable: FormGroup<{ effectiveDate: FormControl<string | null> }>;
-        attendance: FormGroup<{
-            attendancePercentage: FormControl<number | null>;
-            attendanceType: FormControl<string | null>;
-            parentMeetingRequired: FormControl<boolean | null>;
-        }>;
-        examAnnouncement: FormGroup<{
-            examTitle: FormControl<string | null>;
-            examType: FormControl<ExamType | null>;
-            examStartDate: FormControl<string | null>;
-            examEndDate: FormControl<string | null>;
-        }>;
-        examResult: FormGroup<{
-            examTitle: FormControl<string | null>;
-            examType: FormControl<ExamType | null>;
-            resultDeclarationDate: FormControl<string | null>;
-        }>;
-        holiday: FormGroup<{
-            holidayType: FormControl<string | null>;
-            holidayStartDate: FormControl<string | null>;
-            holidayEndDate: FormControl<string | null>;
-            weekOffDay: FormControl<string | null>;
-        }>;
-        meeting: FormGroup<{
-            meetingType: FormControl<string | null>;
-            meetingDate: FormControl<string | null>;
-            meetingTime: FormControl<string | null>;
-            venue: FormControl<string | null>;
-        }>;
-        fest: FormGroup<{
-            festName: FormControl<string | null>;
-            festType: FormControl<string | null>;
-            eventStartDate: FormControl<string | null>;
-            eventEndDate: FormControl<string | null>;
-            venue: FormControl<string | null>;
-        }>;
-        appreciation: FormGroup<{
-            recipientIds: FormControl<string | null>;
-            achievementCategory: FormControl<string | null>;
-            recognitionLevel: FormControl<string | null>;
-        }>;
-        schoolAchievement: FormGroup<{
-            achievementCategory: FormControl<string | null>;
-            achievementDate: FormControl<string | null>;
-            recipientIds: FormControl<string | null>;
-        }>;
-    }>;
+    noticeForm!: FormGroup;
 
     commonService = inject(CommonService);
 
@@ -184,66 +127,74 @@ export class NoticeAddComponent implements OnInit, OnChanges {
 
     private initializeForm(): void {
         this.noticeForm = this.fb.group({
-            categoryType: this.fb.control<CategoryType | null>(CategoryType.GENERAL, Validators.required),
-            title: this.fb.control<string | null>(null, [Validators.required, Validators.minLength(5)]),
-            content: this.fb.control<string | null>(null, []),
-            priority: this.fb.control<Priority | null>(Priority.MEDIUM, Validators.required),
+            categoryType: [CategoryType.GENERAL, Validators.required],
+            title: ['', [Validators.required, Validators.minLength(5)]],
+            content: [''],
+            priority: [Priority.MEDIUM, Validators.required],
 
             targetAudience: this.fb.group({
-                type: this.fb.control<TargetType | null>(TargetType.ALL, Validators.required),
-                targetIds: this.fb.control<string | null>(null),
-                includeAll: this.fb.control<boolean | null>(true)
+                type: [TargetType.ALL, Validators.required],
+                targetIds: [''],
+                includeAll: [true]
             }),
 
-            attachments: this.fb.control<Attachment[] | null>([]),
+            attachments: [[]],
 
             timetable: this.fb.group({
-                effectiveDate: this.fb.control<string | null>(null)
+                effectiveDate: [null]
             }),
+
             attendance: this.fb.group({
-                attendancePercentage: this.fb.control<number | null>(null),
-                attendanceType: this.fb.control<string | null>(null),
-                parentMeetingRequired: this.fb.control<boolean | null>(false)
+                attendancePercentage: [null],
+                attendanceType: [null],
+                parentMeetingRequired: [false]
             }),
+
             examAnnouncement: this.fb.group({
-                examTitle: this.fb.control<string | null>(null),
-                examType: this.fb.control<ExamType | null>(null),
-                examStartDate: this.fb.control<string | null>(null),
-                examEndDate: this.fb.control<string | null>(null)
+                examTitle: [null],
+                examType: [null],
+                examStartDate: [null],
+                examEndDate: [null]
             }),
+
             examResult: this.fb.group({
-                examTitle: this.fb.control<string | null>(null),
-                examType: this.fb.control<ExamType | null>(null),
-                resultDeclarationDate: this.fb.control<string | null>(null)
+                examTitle: [null],
+                examType: [null],
+                resultDeclarationDate: [null]
             }),
+
             holiday: this.fb.group({
-                holidayType: this.fb.control<string | null>(null),
-                holidayStartDate: this.fb.control<string | null>(null),
-                holidayEndDate: this.fb.control<string | null>(null),
-                weekOffDay: this.fb.control<string | null>(null)
+                holidayType: [null],
+                holidayStartDate: [null],
+                holidayEndDate: [null],
+                weekOffDay: [null]
             }),
+
             meeting: this.fb.group({
-                meetingType: this.fb.control<string | null>(null),
-                meetingDate: this.fb.control<string | null>(null),
-                meetingTime: this.fb.control<string | null>(null),
-                venue: this.fb.control<string | null>(null)
+                meetingType: [null],
+                meetingDate: [null],
+                meetingTime: [null],
+                venue: [null]
             }),
+
             fest: this.fb.group({
-                festName: this.fb.control<string | null>(null),
-                festType: this.fb.control<string | null>(null),
-                eventStartDate: this.fb.control<string | null>(null),
-                eventEndDate: this.fb.control<string | null>(null),
-                venue: this.fb.control<string | null>(null)
+                festName: [null],
+                festType: [null],
+                eventStartDate: [null],
+                eventEndDate: [null],
+                venue: [null]
             }),
+
             appreciation: this.fb.group({
-                recipientIds: this.fb.control<string | null>(null),
-                achievementCategory: this.fb.control<string | null>(null),
-                recognitionLevel: this.fb.control<string | null>(null)
+                recipientIds: [null],
+                achievementCategory: [null],
+                recognitionLevel: [null]
             }),
+
             schoolAchievement: this.fb.group({
-                achievementCategory: this.fb.control<string | null>(null),
-                achievementDate: this.fb.control<string | null>(null),
-                recipientIds: this.fb.control<string | null>(null)
+                achievementCategory: [null],
+                achievementDate: [null],
+                recipientIds: [null]
             })
         });
     }
@@ -256,34 +207,36 @@ export class NoticeAddComponent implements OnInit, OnChanges {
             priority: notice.priority,
             targetAudience: {
                 type: notice.targetAudience.type,
-                targetIds: notice.targetAudience.targetIds?.join(', '),
+                targetIds: notice.targetAudience.targetIds?.join(', ') || '',
                 includeAll: notice.targetAudience.type === TargetType.ALL
             },
-            attachments: notice.attachments || ([] as any),
-            timetable: notice.timetable || {},
-            attendance: notice.attendance || {},
-            examAnnouncement: notice.examAnnouncement || {},
-            examResult: notice.examResult || ({} as any),
-            holiday: notice.holiday || {},
-            meeting: notice.meeting || {},
-            fest: notice.fest || {},
+            attachments: notice.attachments || [],
+            timetable: notice.timetable || { effectiveDate: null },
+            attendance: notice.attendance || { attendancePercentage: null, attendanceType: null, parentMeetingRequired: false },
+            examAnnouncement: notice.examAnnouncement || { examTitle: null, examType: null, examStartDate: null, examEndDate: null },
+            examResult: notice.examResult || { examTitle: null, examType: null, resultDeclarationDate: null },
+            holiday: notice.holiday || { holidayType: null, holidayStartDate: null, holidayEndDate: null, weekOffDay: null },
+            meeting: notice.meeting || { meetingType: null, meetingDate: null, meetingTime: null, venue: null },
+            fest: notice.fest || { festName: null, festType: null, eventStartDate: null, eventEndDate: null, venue: null },
             appreciation: notice.appreciation
                 ? {
-                      ...notice.appreciation,
-                      recipientIds: notice.appreciation.recipientIds?.join(', ')
+                      recipientIds: notice.appreciation.recipientIds?.join(', ') || null,
+                      achievementCategory: notice.appreciation.achievementCategory,
+                      recognitionLevel: notice.appreciation.recognitionLevel
                   }
-                : {},
+                : { recipientIds: null, achievementCategory: null, recognitionLevel: null },
             schoolAchievement: notice.schoolAchievement
                 ? {
-                      ...notice.schoolAchievement,
-                      recipientIds: notice.schoolAchievement.recipientIds?.join(', ')
+                      recipientIds: notice.schoolAchievement.recipientIds?.join(', ') || null,
+                      achievementCategory: notice.schoolAchievement.achievementCategory,
+                      achievementDate: notice.schoolAchievement.achievementDate
                   }
-                : {}
+                : { recipientIds: null, achievementCategory: null, achievementDate: null }
         });
     }
 
     get categoryType(): CategoryType | null {
-        return this.noticeForm.controls.categoryType.value ?? null;
+        return this.noticeForm.get('categoryType')?.value ?? null;
     }
 
     private formatDate(date: any): string | null {
@@ -300,6 +253,15 @@ export class NoticeAddComponent implements OnInit, OnChanges {
         }
     }
 
+    private hasValidData(obj: any): boolean {
+        if (!obj) return false;
+        return Object.values(obj).some((v) => {
+            if (v === null || v === undefined || v === '' || v === false) return false;
+            if (Array.isArray(v) && v.length === 0) return false;
+            return true;
+        });
+    }
+
     submit(): void {
         if (!this.noticeForm.valid) {
             this.noticeForm.markAllAsTouched();
@@ -307,9 +269,7 @@ export class NoticeAddComponent implements OnInit, OnChanges {
         }
 
         const raw = this.noticeForm.getRawValue();
-        const targetIds = this.parseCsv(raw.targetAudience.targetIds);
-        const appreciationRecipientIds = this.parseCsv(raw.appreciation.recipientIds);
-        const schoolAchievementRecipientIds = this.parseCsv(raw.schoolAchievement.recipientIds);
+        const targetIds = this.parseCsv(raw.targetAudience?.targetIds);
 
         const notice: Notice = {
             id: this.editMode && this.noticeData ? this.noticeData.id : null,
@@ -321,83 +281,101 @@ export class NoticeAddComponent implements OnInit, OnChanges {
             status: Status.PUBLISHED,
             publishedAt: this.editMode && this.noticeData ? this.noticeData.publishedAt : new Date().toISOString(),
             targetAudience: {
-                type: raw.targetAudience.type as TargetType,
+                type: raw.targetAudience?.type as TargetType,
                 targetIds: targetIds.length ? targetIds : ['all']
             },
-            attachments: raw.attachments ?? [],
-            timetable: raw.timetable
+            attachments: raw.attachments ?? []
         };
 
-        // Add conditional fields
-        if (raw.attendance && Object.values(raw.attendance).some((v) => v !== null && v !== false)) {
+        // Only add timetable if it has the effectiveDate
+        if (raw.categoryType === CategoryType.TIMETABLE && raw.timetable?.effectiveDate) {
+            notice.timetable = {
+                effectiveDate: this.formatDate(raw.timetable.effectiveDate)
+            };
+        }
+
+        // Add attendance if category is ATTENDANCE and has valid data
+        if (raw.categoryType === CategoryType.ATTENDANCE && this.hasValidData(raw.attendance)) {
             notice.attendance = {
-                attendancePercentage: raw.attendance.attendancePercentage,
+                attendancePercentage: raw.attendance.attendancePercentage ?? undefined,
                 attendanceType: raw.attendance.attendanceType as 'Low' | 'Absent' | 'Improvement',
-                parentMeetingRequired: raw.attendance.parentMeetingRequired
+                parentMeetingRequired: raw.attendance.parentMeetingRequired ?? false
             };
         }
 
-        if (raw.examAnnouncement && Object.values(raw.examAnnouncement).some((v) => v !== null)) {
+        // Add examAnnouncement if category is EXAM_ANNOUNCEMENT and has valid data
+        if (raw.categoryType === CategoryType.EXAM_ANNOUNCEMENT && this.hasValidData(raw.examAnnouncement)) {
             notice.examAnnouncement = {
-                examTitle: raw.examAnnouncement.examTitle,
-                examType: raw.examAnnouncement.examType,
-                examStartDate: this.formatDate(raw.examAnnouncement.examStartDate),
-                examEndDate: this.formatDate(raw.examAnnouncement.examEndDate)
+                examTitle: raw.examAnnouncement.examTitle ?? undefined,
+                examType: raw.examAnnouncement.examType ?? undefined,
+                examStartDate: this.formatDate(raw.examAnnouncement.examStartDate) ?? undefined,
+                examEndDate: this.formatDate(raw.examAnnouncement.examEndDate) ?? undefined
             };
         }
 
-        if (raw.examResult && Object.values(raw.examResult).some((v) => v !== null)) {
+        // Add examResult if category is EXAM_RESULT and has valid data
+        if (raw.categoryType === CategoryType.EXAM_RESULT && this.hasValidData(raw.examResult)) {
             notice.examResult = {
-                examTitle: raw.examResult.examTitle,
-                examType: raw.examResult.examType,
-                resultDeclarationDate: raw.examResult.resultDeclarationDate
+                examTitle: raw.examResult.examTitle ?? undefined,
+                examType: raw.examResult.examType ?? undefined,
+                resultDeclarationDate: this.formatDate(raw.examResult.resultDeclarationDate) ?? undefined
             };
         }
 
-        if (raw.holiday && Object.values(raw.holiday).some((v) => v !== null)) {
+        // Add holiday if category is HOLIDAY and has valid data
+        if (raw.categoryType === CategoryType.HOLIDAY && this.hasValidData(raw.holiday)) {
             notice.holiday = {
                 holidayType: raw.holiday.holidayType as 'Emergency' | 'Government' | 'Weather',
-                holidayStartDate: this.formatDate(raw.holiday.holidayStartDate),
-                holidayEndDate: this.formatDate(raw.holiday.holidayEndDate),
+                holidayStartDate: this.formatDate(raw.holiday.holidayStartDate) ?? undefined,
+                holidayEndDate: this.formatDate(raw.holiday.holidayEndDate) ?? undefined,
                 weekOffDay: raw.holiday.weekOffDay ?? undefined
             };
         }
 
-        if (raw.meeting && Object.values(raw.meeting).some((v) => v !== null)) {
+        // Add meeting if category is MEETING and has valid data
+        if (raw.categoryType === CategoryType.MEETING && this.hasValidData(raw.meeting)) {
             notice.meeting = {
                 meetingType: raw.meeting.meetingType as 'PTM' | 'Individual' | 'Emergency' | 'Progress' | 'Staff',
-                meetingDate: this.formatDate(raw.meeting.meetingDate),
-                meetingTime: raw.meeting.meetingTime,
-                venue: raw.meeting.venue
+                meetingDate: this.formatDate(raw.meeting.meetingDate) ?? undefined,
+                meetingTime: raw.meeting.meetingTime ?? undefined,
+                venue: raw.meeting.venue ?? undefined
             };
         }
 
-        if (raw.fest && Object.values(raw.fest).some((v) => v !== null)) {
+        // Add fest if category is FEST and has valid data
+        if (raw.categoryType === CategoryType.FEST && this.hasValidData(raw.fest)) {
             notice.fest = {
-                festName: raw.fest.festName,
+                festName: raw.fest.festName ?? undefined,
                 festType: raw.fest.festType as 'Cultural' | 'Sports' | 'Science' | 'Literary',
-                eventStartDate: this.formatDate(raw.fest.eventStartDate),
-                eventEndDate: this.formatDate(raw.fest.eventEndDate),
-                venue: raw.fest.venue
+                eventStartDate: this.formatDate(raw.fest.eventStartDate) ?? undefined,
+                eventEndDate: this.formatDate(raw.fest.eventEndDate) ?? undefined,
+                venue: raw.fest.venue ?? undefined
             };
         }
 
-        if (raw.appreciation && appreciationRecipientIds.length) {
-            notice.appreciation = {
-                recipientIds: appreciationRecipientIds,
-                achievementCategory: raw.appreciation.achievementCategory as 'Academic' | 'Sports' | 'Cultural' | 'Social',
-                recognitionLevel: raw.appreciation.recognitionLevel as 'School' | 'District' | 'State' | 'National'
-            };
+        // Add appreciation if category is APPRECIATION and has valid data
+        if (raw.categoryType === CategoryType.APPRECIATION && this.hasValidData(raw.appreciation)) {
+            const appreciationRecipientIds = this.parseCsv(raw.appreciation.recipientIds);
+            if (appreciationRecipientIds.length > 0) {
+                notice.appreciation = {
+                    recipientIds: appreciationRecipientIds,
+                    achievementCategory: raw.appreciation.achievementCategory as 'Academic' | 'Sports' | 'Cultural' | 'Social',
+                    recognitionLevel: raw.appreciation.recognitionLevel as 'School' | 'District' | 'State' | 'National'
+                };
+            }
         }
 
-        if (raw.schoolAchievement && schoolAchievementRecipientIds.length) {
+        // Add schoolAchievement if category is SCHOOL_ACHIEVEMENT and has valid data
+        if (raw.categoryType === CategoryType.SCHOOL_ACHIEVEMENT && this.hasValidData(raw.schoolAchievement)) {
+            const schoolAchievementRecipientIds = this.parseCsv(raw.schoolAchievement.recipientIds);
             notice.schoolAchievement = {
-                recipientIds: schoolAchievementRecipientIds,
+                recipientIds: schoolAchievementRecipientIds.length > 0 ? schoolAchievementRecipientIds : undefined,
                 achievementCategory: raw.schoolAchievement.achievementCategory as 'Academic' | 'Infrastructure' | 'Awards' | 'Recognition',
-                achievementDate: this.formatDate(raw.schoolAchievement.achievementDate)
+                achievementDate: this.formatDate(raw.schoolAchievement.achievementDate) ?? undefined
             };
         }
 
+        console.log('Final Notice Object:', JSON.stringify(notice, null, 2));
         this.save.emit(notice);
         this.resetForm();
     }
@@ -409,12 +387,25 @@ export class NoticeAddComponent implements OnInit, OnChanges {
 
     private resetForm(): void {
         if (this.noticeForm) {
-            this.noticeForm.reset();
-            this.noticeForm.controls.categoryType.setValue(CategoryType.GENERAL);
-            this.noticeForm.controls.priority.setValue(Priority.MEDIUM);
-            this.noticeForm.controls.targetAudience.controls.type.setValue(TargetType.ALL);
-            this.noticeForm.controls.targetAudience.controls.includeAll.setValue(true);
-            this.noticeForm.controls.attachments.setValue([]);
+            this.noticeForm.reset({
+                categoryType: CategoryType.GENERAL,
+                priority: Priority.MEDIUM,
+                targetAudience: {
+                    type: TargetType.ALL,
+                    includeAll: true,
+                    targetIds: ''
+                },
+                attachments: [],
+                timetable: { effectiveDate: null },
+                attendance: { attendancePercentage: null, attendanceType: null, parentMeetingRequired: false },
+                examAnnouncement: { examTitle: null, examType: null, examStartDate: null, examEndDate: null },
+                examResult: { examTitle: null, examType: null, resultDeclarationDate: null },
+                holiday: { holidayType: null, holidayStartDate: null, holidayEndDate: null, weekOffDay: null },
+                meeting: { meetingType: null, meetingDate: null, meetingTime: null, venue: null },
+                fest: { festName: null, festType: null, eventStartDate: null, eventEndDate: null, venue: null },
+                appreciation: { recipientIds: null, achievementCategory: null, recognitionLevel: null },
+                schoolAchievement: { recipientIds: null, achievementCategory: null, achievementDate: null }
+            });
         }
     }
 
@@ -427,14 +418,14 @@ export class NoticeAddComponent implements OnInit, OnChanges {
     }
 
     onHolidayTypeChange(): void {
-        const holidayType = this.noticeForm.controls.holiday.controls.holidayType.value;
-        const holidayGroup = this.noticeForm.controls.holiday;
+        const holidayType = this.noticeForm.get('holiday.holidayType')?.value;
+        const holidayGroup = this.noticeForm.get('holiday') as FormGroup;
 
         if (holidayType === 'Week_off') {
-            holidayGroup.controls.holidayStartDate.setValue(null);
-            holidayGroup.controls.holidayEndDate.setValue(null);
+            holidayGroup.get('holidayStartDate')?.setValue(null);
+            holidayGroup.get('holidayEndDate')?.setValue(null);
         } else {
-            holidayGroup.controls.weekOffDay.setValue(null);
+            holidayGroup.get('weekOffDay')?.setValue(null);
         }
     }
 }
