@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -22,7 +21,6 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
 import { BranchService } from '../../../core/services/branch.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
-import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { IBranch } from '../../models/tenant.model';
 import { IProfileConfig, IRoleConfigs, ITenantAuthority, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -66,7 +64,6 @@ interface ProfileUIData {
 export class EmployeeDialogComponent {
     studentService = inject(UserService);
     tenantUserFormService = inject(TenantUserFormService);
-    private store = inject(Store<{ userProfile: UserProfileState }>);
     commonService = inject(CommonService);
     employeeProfileService = inject(ProfileConfigService);
     branchService = inject(BranchService);
@@ -115,7 +112,6 @@ export class EmployeeDialogComponent {
     ngOnInit(): void {
         this.initializeEmployeeForm();
         this.loadAuthorities();
-        this.getAssociatedDepartmentsOnAcademicyear();
     }
 
     initializeEmployeeForm(): void {
@@ -251,7 +247,6 @@ export class EmployeeDialogComponent {
             this.activeProfileIndex.set(newIndex);
             this.saveOriginalProfileData();
         }
-        this.getAssociatedDepartmentsOnAcademicyear();
     }
 
     addNewProfile(): void {
@@ -410,7 +405,7 @@ export class EmployeeDialogComponent {
                     academicYear: this.formatAcademicYear(startDate, endDate)
                 }
             };
-
+            this.getAssociatedDepartmentsOnAcademicyear(updated[profileIndex].profile.academicYear);
             return updated;
         });
 
@@ -426,6 +421,7 @@ export class EmployeeDialogComponent {
         if (currentProfile) {
             this.originalProfileData = JSON.parse(JSON.stringify(currentProfile));
         }
+        this.getAssociatedDepartmentsOnAcademicyear(currentProfile.profile.academicYear);
         this.hasUnsavedChanges.set(false);
     }
 
@@ -433,6 +429,7 @@ export class EmployeeDialogComponent {
         if (this.employeeForm) {
             this.originalUserData = JSON.parse(JSON.stringify(this.employeeForm.value));
         }
+
         this.hasUnsavedUserChanges.set(false);
     }
 
@@ -541,10 +538,10 @@ export class EmployeeDialogComponent {
         this.saveOriginalUserData();
     }
 
-    getAssociatedDepartmentsOnAcademicyear() {
+    getAssociatedDepartmentsOnAcademicyear(academicYear: string) {
         let filterParams = {
             branch: this.commonService.branch?.id || 0,
-            academicYear: undefined
+            academicYear: academicYear
         };
         this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
             this.associatedDepartments = res.content.map((re) => ({ ...re, name: re.department.name }));

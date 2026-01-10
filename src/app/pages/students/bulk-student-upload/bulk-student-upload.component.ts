@@ -14,9 +14,9 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import * as XLSX from 'xlsx';
 import { CommonService } from '../../../core/services/common.service';
+import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
 import { StudentExcelRow, ValidationResult } from '../../models/bulk-student-upload.model';
 import { UserService } from '../../service/user.service';
 
@@ -47,16 +47,30 @@ export class BulkStudentUploadComponent implements OnInit {
     selectedDepartment: any;
     selectedClass: any;
     selectedSection: any;
-
+    departmentConfigService = inject(DepartmentConfigService);
     // Computed Properties/Functions
     validCount = () => this.uploadedStudents().filter((s) => s.isValid).length;
     invalidCount = () => this.uploadedStudents().filter((s) => !s.isValid).length;
 
     ngOnInit() {
-        this.store.select(getAssociatedDepartments).subscribe((depts) => {
-            this.associatedDepartments = depts.map((department: any) => {
-                return { ...department, name: department.department?.name };
-            });
+        // this.store.select(getAssociatedDepartments).subscribe((depts) => {
+        //     this.associatedDepartments = depts.map((department: any) => {
+        //         return { ...department, name: department.department?.name };
+        //     });
+        // });
+        this.getAssociatedDepartmentsOnAcademicyear();
+    }
+
+    getAssociatedDepartmentsOnAcademicyear() {
+        const filterParams = {
+            branch: this.commonService.branch?.id
+        };
+
+        this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
+            this.associatedDepartments = res.content.map((re) => ({
+                ...re,
+                name: re.department.name
+            }));
         });
     }
 

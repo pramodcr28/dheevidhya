@@ -6,29 +6,27 @@
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Bulk Student Upload</h2>
             <p class="text-gray-600 mt-1">Upload multiple students at once using Excel</p>
         </div>
-        <p-button 
-            label="Back to Students" 
-            icon="pi pi-arrow-left" 
-            styleClass="p-button-outlined w-full lg:w-auto" 
-            (onClick)="goBack()">
-        </p-button>
+        <p-button label="Back to Students" icon="pi pi-arrow-left" styleClass="p-button-outlined w-full lg:w-auto" (onClick)="goBack()"> </p-button>
     </div>
 
     <p-card styleClass="mb-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label class="block font-semibold mb-2 text-gray-700">Department <span class="text-red-500">*</span></label>
-                <p-select
-                    [options]="associatedDepartments"
-                    [(ngModel)]="selectedDepartment"
-                    [ngModelOptions]="{standalone: true}"
-                    optionLabel="name"
-                    placeholder="Select Department"
-                    [style]="{ width: '100%' }">
+                <p-select [options]="associatedDepartments" [(ngModel)]="selectedDepartment" [ngModelOptions]="{ standalone: true }" optionLabel="name" placeholder="Select Department" [style]="{ width: '100%' }">
+                    <ng-template pTemplate="item" let-dept>
+                        <div class="flex flex-col">
+                            <span class="font-medium">
+                                {{ dept.department.name }}
+                            </span>
+                            <small class="text-primary-500"> Academic Year: {{ dept.academicYear }} </small>
+                        </div>
+                    </ng-template>
+
+                    <ng-template pTemplate="selectedItem" let-dept> {{ dept.department.name }} ({{ dept.academicYear }}) </ng-template>
                 </p-select>
-                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedDepartment">
-                    Department is required.
-                </small>
+
+                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedDepartment"> Department is required. </small>
             </div>
 
             <div>
@@ -36,31 +34,20 @@
                 <p-select
                     [options]="selectedDepartment?.department.classes"
                     [(ngModel)]="selectedClass"
-                    [ngModelOptions]="{standalone: true}"
+                    [ngModelOptions]="{ standalone: true }"
                     optionLabel="name"
                     placeholder="Select Class"
                     [disabled]="!selectedDepartment"
-                    [style]="{ width: '100%' }">
+                    [style]="{ width: '100%' }"
+                >
                 </p-select>
-                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedClass">
-                    Class is required.
-                </small>
+                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedClass"> Class is required. </small>
             </div>
 
             <div>
                 <label class="block font-semibold mb-2 text-gray-700">Section <span class="text-red-500">*</span></label>
-                <p-select
-                    [options]="selectedClass?.sections"
-                    [(ngModel)]="selectedSection"
-                    [ngModelOptions]="{standalone: true}"
-                    optionLabel="name" 
-                    placeholder="Select Section"
-                    [disabled]="!selectedClass"
-                    [style]="{ width: '100%' }">
-                </p-select>
-                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedSection">
-                    Section is required.
-                </small>
+                <p-select [options]="selectedClass?.sections" [(ngModel)]="selectedSection" [ngModelOptions]="{ standalone: true }" optionLabel="name" placeholder="Select Section" [disabled]="!selectedClass" [style]="{ width: '100%' }"> </p-select>
+                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedSection"> Section is required. </small>
             </div>
         </div>
     </p-card>
@@ -73,12 +60,7 @@
                 </div>
                 <h3 class="text-lg sm:text-xl font-semibold mb-2 text-center">Step 1: Download Template</h3>
                 <p class="text-gray-600 mb-4 text-center">Download the Excel template with all required fields</p>
-                <p-button 
-                    label="Download Excel Template" 
-                    icon="pi pi-download" 
-                    styleClass="p-button-success w-full sm:w-auto" 
-                    (onClick)="downloadTemplate()">
-                </p-button>
+                <p-button label="Download Excel Template" icon="pi pi-download" styleClass="p-button-success w-full sm:w-auto" (onClick)="downloadTemplate()"> </p-button>
             </div>
 
             <div class="flex flex-col items-center justify-center md:pl-8 pt-4 md:pt-0">
@@ -87,16 +69,7 @@
                 </div>
                 <h3 class="text-lg sm:text-xl font-semibold mb-2 text-center">Step 2: Upload Filled Template</h3>
                 <p class="text-gray-600 mb-4 text-center">Select the Excel file with student data</p>
-                <p-fileupload 
-                    mode="basic" 
-                    accept=".xlsx,.xls" 
-                    [maxFileSize]="5000000" 
-                    [auto]="true" 
-                    chooseLabel="Choose Excel File" 
-                    chooseIcon="pi pi-upload" 
-                    styleClass="p-button-primary w-full" 
-                    (onSelect)="onFileSelect($event)">
-                </p-fileupload>
+                <p-fileupload mode="basic" accept=".xlsx,.xls" [maxFileSize]="5000000" [auto]="true" chooseLabel="Choose Excel File" chooseIcon="pi pi-upload" styleClass="p-button-primary w-full" (onSelect)="onFileSelect($event)"> </p-fileupload>
                 <p class="text-xs text-gray-500 mt-3 text-center">Accepted formats: .xlsx, .xls (Max size: 5MB)</p>
             </div>
         </div>
@@ -130,32 +103,17 @@
                     </div>
                 </div>
                 <div class="flex flex-col-2 sm:flex-row gap-2 w-full sm:w-auto">
-                    <p-button 
-                        label="Cancel" 
-                        icon="pi pi-times" 
-                        styleClass="p-button-outlined p-button-secondary" 
-                        (onClick)="resetUpload()">
-                    </p-button>
-                    <p-button 
-                        label="Save All Valid Students" 
-                        icon="pi pi-check" 
-                        [disabled]="validCount() === 0 || this.selectedSection == null" 
-                        (onClick)="confirmSave()">
-                    </p-button>
+                    <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-outlined p-button-secondary" (onClick)="resetUpload()"> </p-button>
+                    <p-button label="Save All Valid Students" icon="pi pi-check" [disabled]="validCount() === 0 || this.selectedSection == null" (onClick)="confirmSave()"> </p-button>
                 </div>
             </div>
         </ng-template>
 
-        <p-table 
-            [value]="uploadedStudents()" 
-            [scrollable]="true" 
-            scrollHeight="500px" 
-            styleClass="p-datatable-sm"
-            responsiveLayout="scroll"
-            dataKey="rowNumber">
+        <p-table [value]="uploadedStudents()" [scrollable]="true" scrollHeight="500px" styleClass="p-datatable-sm" responsiveLayout="scroll" dataKey="rowNumber">
             <ng-template pTemplate="header">
                 <tr>
-                    <th style="width: 3rem"></th> <th class="font-semibold">Row</th>
+                    <th style="width: 3rem"></th>
+                    <th class="font-semibold">Row</th>
                     <th class="font-semibold">Status</th>
                     <th class="font-semibold">Registration ID</th>
                     <th class="font-semibold">Name</th>
@@ -168,22 +126,11 @@
             <ng-template pTemplate="body" let-student>
                 <tr [class.bg-red-50]="!student.isValid" [class.hover:bg-gray-50]="student.isValid">
                     <td>
-                        <p-button 
-                            type="button"
-                            [text]="true"
-                            [rounded]="true"
-                            [plain]="true"
-                            icon="pi pi-eye"
-                            pTooltip="View Full Details"
-                            tooltipPosition="right"
-                            (onClick)="openStudentDetails(student)" />
+                        <p-button type="button" [text]="true" [rounded]="true" [plain]="true" icon="pi pi-eye" pTooltip="View Full Details" tooltipPosition="right" (onClick)="openStudentDetails(student)" />
                     </td>
                     <td class="font-medium">{{ student.rowNumber }}</td>
                     <td>
-                        <p-tag 
-                            [value]="student.isValid ? 'Valid' : 'Invalid'" 
-                            [severity]="student.isValid ? 'success' : 'danger'">
-                        </p-tag>
+                        <p-tag [value]="student.isValid ? 'Valid' : 'Invalid'" [severity]="student.isValid ? 'success' : 'danger'"> </p-tag>
                     </td>
                     <td>{{ student.registrationId }}</td>
                     <td class="font-medium">{{ student.firstName }} {{ student.lastName }}</td>
@@ -206,26 +153,16 @@
                                 <i class="pi pi-times-circle text-sm mt-0.5"></i>
                                 <span>{{ student.errorMessage }}</span>
                             </div>
-                            <span *ngIf="!student.errorMessage && student.errors?.length > 1" class="text-xs italic cursor-pointer" (click)="openStudentDetails(student)">
-                                (+{{ student.errors.length - 1 }} more errors)
-                            </span>
+                            <span *ngIf="!student.errorMessage && student.errors?.length > 1" class="text-xs italic cursor-pointer" (click)="openStudentDetails(student)"> (+{{ student.errors.length - 1 }} more errors) </span>
                         </div>
-                        <span *ngIf="student.isValid" class="text-green-600 text-sm">
-                            <i class="pi pi-check-circle"></i> No errors
-                        </span>
+                        <span *ngIf="student.isValid" class="text-green-600 text-sm"> <i class="pi pi-check-circle"></i> No errors </span>
                     </td>
                 </tr>
             </ng-template>
         </p-table>
     </p-card>
 
-    <p-dialog 
-        [(visible)]="showConfirmDialog" 
-        [style]="{ width: '90vw', maxWidth: '450px' }" 
-        header="Confirm Save" 
-        [modal]="true"
-        [draggable]="false"
-        [resizable]="false">
+    <p-dialog [(visible)]="showConfirmDialog" [style]="{ width: '90vw', maxWidth: '450px' }" header="Confirm Save" [modal]="true" [draggable]="false" [resizable]="false">
         <div class="flex items-start gap-4 py-4">
             <div class="bg-yellow-50 rounded-full p-3 flex-shrink-0">
                 <i class="pi pi-exclamation-triangle text-2xl text-yellow-600"></i>
@@ -236,40 +173,23 @@
             </div>
         </div>
         <ng-template pTemplate="footer">
-            <p-button 
-                label="Cancel" 
-                icon="pi pi-times" 
-                styleClass="p-button-text" 
-                (onClick)="showConfirmDialog = false">
-            </p-button>
-            <p-button 
-                label="Confirm" 
-                icon="pi pi-check" 
-                (onClick)="saveAllStudents()">
-            </p-button>
+            <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text" (onClick)="showConfirmDialog = false"> </p-button>
+            <p-button label="Confirm" icon="pi pi-check" (onClick)="saveAllStudents()"> </p-button>
         </ng-template>
     </p-dialog>
-    
-    <p-dialog 
-        [(visible)]="showStudentDetailDialog" 
-        [style]="{ width: '95vw', maxWidth: '70vw' }" 
-        [header]="'Student Details (Row ' + selectedStudentDetail?.rowNumber + ')'" 
-        [modal]="true"
-        [draggable]="false"
-        [resizable]="false">
-        
+
+    <p-dialog [(visible)]="showStudentDetailDialog" [style]="{ width: '95vw', maxWidth: '70vw' }" [header]="'Student Details (Row ' + selectedStudentDetail?.rowNumber + ')'" [modal]="true" [draggable]="false" [resizable]="false">
         <div *ngIf="selectedStudentDetail" class="p-4">
             <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-4 pb-4 border-b border-gray-200">
                 <div class="flex items-center gap-4">
                     <h4 class="text-lg font-bold text-gray-800">{{ selectedStudentDetail.firstName }} {{ selectedStudentDetail.lastName }}</h4>
-                    <p-tag 
-                        [value]="selectedStudentDetail.isValid ? 'Valid' : 'Invalid'" 
-                        [severity]="selectedStudentDetail.isValid ? 'success' : 'danger'">
-                    </p-tag>
+                    <p-tag [value]="selectedStudentDetail.isValid ? 'Valid' : 'Invalid'" [severity]="selectedStudentDetail.isValid ? 'success' : 'danger'"> </p-tag>
                 </div>
-                <span class="text-sm text-gray-500">Reg. ID: <span class="font-medium text-gray-700">{{ selectedStudentDetail.registrationId }}</span></span>
+                <span class="text-sm text-gray-500"
+                    >Reg. ID: <span class="font-medium text-gray-700">{{ selectedStudentDetail.registrationId }}</span></span
+                >
             </div>
-            
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <div class="space-y-3">
                     <h4 class="font-semibold mb-2 text-gray-800 border-b pb-1">Personal Information</h4>
@@ -346,7 +266,7 @@
                 </div>
             </div>
 
-            <div *ngIf="!selectedStudentDetail.isValid && (selectedStudentDetail['errorMessage'])" class="mt-6 pt-4 border-t border-gray-200">
+            <div *ngIf="!selectedStudentDetail.isValid && selectedStudentDetail['errorMessage']" class="mt-6 pt-4 border-t border-gray-200">
                 <p class="text-sm font-bold text-red-500 uppercase mb-3">Error Details</p>
                 <div class="bg-red-50 border border-red-200 rounded p-4">
                     <div *ngIf="selectedStudentDetail['errorMessage']" class="flex items-start gap-2 mb-2">
@@ -363,13 +283,7 @@
             </div>
         </div>
         <ng-template pTemplate="footer">
-            <p-button 
-                label="Close" 
-                icon="pi pi-times" 
-                styleClass="p-button-outlined p-button-secondary" 
-                (onClick)="showStudentDetailDialog = false">
-            </p-button>
+            <p-button label="Close" icon="pi pi-times" styleClass="p-button-outlined p-button-secondary" (onClick)="showStudentDetailDialog = false"> </p-button>
         </ng-template>
     </p-dialog>
-
 </div>

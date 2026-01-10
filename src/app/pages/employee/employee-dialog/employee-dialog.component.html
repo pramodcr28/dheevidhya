@@ -188,22 +188,27 @@
 
                                     <div>
                                         <label class="block font-semibold mb-1 text-sm text-gray-700">Gender *</label>
-                                        <p-select [options]="genderOptions" [(ngModel)]="profileData.profile.gender" (onChange)="markAsChanged()" optionLabel="label" optionValue="value" placeholder="Select Gender" [style]="{ width: '100%' }"> </p-select>
+                                        <p-select [options]="genderOptions" [(ngModel)]="profileData.profile.gender" (onChange)="markAsChanged()" optionLabel="label" optionValue="value" placeholder="Select Gender" [style]="{ width: '100%' }">
+                                        </p-select>
                                         <small class="text-red-500" *ngIf="submitted && !profileData.profile.gender"> Gender is required. </small>
                                     </div>
 
                                     @if (!commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
                                         <div class="md:col-span-2">
                                             <label class="block font-semibold mb-1 text-sm text-gray-700">Departments *</label>
-                                            <p-multi-select
-                                                [options]="associatedDepartments"
-                                                [(ngModel)]="profileData.selectedDepartments"
-                                                (onChange)="markAsChanged()"
-                                                optionLabel="name"
-                                                placeholder="Select Departments"
-                                                [style]="{ width: '100%' }"
-                                            >
+                                            <p-multi-select [options]="associatedDepartments" [(ngModel)]="profileData.selectedDepartments" (onChange)="markAsChanged()" optionLabel="name" placeholder="Select Departments" [style]="{ width: '100%' }">
+                                                <ng-template pTemplate="item" let-dept>
+                                                    <div class="flex flex-col">
+                                                        <span class="font-medium">
+                                                            {{ dept.department.name }}
+                                                        </span>
+                                                        <small class="text-gray-500"> Academic Year: {{ dept.academicYear }} </small>
+                                                    </div>
+                                                </ng-template>
+
+                                                <ng-template pTemplate="selectedItem" let-dept> {{ dept.department.name }} ({{ dept.academicYear }}) </ng-template>
                                             </p-multi-select>
+
                                             <small class="text-red-500" *ngIf="submitted && (!profileData.selectedDepartments || profileData.selectedDepartments.length === 0)"> At least one department is required. </small>
                                         </div>
                                         @if (profileData.selectedDepartments && profileData.selectedDepartments.length > 0) {
@@ -258,9 +263,7 @@
                                         </div>
                                         <div class="sm:col-span-2">
                                             <span class="text-gray-600">Departments:</span>
-                                            <span class="ml-2 font-medium text-gray-900">
-                                                {{ profileData.selectedDepartments?.length || 0 }} selected
-                                            </span>
+                                            <span class="ml-2 font-medium text-gray-900"> {{ profileData.selectedDepartments?.length || 0 }} selected </span>
                                         </div>
                                         <div class="sm:col-span-2">
                                             <span class="text-gray-600">Subjects:</span>
@@ -271,7 +274,8 @@
 
                                 @if (idx === activeProfileIndex()) {
                                     <div class="flex flex-col sm:flex-row gap-3 justify-end border-t pt-4">
-                                        <p-button label="Discard Changes" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" class="w-full sm:w-auto order-2 sm:order-1" [disabled]="!hasUnsavedChanges()" (click)="discardChanges()"> </p-button>
+                                        <p-button label="Discard Changes" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" class="w-full sm:w-auto order-2 sm:order-1" [disabled]="!hasUnsavedChanges()" (click)="discardChanges()">
+                                        </p-button>
                                         <p-button label="Save Profile" icon="pi pi-check" severity="success" size="small" class="w-full sm:w-auto order-1 sm:order-2" [disabled]="!hasUnsavedChanges()" (click)="onSave()"> </p-button>
                                     </div>
                                 }

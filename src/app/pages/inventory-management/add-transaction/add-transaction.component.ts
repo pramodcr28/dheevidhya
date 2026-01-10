@@ -52,6 +52,7 @@ export class AddTransactionComponent implements OnInit {
     @Input() selectedItem: InventoryItem | null = null;
     formSubmitted = false;
     isSubmitting = false;
+    activeTabIndex = 0; // 0 = History tab, 1 = Add Transaction tab
 
     // Holds the transactions for selected item
     itemTransactions: InventoryTransaction[] = [];
@@ -317,6 +318,10 @@ export class AddTransactionComponent implements OnInit {
                 this.selectedItem = saved.body;
                 this.resetForm();
                 this.isSubmitting = false;
+
+                // Switch to History tab (index 0)
+                this.activeTabIndex = 0;
+
                 this.loadItemTransactions(this.selectedItem!.id);
                 if (this.selectedItem.availableQuantity < this.selectedItem.totalQuantity && !this.transactionTypeOptions.some((type) => type.value == 'RETURN')) {
                     this.transactionTypeOptions.unshift({ label: 'Return Item', value: 'RETURN', description: 'Return item back' });
@@ -345,5 +350,6 @@ export class AddTransactionComponent implements OnInit {
         });
         this.formSubmitted = false;
         this.isSubmitting = false;
+        this.activeTabIndex = 0; // Reset to History tab
     }
 }

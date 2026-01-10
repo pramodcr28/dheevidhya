@@ -19,6 +19,7 @@ import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
 import { CommonService } from '../../../core/services/common.service';
+import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { IProfileConfig, IRoleConfigs, IStudentProfile, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigFormService } from '../../service/profile-config-form.service';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -96,7 +97,8 @@ export class StudentDialogComponent {
     hasUnsavedUserChanges = signal<boolean>(false);
     originalProfileData: ProfileUIData | null = null;
     originalUserData: any = null;
-
+    departmentConfigService = inject(DepartmentConfigService);
+    associatedDepartments: any[] = [];
     genderOptions: any[] = [
         { label: 'Female', value: 'FEMALE' },
         { label: 'Male', value: 'MALE' },
@@ -105,6 +107,57 @@ export class StudentDialogComponent {
 
     ngOnInit(): void {
         this.initializeStudentForm();
+    }
+
+    // getAssociatedDepartmentsOnAcademicyear(academicYear: String) {
+    //     let filterParams = {
+    //         branch: this.commonService.branch?.id || 0,
+    //         academicYear: academicYear
+    //     };
+    //     this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
+    //         this.associatedDepartments = res.content.map((re) => ({ ...re, name: re.department.name }));
+
+    //         let selectedProfile = this.profilesList()[this.activeProfileIndex()].profile;
+
+    //         this.profilesList()[this.activeProfileIndex()] = selectedProfile = {
+    //             ...selectedProfile,
+    //             ...this.selectDepartmentAssets(this.associatedDepartments, selectedProfile)
+    //         };
+    //     });
+    // }
+
+    getAssociatedDepartmentsOnAcademicyear(academicYear: string) {
+        const filterParams = {
+            branch: this.commonService.branch?.id || 0,
+            academicYear
+        };
+
+        this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
+            this.associatedDepartments = res.content.map((re) => ({
+                ...re,
+                name: re.department.name
+            }));
+
+            const index = this.activeProfileIndex();
+            const currentList = this.profilesList();
+
+            if (!currentList[index]) return;
+
+            const currentItem = currentList[index];
+            const assets = this.selectDepartmentAssets(this.associatedDepartments, currentItem.profile);
+
+            // ✅ SIGNAL-SAFE UPDATE
+            this.profilesList.update((list) =>
+                list.map((item, i) =>
+                    i === index
+                        ? {
+                              ...item,
+                              ...assets
+                          }
+                        : item
+                )
+            );
+        });
     }
 
     initializeStudentForm(): void {
@@ -163,46 +216,141 @@ export class StudentDialogComponent {
 
         this.saveOriginalProfileData();
     }
+    selectDepartmentAssets(
+        departments: any[] | null | undefined,
+        profile: IProfileConfig
+    ): {
+        selectedDepartment: any | null;
+        selectedClass: any | null;
+        selectedSection: any | null;
+    } {
+        if (!departments || departments.length === 0) {
+            return {
+                selectedDepartment: null,
+                selectedClass: null,
+                selectedSection: null
+            };
+        }
+
+        const departmentId = profile.departments?.[0];
+        const selectedDepartment = departments.find((d) => d.id === departmentId) || null;
+
+        let selectedClass: any = null;
+        let selectedSection: any = null;
+
+        if (profile.roles?.student && selectedDepartment) {
+            const studentRole = profile.roles.student as IStudentProfile;
+
+            selectedClass = selectedDepartment.department?.classes?.find((c: any) => c.id === studentRole.classId) || null;
+
+            if (selectedClass) {
+                selectedSection = selectedClass.sections?.find((s: any) => s.id === studentRole.sectionId) || null;
+            }
+        }
+
+        return {
+            selectedDepartment,
+            selectedClass,
+            selectedSection
+        };
+    }
+
+    // selectDepartmentAssets(
+    //     departments: any[] | null | undefined,
+    //     profile: IProfileConfig
+    // ): {
+    //     selectedDepartment: any | null;
+    //     selectedClass: any | null;
+    //     selectedSection: any | null;
+    // } {
+    //     // 🔒 SAFETY: do nothing if departments not available
+    //     if (!departments || departments.length === 0) {
+    //         return {
+    //             selectedDepartment: null,
+    //             selectedClass: null,
+    //             selectedSection: null
+    //         };
+    //     }
+
+    //     const departmentId = profile.departments?.[0];
+    //     const selectedDepartment = departments.find((d) => d.id === departmentId) || null;
+
+    //     let selectedClass: any = null;
+    //     let selectedSection: any = null;
+
+    //     if (profile.roles?.student && selectedDepartment) {
+    //         const studentRole = profile.roles.student as IStudentProfile;
+
+    //         selectedClass = selectedDepartment.department?.classes?.find((c: any) => c.id === studentRole.classId) || null;
+
+    //         if (selectedClass) {
+    //             selectedSection = selectedClass.sections?.find((s: any) => s.id === studentRole.sectionId) || null;
+    //         }
+    //     }
+
+    //     return {
+    //         selectedDepartment,
+    //         selectedClass,
+    //         selectedSection
+    //     };
+    // }
+
+    // loadStudentProfiles(userId: string): void {
+    //     this.studentProfileService.search(0, 100, 'academicYear', 'DESC', { 'userId.eq': userId }).subscribe((res: any) => {
+    //         const profiles = res.content || [];
+    //         if (profiles.length === 0) {
+    //             this.initializeNewStudent();
+    //         } else {
+    //             const profilesUIData: ProfileUIData[] = profiles
+    //                 .map((profile: IProfileConfig) => {
+    //                     const assets = this.selectDepartmentAssets(this.associatedDepartments, profile);
+
+    //                     return {
+    //                         profile,
+    //                         ...assets,
+    //                         dateRange: this.parseAcademicYear(profile.academicYear || '')
+    //                     };
+    //                 })
+    //                 .sort((a, b) => {
+    //                     const aTime = a.dateRange?.[0]?.getTime() ?? 0;
+    //                     const bTime = b.dateRange?.[0]?.getTime() ?? 0;
+    //                     return bTime - aTime;
+    //                 });
+
+    //             this.profilesList.set(profilesUIData);
+    //             this.saveOriginalProfileData();
+    //         }
+    //     });
+    // }
 
     loadStudentProfiles(userId: string): void {
         this.studentProfileService.search(0, 100, 'academicYear', 'DESC', { 'userId.eq': userId }).subscribe((res: any) => {
             const profiles = res.content || [];
+
             if (profiles.length === 0) {
                 this.initializeNewStudent();
-            } else {
-                const profilesUIData: ProfileUIData[] = profiles
-                    .map((profile: IProfileConfig) => {
-                        const departmentId = profile.departments?.[0];
-                        const selectedDept = this.commonService.associatedDepartments.find((d) => d.id === departmentId);
-
-                        let selectedClass = null;
-                        let selectedSection = null;
-
-                        if (profile.roles?.student && selectedDept) {
-                            const studentRole = profile.roles.student as IStudentProfile;
-                            selectedClass = selectedDept.department?.classes?.find((c: any) => c.id === studentRole.classId);
-                            if (selectedClass) {
-                                selectedSection = selectedClass.sections?.find((s: any) => s.id === studentRole.sectionId);
-                            }
-                        }
-
-                        return {
-                            profile,
-                            selectedDepartment: selectedDept || null,
-                            selectedClass,
-                            selectedSection,
-                            dateRange: this.parseAcademicYear(profile.academicYear || '')
-                        };
-                    })
-                    .sort((a, b) => {
-                        const aTime = a.dateRange?.[0]?.getTime() ?? 0;
-                        const bTime = b.dateRange?.[0]?.getTime() ?? 0;
-                        return bTime - aTime;
-                    });
-
-                this.profilesList.set(profilesUIData);
-                this.saveOriginalProfileData();
+                return;
             }
+
+            const profilesUIData: ProfileUIData[] = profiles
+                .map((profile: IProfileConfig) => {
+                    const assets = this.selectDepartmentAssets(this.associatedDepartments, profile);
+
+                    return {
+                        profile,
+                        ...assets,
+                        dateRange: this.parseAcademicYear(profile.academicYear || '')
+                    };
+                })
+                .sort((a, b) => {
+                    const aTime = a.dateRange?.[0]?.getTime() ?? 0;
+                    const bTime = b.dateRange?.[0]?.getTime() ?? 0;
+                    return bTime - aTime;
+                });
+
+            // ✅ SIGNAL SET
+            this.profilesList.set(profilesUIData);
+            this.saveOriginalProfileData();
         });
     }
 
@@ -367,6 +515,7 @@ export class StudentDialogComponent {
                     academicYear: this.formatAcademicYear(startDate, endDate)
                 }
             };
+            this.getAssociatedDepartmentsOnAcademicyear(updated[profileIndex].profile.academicYear);
             return updated;
         });
 
@@ -382,6 +531,7 @@ export class StudentDialogComponent {
         if (currentProfile) {
             this.originalProfileData = JSON.parse(JSON.stringify(currentProfile));
         }
+        this.getAssociatedDepartmentsOnAcademicyear(currentProfile.profile.academicYear);
         this.hasUnsavedChanges.set(false);
     }
 

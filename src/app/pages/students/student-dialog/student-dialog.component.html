@@ -183,9 +183,9 @@
                                     </div>
 
                                     <div class="md:col-span-2">
-                                        <label class="block font-semibold mb-1 text-sm text-gray-700">Department *</label>
+                                        <label class="block font-semibold mb-1 text-sm text-gray-700">Department *</label>             
                                         <p-select
-                                            [options]="commonService.associatedDepartments"
+                                            [options]="associatedDepartments"
                                             [(ngModel)]="profileData.selectedDepartment"
                                             (onChange)="markAsChanged()"
                                             optionLabel="name"
