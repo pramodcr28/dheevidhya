@@ -23,27 +23,32 @@
           </div>
         </div>
         
-       <div class="flex items-center gap-3">
+<div class="flex items-center gap-3">
   @if (selectedAcademicYear) {
+    <!-- Clone Button -->
     <button
       pButton
       type="button"
-      label="Edit Year Config"
+      label="Clone Year"
+      icon="pi pi-copy"
+      (click)="cloneAcademicYear()"
+      class="p-button-outlined p-button-info p-button-sm"
+      pTooltip="Create a new academic year based on this configuration"
+      tooltipPosition="bottom">
+    </button>
+
+    <!-- Edit Button -->
+    <button
+      pButton
+      type="button"
+      label="Edit Config"
       icon="pi pi-cog"
       (click)="editAcademicYear()"
       class="p-button-outlined p-button-secondary p-button-sm">
     </button>
-
-    <button
-      pButton
-      type="button"
-      label="Delete Year"
-      icon="pi pi-trash"
-      (click)="confirmDelete(selectedAcademicYear.deptConfigId)"
-      class="p-button-outlined p-button-danger p-button-sm">
-    </button>
   }
 
+  <!-- New Year Button -->
   <button
     pButton
     type="button"

@@ -10,6 +10,7 @@ import { AssetsManagementComponent } from './app/pages/inventory-management/inve
 import { Notfound } from './app/pages/notfound/notfound';
 import { AssignmentManagementComponent } from './app/pages/organization/assignment-management/assignment-management.component';
 import { AddAcademicYearComponent } from './app/pages/organization/department-setup/add-academic-year/add-academic-year.component';
+import { CloneAcademicYearComponent } from './app/pages/organization/department-setup/clone-academic-year/clone-academic-year.component';
 import { DepartmentListComponent } from './app/pages/organization/department-setup/department-setup-list/department-setup-list.component';
 import { DepartmentSetupComponent } from './app/pages/organization/department-setup/department-setup.component';
 import { OrgTreeComponent } from './app/pages/organization/org-tree/org-tree.component';
@@ -98,6 +99,10 @@ export const appRoutes: Routes = [
             {
                 path: 'edit-academic-year/:id',
                 component: AddAcademicYearComponent
+            },
+            {
+                path: 'clone-academic-year/:id',
+                component: CloneAcademicYearComponent
             },
             { path: 'profile', component: ProfileComponent }
         ]
