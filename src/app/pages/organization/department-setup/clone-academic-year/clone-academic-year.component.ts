@@ -8,10 +8,8 @@ import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { SelectModule } from 'primeng/select';
-import { StepsModule } from 'primeng/steps';
 import { ToastModule } from 'primeng/toast';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, map, Subject, takeUntil } from 'rxjs';
 import { CommonService } from '../../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../../core/services/department-config.service';
 import { MasterDepartmentService } from '../../../../core/services/master-department.service';
@@ -28,7 +26,7 @@ interface CloneOption {
 @Component({
     selector: 'app-clone-academic-year',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, SelectModule, DatePickerModule, ToastModule, RadioButtonModule, StepsModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, DatePickerModule, ToastModule, RadioButtonModule],
     templateUrl: './clone-academic-year.component.html',
     providers: [MessageService],
     styles: [
@@ -64,27 +62,22 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
     cloneForm!: FormGroup;
     masterDepartment: IMasterDepartment | null = null;
     sourceConfig: IDepartmentConfig | null = null;
-    existingConfigs: IDepartmentConfig[] = [];
 
+    // Date & Validation state (matching add-academic-year component)
     dateRange: Date[] = [];
     calculatedAcademicYear: string = '';
     rangeInfo: string = '';
     isValidRange: boolean = false;
-    hasOverlap: boolean = false;
-    overlappingYears: string[] = [];
+    isNotTwelveMonths: boolean = false;
+    isOverlapping: boolean = false;
+    existingYearsStrings: string[] = [];
 
     isSaving = false;
-    activeIndex = 0;
-    steps = [{ label: 'Configuration' }, { label: 'Staff Assignment' }];
-
-    savedConfigId: string | null = null;
 
     // Staff assignment properties
     allStaff: any[] = [];
-    sourceStaff: any[] = [];
     targetStaff: any[] = [];
     searchSource: string = '';
-    searchTarget: string = '';
 
     cloneOptions: CloneOption[] = [
         {
@@ -121,10 +114,7 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
     private initializeForm(): void {
         this.cloneForm = new FormGroup({
             cloneType: new FormControl('full', [Validators.required]),
-            dateRange: new FormControl(null, [Validators.required]),
-            copyStaff: new FormControl(true),
-            copySubjects: new FormControl(true),
-            copySections: new FormControl(true)
+            dateRange: new FormControl(null, [Validators.required])
         });
     }
 
@@ -133,54 +123,11 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
             .get('dateRange')
             ?.valueChanges.pipe(takeUntil(this.destroy$))
             .subscribe((val) => {
-                if (val?.length === 2) {
+                if (val?.length === 2 && val[0] && val[1]) {
                     this.dateRange = val;
-                    this.calculateAcademicYear();
-                    this.validateDateRange();
+                    this.validateAndCalculateDates();
                 }
             });
-
-        this.cloneForm
-            .get('cloneType')
-            ?.valueChanges.pipe(takeUntil(this.destroy$))
-            .subscribe((type) => {
-                this.updateFormBasedOnCloneType(type);
-            });
-    }
-
-    private updateFormBasedOnCloneType(type: string): void {
-        switch (type) {
-            case 'full':
-                this.cloneForm.patchValue(
-                    {
-                        copyStaff: true,
-                        copySubjects: true,
-                        copySections: true
-                    },
-                    { emitEvent: false }
-                );
-                break;
-            case 'structure':
-                this.cloneForm.patchValue(
-                    {
-                        copyStaff: false,
-                        copySubjects: true,
-                        copySections: true
-                    },
-                    { emitEvent: false }
-                );
-                break;
-            case 'minimal':
-                this.cloneForm.patchValue(
-                    {
-                        copyStaff: false,
-                        copySubjects: false,
-                        copySections: true
-                    },
-                    { emitEvent: false }
-                );
-                break;
-        }
     }
 
     private loadSourceConfig(): void {
@@ -198,9 +145,17 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
 
         this.departmentConfigService.find(sourceId).subscribe({
             next: (res) => {
-                this.sourceConfig = res.body;
-                this.masterDepartment = this.sourceConfig?.department || null;
-                this.loadExistingConfigs();
+                if (res.body) {
+                    this.sourceConfig = res.body;
+                    this.masterDepartment = this.sourceConfig?.department || null;
+                    this.loadExistingYears();
+
+                    // Initialize staff
+                    this.loadStaffData();
+
+                    // Set up initial target staff based on clone type
+                    this.updateStaffBasedOnCloneType('full');
+                }
             },
             error: () => {
                 this.messageService.add({
@@ -213,77 +168,76 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
         });
     }
 
-    private loadExistingConfigs(): void {
+    private loadExistingYears(): void {
         if (!this.masterDepartment?.id) return;
 
-        this.departmentConfigService.fetchAcademicYears(this.masterDepartment.id).subscribe({
-            next: (configs) => {
-                this.existingConfigs = configs || [];
-            }
+        this.departmentConfigService
+            .fetchAcademicYears(this.masterDepartment.id)
+            .pipe(map((data) => data || []))
+            .subscribe((data) => {
+                // Store only the strings like "2028-2029"
+                this.existingYearsStrings = (data || []).map((y) => y.academicYear);
+            });
+    }
+
+    validateAndCalculateDates(): void {
+        this.isNotTwelveMonths = false;
+        this.isOverlapping = false;
+        this.isValidRange = false;
+
+        if (!this.dateRange || this.dateRange.length !== 2 || !this.dateRange[0] || !this.dateRange[1]) return;
+
+        const start = dayjs(this.dateRange[0]).startOf('month');
+        const end = dayjs(this.dateRange[1]).endOf('month');
+
+        // 1. Check for exactly 12 months (matching add-academic-year)
+        const monthDiff = end.diff(start, 'month') + 1;
+        if (monthDiff !== 12) {
+            this.isNotTwelveMonths = true;
+        }
+
+        // 2. Format year string for overlap check
+        const yearString = `${start.year()}-${end.year()}`;
+        this.calculatedAcademicYear = yearString;
+
+        // 3. Check Overlap against backend strings
+        if (this.existingYearsStrings.includes(yearString)) {
+            this.isOverlapping = true;
+        }
+
+        if (!this.isNotTwelveMonths && !this.isOverlapping) {
+            this.rangeInfo = `${start.format('MMM YYYY')} to ${end.format('MMM YYYY')}`;
+            this.isValidRange = true;
+        }
+    }
+
+    private updateStaffBasedOnCloneType(type: string): void {
+        const assignedIds = this.sourceConfig?.associatedStaffs || [];
+
+        if (type === 'full') {
+            // Copy all staff from source
+            this.targetStaff = this.allStaff.filter((s) => assignedIds.includes(s.id?.toString()));
+        } else {
+            // Clear staff for structure/minimal
+            this.targetStaff = [];
+        }
+    }
+
+    private loadStaffData(): void {
+        const params = { 'branch_id.eq': this.commonService.branch?.id, 'authorities.name.ne': 'STUDENT' };
+        this.userService.userSearch(0, 100, 'id', 'ASC', params).subscribe((r) => {
+            this.allStaff = r.content ?? [];
+            // Initial target staff will be set based on clone type
+            this.updateStaffBasedOnCloneType(this.cloneForm.get('cloneType')?.value || 'full');
         });
     }
 
-    private calculateAcademicYear(): void {
-        if (!this.dateRange || this.dateRange.length !== 2) {
-            this.isValidRange = false;
-            return;
-        }
-
-        const start = dayjs(this.dateRange[0]);
-        const end = dayjs(this.dateRange[1]);
-        const monthsDiff = end.diff(start, 'months', true);
-
-        if (monthsDiff > 0 && monthsDiff <= 12) {
-            this.calculatedAcademicYear = `${start.year()}-${end.year()}`;
-            this.rangeInfo = `${start.format('MMM YYYY')} → ${end.format('MMM YYYY')} (${Math.round(monthsDiff)} months)`;
-            this.isValidRange = true;
-        } else {
-            this.isValidRange = false;
-            this.rangeInfo = monthsDiff <= 0 ? 'Invalid: End date must be after start date' : 'Invalid: Period cannot exceed 12 months';
-        }
-    }
-
-    private validateDateRange(): void {
-        if (!this.isValidRange || !this.dateRange.length) {
-            this.hasOverlap = false;
-            this.overlappingYears = [];
-            return;
-        }
-
-        const newStart = dayjs(this.dateRange[0]);
-        const newEnd = dayjs(this.dateRange[1]);
-
-        this.overlappingYears = [];
-
-        for (const config of this.existingConfigs) {
-            if (!config.academicStart || !config.academicEnd) continue;
-
-            const existingStart = dayjs(config.academicStart);
-            const existingEnd = dayjs(config.academicEnd);
-
-            const hasOverlap = this.checkDateOverlap(newStart, newEnd, existingStart, existingEnd);
-
-            if (hasOverlap && config.academicYear) {
-                this.overlappingYears.push(config.academicYear);
-            }
-        }
-
-        this.hasOverlap = this.overlappingYears.length > 0;
-    }
-
-    private checkDateOverlap(start1: dayjs.Dayjs, end1: dayjs.Dayjs, start2: dayjs.Dayjs, end2: dayjs.Dayjs): boolean {
-        if (end1.isBefore(start2, 'day') || end2.isBefore(start1, 'day')) {
-            return false;
-        }
-        return true;
-    }
-
-    saveAndNext(): void {
-        if (this.cloneForm.invalid || !this.isValidRange || this.hasOverlap || !this.sourceConfig) {
+    saveClone(): void {
+        if (this.cloneForm.invalid || !this.isValidRange || this.isOverlapping || this.isNotTwelveMonths) {
             this.messageService.add({
-                severity: 'warn',
-                summary: 'Validation Error',
-                detail: 'Please fix all validation errors before proceeding'
+                severity: 'error',
+                summary: 'Invalid Configuration',
+                detail: 'Please fix all validation errors before saving.'
             });
             return;
         }
@@ -298,14 +252,14 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
             .pipe(finalize(() => (this.isSaving = false)))
             .subscribe({
                 next: (res) => {
-                    this.savedConfigId = res.body?.id || null;
-                    this.activeIndex = 1;
-                    this.loadStaffData();
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Success',
-                        detail: 'Configuration saved. Now assign staff members.'
+                        detail: `Academic year ${this.calculatedAcademicYear} cloned successfully`
                     });
+                    setTimeout(() => {
+                        this.router.navigate(['/department-setup', this.masterDepartment?.id]);
+                    }, 1500);
                 },
                 error: () => {
                     this.messageService.add({
@@ -322,12 +276,12 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
 
         const newConfig: IDepartmentConfig | any = {
             academicYear: this.calculatedAcademicYear,
-            academicStart: dayjs(this.dateRange[0]),
-            academicEnd: dayjs(this.dateRange[1]),
+            academicStart: dayjs(this.dateRange[0]).startOf('month'),
+            academicEnd: dayjs(this.dateRange[1]).endOf('month'),
             status: true,
             branch: this.commonService.branch?.id,
             department: clonedDepartment,
-            associatedStaffs: formValue.copyStaff ? [...(this.sourceConfig?.associatedStaffs || [])] : []
+            associatedStaffs: formValue.cloneType === 'full' ? this.targetStaff.map((u) => u.id) : []
         };
 
         return newConfig;
@@ -342,11 +296,11 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
             name: source.name,
             code: source.code,
             description: source.description,
-            hod: this.cloneForm.value.copyStaff ? source.hod : null,
+            hod: cloneType === 'full' ? source.hod : null,
             classes: []
         };
 
-        if (this.cloneForm.value.copySections && source.classes) {
+        if (source.classes) {
             cloned.classes = source.classes.map((cls) => ({
                 id: cls.id,
                 name: cls.name,
@@ -356,13 +310,14 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
                     name: sec.name,
                     capacity: sec.capacity,
                     room: sec.room,
-                    sectionTeacher: this.cloneForm.value.copyStaff ? sec.sectionTeacher : null,
-                    subjects: this.cloneForm.value.copySubjects
-                        ? sec.subjects?.map((sub) => ({
-                              ...sub,
-                              teacher: this.cloneForm.value.copyStaff ? sub.teacher : null
-                          }))
-                        : []
+                    sectionTeacher: cloneType === 'full' ? sec.sectionTeacher : null,
+                    subjects:
+                        cloneType === 'full' || cloneType === 'structure'
+                            ? sec.subjects?.map((sub) => ({
+                                  ...sub,
+                                  teacher: cloneType === 'full' ? sub.teacher : null
+                              }))
+                            : []
                 }))
             }));
         }
@@ -370,137 +325,38 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
         return cloned;
     }
 
-    // Staff Assignment Methods
-    private loadStaffData(): void {
-        let filterParams = {
-            'branch_id.eq': this.commonService.branch?.id,
-            'authorities.name.ne': 'STUDENT'
-        };
+    // Staff Toggle Logic (matching add-academic-year)
+    toggleStaff(user: any): void {
+        const cloneType = this.cloneForm.get('cloneType')?.value;
 
-        this.userService.userSearch(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
-            this.allStaff = res.content ?? [];
-            const assignedIds = this.sourceConfig?.associatedStaffs || [];
-
-            if (this.cloneForm.value.copyStaff) {
-                // If copying staff, pre-populate target with source staff
-                this.targetStaff = this.allStaff.filter((s) => assignedIds.includes(s.id?.toString()));
-                this.sourceStaff = this.allStaff.filter((s) => !assignedIds.includes(s.id?.toString()));
-            } else {
-                // Otherwise, all staff available to assign
-                this.sourceStaff = [...this.allStaff];
-                this.targetStaff = [];
-            }
-        });
-    }
-
-    onDragStart(event: DragEvent, user: any, origin: string): void {
-        event.dataTransfer?.setData('text', JSON.stringify({ user, origin }));
-    }
-
-    onDragOver(event: DragEvent): void {
-        event.preventDefault();
-    }
-
-    onDrop(event: DragEvent, dest: string): void {
-        event.preventDefault();
-        const data = JSON.parse(event.dataTransfer?.getData('text') || '{}');
-        if (data.origin !== dest) {
-            dest === 'target' ? this.moveToTarget(data.user) : this.moveToSource(data.user);
-        }
-    }
-
-    moveToTarget(user: any): void {
-        if (!user?.id) return;
-        this.targetStaff.push(user);
-        this.sourceStaff = this.sourceStaff.filter((u) => u.id !== user.id);
-    }
-
-    moveToSource(user: any): void {
-        if (!user?.id) return;
-        this.sourceStaff.push(user);
-        this.targetStaff = this.targetStaff.filter((u) => u.id !== user.id);
-    }
-
-    moveAllToTarget(): void {
-        const toMove = [...this.filteredSourceStaff];
-        toMove.forEach((u) => this.moveToTarget(u));
-    }
-
-    moveAllToSource(): void {
-        const toMove = [...this.filteredTargetStaff];
-        toMove.forEach((u) => this.moveToSource(u));
-    }
-
-    get filteredSourceStaff() {
-        if (!this.searchSource) return this.sourceStaff;
-        const search = this.searchSource.toLowerCase();
-        return this.sourceStaff.filter((s) => `${s.firstName} ${s.lastName}`.toLowerCase().includes(search));
-    }
-
-    get filteredTargetStaff() {
-        if (!this.searchTarget) return this.targetStaff;
-        const search = this.searchTarget.toLowerCase();
-        return this.targetStaff.filter((s) => `${s.firstName} ${s.lastName}`.toLowerCase().includes(search));
-    }
-
-    saveStaffAssignment(): void {
-        if (!this.savedConfigId) {
+        // Only allow toggling if cloneType is 'full'
+        if (cloneType !== 'full') {
             this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Configuration not found'
+                severity: 'warn',
+                summary: 'Not Allowed',
+                detail: 'Staff assignment is only available for Full Clone option'
             });
             return;
         }
 
-        this.isSaving = true;
+        const index = this.targetStaff.findIndex((u) => u.id === user.id);
+        index > -1 ? this.targetStaff.splice(index, 1) : this.targetStaff.push(user);
+    }
 
-        this.departmentConfigService.find(this.savedConfigId).subscribe({
-            next: (res) => {
-                const config = res.body;
-                if (config) {
-                    config.associatedStaffs = this.targetStaff.map((u) => u.id);
+    isStaffSelected(user: any): boolean {
+        return this.targetStaff.some((u) => u.id === user.id);
+    }
 
-                    this.departmentConfigService
-                        .update(config)
-                        .pipe(finalize(() => (this.isSaving = false)))
-                        .subscribe({
-                            next: () => {
-                                this.messageService.add({
-                                    severity: 'success',
-                                    summary: 'Success',
-                                    detail: `Academic year ${this.calculatedAcademicYear} created successfully`
-                                });
-                                setTimeout(() => {
-                                    this.router.navigate(['/department-setup', this.masterDepartment?.id]);
-                                }, 1500);
-                            },
-                            error: () => {
-                                this.messageService.add({
-                                    severity: 'error',
-                                    summary: 'Error',
-                                    detail: 'Failed to update staff assignments'
-                                });
-                            }
-                        });
-                }
-            },
-            error: () => {
-                this.isSaving = false;
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to load configuration'
-                });
-            }
-        });
+    get filteredStaffList() {
+        if (!this.searchSource) return this.allStaff;
+        return this.allStaff.filter((s) => `${s.firstName} ${s.lastName}`.toLowerCase().includes(this.searchSource.toLowerCase()));
+    }
+
+    onCloneTypeChange(type: string): void {
+        this.updateStaffBasedOnCloneType(type);
     }
 
     goBack(): void {
         this.router.navigate(['/department-setup', this.masterDepartment?.id]);
-    }
-
-    get canProceed(): boolean {
-        return this.cloneForm.valid && this.isValidRange && !this.hasOverlap;
     }
 }
