@@ -65,7 +65,7 @@ export class AddTransactionComponent implements OnInit {
     transactionTypeOptions = [
         { label: 'Issue Item', value: 'ISSUE', description: 'Issue item to someone' },
         // { label: 'Send for Maintenance', value: 'MAINTENANCE', description: 'Send item for maintenance' },
-        { label: 'Item Removed From Inventory', value: 'REMOVED', description: 'Item Removed' },
+        // { label: 'Item Removed From Inventory', value: 'REMOVED', description: 'Item Removed' },
         { label: 'Purchase Record', value: 'PURCHASE', description: 'Record new purchase' },
         { label: 'Report Lost', value: 'LOST', description: 'Report item as lost' }
     ];
