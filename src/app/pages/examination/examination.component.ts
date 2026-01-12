@@ -28,6 +28,10 @@ export class ExaminationComponent implements OnInit {
         this.getExams();
     }
 
+    refresh() {
+        this.getExams();
+    }
+
     getExams() {
         this.loader.show('Fetching Exams List');
         this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString() }).subscribe((res) => {

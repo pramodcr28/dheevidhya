@@ -21,7 +21,7 @@
 
     <p-tabpanels class="overflow-y-auto flex-grow">
       <p-tabpanel value="0">
-        <app-add-exam [exams]="exams"></app-add-exam>
+        <app-add-exam [exams]="exams" (examSaved)="refresh()" ></app-add-exam>
       </p-tabpanel>
       <!-- <p-tabpanel value="1">
         <app-quession-paper></app-quession-paper>

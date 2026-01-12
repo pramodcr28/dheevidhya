@@ -1,5 +1,5 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, inject, Input } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { AccordionModule } from 'primeng/accordion';
@@ -62,6 +62,7 @@ export class AddExamComponent {
     submitted = false;
     examForm!: FormGroup;
     @Input() exams: any[] = [];
+    @Output() examSaved = new EventEmitter<void>();
     displayDialog = false;
     slotDailog = false;
     selectedExam: ExaminationDTO;
@@ -320,6 +321,7 @@ export class AddExamComponent {
 
             this.examinationService.create(finalExamData).subscribe((result) => {
                 this.getExams();
+                this.examSaved.emit();
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
