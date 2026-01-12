@@ -140,11 +140,11 @@
                                 @if (idx === activeProfileIndex() && hasUnsavedChanges()) {
                                     <i class="pi pi-circle-fill text-orange-500 text-[8px]" title="Unsaved changes"> </i>
                                 }
-                                @if (profilesList().length > 1) {
+                                <!-- @if (profilesList().length > 1) {
                                     <button type="button" class="ml-1 text-red-500 hover:text-red-700 p-1" (click)="deleteProfile(idx); $event.stopPropagation()">
                                         <i class="pi pi-times text-xs"></i>
                                     </button>
-                                }
+                                } -->
                             </div>
                         </p-tab>
                     }
