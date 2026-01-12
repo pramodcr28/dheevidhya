@@ -290,13 +290,14 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
     private cloneDepartmentStructure(cloneType: string): IMasterDepartment {
         const source = this.sourceConfig?.department;
         if (!source) return {} as IMasterDepartment;
+        const selectedStaffIds = this.targetStaff.map((s) => s.id?.toString());
 
         const cloned: IMasterDepartment = {
             id: source.id,
             name: source.name,
             code: source.code,
             description: source.description,
-            hod: cloneType === 'full' ? source.hod : null,
+            hod: cloneType === 'full' && source.hod && selectedStaffIds.includes(source.hod.toString()) ? source.hod : null,
             classes: []
         };
 
@@ -310,12 +311,13 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
                     name: sec.name,
                     capacity: sec.capacity,
                     room: sec.room,
-                    sectionTeacher: cloneType === 'full' ? sec.sectionTeacher : null,
+                    sectionTeacher: cloneType === 'full' && sec.sectionTeacher && selectedStaffIds.includes(sec.sectionTeacher.toString()) ? sec.sectionTeacher : null,
                     subjects:
                         cloneType === 'full' || cloneType === 'structure'
                             ? sec.subjects?.map((sub) => ({
                                   ...sub,
-                                  teacher: cloneType === 'full' ? sub.teacher : null
+                                  teacher: cloneType === 'full' && sub.teacher && selectedStaffIds.includes(sub.teacher.toString()) ? sub.teacher : null,
+                                  exams: []
                               }))
                             : []
                 }))

@@ -96,6 +96,7 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
                         }
 
                         this.editForm.patchValue({
+                            id: res.body.id,
                             department: this.masterDepartment,
                             branch: this.commonService.branch
                         });
