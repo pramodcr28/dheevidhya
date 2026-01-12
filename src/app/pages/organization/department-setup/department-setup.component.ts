@@ -171,35 +171,35 @@ export class DepartmentSetupComponent implements OnInit {
         }
     }
 
-    // confirmDelete(id: string): void {
-    //     this.confirmationService.confirm({
-    //         header: 'Confirm Deletion',
-    //         message: 'Are you sure you want to delete this academic year?',
-    //         icon: 'pi pi-exclamation-triangle',
-    //         acceptButtonStyleClass: 'p-button-danger',
-    //         accept: () => this.deleteAcademicYear(id)
-    //     });
-    // }
+    confirmDelete(id: string): void {
+        this.confirmationService.confirm({
+            header: 'Confirm Deletion',
+            message: 'Are you sure you want to delete this academic year?',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => this.deleteAcademicYear(id)
+        });
+    }
 
-    // deleteAcademicYear(id: string): void {
-    //     this.departmentConfigService.delete(id).subscribe({
-    //         next: () => {
-    //             this.messageService.add({
-    //                 severity: 'success',
-    //                 summary: 'Deleted',
-    //                 detail: 'Academic year deleted successfully'
-    //             });
+    deleteAcademicYear(id: string): void {
+        this.departmentConfigService.delete(id).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Deleted',
+                    detail: 'Academic year deleted successfully'
+                });
 
-    //             this.selectedAcademicYear = null;
-    //             this.apiCall(this.selectedDepartmentId);
-    //         },
-    //         error: () => {
-    //             this.messageService.add({
-    //                 severity: 'error',
-    //                 summary: 'Error',
-    //                 detail: 'Failed to delete academic year'
-    //             });
-    //         }
-    //     });
-    // }
+                this.selectedAcademicYear = null;
+                this.apiCall(this.selectedDepartmentId);
+            },
+            error: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to delete academic year'
+                });
+            }
+        });
+    }
 }

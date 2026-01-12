@@ -1,6 +1,6 @@
 <p-toast></p-toast>
-<div class="min-h-screen bg-gray-50/50 p-6">
-  <div class="max-w-7xl mx-auto">
+<div class="min-h-screen">
+
     <div class="mb-10 flex items-center justify-between">
       <div class="flex items-center gap-4">
         <button pButton icon="pi pi-arrow-left" (click)="goBack()" class="p-button-text p-button-rounded bg-white shadow-sm border border-gray-100"></button>
@@ -126,7 +126,6 @@
           <div class="p-6 border-b">
             <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-6">3. Staff Allocation</h3>
             <div class="relative">
-                <i class="pi pi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-300"></i>
                 <input pInputText type="text" [(ngModel)]="searchSource" placeholder="Search staff members..." 
                        class="w-full pl-12 py-3 rounded-2xl border-gray-100 bg-gray-50 text-sm focus:ring-2 focus:ring-primary-100" />
             </div>
@@ -164,5 +163,5 @@
         </div>
       </div>
     </div>
-  </div>
+ 
 </div>
