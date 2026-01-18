@@ -157,8 +157,8 @@ export class AppTopbar {
         this.accountingService.getAcademicYears().subscribe({
             next: (years) => {
                 this.academicYears = years;
-                if (years.length && this.commonService.currentUser.academicYear) {
-                    this.selectedAcademicYear = this.commonService.currentUser.academicYear;
+                if (years.length && this.commonService.currentUser?.academicYear) {
+                    this.selectedAcademicYear = this.commonService.currentUser?.academicYear;
                 }
             }
         });

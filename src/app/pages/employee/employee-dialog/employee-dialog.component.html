@@ -134,11 +134,14 @@
                                 <span class="font-semibold text-sm">
                                     {{ profileData.profile.academicYear || 'New Year' }}
                                 </span>
-                                @if (profileData.profile.id == null) {
-                                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-bold uppercase"> NEW </span>
-                                }
                                 @if (idx === activeProfileIndex() && hasUnsavedChanges()) {
                                     <i class="pi pi-circle-fill text-orange-500 text-[8px]" title="Unsaved changes"> </i>
+                                }
+                                @if (profileData.profile.id == null) {
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-bold uppercase"> NEW </span>
+                                    <button type="button" class="ml-1 text-red-500 hover:text-red-700 p-1" (click)="deleteProfile(idx); $event.stopPropagation()">
+                                        <i class="pi pi-times text-xs"></i>
+                                    </button>
                                 }
                                 <!-- @if (profilesList().length > 1) {
                                     <button type="button" class="ml-1 text-red-500 hover:text-red-700 p-1" (click)="deleteProfile(idx); $event.stopPropagation()">
@@ -194,6 +197,7 @@
                                     </div>
 
                                     @if (!commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
+                                       @if(associatedDepartments.length){
                                         <div class="md:col-span-2">
                                             <label class="block font-semibold mb-1 text-sm text-gray-700">Departments *</label>
                                             <p-multi-select [options]="associatedDepartments" [(ngModel)]="profileData.selectedDepartments" (onChange)="markAsChanged()" optionLabel="name" placeholder="Select Departments" [style]="{ width: '100%' }">
@@ -210,20 +214,32 @@
                                             </p-multi-select>
 
                                             <small class="text-red-500" *ngIf="submitted && (!profileData.selectedDepartments || profileData.selectedDepartments.length === 0)"> At least one department is required. </small>
-                                        </div>
-                                        @if (profileData.selectedDepartments && profileData.selectedDepartments.length > 0) {
+                                            </div>
+                                            @if (profileData.selectedDepartments && profileData.selectedDepartments.length > 0) {
+                                                <div class="md:col-span-2">
+                                                    <label class="block font-semibold mb-1 text-sm text-gray-700">Subjects</label>
+                                                    <p-multi-select
+                                                        [options]="associatedSubjects"
+                                                        optionLabel="name"
+                                                        optionValue="id"
+                                                        [(ngModel)]="profileData.profile.subjectIds"
+                                                        (onChange)="markAsChanged()"
+                                                        placeholder="Select Subjects"
+                                                        [style]="{ width: '100%' }"
+                                                    >
+                                                    </p-multi-select>
+                                                </div>
+                                            } 
+                                        }@else {
                                             <div class="md:col-span-2">
-                                                <label class="block font-semibold mb-1 text-sm text-gray-700">Subjects</label>
-                                                <p-multi-select
-                                                    [options]="associatedSubjects"
-                                                    optionLabel="name"
-                                                    optionValue="id"
-                                                    [(ngModel)]="profileData.profile.subjectIds"
-                                                    (onChange)="markAsChanged()"
-                                                    placeholder="Select Subjects"
-                                                    [style]="{ width: '100%' }"
-                                                >
-                                                </p-multi-select>
+                                                <div class="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-4 text-center">
+                                                    <div class="inline-flex items-center justify-center w-8 h-8 bg-orange-100 rounded-full mb-1">
+                                                       🙁
+                                                    </div>
+                                                    <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-1"> Department Setup Not Available</h3>
+                                                    <p class="text-gray-600 text-sm mb-1">No departments have been configured for this academic year.</p>
+                                                    <p class="text-gray-500 text-xs">📧 Please contact your administrator to set up departments</p>
+                                                </div>
                                             </div>
                                         }
                                     }

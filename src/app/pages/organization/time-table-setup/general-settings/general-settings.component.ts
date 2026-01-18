@@ -6,13 +6,15 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { CommonService } from '../../../../core/services/common.service';
+import { DepartmentConfigService } from '../../../../core/services/department-config.service';
+import { DheeSelectComponent } from '../../../../shared/dhee-select/dhee-select.component';
 import { BreakConfig } from '../../../models/time-table';
 import { TimeTableService } from '../../../service/time-table.service';
 
 @Component({
     selector: 'app-general-settings',
     standalone: true,
-    imports: [CommonModule, FormsModule, InputNumberModule, SelectModule, AutoFocusModule, CheckboxModule],
+    imports: [CommonModule, FormsModule, InputNumberModule, SelectModule, AutoFocusModule, CheckboxModule, DheeSelectComponent],
     templateUrl: './general-settings.component.html'
 })
 export class GeneralSettingsComponent implements OnInit {
@@ -20,7 +22,8 @@ export class GeneralSettingsComponent implements OnInit {
     showPeriodDetails = false;
     commonService = inject(CommonService);
     timeTableService = inject(TimeTableService);
-
+    associatedDepartments: any[] = [];
+    departmentConfigService = inject(DepartmentConfigService);
     ngOnInit(): void {
         // Initialize breaks if not present
         if (!this.timeTableService.timeTable.settings.breaks) {
@@ -41,6 +44,20 @@ export class GeneralSettingsComponent implements OnInit {
                 }
             ];
         }
+        this.getAssociatedDepartmentsOnAcademicyear();
+    }
+
+    getAssociatedDepartmentsOnAcademicyear() {
+        const filterParams = {
+            branch: this.commonService.branch?.id
+        };
+
+        this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
+            this.associatedDepartments = res.content.map((re) => ({
+                ...re,
+                name: re.department.name
+            }));
+        });
     }
 
     toggleDaySelection(day: { name: string; selected: boolean }): void {
@@ -71,5 +88,9 @@ export class GeneralSettingsComponent implements OnInit {
 
     getMaxPeriodForBreak(): number {
         return this.timeTableService.timeTable.settings.periodsPerDay || 10;
+    }
+
+    onDepartmentChange(event: Event) {
+        console.log(event);
     }
 }

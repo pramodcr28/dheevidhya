@@ -14,6 +14,7 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
+import { DheeSelectComponent } from '../../../shared/dhee-select/dhee-select.component';
 import { DepartmentTimetable } from '../../models/time-table';
 import { TimetableViewComponent } from './../../../shared/timetable-view/timetable-view.component';
 import { TimeTableService } from './../../service/time-table.service';
@@ -28,7 +29,7 @@ interface StatusTransitionOption {
 @Component({
     selector: 'app-timetable-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, InputTextModule, SelectModule, TagModule, FormsModule, RouterLink, DialogModule, TimetableViewComponent, ToastModule, ConfirmDialogModule, RadioButtonModule],
+    imports: [CommonModule, TableModule, ButtonModule, InputTextModule, SelectModule, TagModule, FormsModule, RouterLink, DialogModule, TimetableViewComponent, ToastModule, ConfirmDialogModule, RadioButtonModule, DheeSelectComponent],
     providers: [MessageService, ConfirmationService],
     templateUrl: './timetable-list.component.html'
 })

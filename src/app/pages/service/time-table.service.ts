@@ -110,26 +110,32 @@ export class TimeTableService {
     onDepartmentChange() {
         this.timeTable.settings.academicYear = this.timeTable.department.academicYear;
         this.classes = [];
+        const uniqueSubjectIds = new Set<string>();
         this.timeTable.department.department.classes.forEach((cls) => {
             cls.sections.forEach((section: any) => {
                 this.classes.push({
                     id: cls.id + '-' + section.id,
                     name: `${cls.name}-${section.name}`,
-                    subjects: section.subjects.map((sub) => ({
-                        id: sub.id,
-                        name: sub.name,
-                        teacher_id: sub.teacher,
-                        hours_per_week: sub.periodsPerWeek
-                    }))
+                    subjects: section.subjects.map((sub: any) => {
+                        uniqueSubjectIds.add(sub.id);
+
+                        return {
+                            id: sub.id,
+                            name: sub.name,
+                            teacher_id: sub.teacher,
+                            hours_per_week: sub.periodsPerWeek
+                        };
+                    })
                 });
             });
         });
+        const uniqueSubjectIdList: string[] = Array.from(uniqueSubjectIds);
         this.store.select(getSubjectsByFilters([this.timeTable.department.id])).subscribe((subjects) => {
             this.profileService
                 .search(0, 100, 'id', 'ASC', {
                     'profileType.equals': 'STAFF',
                     'departments.in': [this.timeTable.department.id],
-                    'subject_ids.in': [...subjects.map((sub: any) => sub.id)]
+                    'subject_ids.in': [...uniqueSubjectIdList]
                 })
                 .subscribe((res: any) => {
                     this.teachers = res.content.map((profile: any) => ({

@@ -43,21 +43,15 @@ export class BulkStudentUploadComponent implements OnInit {
     showStudentDetailDialog = false; // New dialog state
     selectedStudentDetail: StudentExcelRow | null = null; // Selected student for dialog
     submitted: boolean = false;
-    associatedDepartments: any[] = [];
     selectedDepartment: any;
     selectedClass: any;
     selectedSection: any;
-    departmentConfigService = inject(DepartmentConfigService);
     // Computed Properties/Functions
     validCount = () => this.uploadedStudents().filter((s) => s.isValid).length;
     invalidCount = () => this.uploadedStudents().filter((s) => !s.isValid).length;
-
+    associatedDepartments: any[] = [];
+    departmentConfigService = inject(DepartmentConfigService);
     ngOnInit() {
-        // this.store.select(getAssociatedDepartments).subscribe((depts) => {
-        //     this.associatedDepartments = depts.map((department: any) => {
-        //         return { ...department, name: department.department?.name };
-        //     });
-        // });
         this.getAssociatedDepartmentsOnAcademicyear();
     }
 
