@@ -158,6 +158,9 @@ export class DheeSelectComponent implements ControlValueAccessor, OnInit {
     private onTouched: () => void = () => {};
 
     ngOnInit() {
+        if (this.multiple && !Array.isArray(this.value)) {
+            this.value = [];
+        }
         this.loadOptions();
     }
 
@@ -204,7 +207,11 @@ export class DheeSelectComponent implements ControlValueAccessor, OnInit {
     }
 
     writeValue(value: any): void {
-        this.value = value;
+        if (this.multiple) {
+            this.value = Array.isArray(value) ? value : [];
+        } else {
+            this.value = value;
+        }
     }
 
     registerOnChange(fn: any): void {
@@ -220,6 +227,10 @@ export class DheeSelectComponent implements ControlValueAccessor, OnInit {
     }
 
     handleValueChange(value: any): void {
+        if (this.multiple) {
+            value = Array.isArray(value) ? value : [];
+        }
+
         this.value = value;
         this.onChange(value);
         this.onTouched();
