@@ -60,8 +60,6 @@ export class TimeTableService {
         schedule: {}
     };
 
-    private availableColors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#84cc16', '#6366f1', '#f43f5e'];
-
     readonly periods = ['Period 1', 'Period 2', 'Period 3', 'Period 4', 'Period 5', 'Period 6', 'Period 7', 'Period 8', 'Period 9'];
 
     private resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ADMIN_BASE_URL + 'api/timetables');
@@ -118,7 +116,6 @@ export class TimeTableService {
                     name: `${cls.name}-${section.name}`,
                     subjects: section.subjects.map((sub: any) => {
                         uniqueSubjectIds.add(sub.id);
-
                         return {
                             id: sub.id,
                             name: sub.name,

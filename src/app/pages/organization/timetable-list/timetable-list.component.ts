@@ -84,9 +84,15 @@ export class TimetableListComponent implements OnInit {
     apiCall() {
         this.loader.show('Fetching Timetables');
 
-        const filters: any = {
-            'department_id.in': [this.selectedDepartment]
-        };
+        const filters: any = {};
+
+        if (this.selectedDepartment && this.selectedDepartment.length) {
+            filters['department_id.in'] = this.selectedDepartment;
+        } else if (this.commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
+            filters['branch.eq'] = this.commonService?.branch?.id;
+        } else {
+            filters['department_id.in'] = this.commonService.associatedDepartments.map((dept) => dept.id);
+        }
 
         if (this.statusFilter && this.statusFilter != '') {
             filters['status.equals'] = this.statusFilter;
@@ -151,8 +157,14 @@ export class TimetableListComponent implements OnInit {
 
         this.loader.show('Updating status...');
 
-        this.timeTableService.updateStatus(this.currentTimetableForStatusChange.id, this.selectedNewStatus).subscribe(
-            (response) => {
+        this.timeTableService.updateStatus(this.currentTimetableForStatusChange.id, this.selectedNewStatus).subscribe((response: any) => {
+            //                 {
+            //   "timestamp" : "2026-01-19T21:36:23.0227117",
+            //   "status" : 409,
+            //   "message" : "A published timetable already exists for department 'HIGH_SCHOOL' in academic year '2026-2027'",
+            //   "error" : "Conflict"
+            // }
+            if (response.status == 200) {
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Status Updated Successfully',
@@ -164,18 +176,16 @@ export class TimetableListComponent implements OnInit {
                 this.selectedNewStatus = '';
                 this.currentTimetableForStatusChange = null;
                 this.apiCall();
-            },
-            (error) => {
+            } else {
                 this.loader.hide();
                 this.messageService.add({
                     severity: 'error',
-                    summary: 'Failed to Update Status',
-                    detail: error.error?.message || 'An error occurred while updating status',
-                    life: 3000
+                    summary: response.error,
+                    detail: response.message,
+                    life: 6000
                 });
-                console.error('Status update error:', error);
             }
-        );
+        });
     }
 
     cancelStatusChange() {

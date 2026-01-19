@@ -55,6 +55,7 @@ interface SelectedPeriod {
 export class TimetableViewComponent {
     @Input() dailogeType: 'Edit' | 'View' | any = 'View';
     @Output() publish = new EventEmitter<DepartmentTimetable>();
+    @Output() saveAsDraft = new EventEmitter<DepartmentTimetable>();
     @Output() cancel = new EventEmitter<void>();
     @Output() timetableChange = new EventEmitter<DepartmentTimetable>();
     loader = inject(ApiLoaderService);
@@ -343,6 +344,15 @@ export class TimetableViewComponent {
             detail: 'Periods swapped successfully',
             life: 2000
         });
+    }
+
+    onSaveAsDraft(): void {
+        this.selectedPeriod = null;
+        const draftData = {
+            ...this.timetableJson,
+            status: 'draft'
+        };
+        this.saveAsDraft.emit(draftData);
     }
 
     onPublish(): void {

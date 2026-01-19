@@ -9,7 +9,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
-import { finalize, forkJoin, map, Subject } from 'rxjs';
+import { forkJoin, map, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CommonService } from '../../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../../core/services/department-config.service';
@@ -177,11 +177,11 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
         config.associatedStaffs = this.targetStaff.map((u) => u.id);
 
         const req = config.id ? this.departmentConfigService.update(config) : this.departmentConfigService.create(config);
-        req.pipe(finalize(() => (this.isSaving = false))).subscribe({
-            next: () => {
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Configuration Saved' });
-                setTimeout(() => this.goBack(), 1000);
-            }
+        req.subscribe((res) => {
+            this.isSaving = false;
+            console.log(res);
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Configuration Saved' });
+            setTimeout(() => this.goBack(), 1000);
         });
     }
 

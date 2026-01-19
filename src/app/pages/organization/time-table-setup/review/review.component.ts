@@ -143,7 +143,7 @@ export class ReviewComponent {
 
             this.timetableJson = {
                 id: null,
-                status: 'published',
+                status: 'draft',
                 departmentId: this.timeTableService.timeTable.department.id,
                 departmentName: this.timeTableService.timeTable.department.department.name,
                 settings: { ...this.timeTableService.timeTable.settings },
@@ -167,10 +167,19 @@ export class ReviewComponent {
         return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
     }
 
-    saveTimetable() {
+    saveTimetable(status) {
+        this.timetableJson['status'] = status;
         this.timeTableService.create(this.timetableJson).subscribe((result: any) => {
-            this.router.navigate(['/time-table-list']);
-            this.messageService.add({ severity: 'success', summary: 'Success Message', detail: 'Congrats! Time Table Added' });
+            if (result.status != 200) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: result.message
+                });
+            } else {
+                this.router.navigate(['/time-table-list']);
+                this.messageService.add({ severity: 'success', summary: 'Success Message', detail: 'Congrats! Time Table Added' });
+            }
         });
     }
 

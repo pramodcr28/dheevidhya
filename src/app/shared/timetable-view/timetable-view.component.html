@@ -201,14 +201,25 @@
         </div>
     </div>
 
-    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-        <div class="flex items-center gap-3 bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-3">
-            <button (click)="onCancel()" class="px-4 py-3 rounded-xl bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-200 font-semibold"><i class="pi pi-times me-2"></i> <span>Cancel</span></button>
+<div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+    <div class="flex items-center gap-3 bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-3">
+        <button (click)="onCancel()" 
+                class="px-4 py-3 rounded-xl bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-200 font-semibold hover:bg-surface-200 dark:hover:bg-surface-600 transition-colors">
+            <i class="pi pi-times me-2"></i> 
+            <span>Cancel</span>
+        </button>
 
-            <button (click)="onPublish()" class="px-4 py-3 rounded-xl text-white font-bold bg-primary-600">
-                <i class="pi pi-check-circle me-2"></i>
-                <span>{{ dailogeType == 'View' ? 'Publish TimeTable' : 'Update Changes' }}</span>
-            </button>
-        </div>
+        <button (click)="onSaveAsDraft()" 
+                class="px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold transition-colors">
+            <i class="pi pi-save me-2"></i>
+            <span>Save as Draft</span>
+        </button>
+
+        <button (click)="onPublish()" 
+                class="px-4 py-3 rounded-xl text-white font-bold bg-primary-600 hover:bg-primary-700 transition-colors">
+            <i class="pi pi-check-circle me-2"></i>
+            <span>{{ dailogeType == 'View' ? 'Publish TimeTable' : 'Update Changes' }}</span>
+        </button>
     </div>
+</div>
 </div>

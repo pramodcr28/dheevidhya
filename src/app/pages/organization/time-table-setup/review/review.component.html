@@ -91,7 +91,8 @@
     }">
   <app-timetable-view 
     [timetableJson]="timetableJson"
-    (publish)="saveTimetable()"
+    (publish)="saveTimetable('published')"
+    (saveAsDraft)="saveTimetable('draft')"
     [dailogeType]="'View'"
     (cancel)="cancel()">
   </app-timetable-view>
