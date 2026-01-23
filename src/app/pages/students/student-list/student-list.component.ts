@@ -184,8 +184,8 @@ export class StudentListComponent {
             profile: data.profile
         };
 
-        this.studentService.create(userConfig).subscribe({
-            next: (result) => {
+        this.studentService.create(userConfig).subscribe((res: any) => {
+            if (res && res.body.status === 200) {
                 this.hideDialog();
                 this.load();
                 this.messageService.add({
@@ -193,13 +193,12 @@ export class StudentListComponent {
                     summary: 'Success',
                     detail: 'Student profile saved successfully'
                 });
-            },
-            error: (error) => {
+            } else {
                 this.loader.hide();
                 this.messageService.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to save student data'
+                    summary: res.body.error || 'Error',
+                    detail: res.body.message || 'Failed to save student data'
                 });
             }
         });
@@ -225,22 +224,21 @@ export class StudentListComponent {
             profile: null
         };
 
-        this.studentService.create(userConfig).subscribe({
-            next: (result) => {
+        this.studentService.create(userConfig).subscribe((res: any) => {
+            if (res && res.body.status === 200) {
+                this.hideDialog();
                 this.load();
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
-                    detail: 'User information updated successfully'
+                    detail: 'Student profile saved successfully'
                 });
-                this.loader.hide();
-            },
-            error: (error) => {
+            } else {
                 this.loader.hide();
                 this.messageService.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to update user information'
+                    summary: res.body.error || 'Error',
+                    detail: res.body.message || 'Failed to save student data'
                 });
             }
         });
