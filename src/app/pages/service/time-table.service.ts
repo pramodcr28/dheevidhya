@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 import { ApplicationConfigService } from '../../core/services/application-config.service';
 import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
 import { getSubjectsByFilters } from '../../core/store/user-profile/user-profile.selectors';
-import { Teacher, TimeTable } from '../models/time-table';
+import { InstructorSlotRequest, Teacher, TimeTable } from '../models/time-table';
 import { ProfileConfigService } from './profile-config.service';
 import { UserService } from './user.service';
 
@@ -141,8 +141,12 @@ export class TimeTableService {
                         timeOff: [],
                         timeOn: []
                     }));
-
-                    this.getInstructorSlots(this.teachers.map((t) => t.id)).subscribe((slots) => {
+                    let request = {
+                        instructorIds: ['181'],
+                        departmentId: null,
+                        scheduleDay: null // optional
+                    };
+                    this.getInstructorSlots(request).subscribe((slots) => {
                         this.teachers.forEach((teacher) => {
                             const teacherSlots = slots.filter((s: any) => s.instructorId == teacher.id);
                             teacher.unavailable_periods = teacherSlots
@@ -263,8 +267,25 @@ export class TimeTableService {
         return -1;
     }
 
-    getInstructorSlots(ids: string[]): Observable<any> {
-        return this.http.post(`${this.resourceUrl}/instructors/slots`, ids);
+    // getInstructorSlots(ids: string[]): Observable<any> {
+    //     return this.http.post(`${this.resourceUrl}/instructors/slots`, ids);
+    // }
+
+    getInstructorSlots(request: InstructorSlotRequest): Observable<any> {
+        return this.http.post<any>(`${this.resourceUrl}/instructors/slots`, request);
+    }
+
+    getStudentTimeTable(req): Observable<any> {
+        return this.http.post<any>(`${this.resourceUrl}/student`, req);
+    }
+
+    getPersonalTimetable(id): Observable<any[]> {
+        let request = {
+            instructorIds: [id],
+            departmentId: null,
+            scheduleDay: null // optional
+        };
+        return this.getInstructorSlots(request);
     }
 
     getPeriodConflicts(payload: any): Observable<any> {

@@ -9,12 +9,14 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectModule } from 'primeng/select';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { DheeSelectComponent } from '../../../shared/dhee-select/dhee-select.component';
+import { StaffTimetableComponent } from '../../../shared/staff-timetable/staff-timetable.component';
 import { DepartmentTimetable } from '../../models/time-table';
 import { TimetableViewComponent } from './../../../shared/timetable-view/timetable-view.component';
 import { TimeTableService } from './../../service/time-table.service';
@@ -29,24 +31,45 @@ interface StatusTransitionOption {
 @Component({
     selector: 'app-timetable-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, InputTextModule, SelectModule, TagModule, FormsModule, RouterLink, DialogModule, TimetableViewComponent, ToastModule, ConfirmDialogModule, RadioButtonModule, DheeSelectComponent],
+    imports: [
+        CommonModule,
+        TableModule,
+        ButtonModule,
+        InputTextModule,
+        SelectModule,
+        TagModule,
+        FormsModule,
+        RouterLink,
+        DialogModule,
+        TimetableViewComponent,
+        ToastModule,
+        ConfirmDialogModule,
+        RadioButtonModule,
+        DheeSelectComponent,
+        SelectButtonModule,
+        StaffTimetableComponent
+    ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './timetable-list.component.html'
 })
 export class TimetableListComponent implements OnInit {
+    commonService = inject(CommonService);
+    viewMode = signal<'personal' | 'list'>(this.commonService.getUserAuthorities.includes('IT_ADMINISTRATOR') ? 'list' : 'personal');
+    viewOptions = [
+        { label: 'My Timetable', value: 'personal', icon: 'pi pi-user' },
+        { label: 'All Timetables', value: 'list', icon: 'pi pi-list' }
+    ];
     statusFilter: string = '';
     timeTableService = inject(TimeTableService);
-    commonService = inject(CommonService);
     confirmationService = inject(ConfirmationService);
     selectedDepartment: any;
     timetables: DepartmentTimetable[] = [];
     seletedTimeTable: DepartmentTimetable;
+    studentTimetable: DepartmentTimetable;
     dailogeType: 'Edit' | 'View';
     showTimetableDialog = false;
     loader = inject(ApiLoaderService);
     messageService = inject(MessageService);
-
-    // Status Change Dialog Properties
     showStatusChangeDialog = false;
     selectedNewStatus: string = '';
     currentTimetableForStatusChange: DepartmentTimetable | null = null;
@@ -78,7 +101,23 @@ export class TimetableListComponent implements OnInit {
 
     ngOnInit() {
         this.selectedDepartment = this.commonService.associatedDepartments[0]?.id;
-        this.apiCall();
+        if (this.commonService.getUserAuthorities.includes('STUDENT')) {
+            this.getTimeTableForStuqdent();
+        } else {
+            this.apiCall();
+        }
+    }
+
+    getTimeTableForStuqdent() {
+        const req = {
+            deptId: this.commonService.getStudentInfo.departmentId,
+            classId: this.commonService.getStudentInfo.classId,
+            sectionId: this.commonService.getStudentInfo.sectionId
+        };
+        this.timeTableService.getStudentTimeTable(req).subscribe((res) => {
+            this.studentTimetable = res;
+            console.log('Student Timetable:', this.studentTimetable);
+        });
     }
 
     apiCall() {
@@ -158,7 +197,7 @@ export class TimetableListComponent implements OnInit {
         this.loader.show('Updating status...');
 
         this.timeTableService.updateStatus(this.currentTimetableForStatusChange.id, this.selectedNewStatus).subscribe((response: any) => {
-            //                 {
+            // {
             //   "timestamp" : "2026-01-19T21:36:23.0227117",
             //   "status" : 409,
             //   "message" : "A published timetable already exists for department 'HIGH_SCHOOL' in academic year '2026-2027'",

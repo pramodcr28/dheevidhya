@@ -115,3 +115,8 @@ export interface TimeSlot {
     subject?: Subject;
     day: string;
 }
+export interface InstructorSlotRequest {
+    instructorIds: string[];
+    departmentId?: string;
+    scheduleDay?: string;
+}
