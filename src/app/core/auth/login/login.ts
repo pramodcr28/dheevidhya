@@ -43,7 +43,7 @@ export class Login {
     forgotPasswordForm = new FormGroup({
         usernameOrEmail: new FormControl('', {
             nonNullable: true,
-            validators: [Validators.required, Validators.email]
+            validators: [Validators.required]
         })
     });
 

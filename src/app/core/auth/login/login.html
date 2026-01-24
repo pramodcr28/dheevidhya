@@ -218,7 +218,6 @@
         </form>
       </div>
 
-      <!-- Footer -->
       <div class="text-center mt-6 text-sm text-surface-600 dark:text-surface-400">
         <p>© 2025 Dheevidhya. All rights reserved.</p>
       </div>
@@ -226,10 +225,8 @@
   </div>
 </div>
 
-<!-- App Floating Configurator - Moved to end with higher z-index -->
 <app-floating-configurator class="relative z-[9999]"></app-floating-configurator>
 
-<!-- Forgot Password Dialog -->
 <p-dialog 
   [(visible)]="forgotPasswordVisible" 
   [modal]="true" 
@@ -253,7 +250,7 @@
           formControlName="usernameOrEmail" 
           type="text" 
           class="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-surface-200 dark:border-surface-700 focus:border-orange-500 dark:focus:border-orange-400 transition-colors" 
-          placeholder="your.email@example.com" 
+          placeholder="Email / Username" 
         />
       </div>
       @if (forgotPasswordForm.get('usernameOrEmail')?.invalid && forgotPasswordForm.get('usernameOrEmail')?.touched) {
