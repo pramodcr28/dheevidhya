@@ -11,89 +11,104 @@ import { DepartmentConfigService } from '../../core/services/department-config.s
     template: `
         @if (internalOptions && internalOptions.length > 0) {
             @if (multiple) {
-                <div>
-                    @if (displayLabel) {
-                        <label class="mb-2">{{ displayLabel }}</label>
-                    }
-                    <p-multi-select
-                        [options]="internalOptions"
-                        [(ngModel)]="value"
-                        (ngModelChange)="handleValueChange($event)"
-                        [optionLabel]="optionLabel"
-                        [optionValue]="optionValue"
-                        [placeholder]="placeholder"
-                        [filter]="filter"
-                        [filterBy]="filterBy"
-                        [disabled]="disabled"
-                        [style]="style"
-                        [styleClass]="styleClass"
-                    >
-                        <ng-template pTemplate="item" let-item>
-                            <ng-container *ngIf="itemTemplate; else defaultItem">
-                                <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
-                            </ng-container>
-                            <ng-template #defaultItem>
-                                <div class="flex flex-col">
-                                    <span class="font-medium">{{ getNestedProperty(item, optionLabel) }}</span>
-                                    @if (showAcademicYear && item.academicYear) {
-                                        <small class="text-primary-500">Academic Year: {{ item.academicYear }}</small>
-                                    }
-                                </div>
-                            </ng-template>
-                        </ng-template>
-
-                        @if (selectedItemTemplate) {
-                            <ng-template pTemplate="selectedItem" let-item>
-                                <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: item }"></ng-container>
-                            </ng-template>
+                <!-- <div> -->
+                <div class="flex flex-col gap-2  w-full">
+                    <div class="w-full">
+                        @if (displayLabel) {
+                            <label class="block font-semibold mb-2 text-gray-700">
+                                {{ displayLabel }}
+                            </label>
                         }
-                    </p-multi-select>
+                        <p-multi-select
+                            class="w-full"
+                            styleClass="w-full"
+                            [options]="internalOptions"
+                            [(ngModel)]="value"
+                            (ngModelChange)="handleValueChange($event)"
+                            [optionLabel]="optionLabel"
+                            [optionValue]="optionValue"
+                            [placeholder]="placeholder"
+                            [filter]="filter"
+                            [filterBy]="filterBy"
+                            [disabled]="disabled"
+                            [style]="style"
+                        >
+                            <ng-template pTemplate="item" let-item>
+                                <ng-container *ngIf="itemTemplate; else defaultItem">
+                                    <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"> </ng-container>
+                                </ng-container>
+
+                                <ng-template #defaultItem>
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">
+                                            {{ getNestedProperty(item, optionLabel) }}
+                                        </span>
+
+                                        @if (showAcademicYear && item.academicYear) {
+                                            <small class="text-primary-500"> Academic Year: {{ item.academicYear }} </small>
+                                        }
+                                    </div>
+                                </ng-template>
+                            </ng-template>
+
+                            @if (selectedItemTemplate) {
+                                <ng-template pTemplate="selectedItem" let-item>
+                                    <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: item }"> </ng-container>
+                                </ng-template>
+                            }
+                        </p-multi-select>
+                    </div>
                 </div>
-            } @else {
-                <div>
-                    @if (displayLabel) {
-                        <label class="mb-2">{{ displayLabel }}</label>
-                    }
-                    <p-select
-                        [options]="internalOptions"
-                        [(ngModel)]="value"
-                        (ngModelChange)="handleValueChange($event)"
-                        [optionLabel]="optionLabel"
-                        [optionValue]="optionValue"
-                        [placeholder]="placeholder"
-                        [filter]="filter"
-                        [filterBy]="filterBy"
-                        [disabled]="disabled"
-                        [style]="style"
-                        [styleClass]="styleClass"
-                    >
-                        <ng-template pTemplate="item" let-item>
-                            <ng-container *ngIf="itemTemplate; else defaultItem">
-                                <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
-                            </ng-container>
-                            <ng-template #defaultItem>
-                                <div class="flex flex-col">
-                                    <span class="font-medium">{{ getNestedProperty(item, optionLabel) }}</span>
-                                    @if (showAcademicYear && item.academicYear) {
-                                        <small class="text-primary-500">Academic Year: {{ item.academicYear }}</small>
-                                    }
-                                </div>
-                            </ng-template>
-                        </ng-template>
 
-                        @if (selectedItemTemplate) {
-                            <ng-template pTemplate="selectedItem" let-item>
-                                <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: item }"></ng-container>
-                            </ng-template>
-                        } @else if (showAcademicYear) {
-                            <ng-template pTemplate="selectedItem" let-item>
-                                {{ getNestedProperty(item, optionLabel) }}
-                                @if (item.academicYear) {
-                                    ({{ item.academicYear }})
-                                }
-                            </ng-template>
+                <!-- </div> -->
+            } @else {
+                <div class="flex flex-col  gap-2  w-full">
+                    <div class="w-full">
+                        @if (displayLabel) {
+                            <label class="block font-semibold mb-2 text-gray-700">{{ displayLabel }}</label>
                         }
-                    </p-select>
+                        <p-select
+                            class="w-full"
+                            styleClass="w-full"
+                            [options]="internalOptions"
+                            [(ngModel)]="value"
+                            (ngModelChange)="handleValueChange($event)"
+                            [optionLabel]="optionLabel"
+                            [optionValue]="optionValue"
+                            [placeholder]="placeholder"
+                            [filter]="filter"
+                            [filterBy]="filterBy"
+                            [disabled]="disabled"
+                            [style]="style"
+                        >
+                            <ng-template pTemplate="item" let-item>
+                                <ng-container *ngIf="itemTemplate; else defaultItem">
+                                    <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
+                                </ng-container>
+                                <ng-template #defaultItem>
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">{{ getNestedProperty(item, optionLabel) }}</span>
+                                        @if (showAcademicYear && item.academicYear) {
+                                            <small class="text-primary-500">Academic Year: {{ item.academicYear }}</small>
+                                        }
+                                    </div>
+                                </ng-template>
+                            </ng-template>
+
+                            @if (selectedItemTemplate) {
+                                <ng-template pTemplate="selectedItem" let-item>
+                                    <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: item }"></ng-container>
+                                </ng-template>
+                            } @else if (showAcademicYear) {
+                                <ng-template pTemplate="selectedItem" let-item>
+                                    {{ getNestedProperty(item, optionLabel) }}
+                                    @if (item.academicYear) {
+                                        ({{ item.academicYear }})
+                                    }
+                                </ng-template>
+                            }
+                        </p-select>
+                    </div>
                 </div>
             }
 

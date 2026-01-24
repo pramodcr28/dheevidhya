@@ -211,6 +211,13 @@ export class CommonService {
                         icon: 'pi pi-fw pi-sitemap',
                         routerLink: ['/org'],
                         visible: this.hasRoles(['LECTURER', 'TEACHER', 'HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'STUDENT'])
+                    },
+                    // NEW: Student Promotion Menu Item
+                    {
+                        label: 'Student Promotion',
+                        icon: 'pi pi-fw pi-arrow-up',
+                        routerLink: ['/student-promotion'],
+                        visible: this.hasRoles(['LECTURER', 'TEACHER', 'HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR'])
                     }
                 ]
             },

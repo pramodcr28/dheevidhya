@@ -15,6 +15,7 @@ import { DepartmentListComponent } from './app/pages/organization/department-set
 import { DepartmentSetupComponent } from './app/pages/organization/department-setup/department-setup.component';
 import { OrgTreeComponent } from './app/pages/organization/org-tree/org-tree.component';
 import { StudentAttendenceComponent } from './app/pages/organization/student-attendence/student-attendence.component';
+import { StudentPromotionComponent } from './app/pages/organization/student-promotion/student-promotion.component';
 import { TimetableGeneratorComponent } from './app/pages/organization/time-table-setup/time-table-setup.component';
 import { TimetableListComponent } from './app/pages/organization/timetable-list/timetable-list.component';
 import { ProfileComponent } from './app/pages/profile/profile.component';
@@ -103,6 +104,12 @@ export const appRoutes: Routes = [
             {
                 path: 'clone-academic-year/:id',
                 component: CloneAcademicYearComponent
+            },
+            // NEW: Student Promotion Route
+            {
+                path: 'student-promotion',
+                component: StudentPromotionComponent,
+                title: 'Student Promotion'
             },
             { path: 'profile', component: ProfileComponent }
         ]
