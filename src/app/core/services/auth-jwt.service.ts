@@ -49,25 +49,14 @@ export class AuthServerProvider {
         return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + `change-password`, passwordChangeDTO);
     }
 
-    /**
-     * Save new password using reset token (after clicking email link)
-     * @param token - Reset token from email
-     * @param newPassword - New password to set
-     */
     save(token: string, newPassword: string): Observable<{}> {
-        return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + `reset-password/finish`, {
+        return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + `reset-password`, {
             token,
             newPassword
         });
     }
 
-    /**
-     * Request password reset email
-     * @param usernameOrEmail - Username or email address
-     */
     forgotPassword(usernameOrEmail: string): Observable<{}> {
-        return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + `reset-password/init`, {
-            usernameOrEmail
-        });
+        return this.http.post(environment.ServerUrl + environment.UAA_BASE_URL + `reset-password/init`, usernameOrEmail);
     }
 }

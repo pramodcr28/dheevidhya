@@ -262,16 +262,15 @@ export class ProfileComponent {
             return;
         }
         this.loading = true;
-        this.passwordService.changePassword(this.passwordForm.value).subscribe({
-            next: (response) => {
+        this.passwordService.changePassword(this.passwordForm.value).subscribe((response) => {
+            if (response.status == 200) {
                 this.loading = false;
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Password changed successfully!' });
                 const isTenantUser = this.passwordForm.get('isTenantUser')?.value;
                 this.passwordForm.reset({ isTenantUser });
-            },
-            error: (error) => {
+            } else {
                 this.loading = false;
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message || 'Failed to change password. Please try again.' });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message || 'Failed to change password. Please try again.' });
             }
         });
     }
