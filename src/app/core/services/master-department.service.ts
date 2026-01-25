@@ -31,7 +31,7 @@ export class MasterDepartmentService {
         return this.http.patch<IMasterDepartment>(`${this.resourceUrl}/${this.getMasterDepartmentIdentifier(masterDepartment)}`, masterDepartment, { observe: 'response' });
     }
 
-    find(id: number): Observable<EntityResponseType> {
+    find(id: any): Observable<EntityResponseType> {
         return this.http.get<IMasterDepartment>(`${this.resourceUrl}/${id}`, { observe: 'response' });
     }
 

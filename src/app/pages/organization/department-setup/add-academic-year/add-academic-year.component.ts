@@ -1,35 +1,31 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import dayjs from 'dayjs/esm';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
-import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
-import { forkJoin, map, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { CommonService } from '../../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../../core/services/department-config.service';
 import { MasterDepartmentService } from '../../../../core/services/master-department.service';
 import { MasterSectionService } from '../../../../core/services/master-section.service';
 import { MasterSubjectService } from '../../../../core/services/master-subject.service';
-import { IDepartmentConfig, IMasterDepartment, IMasterSection, IMasterSubject } from '../../../models/org.model';
+import { IDepartmentConfig, IMasterClass, IMasterDepartment, IMasterSection, IMasterSubject } from '../../../models/org.model';
 import { UserService } from '../../../service/user.service';
-import { DepartmentConfigFormService } from './department-config-form.service';
 
 @Component({
     selector: 'app-add-academic-year',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, DatePickerModule, ToastModule, MultiSelectModule],
+    imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, DatePickerModule, ToastModule],
     templateUrl: './add-academic-year.component.html',
     providers: [MessageService]
 })
 export class AddAcademicYearComponent implements OnInit, OnDestroy {
     protected departmentConfigService = inject(DepartmentConfigService);
-    protected departmentConfigFormService = inject(DepartmentConfigFormService);
     protected activatedRoute = inject(ActivatedRoute);
     protected messageService = inject(MessageService);
     protected masterDepartmentService = inject(MasterDepartmentService);
@@ -39,15 +35,18 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
     protected userService = inject(UserService);
 
     isSaving = false;
-    editForm = this.departmentConfigFormService.createForm();
     masterDepartment: IMasterDepartment | null = null;
     masterSectionCollection: IMasterSection[] = [];
     masterSubjectsCollection: IMasterSubject[] = [];
-    selectedDepartmentConfig: IDepartmentConfig | null = null;
+
+    // Simplified state - using your actual model structure
+    configId: string | null = null;
+    branchId: number | null = null;
+    classConfigs: IMasterClass[] = [];
 
     // Staff state
     allStaff: any[] = [];
-    targetStaff: any[] = [];
+    targetStaffIds: string[] = [];
     searchSource: string = '';
 
     // Date & Validation state
@@ -61,17 +60,9 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
-    get classesArray() {
-        return this.editForm.get('classes') as FormArray;
-    }
-
     ngOnInit(): void {
-        // Load master data first, then handle route params
-        this.loadMasterData().subscribe(() => {
-            this.handleRouteParams();
-        });
-
-        this.setupDateRangeListener();
+        this.loadMasterData();
+        this.handleRouteParams();
     }
 
     private handleRouteParams(): void {
@@ -80,46 +71,59 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
             const isEditMode = this.activatedRoute.snapshot.url.some((seg) => seg.path.includes('edit'));
 
             if (isEditMode && id) {
-                this.departmentConfigService.find(id).subscribe((res) => {
-                    if (res.body) {
-                        this.selectedDepartmentConfig = res.body;
-                        this.masterDepartment = res.body.department;
-                        this.loadExistingYears(this.masterDepartment?.id);
-
-                        // Initialize classes with proper section/subject mapping
-                        this.initializeClassesForEdit(this.masterDepartment?.classes, res.body);
-
-                        if (res.body.academicStart && res.body.academicEnd) {
-                            this.dateRange = [dayjs(res.body.academicStart).toDate(), dayjs(res.body.academicEnd).toDate()];
-                            this.validateAndCalculateDates();
-                            this.editForm.patchValue({ dateRange: this.dateRange }, { emitEvent: false });
-                        }
-
-                        this.editForm.patchValue({
-                            id: res.body.id,
-                            department: this.masterDepartment,
-                            branch: this.commonService.branch
-                        });
-
-                        this.loadStaffData();
-                    }
-                });
+                this.loadConfigForEdit(id);
             } else if (id) {
-                this.masterDepartmentService.find(id).subscribe((res) => {
-                    this.masterDepartment = res.body;
-                    this.loadExistingYears(this.masterDepartment?.id);
-                    this.editForm.patchValue({ department: this.masterDepartment, branch: this.commonService.branch });
-                    this.initializeClasses(this.masterDepartment?.classes);
-                    this.loadStaffData();
-                });
+                this.loadDepartmentForNew(id);
             }
+        });
+    }
+
+    private loadConfigForEdit(configId: string): void {
+        this.departmentConfigService.find(configId).subscribe((res) => {
+            if (res.body) {
+                this.configId = res.body.id;
+                this.masterDepartment = res.body.department;
+                this.branchId = this.commonService.branch?.id || null;
+
+                this.loadExistingYears(this.masterDepartment?.id);
+
+                // Deep clone to avoid reference issues
+                this.classConfigs = JSON.parse(JSON.stringify(res.body.department?.classes || []));
+
+                if (res.body.academicStart && res.body.academicEnd) {
+                    this.dateRange = [dayjs(res.body.academicStart).toDate(), dayjs(res.body.academicEnd).toDate()];
+                    this.validateAndCalculateDates();
+                }
+
+                this.targetStaffIds = (res.body.associatedStaffs || []).map((id) => String(id));
+                this.loadStaffData();
+            }
+        });
+    }
+
+    private loadDepartmentForNew(deptId: string): void {
+        this.masterDepartmentService.find(deptId).subscribe((res) => {
+            this.masterDepartment = res.body;
+            this.branchId = this.commonService.branch?.id || null;
+            this.loadExistingYears(this.masterDepartment?.id);
+
+            // Deep clone and initialize with empty subjects
+            this.classConfigs = (this.masterDepartment?.classes || []).map((cls) => ({
+                ...cls,
+                sections: (cls.sections || []).map((sec) => ({
+                    ...sec,
+                    subjects: [] // Start with no subjects selected
+                }))
+            }));
+
+            this.loadStaffData();
         });
     }
 
     loadExistingYears(deptId: any): void {
         if (!deptId) return;
         this.departmentConfigService.fetchAcademicYears(deptId).subscribe((data) => {
-            this.existingYearsStrings = (data || []).filter((y) => y.deptConfigId !== this.selectedDepartmentConfig?.id).map((y) => y.academicYear);
+            this.existingYearsStrings = (data || []).filter((y) => y.deptConfigId !== this.configId).map((y) => y.academicYear);
         });
     }
 
@@ -151,47 +155,129 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
         }
     }
 
-    private setupDateRangeListener(): void {
-        this.editForm
-            .get('dateRange')
-            ?.valueChanges.pipe(takeUntil(this.destroy$))
-            .subscribe((val) => {
-                if (val?.length === 2 && val[0] && val[1]) {
-                    this.dateRange = val;
-                    this.validateAndCalculateDates();
-                }
-            });
+    onDateRangeChange(): void {
+        if (this.dateRange?.length === 2 && this.dateRange[0] && this.dateRange[1]) {
+            this.validateAndCalculateDates();
+        }
+    }
+
+    // Subject management using the actual model structure
+    isSubjectSelected(section: IMasterSection, subjectId: string): boolean {
+        return (section.subjects || []).some((s) => s.id === subjectId);
+    }
+
+    toggleSubject(section: IMasterSection, subjectId: string): void {
+        if (!section.subjects) {
+            section.subjects = [] as IMasterSubject[];
+        }
+
+        const index = section.subjects.findIndex((s) => s.id === subjectId);
+
+        if (index > -1) {
+            // Remove subject
+            section.subjects.splice(index, 1);
+        } else {
+            // Add subject - find from master collection
+            const subject = this.masterSubjectsCollection.find((s) => s.id === subjectId);
+            if (subject) {
+                section.subjects.push({ ...subject }); // Clone to avoid reference issues
+            }
+        }
+    }
+
+    // Section visibility toggle
+    toggleSection(classConfig: IMasterClass, masterSection: IMasterSection): void {
+        if (!classConfig.sections) {
+            classConfig.sections = [] as IMasterSection[];
+        }
+
+        const existingIndex = classConfig.sections.findIndex((s: any) => s.id === masterSection.id);
+
+        if (existingIndex > -1) {
+            // Remove section
+            classConfig.sections.splice(existingIndex, 1);
+        } else {
+            // Add section with empty subjects
+            const newSection: IMasterSection = {
+                ...masterSection,
+                subjects: [] // Start with no subjects
+            };
+            classConfig.sections.push(newSection);
+        }
+    }
+
+    isSectionEnabled(classConfig: IMasterClass, sectionId: number): boolean {
+        return (classConfig.sections || []).some((s) => s.id === sectionId);
+    }
+
+    // Get count of selected subjects for a section
+    getSelectedSubjectCount(section: IMasterSection): number {
+        return (section.subjects || []).length;
     }
 
     saveAll(): void {
-        if (this.editForm.invalid || !this.isValidRange || this.isOverlapping || this.isNotTwelveMonths) {
-            this.messageService.add({ severity: 'error', summary: 'Invalid Range', detail: 'Check 12-month period and overlaps.' });
+        if (!this.isValidRange || this.isOverlapping || this.isNotTwelveMonths) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Range',
+                detail: 'Check 12-month period and overlaps.'
+            });
             return;
         }
 
         this.isSaving = true;
-        const config = this.departmentConfigFormService.getFormValue(this.editForm);
-        config.academicYear = this.calculatedAcademicYear;
-        config.academicStart = dayjs(this.dateRange[0]).startOf('month');
-        config.academicEnd = dayjs(this.dateRange[1]).endOf('month');
-        config.associatedStaffs = this.targetStaff.map((u) => u.id);
+
+        // Build the config payload
+        const config: IDepartmentConfig = {
+            id: this.configId,
+            academicYear: this.calculatedAcademicYear,
+            academicStart: dayjs(this.dateRange[0]).startOf('month'),
+            academicEnd: dayjs(this.dateRange[1]).endOf('month'),
+            status: true,
+            branch: this.branchId,
+            department: {
+                ...this.masterDepartment!,
+                classes: this.classConfigs
+            },
+            associatedStaffs: this.targetStaffIds
+        } as any;
 
         const req = config.id ? this.departmentConfigService.update(config) : this.departmentConfigService.create(config);
-        req.subscribe((res) => {
-            this.isSaving = false;
-            console.log(res);
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Configuration Saved' });
-            setTimeout(() => this.goBack(), 1000);
+
+        req.subscribe({
+            next: (res) => {
+                this.isSaving = false;
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Configuration Saved'
+                });
+                setTimeout(() => this.goBack(), 1000);
+            },
+            error: () => {
+                this.isSaving = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to save configuration'
+                });
+            }
         });
     }
 
     toggleStaff(user: any): void {
-        const index = this.targetStaff.findIndex((u) => u.id === user.id);
-        index > -1 ? this.targetStaff.splice(index, 1) : this.targetStaff.push(user);
+        const userId = String(user.id);
+        const index = this.targetStaffIds.indexOf(userId);
+
+        if (index > -1) {
+            this.targetStaffIds.splice(index, 1);
+        } else {
+            this.targetStaffIds.push(userId);
+        }
     }
 
     isStaffSelected(user: any): boolean {
-        return this.targetStaff.some((u) => u.id === user.id);
+        return this.targetStaffIds.includes(String(user.id));
     }
 
     get filteredStaffList() {
@@ -199,95 +285,27 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
         return this.allStaff.filter((s) => `${s.firstName} ${s.lastName}`.toLowerCase().includes(this.searchSource.toLowerCase()));
     }
 
-    initializeClasses(classes: any[] | undefined): void {
-        this.classesArray.clear();
-        classes?.forEach((c) => {
-            const classGroup = this.departmentConfigFormService.createClassFormGroup(c);
-            this.classesArray.push(classGroup);
-            if (c.sections) {
-                const configs = classGroup.get('sectionConfigs') as FormArray;
-                c.sections.forEach((s: any) => configs.push(this.departmentConfigFormService.createSectionFormGroup(s)));
-            }
-        });
+    get selectedStaffCount(): number {
+        return this.targetStaffIds.length;
     }
 
-    /**
-     * NEW METHOD: Initialize classes with proper mapping for edit mode
-     */
-    initializeClassesForEdit(classes: any[] | undefined, configData: IDepartmentConfig): void {
-        this.classesArray.clear();
-
-        classes?.forEach((c) => {
-            const classGroup = this.departmentConfigFormService.createClassFormGroup(c);
-            this.classesArray.push(classGroup);
-
-            // Find the corresponding class config from saved data
-            const savedClassConfig = configData.department.classes?.find((cc: any) => cc.id === c.id);
-
-            if (savedClassConfig && savedClassConfig.sections) {
-                const configs = classGroup.get('sectionConfigs') as FormArray;
-
-                // Map selected sections to actual objects from masterSectionCollection
-                const selectedSections = savedClassConfig.sections.map((savedSection: any) => this.masterSectionCollection.find((ms) => ms.id === savedSection.id)).filter(Boolean); // Remove any undefined values
-
-                // Set selectedSections
-                classGroup.patchValue({ selectedSections });
-
-                // Create section configs with properly mapped subjects
-                savedClassConfig.sections.forEach((savedSection: any) => {
-                    const sectionFormGroup = this.departmentConfigFormService.createSectionFormGroup(savedSection);
-
-                    // Map subjects to actual objects from masterSubjectsCollection
-                    const mappedSubjects = (savedSection.subjects || []).map((savedSubject: any) => this.masterSubjectsCollection.find((ms) => ms.id === savedSubject.id)).filter(Boolean); // Remove any undefined values
-
-                    sectionFormGroup.patchValue({ subjects: mappedSubjects });
-                    configs.push(sectionFormGroup);
-                });
-            }
-        });
-    }
-
-    onSectionsChange(idx: number): void {
-        const group = this.classesArray.at(idx) as FormGroup;
-        const selected = group.get('selectedSections')?.value as any[];
-        const configs = group.get('sectionConfigs') as FormArray;
-
-        selected.forEach((s) => {
-            if (!configs.controls.some((c) => c.value.id === s.id)) {
-                configs.push(this.departmentConfigFormService.createSectionFormGroup(s));
-            }
+    protected loadMasterData(): void {
+        this.masterSectionService.query().subscribe((r) => {
+            this.masterSectionCollection = r.body ?? [];
         });
 
-        for (let i = configs.length - 1; i >= 0; i--) {
-            if (!selected.find((s) => s.id === configs.at(i).value.id)) {
-                configs.removeAt(i);
-            }
-        }
-    }
-
-    getSectionConfigs(i: number): FormArray {
-        return this.classesArray.at(i).get('sectionConfigs') as FormArray;
-    }
-
-    protected loadMasterData() {
-        const sections$ = this.masterSectionService.query().pipe(map((r) => r.body ?? []));
-        const subjects$ = this.masterSubjectsService.query().pipe(map((r) => r.body ?? []));
-
-        return forkJoin([sections$, subjects$]).pipe(
-            map(([sections, subjects]) => {
-                this.masterSectionCollection = sections;
-                this.masterSubjectsCollection = subjects;
-                return { sections, subjects };
-            })
-        );
+        this.masterSubjectsService.query().subscribe((r) => {
+            this.masterSubjectsCollection = r.body ?? [];
+        });
     }
 
     protected loadStaffData(): void {
-        const params = { 'branch_id.eq': this.commonService.branch?.id, 'authorities.name.ne': 'STUDENT' };
+        const params = {
+            'branch_id.eq': this.commonService.branch?.id,
+            'authorities.name.ne': 'STUDENT'
+        };
         this.userService.userSearch(0, 100, 'id', 'ASC', params).subscribe((r) => {
             this.allStaff = r.content ?? [];
-            const ids = this.selectedDepartmentConfig?.associatedStaffs || [];
-            this.targetStaff = this.allStaff.filter((s) => ids.includes(s.id?.toString()));
         });
     }
 

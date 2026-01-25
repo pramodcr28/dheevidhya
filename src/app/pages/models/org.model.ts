@@ -32,7 +32,7 @@ export interface IMasterClass {
     code?: string | null;
     description?: string | null;
     status?: boolean | null;
-    sections?: IMasterSection[] | [];
+    sections?: IMasterSection[] | any[];
 }
 
 export type NewMasterClass = Omit<IMasterClass, 'id'> & { id: null };
