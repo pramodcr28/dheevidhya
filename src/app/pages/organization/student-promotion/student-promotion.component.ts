@@ -15,7 +15,7 @@ import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { DheeSelectComponent } from '../../../shared/dhee-select/dhee-select.component';
-import { IProfileConfig } from '../../models/user.model';
+import { IProfileConfig, UserStatus } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { UserService } from '../../service/user.service';
 
@@ -37,6 +37,16 @@ import { UserService } from '../../service/user.service';
 
                     &:hover {
                         background-color: #fffbeb !important;
+                    }
+
+                    &.student-disabled {
+                        opacity: 0.6;
+                        background-color: #f3f4f6 !important;
+                        cursor: not-allowed;
+
+                        &:hover {
+                            background-color: #f3f4f6 !important;
+                        }
                     }
                 }
             }
@@ -67,7 +77,7 @@ export class StudentPromotionComponent implements OnInit {
     public commonService = inject(CommonService);
     private departmentConfigService = inject(DepartmentConfigService);
     studentService = inject(ProfileConfigService);
-    private userService = inject(UserService); // Add UserService for promotion APIs
+    private userService = inject(UserService);
     sourceStudents = signal<IProfileConfig[]>([]);
     targetStudents = signal<IProfileConfig[]>([]);
     sourceDepartments: any[] = [];
@@ -104,7 +114,6 @@ export class StudentPromotionComponent implements OnInit {
                 id: re.id,
                 department: re.department
             }));
-            // Initially show all departments as targets
             this.updateTargetDepartments();
             console.log('Loaded departments:', this.sourceDepartments);
         });
@@ -228,17 +237,39 @@ export class StudentPromotionComponent implements OnInit {
             });
     }
 
-    // Validation: Check if source and target are the same
+    isStudentSelectable(student: IProfileConfig): boolean {
+        if (student.status === UserStatus.EXITED) {
+            return false;
+        }
+        debugger;
+        const targetStudentIds = this.targetStudents().map((s) => s.userId);
+        if (targetStudentIds.includes(student.userId)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    isStudentInTarget(student: IProfileConfig): boolean {
+        const targetStudentIds = this.targetStudents().map((s) => s.userId);
+        return targetStudentIds.includes(student.userId);
+    }
+
+    areAllStudentsNonSelectable(): boolean {
+        const students = this.sourceStudents();
+        if (students.length === 0) return true;
+        return students.every((student) => !this.isStudentSelectable(student));
+    }
+
     private validateSourceAndTarget(): boolean {
         if (!this.selectedDepartment || !this.selectedClass || !this.selectedSection) {
-            return true; // No validation needed if source not fully selected
+            return true;
         }
 
         if (!this.targetDepartment || !this.targetClass || !this.targetSection) {
-            return true; // No validation needed if target not fully selected
+            return true;
         }
 
-        // Check if same department, class, and section
         if (this.selectedDepartment.id === this.targetDepartment.id && this.selectedClass.id === this.targetClass.id && this.selectedSection.id === this.targetSection.id) {
             this.messageService.add({
                 severity: 'error',
@@ -251,7 +282,6 @@ export class StudentPromotionComponent implements OnInit {
         return true;
     }
 
-    // Validation: Check academic year gap
     private validateAcademicYearGap(): boolean {
         if (!this.selectedDepartment?.academicYear || !this.targetDepartment?.academicYear) {
             return true;
@@ -261,7 +291,6 @@ export class StudentPromotionComponent implements OnInit {
         const targetYear = parseInt(this.targetDepartment.academicYear.split('-')[0]);
         const yearGap = targetYear - sourceYear;
 
-        // Academic years should not be equal
         if (yearGap === 0) {
             this.messageService.add({
                 severity: 'error',
@@ -271,7 +300,6 @@ export class StudentPromotionComponent implements OnInit {
             return false;
         }
 
-        // Target year must be greater than source year
         if (yearGap < 0) {
             this.messageService.add({
                 severity: 'error',
@@ -281,7 +309,6 @@ export class StudentPromotionComponent implements OnInit {
             return false;
         }
 
-        // Academic year gap should be exactly 1 year (can be adjusted if needed)
         if (yearGap !== 1) {
             this.messageService.add({
                 severity: 'error',
@@ -294,36 +321,29 @@ export class StudentPromotionComponent implements OnInit {
         return true;
     }
 
-    // Source Department Change
     onDepartmentChange() {
-        // Clear dependent selections
         this.selectedClass = null;
         this.selectedSection = null;
         this.selectedStudents = [];
         this.sourceStudents.set([]);
 
-        // Update available target departments based on new source selection
         this.updateTargetDepartments();
 
-        // Validate against target
         this.validateSourceAndTarget();
         this.validateAcademicYearGap();
     }
 
     onClassChange() {
-        // Clear dependent selections
         this.selectedSection = null;
         this.selectedStudents = [];
         this.sourceStudents.set([]);
 
-        // Validate against target
         this.validateSourceAndTarget();
     }
 
     onSectionChange() {
         this.selectedStudents = [];
 
-        // Validate before loading
         if (!this.validateSourceAndTarget()) {
             this.selectedSection = null;
             return;
@@ -337,29 +357,23 @@ export class StudentPromotionComponent implements OnInit {
         this.loadSourceStudents();
     }
 
-    // Target Department Change
     onTargetDepartmentChange() {
-        // Clear dependent selections
         this.targetClass = null;
         this.targetSection = null;
         this.targetStudents.set([]);
 
-        // Validate against source
         this.validateSourceAndTarget();
         this.validateAcademicYearGap();
     }
 
     onTargetClassChange() {
-        // Clear dependent selections
         this.targetSection = null;
         this.targetStudents.set([]);
 
-        // Validate against source
         this.validateSourceAndTarget();
     }
 
     onTargetSectionChange() {
-        // Validate before loading
         if (!this.validateSourceAndTarget()) {
             this.targetSection = null;
             return;
@@ -392,7 +406,6 @@ export class StudentPromotionComponent implements OnInit {
             return;
         }
 
-        // Final validation before promotion
         if (!this.validateSourceAndTarget() || !this.validateAcademicYearGap()) {
             return;
         }

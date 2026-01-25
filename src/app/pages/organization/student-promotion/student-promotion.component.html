@@ -68,7 +68,7 @@
                         <ng-template pTemplate="header">
                             <tr>
                                 <th style="width: 3rem">
-                                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                    <p-tableHeaderCheckbox [disabled]="areAllStudentsNonSelectable()"></p-tableHeaderCheckbox>
                                 </th>
                                 <th class="font-semibold">Username</th>
                                 <th class="font-semibold">Full Name</th>
@@ -77,14 +77,35 @@
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-student>
-                            <tr class="hover:bg-amber-50">
+                            <tr [class.hover:bg-amber-50]="isStudentSelectable(student)" 
+                                [class.student-disabled]="!isStudentSelectable(student)">
                                 <td>
-                                    <p-tableCheckbox [value]="student"></p-tableCheckbox>
+                                    <p-tableCheckbox 
+                                        [value]="student" 
+                                        [disabled]="!isStudentSelectable(student)">
+                                    </p-tableCheckbox>
                                 </td>
                                 <td class="font-medium">{{ student.username }}</td>
                                 <td class="font-medium">{{ student.fullName }}</td>
                                 <td>
-                                    <p-tag value="Active - Needs Promotion" severity="warn" icon="pi pi-clock"></p-tag>
+                                    <p-tag 
+                                        *ngIf="student.status === 'EXITED'"
+                                        value="Exited - Cannot Promote" 
+                                        severity="danger" 
+                                        icon="pi pi-ban">
+                                    </p-tag>
+                                    <p-tag 
+                                        *ngIf="isStudentInTarget(student) && student.status !== 'EXITED'"
+                                        value="Already in Target Section" 
+                                        severity="info" 
+                                        icon="pi pi-check-circle">
+                                    </p-tag>
+                                    <p-tag 
+                                        *ngIf="!isStudentInTarget(student) && student.status !== 'EXITED'"
+                                        value="Active - Needs Promotion" 
+                                        severity="warn" 
+                                        icon="pi pi-clock">
+                                    </p-tag>
                                 </td>
                                 <td>
                                     <div class="flex gap-2">
@@ -99,6 +120,7 @@
                                             (onClick)="openStudentDetails(student)">
                                         </p-button>
                                         <p-button 
+                                            *ngIf="student.status !== 'EXITED' && !isStudentInTarget(student)"
                                             type="button" 
                                             [text]="true" 
                                             [rounded]="true" 
@@ -149,7 +171,7 @@
                 <dhee-select
                     [(ngModel)]="targetDepartment"
                     [options]="targetDepartments"
-                    [disabled]=" selectedDepartment == null"
+                    [disabled]="selectedDepartment == null"
                     dataSource="custom"
                     [displayLabel]="'Target Department'"
                     [showAcademicYear]="true"
@@ -189,7 +211,6 @@
                 <div *ngIf="targetStudents().length > 0">
                     <p-table 
                         [value]="targetStudents()" 
-                        [(selection)]="selectedTargetStudents"
                         dataKey="_id"
                         [scrollable]="true" 
                         scrollHeight="300px" 
@@ -302,146 +323,141 @@
         </ng-template>
     </p-dialog>
 
-  <!-- Add this to replace the existing exit dialog in student-promotion.component.html -->
-<p-dialog 
-    [(visible)]="showExitDialog" 
-    [style]="{ width: '90vw', maxWidth: '450px' }" 
-    header="Mark Student as Exited" 
-    [modal]="true" 
-    [draggable]="false" 
-    [resizable]="false">
-    <div class="py-4">
-        <div class="flex items-start gap-4 mb-4">
-            <div class="bg-red-50 rounded-full p-3 flex-shrink-0">
-                <i class="pi pi-exclamation-triangle text-2xl text-red-600"></i>
+    <p-dialog 
+        [(visible)]="showExitDialog" 
+        [style]="{ width: '90vw', maxWidth: '450px' }" 
+        header="Mark Student as Exited" 
+        [modal]="true" 
+        [draggable]="false" 
+        [resizable]="false">
+        <div class="py-4">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="bg-red-50 rounded-full p-3 flex-shrink-0">
+                    <i class="pi pi-exclamation-triangle text-2xl text-red-600"></i>
+                </div>
+                <div>
+                    <p class="font-semibold mb-2 text-gray-800">
+                        Are you sure you want to mark this student as exited?
+                    </p>
+                    <p class="text-sm text-gray-600 mb-2">
+                        <strong>Student:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.fullName }}</span>
+                    </p>
+                    <p class="text-sm text-gray-600">
+                        <strong>Username:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.username }}</span>
+                    </p>
+                </div>
             </div>
-            <div>
-                <p class="font-semibold mb-2 text-gray-800">
-                    Are you sure you want to mark this student as exited?
+            
+            <div class="mb-4">
+                <label class="block font-semibold mb-2 text-gray-700">Exit Reason <span class="text-red-500">*</span></label>
+                <textarea 
+                    [(ngModel)]="exitReason"
+                    rows="3" 
+                    pTextarea
+                    class="w-full"
+                    placeholder="Please provide a reason for student exit (e.g., Transfer, Family relocation, etc.)">
+                </textarea>
+            </div>
+            
+            <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
+                <p class="text-xs text-yellow-800">
+                    <i class="pi pi-info-circle mr-2"></i>
+                    This student will not be available for promotion and will be marked as inactive.
                 </p>
-                <p class="text-sm text-gray-600 mb-2">
-                    <strong>Student:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.fullName }}</span>
-                </p>
-                <p class="text-sm text-gray-600">
-                    <strong>Username:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.username }}</span>
-                </p>
             </div>
         </div>
-        
-        <div class="mb-4">
-            <label class="block font-semibold mb-2 text-gray-700">Exit Reason <span class="text-red-500">*</span></label>
-            <textarea 
-                [(ngModel)]="exitReason"
-                rows="3" 
-                pTextarea
-                class="w-full"
-                placeholder="Please provide a reason for student exit (e.g., Transfer, Family relocation, etc.)">
-            </textarea>
-        </div>
-        
-        <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
-            <p class="text-xs text-yellow-800">
-                <i class="pi pi-info-circle mr-2"></i>
-                This student will not be available for promotion and will be marked as inactive.
-            </p>
-        </div>
-    </div>
-    <ng-template pTemplate="footer">
-        <p-button 
-            label="Cancel" 
-            icon="pi pi-times" 
-            styleClass="p-button-text" 
-            (onClick)="showExitDialog = false; exitReason = ''">
-        </p-button>
-        <p-button 
-            label="Confirm Exit" 
-            icon="pi pi-check" 
-            severity="danger"
-            [disabled]="!exitReason || exitReason.trim().length === 0"
-            (onClick)="confirmExit()">
-        </p-button>
-    </ng-template>
-</p-dialog>
+        <ng-template pTemplate="footer">
+            <p-button 
+                label="Cancel" 
+                icon="pi pi-times" 
+                styleClass="p-button-text" 
+                (onClick)="showExitDialog = false; exitReason = ''">
+            </p-button>
+            <p-button 
+                label="Confirm Exit" 
+                icon="pi pi-check" 
+                severity="danger"
+                [disabled]="!exitReason || exitReason.trim().length === 0"
+                (onClick)="confirmExit()">
+            </p-button>
+        </ng-template>
+    </p-dialog>
 
-<!-- Student Details Dialog -->
-<p-dialog 
-    [(visible)]="showStudentDetailsDialog" 
-    [style]="{ width: '90vw', maxWidth: '700px' }" 
-    header="Student Details" 
-    [modal]="true" 
-    [draggable]="false" 
-    [resizable]="false">
-    <div *ngIf="selectedStudentDetails" class="p-4">
-        <!-- Basic Info -->
-        <div class="mb-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Basic Information</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-sm font-semibold text-gray-600">Full Name</label>
-                    <p class="text-gray-800">{{ selectedStudentDetails.fullName }}</p>
-                </div>
-                <div>
-                    <label class="text-sm font-semibold text-gray-600">Username</label>
-                    <p class="text-gray-800">{{ selectedStudentDetails.username }}</p>
-                </div>
-                <div>
-                    <label class="text-sm font-semibold text-gray-600">Email</label>
-                    <p class="text-gray-800">{{ selectedStudentDetails.email }}</p>
-                </div>
-                <div>
-                    <label class="text-sm font-semibold text-gray-600">Phone</label>
-                    <p class="text-gray-800">{{ selectedStudentDetails.phone || 'N/A' }}</p>
-                </div>
-                <div>
-                    <label class="text-sm font-semibold text-gray-600">Status</label>
-                    <p-tag 
-                        [value]="selectedStudentDetails.status || 'ACTIVE'" 
-                        [severity]="getStatusSeverity(selectedStudentDetails.status)">
-                    </p-tag>
-                </div>
-                <div>
-                    <label class="text-sm font-semibold text-gray-600">Academic Year</label>
-                    <p class="text-gray-800">{{ selectedStudentDetails.academicYear }}</p>
+    <p-dialog 
+        [(visible)]="showStudentDetailsDialog" 
+        [style]="{ width: '90vw', maxWidth: '700px' }" 
+        header="Student Details" 
+        [modal]="true" 
+        [draggable]="false" 
+        [resizable]="false">
+        <div *ngIf="selectedStudentDetails" class="p-4">
+            <div class="mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Basic Information</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Full Name</label>
+                        <p class="text-gray-800">{{ selectedStudentDetails.fullName }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Username</label>
+                        <p class="text-gray-800">{{ selectedStudentDetails.username }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Email</label>
+                        <p class="text-gray-800">{{ selectedStudentDetails.email }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Phone</label>
+                        <p class="text-gray-800">{{ selectedStudentDetails.phone || 'N/A' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Status</label>
+                        <p-tag 
+                            [value]="selectedStudentDetails.status || 'ACTIVE'" 
+                            [severity]="getStatusSeverity(selectedStudentDetails.status)">
+                        </p-tag>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Academic Year</label>
+                        <p class="text-gray-800">{{ selectedStudentDetails.academicYear }}</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Current Class Info -->
-        <div class="mb-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Current Class Information</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-sm font-semibold text-gray-600">Class</label>
-                    <p class="text-gray-800">{{ selectedStudentDetails.roles?.student?.className }}</p>
-                </div>
-                <div>
-                    <label class="text-sm font-semibold text-gray-600">Section</label>
-                    <p class="text-gray-800">{{ selectedStudentDetails.roles?.student?.sectionName }}</p>
+            <div class="mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Current Class Information</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Class</label>
+                        <p class="text-gray-800">{{ selectedStudentDetails.roles?.student?.className }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Section</label>
+                        <p class="text-gray-800">{{ selectedStudentDetails.roles?.student?.sectionName }}</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Exit Information (if exited) -->
-        <div *ngIf="selectedStudentDetails.status === 'EXITED'" class="mb-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Exit Information</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-sm font-semibold text-gray-600">Exit Date</label>
-                    <p class="text-gray-800">{{ selectedStudentDetails.exitDate | date:'mediumDate' }}</p>
-                </div>
-                <div class="col-span-2">
-                    <label class="text-sm font-semibold text-gray-600">Exit Reason</label>
-                    <p class="text-gray-800">{{ selectedStudentDetails.exitReason }}</p>
+            <div *ngIf="selectedStudentDetails.status === 'EXITED'" class="mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Exit Information</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Exit Date</label>
+                        <p class="text-gray-800">{{ selectedStudentDetails.exitDate | date:'mediumDate' }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="text-sm font-semibold text-gray-600">Exit Reason</label>
+                        <p class="text-gray-800">{{ selectedStudentDetails.exitReason }}</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <ng-template pTemplate="footer">
-        <p-button 
-            label="Close" 
-            icon="pi pi-times" 
-            (onClick)="showStudentDetailsDialog = false">
-        </p-button>
-    </ng-template>
-</p-dialog>
+        <ng-template pTemplate="footer">
+            <p-button 
+                label="Close" 
+                icon="pi pi-times" 
+                (onClick)="showStudentDetailsDialog = false">
+            </p-button>
+        </ng-template>
+    </p-dialog>
 </div>

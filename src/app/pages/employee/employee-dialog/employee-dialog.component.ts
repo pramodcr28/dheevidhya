@@ -22,7 +22,7 @@ import { Gender } from '../../../core/model/auth';
 import { BranchService } from '../../../core/services/branch.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { IBranch } from '../../models/tenant.model';
-import { IProfileConfig, IRoleConfigs, ITenantAuthority, ITenantUser, NewTenantUser } from '../../models/user.model';
+import { IProfileConfig, IRoleConfigs, ITenantAuthority, ITenantUser, NewTenantUser, UserStatus } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantUserFormService } from '../../service/tenant-user-form.service';
 import { UserService } from '../../service/user.service';
@@ -156,7 +156,8 @@ export class EmployeeDialogComponent {
             profileType: 'STAFF',
             departments: [],
             roles: {},
-            subjectIds: []
+            subjectIds: [],
+            status: UserStatus.ACTIVE
         };
 
         this.profilesList.set([
@@ -286,7 +287,8 @@ export class EmployeeDialogComponent {
             profileType: 'STAFF',
             departments: [],
             roles: {},
-            subjectIds: []
+            subjectIds: [],
+            status: UserStatus.ACTIVE
         };
 
         const profiles: ProfileUIData[] = [

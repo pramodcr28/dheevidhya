@@ -47,6 +47,11 @@ export interface ITenantUser {
 export type NewTenantUser = Omit<ITenantUser, 'id'> & { id: null };
 
 //  Profile config related models
+export enum UserStatus {
+    ACTIVE,
+    EXITED,
+    GRADUATED
+}
 
 export interface IProfileConfig {
     id: number;
@@ -62,6 +67,7 @@ export interface IProfileConfig {
     departments?: string[] | null;
     roles?: IRoleConfigs | null;
     subjectIds?: string[] | null;
+    status: UserStatus | null;
 }
 
 export type NewProfileConfig = Omit<IProfileConfig, 'id'> & { id: null };

@@ -20,7 +20,7 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
 import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
-import { IProfileConfig, IRoleConfigs, IStudentProfile, ITenantUser, NewTenantUser } from '../../models/user.model';
+import { IProfileConfig, IRoleConfigs, IStudentProfile, ITenantUser, NewTenantUser, UserStatus } from '../../models/user.model';
 import { ProfileConfigFormService } from '../../service/profile-config-form.service';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantUserFormService } from '../../service/tenant-user-form.service';
@@ -201,7 +201,8 @@ export class StudentDialogComponent {
             profileType: 'STUDENT',
             departments: [],
             roles: {},
-            subjectIds: []
+            subjectIds: [],
+            status: UserStatus.ACTIVE
         };
 
         this.profilesList.set([
@@ -414,7 +415,8 @@ export class StudentDialogComponent {
             profileType: 'STUDENT',
             departments: [],
             roles: {},
-            subjectIds: []
+            subjectIds: [],
+            status: UserStatus.ACTIVE
         };
 
         const profiles: ProfileUIData[] = [
