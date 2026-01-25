@@ -132,4 +132,12 @@ export class UserService {
         console.log('payload', payload);
         return this.http.post(`${this.bulkUploadUrl}/students`, payload);
     }
+
+    promoteStudents(promotionData: any): Observable<any> {
+        return this.http.post(`${this.userResourceUrl}/students/promote`, promotionData);
+    }
+
+    markStudentAsExited(studentId: any, exitData: any): Observable<any> {
+        return this.http.post(`${this.userResourceUrl}/students/${studentId}/exit`, exitData);
+    }
 }

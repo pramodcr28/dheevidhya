@@ -11,8 +11,7 @@ import { DepartmentConfigService } from '../../core/services/department-config.s
     template: `
         @if (internalOptions && internalOptions.length > 0) {
             @if (multiple) {
-                <!-- <div> -->
-                <div class="flex flex-col gap-2  w-full">
+                <div class="flex flex-col gap-2 w-full">
                     <div class="w-full">
                         @if (displayLabel) {
                             <label class="block font-semibold mb-2 text-gray-700">
@@ -59,13 +58,13 @@ import { DepartmentConfigService } from '../../core/services/department-config.s
                         </p-multi-select>
                     </div>
                 </div>
-
-                <!-- </div> -->
             } @else {
-                <div class="flex flex-col  gap-2  w-full">
+                <div class="flex flex-col gap-2 w-full">
                     <div class="w-full">
                         @if (displayLabel) {
-                            <label class="block font-semibold mb-2 text-gray-700">{{ displayLabel }}</label>
+                            <label class="block font-semibold mb-2 text-gray-700">
+                                {{ displayLabel }}
+                            </label>
                         }
                         <p-select
                             class="w-full"
@@ -83,13 +82,16 @@ import { DepartmentConfigService } from '../../core/services/department-config.s
                         >
                             <ng-template pTemplate="item" let-item>
                                 <ng-container *ngIf="itemTemplate; else defaultItem">
-                                    <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
+                                    <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"> </ng-container>
                                 </ng-container>
+
                                 <ng-template #defaultItem>
                                     <div class="flex flex-col">
-                                        <span class="font-medium">{{ getNestedProperty(item, optionLabel) }}</span>
+                                        <span class="font-medium">
+                                            {{ getNestedProperty(item, optionLabel) }}
+                                        </span>
                                         @if (showAcademicYear && item.academicYear) {
-                                            <small class="text-primary-500">Academic Year: {{ item.academicYear }}</small>
+                                            <small class="text-primary-500"> Academic Year: {{ item.academicYear }} </small>
                                         }
                                     </div>
                                 </ng-template>
@@ -97,7 +99,7 @@ import { DepartmentConfigService } from '../../core/services/department-config.s
 
                             @if (selectedItemTemplate) {
                                 <ng-template pTemplate="selectedItem" let-item>
-                                    <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: item }"></ng-container>
+                                    <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: item }"> </ng-container>
                                 </ng-template>
                             } @else if (showAcademicYear) {
                                 <ng-template pTemplate="selectedItem" let-item>
@@ -113,21 +115,12 @@ import { DepartmentConfigService } from '../../core/services/department-config.s
             }
 
             @if (showError && errorMessage) {
-                <small class="text-red-500 block mt-1">{{ errorMessage }}</small>
+                <small class="text-red-500 block mt-1">
+                    {{ errorMessage }}
+                </small>
             }
         } @else if (loading) {
             <div class="w-full border border-gray-300 rounded-lg p-3 text-center text-gray-500"><i class="pi pi-spin pi-spinner"></i> Loading...</div>
-        } @else {
-            <div class="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-4 text-center">
-                <div class="inline-flex items-center justify-center w-10 h-10 bg-orange-100 rounded-full mb-2">
-                    <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                </div>
-                <h3 class="text-sm font-semibold text-gray-800 mb-1">🙏 {{ emptyStateTitle }}</h3>
-                <p class="text-gray-600 text-xs mb-1">{{ emptyStateMessage }}</p>
-                <p class="text-gray-500 text-xs">📧 {{ emptyStateContact }}</p>
-            </div>
         }
     `,
     imports: [SelectModule, MultiSelectModule, CommonModule, FormsModule],
@@ -141,7 +134,23 @@ import { DepartmentConfigService } from '../../core/services/department-config.s
 })
 export class DheeSelectComponent implements ControlValueAccessor, OnInit {
     @Input() dataSource: 'departments' | 'subjects' | 'custom' = 'custom';
-    @Input() options: any[] = [];
+
+    private _options: any[] = [];
+
+    @Input()
+    set options(value: any[]) {
+        this._options = value || [];
+
+        if (this.dataSource === 'custom') {
+            this.internalOptions = [...this._options];
+            this.optionsLoaded.emit(this.internalOptions);
+        }
+    }
+
+    get options(): any[] {
+        return this._options;
+    }
+
     @Input() optionLabel: string = 'name';
     @Input() displayLabel: string = null;
     @Input() optionValue: string | undefined;
@@ -160,12 +169,14 @@ export class DheeSelectComponent implements ControlValueAccessor, OnInit {
     @Input() emptyStateContact: string = 'Please contact your administrator';
     @Input() itemTemplate: any;
     @Input() selectedItemTemplate: any;
+
     @Output() onValueChange = new EventEmitter<any>();
     @Output() optionsLoaded = new EventEmitter<any[]>();
 
     value: any;
     internalOptions: any[] = [];
     loading: boolean = false;
+
     commonService = inject(CommonService);
     departmentConfigService = inject(DepartmentConfigService);
 
@@ -181,7 +192,7 @@ export class DheeSelectComponent implements ControlValueAccessor, OnInit {
 
     private loadOptions() {
         if (this.dataSource === 'custom') {
-            this.internalOptions = this.options;
+            this.internalOptions = [...this.options];
             return;
         }
 
@@ -197,11 +208,12 @@ export class DheeSelectComponent implements ControlValueAccessor, OnInit {
 
         if (isITAdmin) {
             this.loading = true;
+
             const filterParams = {
                 branch: this.commonService.branch?.id
             };
 
-            this.departmentConfigService?.search(0, 100, 'id', 'ASC', filterParams).subscribe({
+            this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe({
                 next: (res: any) => {
                     this.internalOptions = res.content.map((re: any) => ({
                         ...re,
@@ -222,11 +234,7 @@ export class DheeSelectComponent implements ControlValueAccessor, OnInit {
     }
 
     writeValue(value: any): void {
-        if (this.multiple) {
-            this.value = Array.isArray(value) ? value : [];
-        } else {
-            this.value = value;
-        }
+        this.value = this.multiple ? (Array.isArray(value) ? value : []) : value;
     }
 
     registerOnChange(fn: any): void {
@@ -242,14 +250,10 @@ export class DheeSelectComponent implements ControlValueAccessor, OnInit {
     }
 
     handleValueChange(value: any): void {
-        if (this.multiple) {
-            value = Array.isArray(value) ? value : [];
-        }
-
-        this.value = value;
-        this.onChange(value);
+        this.value = this.multiple ? (Array.isArray(value) ? value : []) : value;
+        this.onChange(this.value);
         this.onTouched();
-        this.onValueChange.emit(value);
+        this.onValueChange.emit(this.value);
     }
 
     getNestedProperty(obj: any, path: string): any {

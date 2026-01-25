@@ -7,63 +7,8 @@
             <p class="text-gray-600 mt-1">Promote students to next academic year</p>
         </div>
     </div>
-    
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <p-card styleClass="bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 mb-1">Total Departments</p>
-                    <h3 class="text-2xl font-bold text-blue-700">{{ promotionSummary().totalDepartments }}</h3>
-                </div>
-                <i class="pi pi-building text-3xl text-blue-500 opacity-50"></i>
-            </div>
-        </p-card>
 
-        <p-card styleClass="bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-purple-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 mb-1">Total Classes</p>
-                    <h3 class="text-2xl font-bold text-purple-700">{{ promotionSummary().totalClasses }}</h3>
-                </div>
-                <i class="pi pi-book text-3xl text-purple-500 opacity-50"></i>
-            </div>
-        </p-card>
-
-        <p-card styleClass="bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 mb-1">Total Sections</p>
-                    <h3 class="text-2xl font-bold text-green-700">{{ promotionSummary().totalSections }}</h3>
-                </div>
-                <i class="pi pi-th-large text-3xl text-green-500 opacity-50"></i>
-            </div>
-        </p-card>
-
-        <p-card styleClass="bg-gradient-to-br from-teal-50 to-teal-100 border-l-4 border-teal-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 mb-1">Promoted</p>
-                    <h3 class="text-2xl font-bold text-teal-700">{{ promotionSummary().promotedStudents }}</h3>
-                </div>
-                <i class="pi pi-check-circle text-3xl text-teal-500 opacity-50"></i>
-            </div>
-        </p-card>
-
-        <p-card styleClass="bg-gradient-to-br from-orange-50 to-orange-100 border-l-4 border-orange-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 mb-1">Pending</p>
-                    <h3 class="text-2xl font-bold text-orange-700">{{ promotionSummary().pendingStudents }}</h3>
-                </div>
-                <i class="pi pi-clock text-3xl text-orange-500 opacity-50"></i>
-            </div>
-        </p-card>
-    </div>
-
-    <!-- Two Column Layout for Selection and Target -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Current Student Selection Card with Table -->
         <p-card>
             <ng-template pTemplate="header">
                 <div class="p-4 border-b bg-gradient-to-r from-blue-50 to-cyan-50">
@@ -72,13 +17,14 @@
                 </div>
             </ng-template>
 
-            <!-- Selection Filters -->
             <div class="grid grid-cols-3 gap-4 mb-4">
                 <dhee-select
                     [(ngModel)]="selectedDepartment"
-                    dataSource="departments"
+                    [options]="sourceDepartments"
+                    dataSource="custom"
                     [displayLabel]="'Department'"
                     [showAcademicYear]="true"
+                    (onValueChange)="updateTargetDepartments()"
                     [filter]="true"
                     filterBy="department.name,academicYear"
                     placeholder="Select Department">
@@ -109,21 +55,8 @@
                     </p-select>
                 </div>
             </div>
-
-            <!-- Students Table -->
             <div class="mt-4">
                 <div *ngIf="sourceStudents().length > 0">
-                    <!-- <div class="flex justify-between items-center mb-4">
-                        <div>
-                            <h4 class="text-md font-bold text-gray-700">Students Needing Promotion ({{ sourceStudents().length }})</h4>
-                            <p class="text-sm text-gray-500">Active students from current section who are yet to be promoted</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm text-gray-600">Selected:</span>
-                            <p-tag [value]="selectedStudents.length.toString()" severity="warn"></p-tag>
-                        </div>
-                    </div> -->
-
                     <p-table 
                         [value]="sourceStudents()" 
                         [(selection)]="selectedStudents"
@@ -149,7 +82,7 @@
                                     <p-tableCheckbox [value]="student"></p-tableCheckbox>
                                 </td>
                                 <td class="font-medium">{{ student.username }}</td>
-                                <td class="font-medium">{{ student.full_name }}</td>
+                                <td class="font-medium">{{ student.fullName }}</td>
                                 <td>
                                     <p-tag value="Active - Needs Promotion" severity="warn" icon="pi pi-clock"></p-tag>
                                 </td>
@@ -190,14 +123,12 @@
                     </p-table>
                 </div>
 
-                <!-- Empty State -->
                 <div *ngIf="sourceStudents().length === 0 && (selectedSection || selectedClass)" class="text-center py-8">
                     <i class="pi pi-users text-4xl text-gray-300 mb-4"></i>
                     <h3 class="text-lg font-semibold text-gray-600 mb-2">No Students Found</h3>
                     <p class="text-gray-500">No active students found in the selected section.</p>
                 </div>
 
-                <!-- Selection Prompt -->
                 <div *ngIf="!selectedSection && !selectedClass" class="text-center py-8">
                     <i class="pi pi-filter text-4xl text-gray-300 mb-4"></i>
                     <h3 class="text-lg font-semibold text-gray-600 mb-2">Select Department, Class & Section</h3>
@@ -206,7 +137,6 @@
             </div>
         </p-card>
 
-        <!-- Promotion Target Card with Table -->
         <p-card>
             <ng-template pTemplate="header">
                 <div class="p-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50">
@@ -215,11 +145,12 @@
                 </div>
             </ng-template>
 
-            <!-- Target Filters -->
             <div class="grid grid-cols-3 gap-4 mb-4">
                 <dhee-select
                     [(ngModel)]="targetDepartment"
-                    dataSource="departments"
+                    [options]="targetDepartments"
+                    [disabled]=" selectedDepartment == null"
+                    dataSource="custom"
                     [displayLabel]="'Target Department'"
                     [showAcademicYear]="true"
                     [filter]="true"
@@ -247,24 +178,19 @@
                         optionLabel="name"
                         placeholder="Select Section"
                         [disabled]="!targetClass"
-                        [style]="{ width: '100%' }">
+                        [style]="{ width: '100%' }"
+                        (onChange)="onTargetSectionChange()">
                     </p-select>
+                    
                 </div>
             </div>
 
-            <!-- Target Students Table -->
             <div class="mt-4">
-                <div *ngIf="studentsPromotedToTarget().length > 0">
-                    <div class="mb-4">
-                        <h4 class="text-md font-bold text-gray-700">Students Already Promoted ({{ studentsPromotedToTarget().length }})</h4>
-                        <p class="text-sm text-gray-500">
-                            Students already promoted to 
-                            <span class="font-semibold">{{ targetClass?.name }} - {{ targetSection?.name }}</span>
-                        </p>
-                    </div>
-
+                <div *ngIf="targetStudents().length > 0">
                     <p-table 
-                        [value]="studentsPromotedToTarget()" 
+                        [value]="targetStudents()" 
+                        [(selection)]="selectedTargetStudents"
+                        dataKey="_id"
                         [scrollable]="true" 
                         scrollHeight="300px" 
                         styleClass="p-datatable-sm" 
@@ -280,7 +206,7 @@
                         <ng-template pTemplate="body" let-student>
                             <tr class="bg-green-50">
                                 <td class="font-medium">{{ student.username }}</td>
-                                <td class="font-medium">{{ student.full_name }}</td>
+                                <td class="font-medium">{{ student.fullName }}</td>
                                 <td>
                                     <p-tag value="Promoted to Target" severity="success" icon="pi pi-check"></p-tag>
                                 </td>
@@ -309,14 +235,12 @@
                     </p-table>
                 </div>
 
-                <!-- Empty State -->
-                <div *ngIf="studentsPromotedToTarget().length === 0 && (targetSection || targetClass)" class="text-center py-8">
+                <div *ngIf="targetStudents().length === 0 && (targetSection || targetClass)" class="text-center py-8">
                     <i class="pi pi-arrow-right text-4xl text-gray-300 mb-4"></i>
                     <h3 class="text-lg font-semibold text-gray-600 mb-2">Ready for Promotion</h3>
                     <p class="text-gray-500">Select target section and use the promote button to move students.</p>
                 </div>
 
-                <!-- Selection Prompt -->
                 <div *ngIf="!targetSection && !targetClass" class="text-center py-8">
                     <i class="pi pi-target text-4xl text-gray-300 mb-4"></i>
                     <h3 class="text-lg font-semibold text-gray-600 mb-2">Select Target Section</h3>
@@ -326,7 +250,6 @@
         </p-card>
     </div>
 
-    <!-- Action Button -->
     <div class="flex justify-end mb-6">
         <p-button 
             label="Promote Selected Students" 
@@ -336,7 +259,6 @@
         </p-button>
     </div>
 
-    <!-- Promotion Confirmation Dialog -->
     <p-dialog 
         [(visible)]="showPromotionDialog" 
         [style]="{ width: '90vw', maxWidth: '500px' }" 
@@ -380,15 +302,16 @@
         </ng-template>
     </p-dialog>
 
-    <!-- Exit Student Dialog -->
-    <p-dialog 
-        [(visible)]="showExitDialog" 
-        [style]="{ width: '90vw', maxWidth: '450px' }" 
-        header="Mark Student as Exited" 
-        [modal]="true" 
-        [draggable]="false" 
-        [resizable]="false">
-        <div class="flex items-start gap-4 py-4">
+  <!-- Add this to replace the existing exit dialog in student-promotion.component.html -->
+<p-dialog 
+    [(visible)]="showExitDialog" 
+    [style]="{ width: '90vw', maxWidth: '450px' }" 
+    header="Mark Student as Exited" 
+    [modal]="true" 
+    [draggable]="false" 
+    [resizable]="false">
+    <div class="py-4">
+        <div class="flex items-start gap-4 mb-4">
             <div class="bg-red-50 rounded-full p-3 flex-shrink-0">
                 <i class="pi pi-exclamation-triangle text-2xl text-red-600"></i>
             </div>
@@ -397,32 +320,128 @@
                     Are you sure you want to mark this student as exited?
                 </p>
                 <p class="text-sm text-gray-600 mb-2">
-                    <strong>Student:</strong> {{ studentToExit?.fullName }}
+                    <strong>Student:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.fullName }}</span>
                 </p>
                 <p class="text-sm text-gray-600">
-                    <strong>Username:</strong> {{ studentToExit?.username }}
+                    <strong>Username:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.username }}</span>
                 </p>
-                <div class="bg-yellow-50 border border-yellow-200 rounded p-3 mt-3">
-                    <p class="text-xs text-yellow-800">
-                        <i class="pi pi-info-circle mr-2"></i>
-                        This student will not be available for promotion and will be marked as inactive.
-                    </p>
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Exit Reason <span class="text-red-500">*</span></label>
+            <textarea 
+                [(ngModel)]="exitReason"
+                rows="3" 
+                pTextarea
+                class="w-full"
+                placeholder="Please provide a reason for student exit (e.g., Transfer, Family relocation, etc.)">
+            </textarea>
+        </div>
+        
+        <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
+            <p class="text-xs text-yellow-800">
+                <i class="pi pi-info-circle mr-2"></i>
+                This student will not be available for promotion and will be marked as inactive.
+            </p>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button 
+            label="Cancel" 
+            icon="pi pi-times" 
+            styleClass="p-button-text" 
+            (onClick)="showExitDialog = false; exitReason = ''">
+        </p-button>
+        <p-button 
+            label="Confirm Exit" 
+            icon="pi pi-check" 
+            severity="danger"
+            [disabled]="!exitReason || exitReason.trim().length === 0"
+            (onClick)="confirmExit()">
+        </p-button>
+    </ng-template>
+</p-dialog>
+
+<!-- Student Details Dialog -->
+<p-dialog 
+    [(visible)]="showStudentDetailsDialog" 
+    [style]="{ width: '90vw', maxWidth: '700px' }" 
+    header="Student Details" 
+    [modal]="true" 
+    [draggable]="false" 
+    [resizable]="false">
+    <div *ngIf="selectedStudentDetails" class="p-4">
+        <!-- Basic Info -->
+        <div class="mb-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Basic Information</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-sm font-semibold text-gray-600">Full Name</label>
+                    <p class="text-gray-800">{{ selectedStudentDetails.fullName }}</p>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-600">Username</label>
+                    <p class="text-gray-800">{{ selectedStudentDetails.username }}</p>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-600">Email</label>
+                    <p class="text-gray-800">{{ selectedStudentDetails.email }}</p>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-600">Phone</label>
+                    <p class="text-gray-800">{{ selectedStudentDetails.phone || 'N/A' }}</p>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-600">Status</label>
+                    <p-tag 
+                        [value]="selectedStudentDetails.status || 'ACTIVE'" 
+                        [severity]="getStatusSeverity(selectedStudentDetails.status)">
+                    </p-tag>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-600">Academic Year</label>
+                    <p class="text-gray-800">{{ selectedStudentDetails.academicYear }}</p>
                 </div>
             </div>
         </div>
-        <ng-template pTemplate="footer">
-            <p-button 
-                label="Cancel" 
-                icon="pi pi-times" 
-                styleClass="p-button-text" 
-                (onClick)="showExitDialog = false">
-            </p-button>
-            <p-button 
-                label="Confirm Exit" 
-                icon="pi pi-check" 
-                severity="danger"
-                (onClick)="confirmExit()">
-            </p-button>
-        </ng-template>
-    </p-dialog>
+
+        <!-- Current Class Info -->
+        <div class="mb-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Current Class Information</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-sm font-semibold text-gray-600">Class</label>
+                    <p class="text-gray-800">{{ selectedStudentDetails.roles?.student?.className }}</p>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-600">Section</label>
+                    <p class="text-gray-800">{{ selectedStudentDetails.roles?.student?.sectionName }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exit Information (if exited) -->
+        <div *ngIf="selectedStudentDetails.status === 'EXITED'" class="mb-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Exit Information</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-sm font-semibold text-gray-600">Exit Date</label>
+                    <p class="text-gray-800">{{ selectedStudentDetails.exitDate | date:'mediumDate' }}</p>
+                </div>
+                <div class="col-span-2">
+                    <label class="text-sm font-semibold text-gray-600">Exit Reason</label>
+                    <p class="text-gray-800">{{ selectedStudentDetails.exitReason }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button 
+            label="Close" 
+            icon="pi pi-times" 
+            (onClick)="showStudentDetailsDialog = false">
+        </p-button>
+    </ng-template>
+</p-dialog>
 </div>

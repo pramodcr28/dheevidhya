@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -8,6 +8,7 @@ import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { CommonService } from '../../../core/services/common.service';
@@ -15,21 +16,13 @@ import { DepartmentConfigService } from '../../../core/services/department-confi
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { DheeSelectComponent } from '../../../shared/dhee-select/dhee-select.component';
 import { IProfileConfig } from '../../models/user.model';
-// Add StudentService import
 import { ProfileConfigService } from '../../service/profile-config.service';
-
-interface PromotionSummary {
-    totalDepartments: number;
-    totalClasses: number;
-    totalSections: number;
-    promotedStudents: number;
-    pendingStudents: number;
-}
+import { UserService } from '../../service/user.service';
 
 @Component({
     selector: 'app-student-promotion',
     standalone: true,
-    imports: [CommonModule, DheeSelectComponent, FormsModule, ButtonModule, CardModule, DialogModule, SelectModule, TableModule, TagModule, ToastModule, TooltipModule],
+    imports: [CommonModule, TextareaModule, DheeSelectComponent, FormsModule, ButtonModule, CardModule, DialogModule, SelectModule, TableModule, TagModule, ToastModule, TooltipModule],
     providers: [MessageService],
     templateUrl: './student-promotion.component.html',
     styles: `
@@ -73,19 +66,11 @@ export class StudentPromotionComponent implements OnInit {
     private loader = inject(ApiLoaderService);
     public commonService = inject(CommonService);
     private departmentConfigService = inject(DepartmentConfigService);
-    // private studentService = inject(StudentService); // Add StudentService
     studentService = inject(ProfileConfigService);
-    // Signals
-    sourceStudents = signal<IProfileConfig[]>([]); // Separate signal for source students
-    targetStudents = signal<IProfileConfig[]>([]); // Separate signal for target students
-    promotionSummary = signal<PromotionSummary>({
-        totalDepartments: 0,
-        totalClasses: 0,
-        totalSections: 0,
-        promotedStudents: 0,
-        pendingStudents: 0
-    });
-
+    private userService = inject(UserService); // Add UserService for promotion APIs
+    sourceStudents = signal<IProfileConfig[]>([]);
+    targetStudents = signal<IProfileConfig[]>([]);
+    sourceDepartments: any[] = [];
     selectedDepartment: any = null;
     selectedClass: any = null;
     selectedSection: any = null;
@@ -93,31 +78,18 @@ export class StudentPromotionComponent implements OnInit {
     targetDepartment: any = null;
     targetClass: any = null;
     targetSection: any = null;
-    associatedDepartments: any[] = [];
+    targetDepartments: any[] = [];
     selectedStudents: IProfileConfig[] = [];
+    selectedTargetStudents: IProfileConfig[] = [];
     showPromotionDialog = false;
     showExitDialog = false;
+    showStudentDetailsDialog = false;
     studentToExit: IProfileConfig | null = null;
-
-    // Computed - Students needing promotion from current section
-    // studentsNeedingPromotion = computed(() => {
-    //     if (!this.selectedSection || !this.selectedClass || !this.selectedDepartment) {
-    //         return [];
-    //     }
-    //     return this.sourceStudents();
-    // });
-
-    // Computed - Students already promoted to target section
-    studentsPromotedToTarget = computed(() => {
-        if (!this.targetSection || !this.targetClass || !this.targetDepartment) {
-            return [];
-        }
-        return this.targetStudents();
-    });
+    selectedStudentDetails: any = null;
+    exitReason: string = '';
 
     ngOnInit() {
         this.loadDepartments();
-        // this.loadPromotionSummary();
     }
 
     loadDepartments() {
@@ -126,40 +98,50 @@ export class StudentPromotionComponent implements OnInit {
         };
 
         this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
-            this.associatedDepartments = res.content.map((re) => ({
+            this.sourceDepartments = res.content.map((re) => ({
                 ...re,
                 name: re.department.name,
                 id: re.id,
                 department: re.department
             }));
+            // Initially show all departments as targets
+            this.updateTargetDepartments();
+            console.log('Loaded departments:', this.sourceDepartments);
         });
     }
 
-    loadPromotionSummary() {
-        this.loader.show('Loading promotion summary...');
+    public updateTargetDepartments() {
+        if (!this.selectedDepartment?.academicYear) {
+            this.targetDepartments = [...this.sourceDepartments];
+            return;
+        }
 
-        // Call backend API to get promotion summary
-        // this.studentService.getPromotionSummary().subscribe({
-        //     next: (summary) => {
-        //         this.promotionSummary.set({
-        //             totalDepartments: summary.totalDepartments || 0,
-        //             totalClasses: summary.totalClasses || 0,
-        //             totalSections: summary.totalSections || 0,
-        //             promotedStudents: summary.promotedStudents || 0,
-        //             pendingStudents: summary.pendingStudents || 0
-        //         });
-        //         this.loader.hide();
-        //     },
-        //     error: (error) => {
-        //         console.error('Error loading promotion summary:', error);
-        //         this.loader.hide();
-        //         this.messageService.add({
-        //             severity: 'error',
-        //             summary: 'Error',
-        //             detail: 'Failed to load promotion summary'
-        //         });
-        //     }
-        // });
+        const sourceYear = parseInt(this.selectedDepartment.academicYear.split('-')[0]);
+
+        this.targetDepartments = this.sourceDepartments.filter((dept) => {
+            if (!dept.academicYear) return false;
+
+            const targetYear = parseInt(dept.academicYear.split('-')[0]);
+            return targetYear > sourceYear;
+        });
+
+        console.log(`Filtered target departments: ${this.targetDepartments.length} departments with academic year > ${this.selectedDepartment.academicYear}`);
+
+        if (this.targetDepartment) {
+            const isTargetStillValid = this.targetDepartments.some((dept) => dept.id === this.targetDepartment.id);
+            if (!isTargetStillValid) {
+                this.targetDepartment = null;
+                this.targetClass = null;
+                this.targetSection = null;
+                this.targetStudents.set([]);
+
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Target Reset',
+                    detail: 'Target department was reset as it no longer meets the academic year criteria.'
+                });
+            }
+        }
     }
 
     loadSourceStudents() {
@@ -172,15 +154,28 @@ export class StudentPromotionComponent implements OnInit {
 
         this.studentService
             .search(0, 100, 'id', 'ASC', {
-                // 'branch_id.eq': this.commonService.branch?.id,
-                // 'authorities.name.in': ['STUDENT'],
                 'departments.in': [this.selectedDepartment.id],
-                'roles.student.class_id.in': [this.selectedClass.id],
-                'roles.student.section_id.in': [this.selectedSection.id]
+                'roles.student.classId.in': [this.selectedClass.id],
+                'roles.student.sectionId.in': [this.selectedSection.id]
             })
             .subscribe({
                 next: (students) => {
-                    this.sourceStudents.set(students.content);
+                    // Filter out students who are already in target section
+                    const targetStudentIds = this.targetStudents().map((s) => s.id);
+                    const filteredStudents = students.content.filter((student) => !targetStudentIds.includes(student.id));
+
+                    this.sourceStudents.set(filteredStudents);
+
+                    // Show warning if some students were filtered out
+                    const filteredCount = students.content.length - filteredStudents.length;
+                    if (filteredCount > 0) {
+                        this.messageService.add({
+                            severity: 'warn',
+                            summary: 'Students Already Promoted',
+                            detail: `${filteredCount} student(s) already exist in the target section and were excluded from the source list.`
+                        });
+                    }
+
                     this.loader.hide();
                 },
                 error: (error) => {
@@ -201,33 +196,181 @@ export class StudentPromotionComponent implements OnInit {
             this.targetStudents.set([]);
             return;
         }
+        this.loader.show('Loading students...');
 
-        // Fetch already promoted students in target section
-        // this.studentService.getPromotedStudentsBySection(this.targetSection.id).subscribe({
-        //     next: (students) => {
-        //         this.targetStudents.set(students);
-        //     },
-        //     error: (error) => {
-        //         console.error('Error loading target students:', error);
-        //         this.targetStudents.set([]);
-        //     }
-        // });
+        this.studentService
+            .search(0, 100, 'id', 'ASC', {
+                'departments.in': [this.targetDepartment.id],
+                'roles.student.classId.in': [this.targetClass.id],
+                'roles.student.sectionId.in': [this.targetSection.id]
+            })
+            .subscribe({
+                next: (students) => {
+                    this.targetStudents.set(students.content);
+
+                    // Reload source students to filter out already promoted students
+                    if (this.selectedSection?.id) {
+                        this.loadSourceStudents();
+                    }
+
+                    this.loader.hide();
+                },
+                error: (error) => {
+                    console.error('Error loading students:', error);
+                    this.targetStudents.set([]);
+                    this.loader.hide();
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to load students'
+                    });
+                }
+            });
     }
 
-    onClassChange() {
+    // Validation: Check if source and target are the same
+    private validateSourceAndTarget(): boolean {
+        if (!this.selectedDepartment || !this.selectedClass || !this.selectedSection) {
+            return true; // No validation needed if source not fully selected
+        }
+
+        if (!this.targetDepartment || !this.targetClass || !this.targetSection) {
+            return true; // No validation needed if target not fully selected
+        }
+
+        // Check if same department, class, and section
+        if (this.selectedDepartment.id === this.targetDepartment.id && this.selectedClass.id === this.targetClass.id && this.selectedSection.id === this.targetSection.id) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Selection',
+                detail: 'Source and target section cannot be the same. Please select a different target section.'
+            });
+            return false;
+        }
+
+        return true;
+    }
+
+    // Validation: Check academic year gap
+    private validateAcademicYearGap(): boolean {
+        if (!this.selectedDepartment?.academicYear || !this.targetDepartment?.academicYear) {
+            return true;
+        }
+
+        const sourceYear = parseInt(this.selectedDepartment.academicYear.split('-')[0]);
+        const targetYear = parseInt(this.targetDepartment.academicYear.split('-')[0]);
+        const yearGap = targetYear - sourceYear;
+
+        // Academic years should not be equal
+        if (yearGap === 0) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Academic Year',
+                detail: 'Target academic year cannot be the same as source academic year. Students must be promoted to the next academic year.'
+            });
+            return false;
+        }
+
+        // Target year must be greater than source year
+        if (yearGap < 0) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Academic Year',
+                detail: 'Target academic year must be greater than source academic year. Cannot promote students backwards in time.'
+            });
+            return false;
+        }
+
+        // Academic year gap should be exactly 1 year (can be adjusted if needed)
+        if (yearGap !== 1) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Academic Year Gap',
+                detail: `Target academic year must be exactly 1 year ahead of source academic year. Current gap: ${yearGap} year(s).`
+            });
+            return false;
+        }
+
+        return true;
+    }
+
+    // Source Department Change
+    onDepartmentChange() {
+        // Clear dependent selections
+        this.selectedClass = null;
         this.selectedSection = null;
         this.selectedStudents = [];
         this.sourceStudents.set([]);
+
+        // Update available target departments based on new source selection
+        this.updateTargetDepartments();
+
+        // Validate against target
+        this.validateSourceAndTarget();
+        this.validateAcademicYearGap();
+    }
+
+    onClassChange() {
+        // Clear dependent selections
+        this.selectedSection = null;
+        this.selectedStudents = [];
+        this.sourceStudents.set([]);
+
+        // Validate against target
+        this.validateSourceAndTarget();
     }
 
     onSectionChange() {
         this.selectedStudents = [];
+
+        // Validate before loading
+        if (!this.validateSourceAndTarget()) {
+            this.selectedSection = null;
+            return;
+        }
+
+        if (!this.validateAcademicYearGap()) {
+            this.selectedSection = null;
+            return;
+        }
+
         this.loadSourceStudents();
     }
 
-    onTargetClassChange() {
+    // Target Department Change
+    onTargetDepartmentChange() {
+        // Clear dependent selections
+        this.targetClass = null;
         this.targetSection = null;
         this.targetStudents.set([]);
+
+        // Validate against source
+        this.validateSourceAndTarget();
+        this.validateAcademicYearGap();
+    }
+
+    onTargetClassChange() {
+        // Clear dependent selections
+        this.targetSection = null;
+        this.targetStudents.set([]);
+
+        // Validate against source
+        this.validateSourceAndTarget();
+    }
+
+    onTargetSectionChange() {
+        // Validate before loading
+        if (!this.validateSourceAndTarget()) {
+            this.targetSection = null;
+            return;
+        }
+
+        if (!this.validateAcademicYearGap()) {
+            this.targetSection = null;
+            return;
+        }
+
+        this.loadTargetStudents();
     }
 
     openPromotionDialog() {
@@ -249,6 +392,11 @@ export class StudentPromotionComponent implements OnInit {
             return;
         }
 
+        // Final validation before promotion
+        if (!this.validateSourceAndTarget() || !this.validateAcademicYearGap()) {
+            return;
+        }
+
         this.showPromotionDialog = true;
     }
 
@@ -259,50 +407,49 @@ export class StudentPromotionComponent implements OnInit {
         const studentIds = this.selectedStudents.map((s) => s.id);
         const promotionData = {
             studentIds: studentIds,
-            targetClassId: this.targetClass.id,
-            targetSectionId: this.targetSection.id,
-            targetDepartmentId: this.targetDepartment.id,
+            departmentId: this.targetDepartment.id,
+            classId: this.targetClass.id,
+            className: this.targetClass.name,
+            sectionId: this.targetSection.id,
+            sectionName: this.targetSection.name,
             academicYear: this.targetDepartment.academicYear
         };
 
-        // Call backend API to promote students
-        // this.studentService.promoteStudents(promotionData).subscribe({
-        //     next: (response) => {
-        //         // Reload both source and target students
-        //         forkJoin({
-        //             source: this.studentService.getStudentsBySection(this.selectedSection.id),
-        //             target: this.studentService.getPromotedStudentsBySection(this.targetSection.id),
-        //             summary: this.studentService.getPromotionSummary()
-        //         }).subscribe({
-        //             next: (results) => {
-        //                 this.sourceStudents.set(results.source);
-        //                 this.targetStudents.set(results.target);
-        //                 this.promotionSummary.set(results.summary);
-        //                 this.selectedStudents = [];
-        //                 this.loader.hide();
+        console.log('Promotion Data:', promotionData);
 
-        //                 this.messageService.add({
-        //                     severity: 'success',
-        //                     summary: 'Success',
-        //                     detail: `Successfully promoted ${studentIds.length} students to ${this.targetClass.name} - ${this.targetSection.name}`
-        //                 });
-        //             },
-        //             error: (error) => {
-        //                 console.error('Error reloading data:', error);
-        //                 this.loader.hide();
-        //             }
-        //         });
-        //     },
-        //     error: (error) => {
-        //         console.error('Error promoting students:', error);
-        //         this.loader.hide();
-        //         this.messageService.add({
-        //             severity: 'error',
-        //             summary: 'Error',
-        //             detail: 'Failed to promote students. Please try again.'
-        //         });
-        //     }
-        // });
+        this.userService.promoteStudents(promotionData).subscribe({
+            next: (response) => {
+                const data = response.data;
+                this.loadSourceStudents();
+                this.loadTargetStudents();
+                this.selectedStudents = [];
+                this.loader.hide();
+
+                if (data.failureCount > 0) {
+                    this.messageService.add({
+                        severity: 'warn',
+                        summary: 'Partial Success',
+                        detail: `Promoted ${data.successCount} students. Failed: ${data.failureCount}. Check console for details.`
+                    });
+                    console.error('Failed promotions:', data.errors);
+                } else {
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: `Successfully promoted ${data.successCount} student(s) to ${this.targetClass.name} - ${this.targetSection.name}`
+                    });
+                }
+            },
+            error: (error) => {
+                console.error('Error promoting students:', error);
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error.error?.message || 'Failed to promote students. Please try again.'
+                });
+            }
+        });
     }
 
     openExitDialog(student: IProfileConfig) {
@@ -316,43 +463,52 @@ export class StudentPromotionComponent implements OnInit {
         this.showExitDialog = false;
         this.loader.show('Marking student as exited...');
 
-        // Call backend API to mark student as exited
-        // this.studentService.markStudentAsExited(this.studentToExit.id).subscribe({
-        //     next: () => {
-        //         // Refresh source students
-        //         this.loadSourceStudents();
-        //         this.loadPromotionSummary();
+        const exitData = {
+            reason: this.exitReason || 'No reason provided',
+            exitDate: new Date().toISOString().split('T')[0]
+        };
 
-        //         this.selectedStudents = this.selectedStudents.filter((s) => s.id !== this.studentToExit!.id);
-        //         this.studentToExit = null;
-        //         this.loader.hide();
+        this.userService.markStudentAsExited(this.studentToExit.id, exitData).subscribe({
+            next: () => {
+                this.loadSourceStudents();
+                this.selectedStudents = this.selectedStudents.filter((s) => s.id !== this.studentToExit!.id);
+                this.studentToExit = null;
+                this.exitReason = '';
+                this.loader.hide();
 
-        //         this.messageService.add({
-        //             severity: 'success',
-        //             summary: 'Success',
-        //             detail: 'Student marked as exited successfully'
-        //         });
-        //     },
-        //     error: (error) => {
-        //         console.error('Error marking student as exited:', error);
-        //         this.loader.hide();
-        //         this.messageService.add({
-        //             severity: 'error',
-        //             summary: 'Error',
-        //             detail: 'Failed to mark student as exited'
-        //         });
-        //     }
-        // });
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Student marked as exited successfully'
+                });
+            },
+            error: (error) => {
+                console.error('Error marking student as exited:', error);
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error.error?.message || 'Failed to mark student as exited'
+                });
+            }
+        });
     }
 
-    // Student details function
     openStudentDetails(student: IProfileConfig) {
-        // Implement your student details view logic here
-        console.log('Student details:', student);
-        this.messageService.add({
-            severity: 'info',
-            summary: 'Student Details',
-            detail: `${student.fullName} (${student.username})`
-        });
+        this.selectedStudentDetails = student;
+        this.showStudentDetailsDialog = true;
+    }
+
+    getStatusSeverity(status: string): any {
+        switch (status) {
+            case 'ACTIVE':
+                return 'success';
+            case 'EXITED':
+                return 'danger';
+            case 'GRADUATED':
+                return 'info';
+            default:
+                return 'secondary';
+        }
     }
 }
