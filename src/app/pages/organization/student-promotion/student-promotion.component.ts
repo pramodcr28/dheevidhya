@@ -216,8 +216,6 @@ export class StudentPromotionComponent implements OnInit {
             .subscribe({
                 next: (students) => {
                     this.targetStudents.set(students.content);
-
-                    // Reload source students to filter out already promoted students
                     if (this.selectedSection?.id) {
                         this.loadSourceStudents();
                     }
@@ -241,7 +239,6 @@ export class StudentPromotionComponent implements OnInit {
         if (student.status === UserStatus.EXITED) {
             return false;
         }
-        debugger;
         const targetStudentIds = this.targetStudents().map((s) => s.userId);
         if (targetStudentIds.includes(student.userId)) {
             return false;

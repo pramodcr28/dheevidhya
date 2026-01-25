@@ -26,7 +26,7 @@ export class ReviewComponent {
     validationErrors: string[];
 
     generateTimetable() {
-        const teachers = this.timeTableService.getTeachersList().map((t) => ({
+        const teachers = this.timeTableService.getTeachersWithAvailability().map((t) => ({
             id: t.id,
             name: t.name,
             preferred_periods: t.timeOn,

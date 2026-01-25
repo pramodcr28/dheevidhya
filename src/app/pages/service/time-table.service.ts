@@ -20,6 +20,7 @@ export class TimeTableService {
     private profileService = inject(ProfileConfigService);
     private applicationConfigService = inject(ApplicationConfigService);
     public teachers: Teacher[] = [];
+    public teacherslots: any[] = [];
     public classes: any[] = [];
     public timeTable: TimeTable = {
         department: null,
@@ -105,6 +106,24 @@ export class TimeTableService {
         return this.teachers;
     }
 
+    getTeachersWithAvailability() {
+        this.teachers.forEach((teacher) => {
+            const teacherSlots = this.teacherslots.filter((s: any) => s.instructorId == teacher.id);
+            teacher.unavailable_periods = teacherSlots
+                ? teacherSlots
+                      .map((s) => {
+                          let dayIndex = Number(s.dayIndex);
+                          let periodIndex = this.getPeriodIndexByStartAndEndTime(s.startTime, s.endTime);
+
+                          return [(dayIndex = Number(s.dayIndex)), periodIndex];
+                      })
+                      .filter((t) => t[1] != -1)
+                : [];
+        });
+
+        return this.teachers;
+    }
+
     onDepartmentChange() {
         this.timeTable.settings.academicYear = this.timeTable.department.academicYear;
         this.classes = [];
@@ -142,22 +161,14 @@ export class TimeTableService {
                         timeOn: []
                     }));
                     let request = {
-                        instructorIds: ['181'],
-                        departmentId: null,
-                        scheduleDay: null // optional
+                        academicYear: this.timeTable.settings.academicYear,
+                        instructorIds: [...this.teachers.map((t) => t.id)],
+                        departmentId: this.timeTable.department.id,
+                        scheduleDay: null
                     };
+                    this.teacherslots = [];
                     this.getInstructorSlots(request).subscribe((slots) => {
-                        this.teachers.forEach((teacher) => {
-                            const teacherSlots = slots.filter((s: any) => s.instructorId == teacher.id);
-                            teacher.unavailable_periods = teacherSlots
-                                ? teacherSlots.map((s) => {
-                                      let dayIndex = Number(s.dayIndex);
-                                      let periodIndex = this.getPeriodIndexByStartAndEndTime(s.startTime, s.endTime);
-
-                                      return [(dayIndex = Number(s.dayIndex)), periodIndex];
-                                  })
-                                : [];
-                        });
+                        this.teacherslots = slots;
                     });
                 });
         });
@@ -252,7 +263,7 @@ export class TimeTableService {
             const periodStart = currentStart;
             const periodEnd = currentStart + settings.periodDuration;
 
-            if (periodStart === targetStart && periodEnd === targetEnd) {
+            if ((targetStart >= periodStart && targetStart <= periodEnd) || (targetEnd >= periodStart && targetEnd <= periodEnd)) {
                 return p;
             }
 

@@ -100,7 +100,7 @@ export class TimetableListComponent implements OnInit {
     editMode = signal(true);
 
     ngOnInit() {
-        this.selectedDepartment = this.commonService.associatedDepartments[0]?.id;
+        this.selectedDepartment = this.commonService.associatedDepartments?.map((d) => d.id);
         if (this.commonService.getUserAuthorities.includes('STUDENT')) {
             this.getTimeTableForStuqdent();
         } else {
