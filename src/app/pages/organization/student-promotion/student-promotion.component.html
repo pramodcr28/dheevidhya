@@ -95,13 +95,13 @@
                                         icon="pi pi-ban">
                                     </p-tag>
                                     <p-tag 
-                                        *ngIf="isStudentInTarget(student) && student.status !== 'EXITED'"
-                                        value="Already in Target Section" 
+                                        *ngIf="student.status === 'PROMOTED'"
+                                        value="Already Promoted" 
                                         severity="info" 
                                         icon="pi pi-check-circle">
                                     </p-tag>
                                     <p-tag 
-                                        *ngIf="!isStudentInTarget(student) && student.status !== 'EXITED'"
+                                        *ngIf="student.status !== 'PROMOTED' && student.status !== 'EXITED'"
                                         value="Active - Needs Promotion" 
                                         severity="warn" 
                                         icon="pi pi-clock">
@@ -120,7 +120,7 @@
                                             (onClick)="openStudentDetails(student)">
                                         </p-button>
                                         <p-button 
-                                            *ngIf="student.status !== 'EXITED' && !isStudentInTarget(student)"
+                                            *ngIf="student.status !== 'EXITED' && student.status !== 'PROMOTED'"
                                             type="button" 
                                             [text]="true" 
                                             [rounded]="true" 

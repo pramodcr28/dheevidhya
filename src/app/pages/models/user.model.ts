@@ -42,6 +42,10 @@ export interface ITenantUser {
     isTenantUser?: boolean | null;
     authorities?: ITenantAuthority[] | null;
     profile?: IProfileConfig | null;
+    status?: UserStatus | null;
+    deptName?: string | null;
+    className?: string | null;
+    sectionName?: string | null;
 }
 
 export type NewTenantUser = Omit<ITenantUser, 'id'> & { id: null };
@@ -50,7 +54,7 @@ export type NewTenantUser = Omit<ITenantUser, 'id'> & { id: null };
 export enum UserStatus {
     ACTIVE,
     EXITED,
-    GRADUATED
+    PROMOTED
 }
 
 export interface IProfileConfig {

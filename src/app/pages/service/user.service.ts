@@ -6,6 +6,7 @@ import { ApplicationConfigService } from '../../core/services/application-config
 import { environment } from '../../../environments/environment';
 import { isPresent } from '../../core/services/operators';
 import { createRequestOption } from '../../core/services/request-util';
+import { ITenant } from '../models/tenant.model';
 import { ITenantUser, NewTenantUser } from '../models/user.model';
 
 export type PartialUpdateTenantUser = Partial<ITenantUser> & Pick<ITenantUser, 'id'>;
@@ -21,7 +22,7 @@ export type NewRestTenantUser = RestOf<NewTenantUser>;
 export type PartialUpdateRestTenantUser = RestOf<PartialUpdateTenantUser>;
 
 export type EntityResponseType = HttpResponse<ITenantUser>;
-export type EntityArrayResponseType = HttpResponse<ITenantUser[]>;
+export type EntityArrayResponseType = HttpResponse<ITenant[]>;
 
 @Injectable({
     providedIn: 'root'
@@ -52,10 +53,10 @@ export class UserService {
         return this.http.get<RestTenantUser>(`${this.userResourceUrl}/${id}`, { observe: 'response' }).pipe(map((res) => this.convertResponseFromServer(res)));
     }
 
-    query(req?: any): Observable<EntityArrayResponseType> {
-        const options = createRequestOption(req);
-        return this.http.get<RestTenantUser[]>(this.userResourceUrl, { params: options, observe: 'response' }).pipe(map((res) => this.convertResponseArrayFromServer(res)));
-    }
+    // query(req?: any): Observable<EntityArrayResponseType> {
+    //     const options = createRequestOption(req);
+    //     return this.http.get<RestTenantUser[]>(this.userResourceUrl, { params: options, observe: 'response' }).pipe(map((res) => this.convertResponseArrayFromServer(res)));
+    // }
 
     getAuthorities(): Observable<HttpResponse<[]>> {
         const options = createRequestOption(null);

@@ -75,13 +75,13 @@
                                     </div>
                                 </div>
 
-                                <ng-container *ngIf="dailogeType === 'Edit'; else viewMode">
+                                <ng-container *ngIf="canDragAndDrop; else viewMode">
                                     <div
                                         *ngIf="cell.type === 'lecture' || cell.type === 'free'"
                                         (click)="onPeriodClick(classSec, cell.dayIndex, cell.realPeriodIndex, cell)"
-                                        [pDraggable]="isSelectedPeriod(cell.dayIndex, cell.realPeriodIndex, cell) ? 'true' : 'false'"
+                                        [pDraggable]="isSelectedPeriod(cell.dayIndex, cell.realPeriodIndex, cell) && timetableJson.id != null ? 'true' : 'false'"
                                         (onDragStart)="onDragStart(classSec, cell.dayIndex, cell.realPeriodIndex, cell)"
-                                        [pDroppable]="cell.canDrop ? 'true' : 'false'"
+                                        [pDroppable]="cell.canDrop && timetableJson.id != null ? 'true' : 'false'"
                                         (onDrop)="onDrop(classSec, cell.dayIndex, cell.realPeriodIndex)"
                                         [pTooltip]="cell.tooltipText || cell.tooltip"
                                         tooltipPosition="top"

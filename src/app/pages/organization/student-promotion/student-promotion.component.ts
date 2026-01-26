@@ -241,22 +241,17 @@ export class StudentPromotionComponent implements OnInit {
     }
 
     isStudentSelectable(student: any): boolean {
-        if (student.status == 'EXITED') {
-            return false;
-        }
-
-        const targetStudentIds = this.targetStudents().map((s) => s.userId);
-        if (targetStudentIds.includes(student.userId)) {
+        if (student.status == 'EXITED' || student.status == 'PROMOTED') {
             return false;
         }
 
         return true;
     }
 
-    isStudentInTarget(student: IProfileConfig): boolean {
-        const targetStudentIds = this.targetStudents().map((s) => s.userId);
-        return targetStudentIds.includes(student.userId);
-    }
+    // isStudentInTarget(student: IProfileConfig): boolean {
+    //     const targetStudentIds = this.targetStudents().map((s) => s.userId);
+    //     return targetStudentIds.includes(student.userId);
+    // }
 
     areAllStudentsNonSelectable(): boolean {
         const students = this.sourceStudents();
@@ -442,7 +437,7 @@ export class StudentPromotionComponent implements OnInit {
         this.loader.show('Promoting students...');
 
         // FIX #2: Filter out EXITED students before sending to backend
-        const eligibleStudents = this.selectedStudents.filter((student) => student.status !== UserStatus.EXITED);
+        const eligibleStudents = this.selectedStudents.filter((student) => student.status !== UserStatus.EXITED && student.status !== UserStatus.PROMOTED);
 
         if (eligibleStudents.length === 0) {
             this.loader.hide();
@@ -454,7 +449,6 @@ export class StudentPromotionComponent implements OnInit {
             return;
         }
 
-        // Show warning if some students were filtered out
         const excludedCount = this.selectedStudents.length - eligibleStudents.length;
         if (excludedCount > 0) {
             this.messageService.add({
@@ -468,6 +462,7 @@ export class StudentPromotionComponent implements OnInit {
         const promotionData = {
             studentIds: studentIds,
             departmentId: this.targetDepartment.id,
+            departmentName: this.targetDepartment.name,
             classId: this.targetClass.id,
             className: this.targetClass.name,
             sectionId: this.targetSection.id,

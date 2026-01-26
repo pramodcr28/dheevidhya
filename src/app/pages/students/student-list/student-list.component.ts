@@ -6,9 +6,11 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { RatingModule } from 'primeng/rating';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
@@ -20,6 +22,8 @@ import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
 import { Column, ExportColumn } from '../../../core/model/table.model';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
+import { MasterClassService } from '../../../core/services/master-class.service';
+import { MasterSectionService } from '../../../core/services/master-section.service';
 import { SortService } from '../../../shared/sort';
 import { IProfileConfig, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -27,6 +31,15 @@ import { TenantAuthorityService } from '../../service/tenant-authority.service';
 import { UserService } from '../../service/user.service';
 import { GuardianDialogComponent } from '../guardian-dialog/guardian-dialog.component';
 import { StudentDialogComponent } from '../student-dialog/student-dialog.component';
+import { MasterDepartmentService } from './../../../core/services/master-department.service';
+
+interface FilterConfig {
+    className?: string[];
+    sectionName?: string[];
+    deptName?: string[];
+    status?: string[];
+    activated?: boolean | null;
+}
 
 @Component({
     selector: 'app-student-list',
@@ -45,11 +58,118 @@ import { StudentDialogComponent } from '../student-dialog/student-dialog.compone
         InputIconModule,
         IconFieldModule,
         ConfirmDialogModule,
+        DropdownModule,
+        MultiSelectModule,
         GuardianDialogComponent,
         StudentDialogComponent
     ],
     templateUrl: './student-list.component.html',
-    providers: [MessageService, ConfirmationService]
+    providers: [MessageService, ConfirmationService],
+    styles: [
+        `
+            /* Add to your component's SCSS file for smooth animations */
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .animate-fade-in {
+                animation: fadeIn 0.3s ease-in-out;
+            }
+
+            /* Custom PrimeNG overrides for better appearance */
+            ::ng-deep {
+                /* Multi-select customization */
+                .p-multiselect {
+                    border-radius: 0.5rem;
+                    border-color: #e5e7eb;
+
+                    &:hover {
+                        border-color: #3b82f6;
+                    }
+
+                    &.p-focus {
+                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                    }
+                }
+
+                /* Dropdown customization */
+                .p-dropdown {
+                    border-radius: 0.5rem;
+                    border-color: #e5e7eb;
+
+                    &:hover {
+                        border-color: #3b82f6;
+                    }
+
+                    &.p-focus {
+                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                    }
+                }
+
+                /* Table header styling */
+                .p-datatable .p-datatable-thead > tr > th {
+                    background: linear-gradient(to right, #f9fafb, #f3f4f6);
+                    border-bottom: 2px solid #e5e7eb;
+                    font-weight: 600;
+                    color: #374151;
+                }
+
+                /* Sortable column hover */
+                .p-datatable .p-sortable-column:not(.p-highlight):hover {
+                    background: #f3f4f6;
+                }
+
+                /* Active sort column */
+                .p-datatable .p-sortable-column.p-highlight {
+                    background: #eff6ff;
+                    color: #3b82f6;
+                }
+
+                /* Pagination styling */
+                .p-paginator {
+                    background: #f9fafb;
+                    border-radius: 0 0 0.5rem 0.5rem;
+
+                    .p-paginator-current {
+                        color: #6b7280;
+                    }
+                }
+
+                /* Button styling in filters */
+                .p-button.p-button-secondary {
+                    &.p-button-outlined {
+                        border-color: #d1d5db;
+
+                        &:hover {
+                            background: #f3f4f6;
+                            border-color: #9ca3af;
+                        }
+                    }
+                }
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 640px) {
+                ::ng-deep {
+                    .p-multiselect-label {
+                        font-size: 0.875rem;
+                    }
+
+                    .p-dropdown-label {
+                        font-size: 0.875rem;
+                    }
+                }
+            }
+        `
+    ]
 })
 export class StudentListComponent {
     studentDialog: boolean = false;
@@ -66,6 +186,25 @@ export class StudentListComponent {
     isLoading = false;
     students = signal<any[] | null>([]);
 
+    // Filter options
+    classOptions = signal<any[]>([]);
+    sectionOptions = signal<any[]>([]);
+    departmentOptions = signal<any[]>([]);
+    statusOptions = [
+        { label: 'Active', value: 'ACTIVE' },
+        { label: 'Inactive', value: 'INACTIVE' },
+        { label: 'Suspended', value: 'SUSPENDED' }
+    ];
+    activatedOptions = [
+        { label: 'All', value: null },
+        { label: 'Activated', value: true },
+        { label: 'Not Activated', value: false }
+    ];
+
+    // Active filters
+    filters: FilterConfig = {};
+    showFilters = signal<boolean>(false);
+
     router = inject(Router);
     studentService = inject(UserService);
     profileService = inject(ProfileConfigService);
@@ -77,6 +216,7 @@ export class StudentListComponent {
     confirmationService = inject(ConfirmationService);
     loader = inject(ApiLoaderService);
     commonService = inject(CommonService);
+
     // pagination related code
     itemsPerPage = ITEMS_PER_PAGE;
     totalItems = 0;
@@ -84,35 +224,114 @@ export class StudentListComponent {
     sortField = 'id';
     sortOrder: 'ASC' | 'DESC' = 'ASC';
 
+    masterClassService = inject(MasterClassService);
+    masterSectionService = inject(MasterSectionService);
+    masterDepartmentService = inject(MasterDepartmentService);
+
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);
         });
+        this.loadFilterOptions();
         this.load();
+    }
+
+    loadFilterOptions(): void {
+        // Load Classes
+        this.masterClassService.query().subscribe((result: any) => {
+            this.classOptions.set(
+                result.body?.map((cls: any) => ({
+                    label: cls.name,
+                    value: cls.name
+                })) || []
+            );
+        });
+
+        // Load Sections
+        this.masterSectionService.query().subscribe((result: any) => {
+            this.sectionOptions.set(
+                result.body?.map((section: any) => ({
+                    label: section.name,
+                    value: section.name
+                })) || []
+            );
+        });
+
+        // Load Departments
+        this.masterDepartmentService.query().subscribe((result: any) => {
+            this.departmentOptions.set(
+                result.body?.map((dept: any) => ({
+                    label: dept.name,
+                    value: dept.name
+                })) || []
+            );
+        });
+    }
+
+    buildSearchCriteria(): any {
+        const criteria: any = {
+            'branch_id.eq': this.commonService.branch?.id,
+            'authorities.name.in': ['STUDENT']
+        };
+
+        // Add filter criteria
+        if (this.filters.className && this.filters.className.length > 0) {
+            criteria['class_name.in'] = this.filters.className;
+        }
+
+        if (this.filters.sectionName && this.filters.sectionName.length > 0) {
+            criteria['section_name.in'] = this.filters.sectionName;
+        }
+
+        if (this.filters.deptName && this.filters.deptName.length > 0) {
+            criteria['dept_name.in'] = this.filters.deptName;
+        }
+
+        if (this.filters.status && this.filters.status.length > 0) {
+            criteria['status.in'] = this.filters.status;
+        }
+
+        if (this.filters.activated !== null && this.filters.activated !== undefined) {
+            criteria['activated.eq'] = this.filters.activated;
+        }
+
+        return criteria;
     }
 
     load(): void {
         this.loader.show('Fetching Student Data');
-        this.studentService
-            .userSearch(this.page, this.itemsPerPage, this.sortField, this.sortOrder, {
-                'branch_id.eq': this.commonService.branch?.id,
-                'authorities.name.in': ['STUDENT']
-            })
-            .subscribe({
-                next: (res: any) => {
-                    this.students.set(res.content);
-                    this.totalItems = res.totalElements || 0;
-                    this.loader.hide();
-                },
-                error: (error) => {
-                    this.loader.hide();
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to load student data'
-                    });
-                }
-            });
+        const searchCriteria = this.buildSearchCriteria();
+
+        this.studentService.userSearch(this.page, this.itemsPerPage, this.sortField, this.sortOrder, searchCriteria).subscribe({
+            next: (res: any) => {
+                this.students.set(res.content);
+                this.totalItems = res.totalElements || 0;
+                this.loader.hide();
+            },
+            error: (error) => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to load student data'
+                });
+            }
+        });
+    }
+
+    applyFilters(): void {
+        this.page = 0; // Reset to first page when applying filters
+        this.load();
+    }
+
+    clearFilters(): void {
+        this.filters = {};
+        this.page = 0;
+        this.load();
+    }
+
+    toggleFilters(): void {
+        this.showFilters.set(!this.showFilters());
     }
 
     onPageChange(event: any): void {
@@ -124,7 +343,7 @@ export class StudentListComponent {
     onSort(event: any): void {
         this.sortField = event.field || 'id';
         this.sortOrder = event.order === 1 ? 'ASC' : 'DESC';
-        this.page = 0; // Reset to first page on sort
+        this.page = 0;
         this.load();
     }
 
@@ -165,7 +384,6 @@ export class StudentListComponent {
 
         this.loader.show('Saving Student Data');
 
-        // Clean up profile roles
         if (data.profile.roles) {
             for (let role in data.profile.roles) {
                 if (data.profile.roles[role] == null) {
@@ -218,7 +436,6 @@ export class StudentListComponent {
 
         this.loader.show('Updating User Information');
 
-        // Send only user data (no profile)
         const userConfig = {
             user: user,
             profile: null

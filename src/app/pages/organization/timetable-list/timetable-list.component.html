@@ -25,10 +25,11 @@
     </div>
 
     <div *ngIf="viewMode() === 'personal'">
+        
         @if(isStudent){    
         <app-timetable-view  [timetableJson]="studentTimetable" [dailogeType]="'view'"></app-timetable-view>
         }@else {
-<app-staff-timetable></app-staff-timetable>
+            <app-staff-timetable></app-staff-timetable>
         }
         
     </div>
@@ -250,5 +251,5 @@
         '768px': '100vw'
     }"
 >
-    <app-timetable-view [timetableJson]="seletedTimeTable" [dailogeType]="'Edit'" (publish)="saveTimetable($event)" (cancel)="cancel()" />
+    <app-timetable-view [timetableJson]="seletedTimeTable" [dailogeType]="'View'" [canDragAndDrop]="true" (publish)="saveTimetable($event)" (cancel)="cancel()" />
 </p-dialog>

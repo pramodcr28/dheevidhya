@@ -19,25 +19,174 @@
     [responsiveLayout]="'scroll'">
     
     <ng-template pTemplate="caption">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
-            <h5 class="m-0 text-lg sm:text-xl font-bold text-gray-800">All Students List</h5>
-            <span class="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto gap-2 sm:gap-3">
-                <p-iconfield class="w-full sm:w-auto">
-                    <p-inputicon styleClass="pi pi-search" />
-                    <input 
-                        pInputText 
-                        type="text" 
-                        (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-                        placeholder="Search students..."
-                        class="w-full sm:w-64 text-sm" />
-                </p-iconfield>
-                <p-button  
-                    icon="pi pi-plus" 
-                    label="Add Student"
-                    [rounded]="true"
-                    styleClass="w-full sm:w-auto text-sm justify-center"
-                    (onClick)="openNew()" />
-            </span>
+        <div class="flex flex-col gap-3 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+            <!-- Header Row -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <h5 class="m-0 text-lg sm:text-xl font-bold text-gray-800">All Students List</h5>
+                <span class="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto gap-2 sm:gap-3">
+                    <!-- <p-iconfield class="w-full sm:w-auto">
+                        <p-inputicon styleClass="pi pi-search" />
+                        <input 
+                            pInputText 
+                            type="text" 
+                            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                            placeholder="Search students..."
+                            class="w-full sm:w-64 text-sm" />
+                    </p-iconfield> -->
+                    <p-button  
+                        icon="pi pi-filter" 
+                        [label]="showFilters() ? 'Hide Filters' : 'Show Filters'"
+                        [outlined]="!showFilters()"
+                        severity="secondary"
+                        styleClass="w-full sm:w-auto text-sm justify-center"
+                        (onClick)="toggleFilters()" />
+                    <p-button  
+                        icon="pi pi-plus" 
+                        label="Add Student"
+                        [rounded]="true"
+                        styleClass="w-full sm:w-auto text-sm justify-center"
+                        (onClick)="openNew()" />
+                </span>
+            </div>
+
+            <!-- Advanced Filters Panel -->
+            @if(showFilters()) {
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 animate-fade-in">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                        <!-- Class Filter -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-semibold text-gray-700">Class</label>
+                            <p-multiSelect
+                                [options]="classOptions()"
+                                [(ngModel)]="filters.className"
+                                placeholder="Select Classes"
+                                [showClear]="true"
+                                [filter]="true"
+                                optionLabel="label"
+                                optionValue="value"
+                                styleClass="w-full text-sm"
+                                [maxSelectedLabels]="2">
+                            </p-multiSelect>
+                        </div>
+
+                        <!-- Section Filter -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-semibold text-gray-700">Section</label>
+                            <p-multiSelect
+                                [options]="sectionOptions()"
+                                [(ngModel)]="filters.sectionName"
+                                placeholder="Select Sections"
+                                [showClear]="true"
+                                [filter]="true"
+                                optionLabel="label"
+                                optionValue="value"
+                                styleClass="w-full text-sm"
+                                [maxSelectedLabels]="2">
+                            </p-multiSelect>
+                        </div>
+
+                        <!-- Department Filter -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-semibold text-gray-700">Department</label>
+                            <p-multiSelect
+                                [options]="departmentOptions()"
+                                [(ngModel)]="filters.deptName"
+                                placeholder="Select Departments"
+                                [showClear]="true"
+                                [filter]="true"
+                                optionLabel="label"
+                                optionValue="value"
+                                styleClass="w-full text-sm"
+                                [maxSelectedLabels]="2">
+                            </p-multiSelect>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-semibold text-gray-700">Status</label>
+                            <p-multiSelect
+                                [options]="statusOptions"
+                                [(ngModel)]="filters.status"
+                                placeholder="Select Status"
+                                [showClear]="true"
+                                optionLabel="label"
+                                optionValue="value"
+                                styleClass="w-full text-sm"
+                                [maxSelectedLabels]="2">
+                            </p-multiSelect>
+                        </div>
+
+                        <!-- Activated Filter -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-semibold text-gray-700">Account Status</label>
+                            <p-dropdown
+                                [options]="activatedOptions"
+                                [(ngModel)]="filters.activated"
+                                placeholder="All"
+                                [showClear]="true"
+                                optionLabel="label"
+                                optionValue="value"
+                                styleClass="w-full text-sm">
+                            </p-dropdown>
+                        </div>
+                    </div>
+
+                    <!-- Filter Actions -->
+                    <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
+                        <p-button 
+                            label="Apply Filters" 
+                            icon="pi pi-check"
+                            size="small"
+                            (onClick)="applyFilters()">
+                        </p-button>
+                        <p-button 
+                            label="Clear All" 
+                            icon="pi pi-times"
+                            size="small"
+                            severity="secondary"
+                            [outlined]="true"
+                            (onClick)="clearFilters()">
+                        </p-button>
+                    </div>
+
+                    <!-- Active Filters Display -->
+                    @if(filters.className?.length || filters.sectionName?.length || filters.deptName?.length || filters.status?.length || filters.activated !== null && filters.activated !== undefined) {
+                        <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-200">
+                            <span class="text-sm font-semibold text-gray-600">Active Filters:</span>
+                            @if(filters.className?.length) {
+                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                                    <i class="pi pi-book text-xs"></i>
+                                    Classes: {{filters.className.length}}
+                                </span>
+                            }
+                            @if(filters.sectionName?.length) {
+                                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                                    <i class="pi pi-list text-xs"></i>
+                                    Sections: {{filters.sectionName.length}}
+                                </span>
+                            }
+                            @if(filters.deptName?.length) {
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                                    <i class="pi pi-building text-xs"></i>
+                                    Departments: {{filters.deptName.length}}
+                                </span>
+                            }
+                                @if(filters.status?.length) {
+                                    <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                                        <i class="pi pi-info-circle text-xs"></i>
+                                        Status: {{filters.status.length}}
+                                    </span>
+                                }
+                            @if(filters.activated !== null && filters.activated !== undefined) {
+                                <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                                    <i class="pi pi-check-circle text-xs"></i>
+                                    {{filters.activated ? 'Activated' : 'Not Activated'}}
+                                </span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
         </div>
     </ng-template>
     
@@ -48,17 +197,28 @@
                 Contact Number
                 <p-sortIcon field="contactNumber" />
             </th>
-            <th pSortableColumn="email" class="min-w-[10rem] text-xs sm:text-sm">
-                Email
-                <p-sortIcon field="email" />
+         
+            <th class="min-w-[4rem] text-xs sm:text-sm">User Name</th>
+               <th pSortableColumn="status" class="min-w-[3rem] text-xs sm:text-sm">
+                Status
+                <p-sortIcon field="status" />
             </th>
-            <th class="min-w-[10rem] text-xs sm:text-sm">
-                User Name
+              <th pSortableColumn="deptName" class="min-w-[8rem] text-xs sm:text-sm">
+                Department
+                <p-sortIcon field="deptName" />
             </th>
-            <th pSortableColumn="authorities" class="min-w-[10rem] text-xs sm:text-sm">
+            <th pSortableColumn="className" class="min-w-[8rem] text-xs sm:text-sm">
+                Class
+                <p-sortIcon field="className" />
+            </th>
+            <th pSortableColumn="sectionName" class="min-w-[8rem] text-xs sm:text-sm">
+                Section
+                <p-sortIcon field="sectionName" />
+            </th>
+            <!-- <th pSortableColumn="authorities" class="min-w-[10rem] text-xs sm:text-sm">
                 Authorities
                 <p-sortIcon field="authorities" />
-            </th>
+            </th> -->
             <th class="min-w-[8rem] text-center text-xs sm:text-sm">Actions</th>
         </tr>
     </ng-template>
@@ -72,13 +232,41 @@
                 </div>
             </td>
             <td class="min-w-[10rem] text-xs sm:text-sm">{{ student.contactNumber || 'N/A' }}</td>
-            <td class="min-w-[10rem] text-xs sm:text-sm break-all">{{ student.email }}</td>
-            <td class="min-w-[10rem]">
+            
+            <td class="min-w-[4rem]">
                 <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
                     {{ student.login }}
                 </span>
             </td>
-            <td class="min-w-[10rem]">
+            <td class="min-w-[3rem] text-xs sm:text-sm break-all">{{ student.status }}</td>
+                 <td class="min-w-[8rem]">
+                @if(student.deptName) {
+                    <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium">
+                        {{ student.deptName }}
+                    </span>
+                } @else {
+                    <span class="text-gray-400 text-xs">N/A</span>
+                }
+            </td>
+            <td class="min-w-[8rem]">
+                @if(student.className) {
+                    <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium">
+                        {{ student.className }}
+                    </span>
+                } @else {
+                    <span class="text-gray-400 text-xs">N/A</span>
+                }
+            </td>
+            <td class="min-w-[8rem]">
+                @if(student.sectionName) {
+                    <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">
+                        {{ student.sectionName }}
+                    </span>
+                } @else {
+                    <span class="text-gray-400 text-xs">N/A</span>
+                }
+            </td>
+            <!-- <td class="min-w-[10rem]">
                 <div class="flex flex-wrap gap-1">
                     @for (auth of student.authorities; track auth.name) {
                         <span class="bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-xs">
@@ -86,7 +274,7 @@
                         </span>
                     }
                 </div>
-            </td>
+            </td> -->
             <td class="text-center">
                 <div class="flex justify-center gap-1 sm:gap-2">
                     <button 
@@ -96,13 +284,6 @@
                         title="Edit Student">
                         <i class="pi pi-user-edit text-blue-600 text-base sm:text-lg"></i>
                     </button>
-                    <!-- <button 
-                        type="button"
-                        class="p-1.5 sm:p-2 hover:bg-green-100 rounded-full transition-colors"
-                        (click)="addOrEditGuardian(student)"
-                        title="Manage Guardian">
-                        <i class="pi pi-user-plus text-green-600 text-base sm:text-lg"></i>
-                    </button> -->
                     <button 
                         type="button"
                         class="p-1.5 sm:p-2 hover:bg-red-100 rounded-full transition-colors"
@@ -117,17 +298,28 @@
     
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td colspan="6" class="text-center py-6 sm:py-8">
+            <td colspan="8" class="text-center py-6 sm:py-8">
                 <div class="flex flex-col items-center gap-2 sm:gap-3">
                     <i class="pi pi-users text-gray-400 text-4xl sm:text-5xl"></i>
                     <p class="text-gray-600 text-base sm:text-lg">No students found</p>
-                    <p-button 
-                        label="Add First Student" 
-                        icon="pi pi-plus" 
-                        (onClick)="openNew()"
-                        styleClass="text-sm"
-                        [outlined]="true">
-                    </p-button>
+                    @if(filters.className?.length || filters.sectionName?.length || filters.deptName?.length || filters.status?.length || filters.activated !== null && filters.activated !== undefined) {
+                        <p class="text-gray-500 text-sm">Try adjusting your filters</p>
+                        <p-button 
+                            label="Clear Filters" 
+                            icon="pi pi-filter-slash" 
+                            (onClick)="clearFilters()"
+                            styleClass="text-sm"
+                            [outlined]="true">
+                        </p-button>
+                    } @else {
+                        <p-button 
+                            label="Add First Student" 
+                            icon="pi pi-plus" 
+                            (onClick)="openNew()"
+                            styleClass="text-sm"
+                            [outlined]="true">
+                        </p-button>
+                    }
                 </div>
             </td>
         </tr>

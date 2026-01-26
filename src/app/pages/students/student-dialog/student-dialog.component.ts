@@ -146,7 +146,6 @@ export class StudentDialogComponent {
             const currentItem = currentList[index];
             const assets = this.selectDepartmentAssets(this.associatedDepartments, currentItem.profile);
 
-            // ✅ SIGNAL-SAFE UPDATE
             this.profilesList.update((list) =>
                 list.map((item, i) =>
                     i === index
@@ -264,7 +263,7 @@ export class StudentDialogComponent {
     //     selectedClass: any | null;
     //     selectedSection: any | null;
     // } {
-    //     // 🔒 SAFETY: do nothing if departments not available
+    //     // SAFETY: do nothing if departments not available
     //     if (!departments || departments.length === 0) {
     //         return {
     //             selectedDepartment: null,
@@ -349,7 +348,6 @@ export class StudentDialogComponent {
                     return bTime - aTime;
                 });
 
-            // ✅ SIGNAL SET
             this.profilesList.set(profilesUIData);
             this.saveOriginalProfileData();
         });
@@ -594,10 +592,24 @@ export class StudentDialogComponent {
         }
 
         const updatedStudent = this.tenantUserFormService.getTenantUser(this.studentForm);
-
+        let isStudentProfile = updatedStudent.authorities && updatedStudent.authorities.filter((auth) => auth.name === 'STUDENT').length != 0;
         if (!updatedStudent.id) {
             updatedStudent.passwordHash = 'User@123';
             updatedStudent.branchId = this.commonService.branch?.id || null;
+            updatedStudent.status = UserStatus.ACTIVE;
+            if (isStudentProfile) {
+                updatedStudent.sectionName = profileData.selectedSection?.name || null;
+                updatedStudent.className = profileData.selectedClass?.name || null;
+                updatedStudent.deptName = profileData.selectedDepartment?.department?.name || null;
+            }
+        } else {
+            let latestDateRange = this.profilesList()[0].dateRange;
+            let currentDateRange = profileData.dateRange;
+            if (isStudentProfile && latestDateRange[0].getTime() === currentDateRange[0].getTime()) {
+                updatedStudent.sectionName = profileData.selectedSection?.name || null;
+                updatedStudent.className = profileData.selectedClass?.name || null;
+                updatedStudent.deptName = profileData.selectedDepartment?.department?.name || null;
+            }
         }
 
         const profile: IProfileConfig = {

@@ -54,6 +54,7 @@ interface SelectedPeriod {
 })
 export class TimetableViewComponent {
     @Input() dailogeType: 'Edit' | 'View' | any = 'View';
+    @Input() canDragAndDrop: boolean = false;
     @Output() publish = new EventEmitter<DepartmentTimetable>();
     @Output() saveAsDraft = new EventEmitter<DepartmentTimetable>();
     @Output() cancel = new EventEmitter<void>();

@@ -45,7 +45,7 @@ import { AppConfigurator } from './app.configurator';
         </div>
 
         <div class="layout-topbar-actions">
-            @if (!commonService.getUserAuthorities.includes('SUPER_ADMIN') && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
+            @if (this.selectedAcademicYear && !commonService.getUserAuthorities.includes('SUPER_ADMIN') && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
                 <div class="flex items-center mr-2 sm:mr-3">
                     <p-select
                         [options]="academicYears"
