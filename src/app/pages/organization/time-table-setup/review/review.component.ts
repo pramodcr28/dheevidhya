@@ -202,25 +202,69 @@ export class ReviewComponent {
 
     validateTimetable(exportData: any): string[] {
         const errors: string[] = [];
+        let timeTable = this.timeTableService.timeTable;
+        let settings = timeTable.settings;
 
-        if (!this.timeTableService.timeTable.department) {
+        if (!timeTable.department) {
             errors.push('Please select a department.');
         }
-        // let totalPeriods = this.timeTableService.timeTable.settings.periodsPerDay * exportData.days.length;
 
-        // const unassigned = this.timeTableService.timeTable.subjects.filter(s => !s.teacher);
-        // if (unassigned.length) {
-        //   errors.push(`${unassigned.length} subject(s) do not have a teacher assigned.`);
-        // }
-
-        const workingDays = this.timeTableService.timeTable.settings.workingDays.filter((d) => d.selected);
+        const workingDays = settings.workingDays.filter((d) => d.selected);
         if (!workingDays.length) {
-            errors.push('Please select at least one working day.');
+            errors.push('Select at least one working day under General Settings.');
         }
 
-        if (this.timeTableService.timeTable.settings.periodsPerDay <= 0) {
+        if (settings.periodsPerDay <= 0) {
             errors.push('Invalid number of periods per day.');
         }
+
+        // per day duration validation
+        const totalPeriodDuration = settings.periodsPerDay * settings.periodDuration;
+        const perDayDurationInMinutes = this.toMinutes(settings.endTime) - this.toMinutes(settings.startTime);
+
+        if (totalPeriodDuration > perDayDurationInMinutes) {
+            errors.push('Periods exceed the available daily time. Adjust periods or duration.');
+        }
+        // break validation
+        settings.breaks.forEach((brk) => {
+            if (brk.enabled) {
+                if (brk.afterPeriod < 1 || brk.afterPeriod >= settings.periodsPerDay) {
+                    errors.push('Break period is out of bounds.');
+                }
+            }
+        });
+
+        this.timeTableService.classes.forEach((cls) => {
+            console.log('Validating class:', cls);
+            let totalPeriods = cls.subjects.reduce((sum, subj) => sum + subj.hours_per_week, 0);
+            const totalAvailablePeriods = workingDays.length * settings.periodsPerDay;
+            if (totalPeriods > totalAvailablePeriods) {
+                errors.push(` ${totalAvailablePeriods} periods are available per week, while Class ${cls.name} requests ${totalPeriods} periods.`);
+            }
+        });
+        let teacherMap = new Map<string, any>();
+        this.timeTableService.classes.forEach((cls) => {
+            cls.subjects.forEach((subj) => {
+                const teacherId = subj.teacher_id;
+                if (teacherId) {
+                    if (!teacherMap.has(teacherId)) {
+                        teacherMap.set(teacherId, { totalAssigned: 0, subAndClass: subj.name + ' - ' + cls.name });
+                    }
+                    const teacherData = teacherMap.get(teacherId);
+                    teacherData.totalAssigned += subj.hours_per_week;
+                    teacherMap.set(teacherId, teacherData);
+                }
+            });
+        });
+        teacherMap.forEach((data, teacherId) => {
+            const teacher = this.timeTableService.teachers.find((t) => t.id === teacherId);
+            if (teacher) {
+                const totalAvailablePeriods = workingDays.length * settings.periodsPerDay;
+                if (data.totalAssigned > totalAvailablePeriods) {
+                    errors.push(`Teacher ${teacher.name} is assigned ${data.totalAssigned} periods per week, exceeding the available ${totalAvailablePeriods} periods. Check assignments for ${data.subAndClass}.`);
+                }
+            }
+        });
 
         return errors;
     }

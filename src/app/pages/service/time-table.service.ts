@@ -174,7 +174,6 @@ export class TimeTableService {
         });
     }
 
-    // Availability Methods
     togglePeriodAvailability(teacherId: string, dayIndex: number, periodIndex: number) {
         const teacher = this.teachers.find((teacher) => teacher.id === teacherId);
         if (!teacher) return;

@@ -18,7 +18,7 @@
 
   <div *ngIf="validationErrors?.length" class="mb-4">
     <div *ngFor="let error of validationErrors"
-         class="flex items-start text-sm text-red-600 mb-1">
+         class="flex items-start text-md font-bold text-red-600 mb-1">
       <i class="pi pi-exclamation-circle mr-2 mt-0.5"></i>
       <span>{{ error }}</span>
     </div>

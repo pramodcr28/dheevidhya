@@ -3,6 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { CheckboxModule } from 'primeng/checkbox';
+import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { CommonService } from '../../../../core/services/common.service';
@@ -14,7 +15,7 @@ import { TimeTableService } from '../../../service/time-table.service';
 @Component({
     selector: 'app-general-settings',
     standalone: true,
-    imports: [CommonModule, FormsModule, InputNumberModule, SelectModule, AutoFocusModule, CheckboxModule, DheeSelectComponent],
+    imports: [CommonModule, DatePickerModule, FormsModule, InputNumberModule, SelectModule, AutoFocusModule, CheckboxModule, DheeSelectComponent],
     templateUrl: './general-settings.component.html'
 })
 export class GeneralSettingsComponent implements OnInit {
