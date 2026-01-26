@@ -17,7 +17,7 @@ export class MasterClassService {
     protected readonly http = inject(HttpClient);
     protected readonly applicationConfigService = inject(ApplicationConfigService);
 
-    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ADMIN_BASE_URL + 'api/master-classes');
+    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ADMIN_BASE_URL + 'api/master-classes');
 
     create(masterClass: NewMasterClass): Observable<EntityResponseType> {
         return this.http.post<IMasterClass>(this.resourceUrl, masterClass, { observe: 'response' });

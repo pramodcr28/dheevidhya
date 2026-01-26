@@ -14,6 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
+import { MasterClassService } from '../../../core/services/master-class.service';
 import { DheeSelectComponent } from '../../../shared/dhee-select/dhee-select.component';
 import { IProfileConfig, UserStatus } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -97,9 +98,13 @@ export class StudentPromotionComponent implements OnInit {
     studentToExit: IProfileConfig | null = null;
     selectedStudentDetails: any = null;
     exitReason: string = '';
-
+    masterClassService = inject(MasterClassService);
+    masterClasses: any[] = [];
     ngOnInit() {
         this.loadDepartments();
+        this.masterClassService.query().subscribe((res) => {
+            this.masterClasses = res.body || [];
+        });
     }
 
     loadDepartments() {
@@ -115,7 +120,6 @@ export class StudentPromotionComponent implements OnInit {
                 department: re.department
             }));
             this.updateTargetDepartments();
-            console.log('Loaded departments:', this.sourceDepartments);
         });
     }
 
@@ -134,15 +138,10 @@ export class StudentPromotionComponent implements OnInit {
             return targetYear > sourceYear;
         });
 
-        console.log(`Filtered target departments: ${this.targetDepartments.length} departments with academic year > ${this.selectedDepartment.academicYear}`);
-
         if (this.targetDepartment) {
             const isTargetStillValid = this.targetDepartments.some((dept) => dept.id === this.targetDepartment.id);
             if (!isTargetStillValid) {
-                this.targetDepartment = null;
-                this.targetClass = null;
-                this.targetSection = null;
-                this.targetStudents.set([]);
+                this.clearTargetData();
 
                 this.messageService.add({
                     severity: 'info',
@@ -151,6 +150,14 @@ export class StudentPromotionComponent implements OnInit {
                 });
             }
         }
+    }
+
+    private clearTargetData() {
+        this.targetDepartment = null;
+        this.targetClass = null;
+        this.targetSection = null;
+        this.targetStudents.set([]);
+        this.selectedTargetStudents = [];
     }
 
     loadSourceStudents() {
@@ -175,6 +182,9 @@ export class StudentPromotionComponent implements OnInit {
 
                     this.sourceStudents.set(filteredStudents);
 
+                    // Clear selected students when source changes
+                    this.selectedStudents = [];
+
                     // Show warning if some students were filtered out
                     const filteredCount = students.content.length - filteredStudents.length;
                     if (filteredCount > 0) {
@@ -188,8 +198,8 @@ export class StudentPromotionComponent implements OnInit {
                     this.loader.hide();
                 },
                 error: (error) => {
-                    console.error('Error loading students:', error);
                     this.sourceStudents.set([]);
+                    this.selectedStudents = [];
                     this.loader.hide();
                     this.messageService.add({
                         severity: 'error',
@@ -216,14 +226,9 @@ export class StudentPromotionComponent implements OnInit {
             .subscribe({
                 next: (students) => {
                     this.targetStudents.set(students.content);
-                    if (this.selectedSection?.id) {
-                        this.loadSourceStudents();
-                    }
-
                     this.loader.hide();
                 },
                 error: (error) => {
-                    console.error('Error loading students:', error);
                     this.targetStudents.set([]);
                     this.loader.hide();
                     this.messageService.add({
@@ -235,10 +240,11 @@ export class StudentPromotionComponent implements OnInit {
             });
     }
 
-    isStudentSelectable(student: IProfileConfig): boolean {
-        if (student.status === UserStatus.EXITED) {
+    isStudentSelectable(student: any): boolean {
+        if (student.status == 'EXITED') {
             return false;
         }
+
         const targetStudentIds = this.targetStudents().map((s) => s.userId);
         if (targetStudentIds.includes(student.userId)) {
             return false;
@@ -263,15 +269,30 @@ export class StudentPromotionComponent implements OnInit {
             return true;
         }
 
-        if (!this.targetDepartment || !this.targetClass || !this.targetSection) {
+        if (!this.targetDepartment || !this.targetClass) {
             return true;
         }
 
-        if (this.selectedDepartment.id === this.targetDepartment.id && this.selectedClass.id === this.targetClass.id && this.selectedSection.id === this.targetSection.id) {
+        if (this.selectedClass.id === this.targetClass.id) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Invalid Selection',
-                detail: 'Source and target section cannot be the same. Please select a different target section.'
+                detail: 'Source and target class cannot be the same. Please select a different target class'
+            });
+            return false;
+        }
+        let selectedclassCode = this.masterClasses.find((mc) => {
+            return mc.id === this.selectedClass.id;
+        })?.code;
+        let targetclassCode = this.masterClasses.find((mc) => {
+            return mc.id === this.targetClass.id;
+        })?.code;
+
+        if (this.selectedClass && this.targetClass && selectedclassCode >= targetclassCode) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Selection',
+                detail: 'Students can only be promoted to a higher class. Please select a different target class'
             });
             return false;
         }
@@ -318,11 +339,15 @@ export class StudentPromotionComponent implements OnInit {
         return true;
     }
 
+    // FIX #3: Clear target data when source changes
     onDepartmentChange() {
         this.selectedClass = null;
         this.selectedSection = null;
         this.selectedStudents = [];
         this.sourceStudents.set([]);
+
+        // Clear target data
+        this.clearTargetData();
 
         this.updateTargetDepartments();
 
@@ -334,12 +359,14 @@ export class StudentPromotionComponent implements OnInit {
         this.selectedSection = null;
         this.selectedStudents = [];
         this.sourceStudents.set([]);
+        this.clearTargetData();
 
         this.validateSourceAndTarget();
     }
 
     onSectionChange() {
         this.selectedStudents = [];
+        this.clearTargetData();
 
         if (!this.validateSourceAndTarget()) {
             this.selectedSection = null;
@@ -414,7 +441,30 @@ export class StudentPromotionComponent implements OnInit {
         this.showPromotionDialog = false;
         this.loader.show('Promoting students...');
 
-        const studentIds = this.selectedStudents.map((s) => s.id);
+        // FIX #2: Filter out EXITED students before sending to backend
+        const eligibleStudents = this.selectedStudents.filter((student) => student.status !== UserStatus.EXITED);
+
+        if (eligibleStudents.length === 0) {
+            this.loader.hide();
+            this.messageService.add({
+                severity: 'error',
+                summary: 'No Eligible Students',
+                detail: 'All selected students have exited status and cannot be promoted.'
+            });
+            return;
+        }
+
+        // Show warning if some students were filtered out
+        const excludedCount = this.selectedStudents.length - eligibleStudents.length;
+        if (excludedCount > 0) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Exited Students Excluded',
+                detail: `${excludedCount} exited student(s) were excluded from promotion.`
+            });
+        }
+
+        const studentIds = eligibleStudents.map((s) => s.id);
         const promotionData = {
             studentIds: studentIds,
             departmentId: this.targetDepartment.id,
@@ -424,9 +474,6 @@ export class StudentPromotionComponent implements OnInit {
             sectionName: this.targetSection.name,
             academicYear: this.targetDepartment.academicYear
         };
-
-        console.log('Promotion Data:', promotionData);
-
         this.userService.promoteStudents(promotionData).subscribe({
             next: (response) => {
                 const data = response.data;
@@ -439,9 +486,8 @@ export class StudentPromotionComponent implements OnInit {
                     this.messageService.add({
                         severity: 'warn',
                         summary: 'Partial Success',
-                        detail: `Promoted ${data.successCount} students. Failed: ${data.failureCount}. Check console for details.`
+                        detail: `Promoted ${data.successCount} students. Failed: ${data.failureCount}.`
                     });
-                    console.error('Failed promotions:', data.errors);
                 } else {
                     this.messageService.add({
                         severity: 'success',
@@ -451,7 +497,6 @@ export class StudentPromotionComponent implements OnInit {
                 }
             },
             error: (error) => {
-                console.error('Error promoting students:', error);
                 this.loader.hide();
                 this.messageService.add({
                     severity: 'error',
@@ -493,7 +538,6 @@ export class StudentPromotionComponent implements OnInit {
                 });
             },
             error: (error) => {
-                console.error('Error marking student as exited:', error);
                 this.loader.hide();
                 this.messageService.add({
                     severity: 'error',

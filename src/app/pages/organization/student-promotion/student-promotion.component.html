@@ -24,7 +24,7 @@
                     dataSource="custom"
                     [displayLabel]="'Department'"
                     [showAcademicYear]="true"
-                    (onValueChange)="updateTargetDepartments()"
+                    (onValueChange)="onDepartmentChange()"
                     [filter]="true"
                     filterBy="department.name,academicYear"
                     placeholder="Select Department">
@@ -60,7 +60,7 @@
                     <p-table 
                         [value]="sourceStudents()" 
                         [(selection)]="selectedStudents"
-                        dataKey="_id"
+                        dataKey="id"
                         [scrollable]="true" 
                         scrollHeight="300px" 
                         styleClass="p-datatable-sm" 
@@ -177,6 +177,7 @@
                     [showAcademicYear]="true"
                     [filter]="true"
                     filterBy="department.name,academicYear"
+                    (onValueChange)="onTargetDepartmentChange()"
                     placeholder="Select Department">
                 </dhee-select>
                 <div>
@@ -211,7 +212,7 @@
                 <div *ngIf="targetStudents().length > 0">
                     <p-table 
                         [value]="targetStudents()" 
-                        dataKey="_id"
+                        dataKey="id"
                         [scrollable]="true" 
                         scrollHeight="300px" 
                         styleClass="p-datatable-sm" 
