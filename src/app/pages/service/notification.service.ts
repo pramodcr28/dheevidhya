@@ -12,7 +12,7 @@ export class NotificationService {
     protected readonly http = inject(HttpClient);
     protected readonly applicationConfigService = inject(ApplicationConfigService);
 
-    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ACADEMICS_BASE_URL + 'api/notices');
+    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.NOTIFICATION_BASE_URL + 'api/notices');
     protected studentService = inject(UserService);
 
     search<T>(request: any): Observable<any> {

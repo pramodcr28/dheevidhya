@@ -187,13 +187,12 @@
                     formControlName="resultDeclarationDate" 
                     dateFormat="yy-mm-dd" 
                     [showIcon]="true"
-                    placeholder="Publish Date" 
+                    placeholder="Result Date" 
                     class="w-full">
                   </p-datepicker>
                 </div>
               </div>
 
-              <!-- Holiday -->
               <div *ngSwitchCase="'HOLIDAY'" formGroupName="holiday" class="space-y-3">
                 <div>
                   <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Holiday Type</label>
@@ -207,7 +206,28 @@
                     class="w-full">
                   </p-select>
                 </div>
-                
+                <div class="grid grid-cols-2 gap-3" *ngIf="noticeForm.get('holiday.holidayType')?.value !== 'Week_off'">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Start Date</label>
+                    <p-datepicker 
+                      formControlName="holidayStartDate" 
+                      dateFormat="yy-mm-dd" 
+                      [showIcon]="true"
+                      placeholder="Start Date" 
+                      class="w-full">
+                    </p-datepicker>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">End Date</label>
+                    <p-datepicker 
+                      formControlName="holidayEndDate" 
+                      dateFormat="yy-mm-dd" 
+                      [showIcon]="true"
+                      placeholder="End Date" 
+                      class="w-full">
+                    </p-datepicker>
+                  </div>
+                </div>
                 <div *ngIf="noticeForm.get('holiday.holidayType')?.value === 'Week_off'">
                   <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Week Off Day</label>
                   <p-select 
@@ -219,29 +239,6 @@
                     class="w-full">
                   </p-select>
                 </div>
-
-                <div *ngIf="noticeForm.get('holiday.holidayType')?.value !== 'Week_off'" class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Start Date</label>
-                    <p-datepicker 
-                      formControlName="holidayStartDate" 
-                      dateFormat="yy-mm-dd" 
-                      [showIcon]="true"
-                      placeholder="Holiday Start" 
-                      class="w-full">
-                    </p-datepicker>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">End Date</label>
-                    <p-datepicker 
-                      formControlName="holidayEndDate" 
-                      dateFormat="yy-mm-dd" 
-                      [showIcon]="true"
-                      placeholder="Holiday End" 
-                      class="w-full">
-                    </p-datepicker>
-                  </div>
-                </div>
               </div>
 
               <!-- Meeting -->
@@ -251,6 +248,8 @@
                   <p-select 
                     [options]="meetingTypes" 
                     formControlName="meetingType" 
+                    optionLabel="label" 
+                    optionValue="value" 
                     placeholder="Select Meeting Type" 
                     class="w-full">
                   </p-select>
@@ -268,12 +267,7 @@
                   </div>
                   <div>
                     <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Meeting Time</label>
-                    <p-datepicker 
-                      formControlName="meetingTime" 
-                      [timeOnly]="true"
-                      placeholder="Time" 
-                      class="w-full">
-                    </p-datepicker>
+                    <input pInputText formControlName="meetingTime" type="time" class="w-full" />
                   </div>
                 </div>
                 <div>
@@ -419,20 +413,84 @@
                 class="w-full">
               </p-select>
             </div>
-            
-            <div *ngIf="noticeForm.get('targetAudience.type')?.value !== 'ALL'">
-              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Target IDs</label>
-              <input 
-                pInputText 
-                formControlName="targetIds" 
-                placeholder="Comma separated IDs"
-                class="w-full" />
+
+            <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'ACADEMIC_UNIT'">
+              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Select Academic Units <span class="text-red-500">*</span>
+              </label>
+              <p-treeSelect
+                [(ngModel)]="selectedAcademicUnits"
+                [ngModelOptions]="{standalone: true}"
+                [options]="academicUnitTree"
+                placeholder="Select Departments, Classes, or Sections"
+                [metaKeySelection]="false"
+                selectionMode="checkbox"
+                fluid="true"
+                appendTo="body"
+                display="chip"
+                size="large"
+      >
+              </p-treeSelect>
+              
+            </div>
+
+            <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'STUDENT'">
+              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Select Students <span class="text-red-500">*</span>
+              </label>
+              <p-multiSelect
+                [options]="studentOptions"
+                formControlName="selectedStudents"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select students"
+                [filter]="true"
+                filterPlaceHolder="Search students"
+                display="chip"
+                class="w-full"
+                appendTo="body">
+              </p-multiSelect>
+            </div>
+
+            <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'STAFF'">
+              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Select Staff <span class="text-red-500">*</span>
+              </label>
+              <p-multiSelect
+                [options]="staffOptions"
+                formControlName="selectedStaff"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select staff members"
+                [filter]="true"
+                filterPlaceHolder="Search staff"
+                display="chip"
+                class="w-full"
+                appendTo="body">
+              </p-multiSelect>
+            </div>
+
+            <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'ROLE'">
+              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Select Roles <span class="text-red-500">*</span>
+              </label>
+              <p-multiSelect
+                [options]="roleOptions"
+                formControlName="selectedRoles"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select roles"
+                [filter]="true"
+                filterPlaceHolder="Search roles"
+                display="chip"
+                class="w-full"
+                appendTo="body">
+              </p-multiSelect>
             </div>
           </div>
         </p-panel>
       </div>
 
-      <!-- RIGHT SIDE - Content Editor -->
       <div>
         <p-panel header="Notice Content" [toggleable]="false" styleClass="rounded-xl h-full">
           <p-editor 
@@ -444,8 +502,6 @@
         </p-panel>
       </div>
     </div>
-
-    <!-- Footer -->
     <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
       <p-button 
         label="Cancel" 

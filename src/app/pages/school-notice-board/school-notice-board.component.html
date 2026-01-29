@@ -276,6 +276,7 @@
   </div>
 
   <!-- Add/Edit Notice Dialog -->
+   @if((isEditMode && selectedNotice != null) || (!isEditMode && addDialogVisible)) {
   <app-notice-add 
     [visible]="addDialogVisible"
     [priorityOptions]="priorityOptions"
@@ -284,9 +285,11 @@
     (save)="saveNotice($event)"
     (cancel)="closeDialog()">
   </app-notice-add>
+   }
+ 
 
   <!-- Delete Confirmation Dialog -->
-  <p-dialog 
+  <!-- <p-dialog 
     header="Confirm Delete" 
     [(visible)]="deleteDialogVisible" 
     [modal]="true" 
@@ -322,10 +325,10 @@
         (click)="confirmDelete()">
       </p-button>
     </ng-template>
-  </p-dialog>
+  </p-dialog> -->
 </div>
 
-<style>
+<!-- <style>
 /* Line clamp utilities */
 .line-clamp-2 {
   display: -webkit-box;
@@ -379,4 +382,4 @@
     max-height: 300px;
   }
 }
-</style>
+</style> -->

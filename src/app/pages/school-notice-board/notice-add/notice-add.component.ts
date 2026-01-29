@@ -1,31 +1,70 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MessageService, TreeNode } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
+import { ChipModule } from 'primeng/chip';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { EditorModule } from 'primeng/editor';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { PanelModule } from 'primeng/panel';
 import { SelectModule } from 'primeng/select';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { TreeSelectModule } from 'primeng/treeselect';
+import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
 import { CommonService } from '../../../core/services/common.service';
+import { DepartmentConfigService } from '../../../core/services/department-config.service';
+import { ApiLoaderService } from '../../../core/services/loaderService';
 import { ExamTypeLabels } from '../../models/examination.model';
 import { CategoryType, Notice, Priority, Status, TargetType } from '../../models/notification.model';
+import { ITenantUser } from '../../models/user.model';
+import { UserService } from '../../service/user.service';
 
 @Component({
     selector: 'app-notice-add',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, SelectModule, ButtonModule, InputTextModule, DialogModule, EditorModule, DatePickerModule, PanelModule, InputNumberModule, SelectButtonModule, CheckboxModule],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        FormsModule,
+        SelectModule,
+        ButtonModule,
+        InputTextModule,
+        DialogModule,
+        EditorModule,
+        DatePickerModule,
+        PanelModule,
+        InputNumberModule,
+        SelectButtonModule,
+        CheckboxModule,
+        TreeSelectModule,
+        MultiSelectModule,
+        ChipModule
+    ],
     templateUrl: './notice-add.component.html',
     styles: ``
 })
-export class NoticeAddComponent implements OnInit, OnChanges {
+export class NoticeAddComponent implements OnInit {
     @Input() visible = false;
     @Input() editMode = false;
-    @Input() noticeData: Notice | null = null;
+    @Input() get noticeData(): Notice | null {
+        return this._noticeData;
+    }
+    set noticeData(value: Notice | null) {
+        this.initializeForm();
+        this._noticeData = value;
+        if (value?.id) {
+            this.populateForm();
+        } else {
+            this.resetForm();
+        }
+    }
+
+    private _noticeData: Notice | null = null;
 
     categoryOptions: any[] = [
         { label: 'General', value: 'GENERAL', icon: 'pi pi-bell', colorClass: 'bg-yellow-500' },
@@ -108,37 +147,253 @@ export class NoticeAddComponent implements OnInit, OnChanges {
     ];
 
     noticeForm!: FormGroup;
-
     commonService = inject(CommonService);
+    users = signal<ITenantUser[]>([]);
+    departmentsList = this.commonService.associatedDepartments;
+    departmentConfigService = inject(DepartmentConfigService);
+    availableAuthorities: any[] = [];
+    userService = inject(UserService);
+    loader = inject(ApiLoaderService);
+    itemsPerPage = ITEMS_PER_PAGE;
+    totalItems = 0;
+    page = 0;
+    sortField = 'id';
+    sortOrder: 'ASC' | 'DESC' = 'ASC';
+    messageService = inject(MessageService);
+    academicUnitTree: TreeNode[] = [];
+    selectedAcademicUnits: any[] = [];
+    studentOptions: any[] = [];
+    staffOptions: any[] = [];
+    roleOptions: any[] = [];
 
     constructor(private fb: FormBuilder) {}
 
     ngOnInit(): void {
-        this.initializeForm();
+        if (this.commonService.getUserAuthorities.includes('IT_ADMIN')) {
+            this.loadDepartments();
+        }
+
+        this.userService.getAuthorities().subscribe((res: any) => {
+            this.availableAuthorities = res.body;
+            this.roleOptions = this.availableAuthorities.map((auth: any) => ({
+                label: auth.name || auth,
+                value: auth.name || auth
+            }));
+        });
+
+        // Load initial data
+        this.loadStudents();
+        this.loadStaff();
+
+        // Subscribe to target type changes
+        this.noticeForm.get('targetAudience.type')?.valueChanges.subscribe((targetType) => {
+            this.onTargetTypeChange(targetType);
+        });
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes['noticeData'] && this.noticeData && this.editMode) {
-            this.populateForm(this.noticeData);
-        } else if (changes['visible'] && !this.visible) {
-            this.resetForm();
+    load(): void {
+        this.loader.show('Fetching Staff Data');
+        let filterParams = {};
+
+        filterParams = {
+            // if the target is STUDENT
+            'authorities.name.equals': 'STUDENT'
+        };
+        // add seach the user by autocomplete for these by login or id ot name
+        filterParams = {
+            'branch_id.eq': this.commonService.branch?.id,
+            'authorities.name.nin': ['IT_ADMINISTRATOR', 'STUDENT']
+        }; // if the target is STAFF
+
+        this.userService.userSearch(this.page, this.itemsPerPage, this.sortField, this.sortOrder, filterParams).subscribe({
+            next: (res: any) => {
+                this.users.set(res.content);
+                this.totalItems = res.totalElements || 0;
+                this.loader.hide();
+            },
+            error: (error) => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to load staff data'
+                });
+            }
+        });
+    }
+
+    loadDepartments(): void {
+        const filterParams = {
+            branch: this.commonService.branch?.id
+        };
+
+        this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe({
+            next: (res: any) => {
+                if (res?.content) {
+                    this.buildAcademicUnitTree(res.content);
+                }
+            },
+            error: (error) => {
+                console.error('Failed to load departments', error);
+            }
+        });
+    }
+
+    buildAcademicUnitTree(departments: any[]): void {
+        this.selectedAcademicUnits = [];
+        this.academicUnitTree = departments.map((dept) => {
+            const academicYear = dept.academicYear || this.commonService.currentUser.academicYear || '';
+            const deptId = dept?.id || dept.department?.id;
+
+            const deptNode: TreeNode = {
+                key: `${academicYear}:${deptId}`,
+                label: dept.department?.name + ' - ' + academicYear || 'Unknown Department',
+                data: {
+                    id: deptId,
+                    type: 'department',
+                    code: dept.department?.code,
+                    academicYear: academicYear
+                },
+                children: []
+            };
+
+            if (dept.department?.classes && dept.department.classes.length > 0) {
+                deptNode.children = dept.department.classes.map((cls: any) => {
+                    const classNode: TreeNode = {
+                        key: `${academicYear}:${deptId}:${cls.id}`,
+                        label: cls.name || 'Unknown Class',
+                        data: {
+                            id: cls.id,
+                            type: 'class',
+                            code: cls.code,
+                            departmentId: deptId,
+                            academicYear: academicYear
+                        },
+                        children: []
+                    };
+
+                    if (cls.sections && cls.sections.length > 0) {
+                        classNode.children = cls.sections.map((section: any) => ({
+                            key: `${academicYear}:${deptId}:${cls.id}:${section.id}`,
+                            label: section.name || 'Unknown Section',
+                            data: {
+                                id: section.id,
+                                type: 'section',
+                                code: section.code,
+                                classId: cls.id,
+                                departmentId: deptId,
+                                academicYear: academicYear
+                            }
+                        }));
+                    }
+
+                    return classNode;
+                });
+            }
+
+            return deptNode;
+        });
+        if (this._noticeData && this._noticeData.id && this._noticeData.targetAudience?.type === TargetType.ACADEMIC_UNIT && this._noticeData.targetAudience?.targetIds) {
+            this.selectedAcademicUnits = [];
+
+            this.collectMatchingNodes(this.academicUnitTree, this._noticeData.targetAudience.targetIds, this.selectedAcademicUnits);
         }
     }
 
-    private initializeForm(): void {
+    private collectMatchingNodes(nodes: any[], targetIds: string[], result: any[]): void {
+        for (const node of nodes) {
+            if (targetIds.includes(node.key)) {
+                result.push(node);
+            }
+            if (node.children && node.children.length > 0) {
+                this.collectMatchingNodes(node.children, targetIds, result);
+            }
+        }
+    }
+
+    loadStudents(): void {
+        const filterParams = {
+            'branch_id.eq': this.commonService.branch?.id,
+            'authorities.name.equals': 'STUDENT'
+        };
+
+        this.userService.userSearch(0, 1000, 'id', 'ASC', filterParams).subscribe({
+            next: (res: any) => {
+                this.studentOptions = (res.content || []).map((student: ITenantUser) => ({
+                    label: `${student.firstName} ${student.lastName} (${student.login})`,
+                    value: student.id
+                }));
+            },
+            error: (error) => {
+                console.error('Failed to load students', error);
+            }
+        });
+    }
+
+    loadStaff(): void {
+        const filterParams = {
+            'branch_id.eq': this.commonService.branch?.id,
+            'authorities.name.nin': ['IT_ADMINISTRATOR', 'STUDENT']
+        };
+
+        this.userService.userSearch(0, 1000, 'id', 'ASC', filterParams).subscribe({
+            next: (res: any) => {
+                this.staffOptions = (res.content || []).map((staff: ITenantUser) => ({
+                    label: `${staff.firstName} ${staff.lastName} (${staff.login})`,
+                    value: staff.id
+                }));
+            },
+            error: (error) => {
+                console.error('Failed to load staff', error);
+            }
+        });
+    }
+
+    onTargetTypeChange(targetType: string): void {
+        this.selectedAcademicUnits = [];
+        this.noticeForm.get('targetAudience.selectedStudents')?.setValue([]);
+        this.noticeForm.get('targetAudience.selectedStaff')?.setValue([]);
+        this.noticeForm.get('targetAudience.selectedRoles')?.setValue([]);
+
+        if (targetType === 'ACADEMIC_UNIT') {
+            this.loadDepartments();
+        }
+    }
+
+    findNodeByKey(nodes: TreeNode[], key: string): TreeNode | null {
+        for (const node of nodes) {
+            if (node.key === key) {
+                return node;
+            }
+            if (node.children) {
+                const found = this.findNodeByKey(node.children, key);
+                if (found) {
+                    return found;
+                }
+            }
+        }
+        return null;
+    }
+
+    get categoryType() {
+        return this.noticeForm.get('categoryType')?.value;
+    }
+
+    initializeForm(): void {
         this.noticeForm = this.fb.group({
-            categoryType: [CategoryType.GENERAL, Validators.required],
             title: ['', [Validators.required, Validators.minLength(5)]],
-            content: [''],
+            content: ['', Validators.required],
+            categoryType: [CategoryType.GENERAL, Validators.required],
             priority: [Priority.MEDIUM, Validators.required],
+            attachments: [[]],
 
             targetAudience: this.fb.group({
                 type: [TargetType.ALL, Validators.required],
                 targetIds: [''],
-                includeAll: [true]
+                selectedStudents: [[]],
+                selectedStaff: [[]],
+                selectedRoles: [[]]
             }),
-
-            attachments: [[]],
 
             timetable: this.fb.group({
                 effectiveDate: [null]
@@ -192,72 +447,104 @@ export class NoticeAddComponent implements OnInit, OnChanges {
             }),
 
             schoolAchievement: this.fb.group({
+                recipientIds: [null],
                 achievementCategory: [null],
-                achievementDate: [null],
-                recipientIds: [null]
+                achievementDate: [null]
             })
         });
     }
 
-    private populateForm(notice: Notice): void {
+    populateForm(): void {
+        if (!this._noticeData) return;
+
+        const targetType = this._noticeData.targetAudience?.type;
+
         this.noticeForm.patchValue({
-            categoryType: notice.categoryType,
-            title: notice.title,
-            content: notice.content,
-            priority: notice.priority,
+            title: this._noticeData.title,
+            content: this._noticeData.content,
+            categoryType: this._noticeData.categoryType,
+            priority: this._noticeData.priority,
+            attachments: this._noticeData.attachments || [],
+
             targetAudience: {
-                type: notice.targetAudience.type,
-                targetIds: notice.targetAudience.targetIds?.join(', ') || '',
-                includeAll: notice.targetAudience.type === TargetType.ALL
-            },
-            attachments: notice.attachments || [],
-            timetable: notice.timetable || { effectiveDate: null },
-            attendance: notice.attendance || { attendancePercentage: null, attendanceType: null, parentMeetingRequired: false },
-            examAnnouncement: notice.examAnnouncement || { examTitle: null, examType: null, examStartDate: null, examEndDate: null },
-            examResult: notice.examResult || { examTitle: null, examType: null, resultDeclarationDate: null },
-            holiday: notice.holiday || { holidayType: null, holidayStartDate: null, holidayEndDate: null, weekOffDay: null },
-            meeting: notice.meeting || { meetingType: null, meetingDate: null, meetingTime: null, venue: null },
-            fest: notice.fest || { festName: null, festType: null, eventStartDate: null, eventEndDate: null, venue: null },
-            appreciation: notice.appreciation
-                ? {
-                      recipientIds: notice.appreciation.recipientIds?.join(', ') || null,
-                      achievementCategory: notice.appreciation.achievementCategory,
-                      recognitionLevel: notice.appreciation.recognitionLevel
-                  }
-                : { recipientIds: null, achievementCategory: null, recognitionLevel: null },
-            schoolAchievement: notice.schoolAchievement
-                ? {
-                      recipientIds: notice.schoolAchievement.recipientIds?.join(', ') || null,
-                      achievementCategory: notice.schoolAchievement.achievementCategory,
-                      achievementDate: notice.schoolAchievement.achievementDate
-                  }
-                : { recipientIds: null, achievementCategory: null, achievementDate: null }
+                type: targetType || TargetType.ALL,
+                targetIds: this._noticeData.targetAudience?.targetIds?.join(',') || ''
+            }
         });
-    }
-
-    get categoryType(): CategoryType | null {
-        return this.noticeForm.get('categoryType')?.value ?? null;
-    }
-
-    private formatDate(date: any): string | null {
-        if (!date) return null;
-        try {
-            const d = new Date(date);
-            if (isNaN(d.getTime())) return null;
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        } catch {
-            return null;
+        this.onTargetTypeChange(targetType);
+        if (targetType === TargetType.STUDENT && this._noticeData.targetAudience?.targetIds) {
+            this.noticeForm.get('targetAudience.selectedStudents')?.setValue(this._noticeData.targetAudience.targetIds.map((id) => parseInt(id, 10)));
+        } else if (targetType === TargetType.STAFF && this._noticeData.targetAudience?.targetIds) {
+            this.noticeForm.get('targetAudience.selectedStaff')?.setValue(this._noticeData.targetAudience.targetIds.map((id) => parseInt(id, 10)));
+        } else if (targetType === TargetType.ROLE && this._noticeData.targetAudience?.targetIds) {
+            this.noticeForm.get('targetAudience.selectedRoles')?.setValue(this._noticeData.targetAudience.targetIds);
         }
+
+        // Populate category-specific data
+        if (this._noticeData.timetable) {
+            this.noticeForm.get('timetable')?.patchValue(this._noticeData.timetable);
+        }
+
+        if (this._noticeData.attendance) {
+            this.noticeForm.get('attendance')?.patchValue(this._noticeData.attendance);
+        }
+
+        if (this._noticeData.examAnnouncement) {
+            this.noticeForm.get('examAnnouncement')?.patchValue(this._noticeData.examAnnouncement);
+        }
+
+        if (this._noticeData.examResult) {
+            this.noticeForm.get('examResult')?.patchValue(this._noticeData.examResult);
+        }
+
+        if (this._noticeData.holiday) {
+            this.noticeForm.get('holiday')?.patchValue(this._noticeData.holiday);
+        }
+
+        if (this._noticeData.meeting) {
+            this.noticeForm.get('meeting')?.patchValue(this._noticeData.meeting);
+        }
+
+        if (this._noticeData.fest) {
+            this.noticeForm.get('fest')?.patchValue(this._noticeData.fest);
+        }
+
+        if (this._noticeData.appreciation) {
+            this.noticeForm.get('appreciation')?.patchValue({
+                ...this._noticeData.appreciation,
+                recipientIds: this._noticeData.appreciation.recipientIds?.join(',')
+            });
+        }
+
+        if (this._noticeData.schoolAchievement) {
+            this.noticeForm.get('schoolAchievement')?.patchValue({
+                ...this._noticeData.schoolAchievement,
+                recipientIds: this._noticeData.schoolAchievement.recipientIds?.join(',')
+            });
+        }
+    }
+
+    private formatDate(dateInput: any): string | null {
+        if (!dateInput) return null;
+
+        if (typeof dateInput === 'string') {
+            return dateInput;
+        }
+
+        if (dateInput instanceof Date) {
+            return dateInput.toISOString().split('T')[0];
+        }
+
+        return null;
     }
 
     private hasValidData(obj: any): boolean {
         if (!obj) return false;
-        return Object.values(obj).some((v) => {
-            if (v === null || v === undefined || v === '' || v === false) return false;
-            if (Array.isArray(v) && v.length === 0) return false;
+        return Object.values(obj).some((val) => {
+            if (val === null || val === undefined || val === '') return false;
+            if (typeof val === 'boolean') return true;
+            if (typeof val === 'number') return true;
+            if (typeof val === 'string' && val.trim().length > 0) return true;
             return true;
         });
     }
@@ -269,19 +556,39 @@ export class NoticeAddComponent implements OnInit, OnChanges {
         }
 
         const raw = this.noticeForm.getRawValue();
-        const targetIds = this.parseCsv(raw.targetAudience?.targetIds);
+        let targetIds: string[] = [];
+        const targetType = raw.targetAudience?.type as TargetType;
+
+        switch (targetType) {
+            case TargetType.ACADEMIC_UNIT:
+                targetIds = this.selectedAcademicUnits.map((unit: any) => unit.key);
+                break;
+            case TargetType.STUDENT:
+                targetIds = raw.targetAudience?.selectedStudents?.map((id: any) => String(id)) || [];
+                break;
+            case TargetType.STAFF:
+                targetIds = raw.targetAudience?.selectedStaff?.map((id: any) => String(id)) || [];
+                break;
+            case TargetType.ROLE:
+                targetIds = raw.targetAudience?.selectedRoles || [];
+                break;
+            case TargetType.ALL:
+            default:
+                targetIds = ['all'];
+                break;
+        }
 
         const notice: Notice = {
-            id: this.editMode && this.noticeData ? this.noticeData.id : null,
+            id: this.editMode && this._noticeData ? this._noticeData.id : null,
             academicYear: this.commonService.currentUser.academicYear,
             categoryType: raw.categoryType as CategoryType,
             title: raw.title ?? '',
             content: raw.content ?? '',
             priority: raw.priority as Priority,
             status: Status.PUBLISHED,
-            publishedAt: this.editMode && this.noticeData ? this.noticeData.publishedAt : new Date().toISOString(),
+            publishedAt: this.editMode && this._noticeData ? this._noticeData.publishedAt : new Date().toISOString(),
             targetAudience: {
-                type: raw.targetAudience?.type as TargetType,
+                type: targetType,
                 targetIds: targetIds.length ? targetIds : ['all']
             },
             attachments: raw.attachments ?? []
@@ -374,8 +681,6 @@ export class NoticeAddComponent implements OnInit, OnChanges {
                 achievementDate: this.formatDate(raw.schoolAchievement.achievementDate) ?? undefined
             };
         }
-
-        console.log('Final Notice Object:', JSON.stringify(notice, null, 2));
         this.save.emit(notice);
         this.resetForm();
     }
@@ -393,7 +698,10 @@ export class NoticeAddComponent implements OnInit, OnChanges {
                 targetAudience: {
                     type: TargetType.ALL,
                     includeAll: true,
-                    targetIds: ''
+                    targetIds: '',
+                    selectedStudents: [],
+                    selectedStaff: [],
+                    selectedRoles: []
                 },
                 attachments: [],
                 timetable: { effectiveDate: null },
@@ -407,6 +715,7 @@ export class NoticeAddComponent implements OnInit, OnChanges {
                 schoolAchievement: { recipientIds: null, achievementCategory: null, achievementDate: null }
             });
         }
+        this.selectedAcademicUnits = [];
     }
 
     private parseCsv(input: string | null | undefined): string[] {

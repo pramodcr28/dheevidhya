@@ -34,12 +34,6 @@ export interface Notice {
     categoryType: CategoryType;
     title: string;
     content: string;
-
-    // createdBy: string;
-    // createdAt: string;  // ISO string for Instant
-    // updatedBy: string;
-    // updatedAt: string;
-
     priority: Priority;
     status: Status;
     publishedAt: string; // ISO string
@@ -126,12 +120,9 @@ export interface Target {
 }
 export enum TargetType {
     ALL = 'ALL',
-    DEPARTMENT = 'DEPARTMENT',
-    CLASS = 'CLASS',
-    SECTION = 'SECTION',
+    ACADEMIC_UNIT = 'ACADEMIC_UNIT',
     STUDENT = 'STUDENT',
     STAFF = 'STAFF',
-    PARENT = 'PARENT',
     ROLE = 'ROLE'
 }
 
