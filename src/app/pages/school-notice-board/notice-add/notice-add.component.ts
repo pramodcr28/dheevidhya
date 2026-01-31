@@ -169,9 +169,7 @@ export class NoticeAddComponent implements OnInit {
     constructor(private fb: FormBuilder) {}
 
     ngOnInit(): void {
-        if (this.commonService.getUserAuthorities.includes('IT_ADMIN')) {
-            this.loadDepartments();
-        }
+        this.loadDepartments();
 
         this.userService.getAuthorities().subscribe((res: any) => {
             this.availableAuthorities = res.body;
@@ -223,20 +221,24 @@ export class NoticeAddComponent implements OnInit {
     }
 
     loadDepartments(): void {
-        const filterParams = {
-            branch: this.commonService.branch?.id
-        };
+        if (this.commonService.getUserAuthorities.includes('IT_ADMIN')) {
+            const filterParams = {
+                branch: this.commonService.branch?.id
+            };
 
-        this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe({
-            next: (res: any) => {
-                if (res?.content) {
-                    this.buildAcademicUnitTree(res.content);
+            this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe({
+                next: (res: any) => {
+                    if (res?.content) {
+                        this.buildAcademicUnitTree(res.content);
+                    }
+                },
+                error: (error) => {
+                    console.error('Failed to load departments', error);
                 }
-            },
-            error: (error) => {
-                console.error('Failed to load departments', error);
-            }
-        });
+            });
+        } else {
+            this.buildAcademicUnitTree(this.commonService.associatedDepartments);
+        }
     }
 
     buildAcademicUnitTree(departments: any[]): void {

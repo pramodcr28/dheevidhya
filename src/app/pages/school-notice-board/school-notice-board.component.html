@@ -1,9 +1,8 @@
+@let isStudent = commonService.getUserAuthorities.includes('STUDENT');
 <div class="min-h-screen m-">
   <p-toast position="top-right"></p-toast>
 
-  <!-- Compact Header with Filters -->
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md mb-4 p-4">
-    <!-- Top Row: Title and Add Button -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
         <div class="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
@@ -14,26 +13,26 @@
           <p class="text-sm text-gray-500 dark:text-gray-400">{{totalRecords}} notices</p>
         </div>
       </div>
-      <p-button 
-        label="Add Notice" 
-        icon="pi pi-plus"
-        (click)="showAddDialog()"
-        size="small">
-      </p-button>
+      @if(!isStudent) {
+        <p-button 
+          label="Add Notice" 
+          icon="pi pi-plus"
+          (click)="showAddDialog()"
+          size="small">
+        </p-button>
+      }
+   
     </div>
 
-    <!-- Filters Row -->
     <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3">
-      <!-- Category Filter -->
       <div>
-        <p-select
+        <p-multi-select
           [options]="categoryOptions"
-          [(ngModel)]="selectedCategory"
+          [(ngModel)]="selectedCategories"
           (ngModelChange)="onFilterChange()"
           optionLabel="label"
           optionValue="value"
           placeholder="All Categories"
-          [showClear]="selectedCategory !== 'ALL'"
           class="w-full">
           <ng-template let-option pTemplate="item">
             <div class="flex items-center gap-2">
@@ -43,13 +42,11 @@
               <span>{{option.label}}</span>
             </div>
           </ng-template>
-        </p-select>
+        </p-multi-select>
       </div>
 
-      <!-- Search -->
-      <div>
+      <!-- <div>
         <span class="p-input-icon-left w-full">
-          <!-- <i class="pi pi-search"></i> -->
           <input 
             pInputText 
             type="text" 
@@ -58,18 +55,16 @@
             placeholder="Search notices..." 
             class="w-full" />
         </span>
-      </div>
+      </div> -->
 
-      <!-- Priority Filter -->
       <div>
-        <p-select
+        <p-multi-select
           [options]="priorityFilterOptions"
-          [(ngModel)]="selectedPriority"
+          [(ngModel)]="selectedPriorities"
           (ngModelChange)="onFilterChange()"
           placeholder="All Priorities"
-          [showClear]="true"
           class="w-full">
-        </p-select>
+        </p-multi-select>
       </div>
 
       <!-- Date Range -->
@@ -85,7 +80,6 @@
           class="w-full">
         </p-datepicker>
       </div> -->
-
       <!-- Clear Filters -->
       <div>
         <p-button
@@ -146,7 +140,10 @@
               <p-sortIcon field="publishedAt"></p-sortIcon>
             </div>
           </th>
-          <th style="width: 6%">Actions</th>
+           @if(!isStudent) {
+             <th style="width: 6%">Actions</th>
+           }
+      
         </tr>
       </ng-template>
 
@@ -214,16 +211,19 @@
           <!-- Actions -->
           <td>
             <div class="flex items-center gap-1">
-              <p-button
-                icon="pi pi-pencil"
-                severity="info"
-                [text]="true"
-                [rounded]="true"
-                size="small"
-                (click)="editNotice(notice)"
-                pTooltip="Edit"
-                tooltipPosition="top">
-              </p-button>
+              @if(!isStudent) {
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="info"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  (click)="editNotice(notice)"
+                  pTooltip="Edit"
+                  tooltipPosition="top">
+                </p-button>
+              }
+              
               <!-- <p-button
                 icon="pi pi-trash"
                 severity="danger"

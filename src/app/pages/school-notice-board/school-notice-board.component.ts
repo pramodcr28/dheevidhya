@@ -7,6 +7,7 @@ import { CardModule } from 'primeng/card';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelect } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -21,13 +22,13 @@ import { NoticeAddComponent } from './notice-add/notice-add.component';
 @Component({
     selector: 'app-school-notice-board',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, SelectModule, TagModule, ToastModule, DialogModule, DatePickerModule, TableModule, TooltipModule, NoticeAddComponent],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, SelectModule, TagModule, ToastModule, DialogModule, DatePickerModule, TableModule, TooltipModule, NoticeAddComponent, MultiSelect],
     providers: [MessageService, ConfirmationService],
     templateUrl: './school-notice-board.component.html',
     styles: []
 })
 export class SchoolNoticeBoardComponent implements OnInit {
-    selectedCategory = 'ALL';
+    selectedCategories: string[] = [];
     noticeForm!: FormGroup;
     isDarkMode = false;
     addDialogVisible = false;
@@ -50,15 +51,15 @@ export class SchoolNoticeBoardComponent implements OnInit {
 
     // Filters
     searchText = '';
-    selectedPriority: string | null = null;
+    selectedPriorities: string[] = [];
     // dateRange: Date[] | null = null;
 
     // Sorting
-    sortField = 'publishedAt';
-    sortOrder = 'desc';
+    sortField = 'createdAt';
+    sortOrder = 'DESC';
 
     categoryOptions = [
-        { label: 'All Categories', value: 'ALL', icon: 'pi pi-th-large', colorClass: 'bg-gray-500' },
+        // { label: 'All Categories', value: 'ALL', icon: 'pi pi-th-large', colorClass: 'bg-gray-500' },
         { label: 'General', value: 'GENERAL', icon: 'pi pi-bell', colorClass: 'bg-yellow-500' },
         { label: 'Time Table', value: 'TIMETABLE', icon: 'pi pi-calendar', colorClass: 'bg-blue-500' },
         { label: 'Meeting', value: 'MEETING', icon: 'pi pi-users', colorClass: 'bg-emerald-500' },
@@ -78,7 +79,7 @@ export class SchoolNoticeBoardComponent implements OnInit {
     ];
 
     priorityFilterOptions = [
-        { label: 'All Priorities', value: null },
+        // { label: 'All Priorities', value: null },
         { label: 'High', value: 'HIGH' },
         { label: 'Medium', value: 'MEDIUM' },
         { label: 'Low', value: 'LOW' }
@@ -105,30 +106,65 @@ export class SchoolNoticeBoardComponent implements OnInit {
     onLazyLoad(event: TableLazyLoadEvent) {
         this.pageNumber = (event.first ?? 0) / (event.rows ?? 10);
         this.pageSize = event.rows ?? 10;
-        this.sortField = (event.sortField as string) || 'publishedAt';
-        this.sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
+        this.sortField = (event.sortField as string) || 'createdAt';
+        this.sortOrder = event.sortOrder === 1 ? 'ASC' : 'DESC';
 
         this.loadNotices();
+    }
+
+    generateFilterParams() {
+        const filters: any = {};
+        if (this.selectedCategories.length) {
+            filters['categoryTypes'] = [...this.selectedCategories];
+        }
+        if (this.selectedPriorities.length) {
+            filters['priorities'] = this.selectedPriorities;
+        }
+
+        // "targetAudience": {
+        //   "ACADEMIC_UNIT": ["2026-2027:696b6ecd98a76aa52bd90e9e:682b560a77794f7170f3d73f:68282c6489869816a4108492"]
+        // }
+        filters['targetAudience'] = {};
+        this.commonService.getUserAuthorities.forEach((authority) => {
+            if (authority == 'STUDENT' && this.commonService.getStudentInfo) {
+                const studentInfo = this.commonService.getStudentInfo;
+                filters['targetAudience'] = {
+                    ACADEMIC_UNIT: [studentInfo.academicYear + ':' + studentInfo.departmentId + ':' + studentInfo.classId + ':' + studentInfo.sectionId],
+                    STUDENT: [studentInfo.userId]
+                };
+            }
+            if (authority != 'STUDENT' && this.commonService.getStudentInfo) {
+                const studentInfo = this.commonService.getStudentInfo;
+                filters['targetAudience'] = {
+                    ACADEMIC_UNIT: [studentInfo.academicYear + ':' + studentInfo.departmentId],
+                    STAFF: [this.commonService.currentUser.userId]
+                };
+            }
+            filters['targetAudience']['ROLE'] = [authority];
+            filters['targetAudience']['ALL'] = [];
+        });
+
+        return filters;
     }
 
     loadNotices() {
         this.loading = true;
         this.loader.show('Fetching notices...');
-        const filters: any = {
-            'branchId.eq': this.commonService.branch?.id
-        };
+        // const filters: any = {};
 
-        if (this.selectedCategory !== 'ALL') {
-            filters['categoryType.equals'] = this.selectedCategory;
-        }
+        // if (this.selectedCategories.length) {
+        //     filters['categoryTypes'] = [...this.selectedCategories];
+        // }
 
-        if (this.selectedPriority) {
-            filters['priority.equals'] = this.selectedPriority;
-        }
-
-        if (this.searchText.trim()) {
-            filters['title.contains'] = this.searchText.trim();
-        }
+        // if (this.selectedPriorities.length) {
+        //     filters['priorities'] = this.selectedPriorities;
+        // }
+        // "targetAudience": {
+        //   "ACADEMIC_UNIT": ["2026-2027:696b6ecd98a76aa52bd90e9e:682b560a77794f7170f3d73f:68282c6489869816a4108492"]
+        // }
+        // if (this.searchText.trim()) {
+        //     filters['title.contains'] = this.searchText.trim();
+        // }
 
         // // Date range filter
         // if (this.dateRange && this.dateRange.length === 2 && this.dateRange[0] && this.dateRange[1]) {
@@ -141,7 +177,7 @@ export class SchoolNoticeBoardComponent implements OnInit {
             size: this.pageSize,
             sortBy: this.sortField,
             sortDirection: this.sortOrder,
-            filters: filters
+            filters: this.generateFilterParams()
         };
 
         this.notificationService.search(request).subscribe({
@@ -171,9 +207,9 @@ export class SchoolNoticeBoardComponent implements OnInit {
 
     clearFilters() {
         this.searchText = '';
-        this.selectedPriority = null;
+        this.selectedPriorities = [];
         // this.dateRange = null;
-        this.selectedCategory = 'ALL';
+        this.selectedCategories = [];
         this.onFilterChange();
     }
 
