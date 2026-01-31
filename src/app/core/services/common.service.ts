@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IDepartmentConfig, Section } from '../../pages/models/org.model';
@@ -52,7 +52,7 @@ export class CommonService {
     getStudentInfo = null;
     getUserInfo = null;
     getUserAuthorities: string[] = [];
-
+    messageService = inject(MessageService);
     /* ================= MENU SOURCE ================= */
     menuModel = signal<MenuItem[]>([]);
 

@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ApiResponse } from '../../core/model/common.model';
 import { ApplicationConfigService } from '../../core/services/application-config.service';
 import { ExaminationDTO } from '../models/examination.model';
 
@@ -15,8 +16,12 @@ export class ExaminationService {
     protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ACADEMICS_BASE_URL + 'api/exams');
     examResultUrl: any = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ACADEMICS_BASE_URL + 'api/exam-results');
 
-    create(attendence: ExaminationDTO) {
-        return this.http.post<ExaminationDTO>(this.resourceUrl, attendence, { observe: 'response' });
+    create(exam: ExaminationDTO) {
+        return this.http.post<ApiResponse>(this.resourceUrl, exam, { observe: 'response' });
+    }
+
+    update(exam: ExaminationDTO) {
+        return this.http.put<ApiResponse>(this.resourceUrl + '/' + exam.examId, exam, { observe: 'response' });
     }
 
     find(id: any): Observable<any> {

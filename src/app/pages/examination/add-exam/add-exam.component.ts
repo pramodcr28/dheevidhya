@@ -54,7 +54,8 @@ export class AddExamComponent {
     treeNodes: TreeNode[] = [];
     selectedSubjects: TreeNode[] = [];
     submitted = false;
-    examForm!: FormGroup;
+    fb: FormBuilder = inject(FormBuilder);
+    examForm: FormGroup = this.fb.group({});
     @Input() exams: any[] = [];
     @Output() examSaved = new EventEmitter<void>();
     displayDialog = false;
@@ -64,15 +65,15 @@ export class AddExamComponent {
     examTypes = Object.entries(ExamTypeLabels).map(([value, label]) => ({ label, value }));
     examStatuses = Object.entries(ExamStatusLabels).map(([value, label]) => ({ label, value }));
     selectedSubjectsForTimeTable: Subject[] = [];
-    fb: FormBuilder = inject(FormBuilder);
+
     timeTable: ExaminationTimeTable = null;
     commonService: CommonService = inject(CommonService);
     loader = inject(ApiLoaderService);
     messageService = inject(MessageService);
-
+    validationErrors: string[];
     ngOnInit(): void {
         this.examForm = this.fb.group({
-            totalMarks: [null, Validators.required, Validators.min(1), Validators.max(1000)],
+            totalMarks: [null, [Validators.required, Validators.min(1), Validators.max(1000)]],
             departmentId: [null, Validators.required],
             departmentName: [null, Validators.required],
             branchId: [this.commonService.branch?.id?.toString(), Validators.required],
@@ -132,7 +133,7 @@ export class AddExamComponent {
         this.examinationService.find(input.examId).subscribe((result) => {
             this.selectedExam = input;
             let exam = result.body;
-            this.examForm.patchValue({
+            this.examForm?.patchValue({
                 totalMarks: exam.totalMarks,
                 departmentId: exam.departmentId,
                 departmentName: exam.departmentName,
@@ -292,7 +293,19 @@ export class AddExamComponent {
         return selected;
     }
 
+    validateTimetable(): string[] {
+        const errors: string[] = [];
+        return errors;
+    }
+
     saveExam() {
+        const errors = this.validateTimetable();
+        if (errors.length) {
+            this.validationErrors = errors;
+            return;
+        }
+
+        this.validationErrors = [];
         if (this.examForm.valid && this.timeTable.schedules.length >= this.selectedSubjectsForTimeTable.length) {
             this.timeTable.settings.startDate = formatDate(this.timeTable.settings.startDate, this.commonService.dateTimeFormate, 'en-US');
             this.timeTable.settings.endDate = formatDate(this.timeTable.settings.endDate, this.commonService.dateTimeFormate, 'en-US');
@@ -311,16 +324,49 @@ export class AddExamComponent {
                 };
             }
 
-            this.examinationService.create(finalExamData).subscribe((result) => {
-                this.getExams();
-                this.examSaved.emit();
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: `Congrats! exam uplished`
+            if (finalExamData.examId) {
+                this.examinationService.update(finalExamData).subscribe({
+                    next: (result) => {
+                        if (result.body.status == 200) {
+                            this.examSaved.emit();
+                            this.messageService.add({
+                                severity: 'success',
+                                summary: 'Success',
+                                detail: 'Examination updated successfully'
+                            });
+                            this.clearDailogCache();
+                        } else {
+                            debugger;
+                            this.messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: result.body.error
+                            });
+                        }
+                    }
                 });
-            });
-            this.clearDailogCache();
+            } else {
+                this.examinationService.create(finalExamData).subscribe({
+                    next: (result) => {
+                        if (result.body.status == 200) {
+                            this.examSaved.emit();
+                            this.messageService.add({
+                                severity: 'success',
+                                summary: 'Success',
+                                detail: 'Examination updated successfully'
+                            });
+                            this.clearDailogCache();
+                        } else {
+                            debugger;
+                            this.messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: result.body.error
+                            });
+                        }
+                    }
+                });
+            }
         }
     }
 
