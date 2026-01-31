@@ -15,7 +15,7 @@ import { CommonService } from '../../../core/services/common.service';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getDepartmentById } from '../../../core/store/user-profile/user-profile.selectors';
 import { ExaminationDTO, ExamResult, StudentResult } from '../../models/examination.model';
-import { IDepartmentConfig, Section } from '../../models/org.model';
+import { IDepartmentConfig } from '../../models/org.model';
 import { ExaminationService } from '../../service/examination.service';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { UserService } from '../../service/user.service';
@@ -31,8 +31,8 @@ export class UploadResultComponent {
     // currentBranch: IBranch;
     @Input() exams: any[] = [];
     selectedExam: ExaminationDTO;
-    sections: Section[] = [];
-    selectedSection: Section;
+    sections: any[] = [];
+    selectedSection: any;
 
     private store = inject(Store<{ userProfile: UserProfileState }>);
     private examinationService = inject(ExaminationService);
@@ -43,7 +43,6 @@ export class UploadResultComponent {
     private messageService = inject(MessageService);
 
     public students = signal<any[]>([]);
-    public examinationSubjects: any[] = [];
     public selectedSubjects: any[] = [];
     public studentResults: StudentResult[] = [];
 
@@ -58,7 +57,6 @@ export class UploadResultComponent {
 
         this.store.select(getDepartmentById(this.selectedExam.departmentId)).subscribe((dept: IDepartmentConfig) => {
             this.sections = [];
-            this.examinationSubjects = [];
 
             dept.department.classes.forEach((clss) => {
                 clss.sections.forEach((sec: any) => {
@@ -78,13 +76,8 @@ export class UploadResultComponent {
                             departmentId: dept.id,
                             sectionName: sec.name,
                             className: clss.name,
-                            departmentName: dept.department.name
-                        });
-
-                        sectionSubjects.forEach((sub) => {
-                            if (!this.examinationSubjects.some((existing) => existing.id === sub.id)) {
-                                this.examinationSubjects.push(sub);
-                            }
+                            departmentName: dept.department.name,
+                            _subjects: [...sectionSubjects]
                         });
                     }
                 });
@@ -93,7 +86,12 @@ export class UploadResultComponent {
     }
 
     onSectionChange() {
-        this.selectedSubjects = [...this.examinationSubjects]; // auto-select all subjects
+        this.selectedSubjects = [];
+        this.selectedSection._subjects.forEach((sub) => {
+            if (this.selectedExam.timeTable.schedules.some((sc) => sc.subjectName == sub.name)) {
+                this.selectedSubjects.push(sub);
+            }
+        });
         this.students.set([]);
         this.studentResults = [];
         this.loadStudents();

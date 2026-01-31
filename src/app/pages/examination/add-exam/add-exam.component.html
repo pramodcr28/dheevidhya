@@ -1,154 +1,123 @@
 <p-toast></p-toast>
 <div class="p-8 space-y-6">
- <div class="flex items-center justify-between">
-    <h2 class="text-2xl font-semibold">Examinations</h2>
-    <button pButton label="Add New Exam" icon="pi pi-plus" class="p-button-success" (click)="openDialog()"></button>
-  </div>
-<p-table [value]="exams" [paginator]="true" [rows]="5" class="p-datatable-sm shadow-md">
-  <ng-template pTemplate="header">
-    <tr>
-      <th>Exam Type</th>
-      <th>Department</th>
-      <!-- <th>Branch</th> -->
-      <th>Status</th>
-      <th>Time Table</th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-exam>
-    <tr>
-      <td>{{ ExamTypeLabels[exam.examType] || exam.examType }}</td>
-      <td>{{ exam.departmentId }}</td>
-      <!-- <td>{{ exam.branchId }}</td> -->
-      <td>{{ ExamStatusLabels[exam.status] || exam.status }}</td>
-      <td>
-        <button 
-          pButton 
-          type="button" 
-          label="edit" 
-          class="p-button" 
-          (click)="openSlotDailog(exam)">
-      </button>
-      </td>
-    </tr>
-  </ng-template>
-</p-table>
-@if(this.timeTable){
-<p-dialog 
-  header="Create New Exam" 
-  [(visible)]="displayDialog" 
-  [modal]="true"
-  [style]="{ width: '90vw', height: '90vh' }"
-  [contentStyle]="{ 'overflow-y': 'auto', 'padding-bottom': '4rem' }"
-  [dismissableMask]="true"
-  [draggable]="false"
-  [resizable]="false"
-  (onHide)="clearDailogCache()"
->
-
-
-  <form [formGroup]="examForm" (ngSubmit)="saveExam()" class="space-y-6">
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block font-semibold mb-1">Exam Type</label>
-        <p-select
-          [options]="examTypes" 
-          optionValue="value"
-          formControlName="examType" 
-          placeholder="Select Exam Type" 
-          class="w-full">
-        </p-select>
-      </div>
-
-      <div>
-        
-        <label for="totalMarks" class="block font-bold mb-2">Total Marks</label>
-        <p-inputnumber inputId="totalMarks" formControlName="totalMarks" />
-      </div>
+    <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-semibold">Examinations</h2>
+        <button pButton label="Add New Exam" icon="pi pi-plus" class="p-button-success" (click)="openDialog()"></button>
     </div>
-   <div class="mt-2">
-          <label class="block font-bold mb-2">Department</label>
-          <p-select
-            [options]="associatedDepartments"
-            [(ngModel)]="selectedDepartment"
-            [ngModelOptions]="{standalone: true}"
-            (onChange)="onDepartmentChange()"
-            optionLabel="name"
-            placeholder="Select Department"
-            [style]="{ width: '100%' }">
-          </p-select>
-          <small class="text-red-500" *ngIf="submitted && !selectedDepartment">
-            Department is required.
-          </small>
-        </div>
+    <p-table [value]="exams" [paginator]="true" [rows]="5" class="p-datatable-sm shadow-md">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Exam Type</th>
+                <th>Department</th>
+                <!-- <th>Branch</th> -->
+                <th>Status</th>
+                <th>Time Table</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-exam>
+            <tr>
+                <td>{{ ExamTypeLabels[exam.examType] || exam.examType }}</td>
+                <td>{{ exam.departmentName }}</td>
+                <!-- <td>{{ exam.branchId }}</td> -->
+                <td>{{ ExamStatusLabels[exam.status] || exam.status }}</td>
+                <td>
+                    <button pButton type="button" label="edit" class="p-button" (click)="openSlotDailog(exam)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+    @if (this.timeTable) {
+        <p-dialog
+            header="Create New Exam"
+            [(visible)]="displayDialog"
+            [modal]="true"
+            [style]="{ width: '90vw', height: '90vh' }"
+            [contentStyle]="{ 'overflow-y': 'auto', 'padding-bottom': '4rem' }"
+            [dismissableMask]="true"
+            [draggable]="false"
+            [resizable]="false"
+            (onHide)="clearDailogCache()"
+        >
+            <form [formGroup]="examForm" (ngSubmit)="saveExam()" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold mb-1">Exam Type</label>
+                        <p-select [options]="examTypes" optionValue="value" formControlName="examType" placeholder="Select Exam Type" class="w-full"> </p-select>
+                    </div>
 
-         @if(selectedDepartment){
-    <div>
-      <label class="block font-semibold mb-1">Select Subjects from Any Class</label>
-      <p-treeSelect
-        [(ngModel)]="selectedSubjects"
-        [ngModelOptions]="{ standalone: true }"
-        [options]="treeNodes"
-        (onNodeSelect)="onSubjectChange()"
-        selectionMode="checkbox"
-        [fluid]="true"
-        scrollHeight="200px"
-        placeholder="Select Subjects"
-      />
-    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="totalMarks" class="block font-bold"> Total Marks </label>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      @for (classGroup of groupedSelectedSubjects; track $index) {
+                        <p-inputNumber inputId="totalMarks" formControlName="totalMarks" [min]="1" [max]="1000" [showButtons]="true" class="w-full"> </p-inputNumber>
 
-         <div class="rounded-xl p-4 shadow-sm" [ngClass]="getColorClass(classGroup.className)">
-            <div class="flex justify-between items-center mb-2">
-              <h4 class="font-semibold text-base">
-                {{ classGroup.className }} - {{ classGroup.sectionName }}
-              </h4>
+                        <small class="text-gray-500"> Enter the maximum marks for this question paper (usually 20, 50, or 100). </small>
+
+                        <small class="text-red-500" *ngIf="examForm.get('totalMarks')?.touched && examForm.get('totalMarks')?.invalid">
+                            <span *ngIf="examForm.get('totalMarks')?.errors?.['required']"> Total marks is required. </span>
+
+                            <span *ngIf="examForm.get('totalMarks')?.errors?.['min']"> Total marks must be at least 1. </span>
+
+                            <span *ngIf="examForm.get('totalMarks')?.errors?.['max']"> Total marks cannot exceed 1000. </span>
+                        </small>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <label class="block font-bold mb-2">Department</label>
+                    <p-select
+                        [options]="commonService.associatedDepartments"
+                        [(ngModel)]="selectedDepartment"
+                        [ngModelOptions]="{ standalone: true }"
+                        (onChange)="onDepartmentChange()"
+                        optionLabel="name"
+                        placeholder="Select Department"
+                        [style]="{ width: '100%' }"
+                    >
+                    </p-select>
+                    <small class="text-red-500" *ngIf="submitted && !selectedDepartment"> Department is required. </small>
+                </div>
+
+                @if (selectedDepartment) {
+                    <div>
+                        <label class="block font-semibold mb-1">Select Subjects from Any Class</label>
+                        <p-treeSelect
+                            [(ngModel)]="selectedSubjects"
+                            [ngModelOptions]="{ standalone: true }"
+                            [options]="treeNodes"
+                            (onNodeSelect)="onSubjectChange()"
+                            selectionMode="checkbox"
+                            [fluid]="true"
+                            scrollHeight="200px"
+                            placeholder="Select Subjects"
+                        />
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        @for (classGroup of groupedSelectedSubjects; track $index) {
+                            <div class="rounded-xl p-4 shadow-sm" [ngClass]="getColorClass(classGroup.className)">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h4 class="font-semibold text-base">{{ classGroup.className }} - {{ classGroup.sectionName }}</h4>
+                                </div>
+
+                                <div class="flex flex-wrap gap-2">
+                                    <ng-container *ngFor="let subject of classGroup.subjects">
+                                        <p-chip [label]="subject.label" class="bg-white text-gray-800" removable="true" (onRemove)="removeSubject(subject)"> </p-chip>
+                                    </ng-container>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </form>
+
+            <ng-template pTemplate="footer">
+                <div class="w-full fixed bottom-0 left-0 bg-white p-4 border-t border-gray-200 flex justify-end space-x-2 z-10">
+                    <button pButton type="submit" label="Save Exam" [disabled]="examForm.invalid" class="p-button-primary" (click)="saveExam()"></button>
+                    <button pButton type="button" label="Cancel" class="p-button-secondary" (click)="clearDailogCache()"></button>
+                </div>
+            </ng-template>
+            <div class="py-6">
+                <app-exam-slots [subjects]="selectedSubjectsForTimeTable" [timeTable]="timeTable"></app-exam-slots>
             </div>
-
-            <div class="flex flex-wrap gap-2">
-              <ng-container *ngFor="let subject of classGroup.subjects">
-                <p-chip 
-                  [label]="subject.label"
-                  class="bg-white text-gray-800"
-                  removable="true"
-                  (onRemove)="removeSubject(subject)">
-                </p-chip>
-              </ng-container>
-            </div>
-          </div>
-      }
-    </div>
+        </p-dialog>
     }
-   
-
-  </form>
-
- <ng-template pTemplate="footer">
-    <div class="w-full fixed bottom-0 left-0 bg-white p-4 border-t border-gray-200 flex justify-end space-x-2 z-10">
-      <button 
-        pButton 
-        type="submit" 
-        label="Save Exam" 
-        [disabled]="examForm.invalid" 
-        class="p-button-primary" 
-        (click)="saveExam()">
-      </button>
-      <button 
-        pButton 
-        type="button" 
-        label="Cancel" 
-        class="p-button-secondary" 
-        (click)="clearDailogCache()">
-      </button>
-    </div>
-  </ng-template>
-  <div class="py-6">
-  <app-exam-slots [subjects]="selectedSubjectsForTimeTable" [timeTable]="timeTable" ></app-exam-slots>
-  </div>
-
-</p-dialog>
-}
-
 </div>

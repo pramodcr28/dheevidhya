@@ -1,7 +1,6 @@
 import { CommonModule, formatDate } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
 import { AccordionModule } from 'primeng/accordion';
 import { MessageService, TreeNode } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -17,8 +16,6 @@ import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { ApiLoaderService } from '../../../core/services/loaderService';
-import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
 import { ExaminationDTO, ExamStatusLabels, ExamTypeLabels } from '../../models/examination.model';
 import { IDepartmentConfig } from '../../models/org.model';
 import { Subject } from '../../models/time-table';
@@ -53,10 +50,7 @@ import { ExaminationTimeTable, IExaminationSubject } from './../../models/examin
     providers: [MessageService]
 })
 export class AddExamComponent {
-    private store = inject(Store<{ userProfile: UserProfileState }>);
-    associatedDepartments: any[] = [];
     selectedDepartment: IDepartmentConfig;
-    // currentBranch: IBranch;
     treeNodes: TreeNode[] = [];
     selectedSubjects: TreeNode[] = [];
     submitted = false;
@@ -66,24 +60,21 @@ export class AddExamComponent {
     displayDialog = false;
     slotDailog = false;
     selectedExam: ExaminationDTO;
-    private examinationService = inject(ExaminationService);
+    examinationService = inject(ExaminationService);
     examTypes = Object.entries(ExamTypeLabels).map(([value, label]) => ({ label, value }));
     examStatuses = Object.entries(ExamStatusLabels).map(([value, label]) => ({ label, value }));
     selectedSubjectsForTimeTable: Subject[] = [];
-    constructor(private fb: FormBuilder) {}
-    //  timeSlots: ExaminationTimeSlot[] = [];
+    fb: FormBuilder = inject(FormBuilder);
     timeTable: ExaminationTimeTable = null;
     commonService: CommonService = inject(CommonService);
     loader = inject(ApiLoaderService);
     messageService = inject(MessageService);
-    ngOnInit(): void {
-        this.store.select(getAssociatedDepartments).subscribe((departments) => {
-            this.associatedDepartments = departments;
-        });
 
+    ngOnInit(): void {
         this.examForm = this.fb.group({
-            totalMarks: [null, Validators.required],
+            totalMarks: [null, Validators.required, Validators.min(1), Validators.max(1000)],
             departmentId: [null, Validators.required],
+            departmentName: [null, Validators.required],
             branchId: [this.commonService.branch?.id?.toString(), Validators.required],
             examType: [null, Validators.required],
             resultDeclarationDate: [null]
@@ -112,16 +103,15 @@ export class AddExamComponent {
     openDialog() {
         const now = new Date();
         const startDate = new Date(now);
-        startDate.setDate(startDate.getDate() + 1); // Tomorrow
-
+        startDate.setDate(startDate.getDate() + 1);
         const endDate = new Date(startDate);
         endDate.setDate(endDate.getDate());
 
         const dayStartTime = new Date();
-        dayStartTime.setHours(10, 0, 0, 0); // 10:00 AM
+        dayStartTime.setHours(10, 0, 0, 0);
 
         const dayEndTime = new Date();
-        dayEndTime.setHours(17, 0, 0, 0); // 5:00 PM
+        dayEndTime.setHours(17, 0, 0, 0);
 
         this.timeTable = {
             settings: {
@@ -129,9 +119,9 @@ export class AddExamComponent {
                 endDate: endDate,
                 dayStartTime: dayStartTime,
                 dayEndTime: dayEndTime,
-                breakDuration: 15, // 15 minutes break between slots
-                slotDuration: 60, // Each slot is 60 minutes
-                slotsPerDay: 1 // 2 slots per day by default
+                breakDuration: 15,
+                slotDuration: 60,
+                slotsPerDay: 1
             },
             schedules: []
         };
@@ -145,6 +135,7 @@ export class AddExamComponent {
             this.examForm.patchValue({
                 totalMarks: exam.totalMarks,
                 departmentId: exam.departmentId,
+                departmentName: exam.departmentName,
                 branchId: exam.branchId,
                 examType: exam.examType,
                 resultDeclarationDate: exam.resultDeclarationDate ?? null
@@ -152,7 +143,7 @@ export class AddExamComponent {
             this.timeTable = exam.timeTable;
             this.timeTable.settings.startDate = new Date(this.timeTable.settings.startDate);
             this.timeTable.settings.endDate = new Date(this.timeTable.settings.endDate);
-            this.selectedDepartment = this.associatedDepartments.find((dep) => dep.id == exam.departmentId);
+            this.selectedDepartment = this.commonService.associatedDepartments.find((dep) => dep.id == exam.departmentId);
             this.onDepartmentChange();
             this.selectedSubjects = this.getSelectedSubjectNodes(exam.subjects, this.treeNodes);
             this.onSubjectChange();
@@ -163,6 +154,7 @@ export class AddExamComponent {
     onDepartmentChange() {
         if (this.selectedDepartment) {
             this.examForm.get('departmentId').setValue(this.selectedDepartment?.id);
+            this.examForm.get('departmentName').setValue(this.selectedDepartment?.department.name);
             this.examForm.get('branchId').setValue(this.commonService.branch?.id?.toString());
             this.treeNodes = this.selectedDepartment?.department.classes?.map((cls) => ({
                 label: 'Class: ' + cls.name,
