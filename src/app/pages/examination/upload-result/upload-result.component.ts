@@ -5,6 +5,7 @@ import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SelectModule } from 'primeng/select';
@@ -22,7 +23,7 @@ import { UserService } from '../../service/user.service';
 @Component({
     selector: 'app-upload-result',
     standalone: true,
-    imports: [SelectModule, FormsModule, CommonModule, ButtonModule, InputTextModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TagModule],
+    imports: [SelectModule, FormsModule, CommonModule, ButtonModule, InputTextModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TagModule, InputNumberModule],
     templateUrl: './upload-result.component.html',
     providers: [ConfirmationService, MessageService]
 })
@@ -158,7 +159,7 @@ export class UploadResultComponent {
                             subjectId: subject.id,
                             subjectName: subject.name,
                             obtainedMarks: existingResult?.obtainedMarks ?? null,
-                            totalMarks: existingResult?.totalMarks || subject.maxMarks || 100,
+                            totalMarks: existingResult?.id ? existingResult?.totalMarks : this.selectedExam.totalMarks,
                             notes: existingResult?.notes || '',
                             resultDeclaredAt: existingResult?.resultDeclaredAt || null
                         };
@@ -266,7 +267,7 @@ export class UploadResultComponent {
 
     getStudentPercentage(student: StudentResult): number {
         const totalObtained = student.examResults.reduce((sum, r) => sum + (r.obtainedMarks || 0), 0);
-        const totalMax = student.examResults.reduce((sum, r) => sum + (r.totalMarks || 100), 0);
+        const totalMax = student.examResults.reduce((sum, r) => sum + (r.totalMarks || this.selectedExam?.totalMarks), 0);
         return totalMax ? Math.round((totalObtained / totalMax) * 100) : 0;
     }
 
@@ -275,7 +276,7 @@ export class UploadResultComponent {
             if (r.obtainedMarks === null || r.obtainedMarks === undefined) {
                 return false;
             }
-            const percentage = (r.obtainedMarks / (r.totalMarks || 100)) * 100;
+            const percentage = (r.obtainedMarks / (r.totalMarks || this.selectedExam?.totalMarks)) * 100;
             return percentage < 35;
         });
 

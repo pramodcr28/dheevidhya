@@ -242,8 +242,7 @@ export class StaffAttendanceComponent implements OnInit {
                         sortBy: 'id',
                         sortDirection: 'desc',
                         filters: {
-                            'categoryType.equals': 'HOLIDAY',
-                            'branchId.eq': this.commonService?.branch?.id
+                            categoryTypes: ['HOLIDAY']
                         }
                     };
                     this.notificationService.search(request).subscribe((result) => {
@@ -268,10 +267,8 @@ export class StaffAttendanceComponent implements OnInit {
 
     getEventsForDate(date: Date): Notice[] {
         const dateKey = this.datePipe.transform(date, 'yyyy-MM-dd') || '';
-        const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
-
+        const dayOfWeek = date.getDay();
         return this.events.filter((event) => {
-            // Handle Week_off events (recurring weekly)
             if (event.holiday.holidayType === 'Week_off') {
                 const dayMap: { [key: string]: number } = {
                     SUNDAY: 0,
@@ -287,13 +284,11 @@ export class StaffAttendanceComponent implements OnInit {
                 return dayOfWeek === dayMap[weekOffDay.toUpperCase()];
             }
 
-            // Handle regular events with date ranges
             if (!event.holiday.holidayStartDate) return false;
 
             const startDate = new Date(event.holiday.holidayStartDate);
             const endDate = event.holiday.holidayEndDate ? new Date(event.holiday.holidayEndDate) : new Date(event.holiday.holidayStartDate);
 
-            // Normalize dates to compare without time
             const checkDate = new Date(date);
             checkDate.setHours(0, 0, 0, 0);
             startDate.setHours(0, 0, 0, 0);
@@ -317,7 +312,6 @@ export class StaffAttendanceComponent implements OnInit {
         const prevMonth = new Date(year, month, 0);
         const prevMonthLastDate = prevMonth.getDate();
 
-        // Previous month's trailing days
         for (let i = firstDayOfWeek - 1; i >= 0; i--) {
             const date = new Date(year, month - 1, prevMonthLastDate - i);
             this.calendarDays.push({
@@ -329,7 +323,6 @@ export class StaffAttendanceComponent implements OnInit {
             });
         }
 
-        // Current month's days
         for (let i = 1; i <= lastDate; i++) {
             const date = new Date(year, month, i);
             const dateKey = this.datePipe.transform(date, 'yyyy-MM-dd') || '';
