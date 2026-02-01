@@ -1,0 +1,38 @@
+ <p-dialog
+            [(visible)]="visible"
+            [modal]="true"
+            [style]="{ width: '550px' }"
+            [dismissableMask]="false"
+            [draggable]="false"
+            [resizable]="false"
+            closable="false"
+        >
+            <div class="flex flex-col items-center text-center gap-4 py-2">
+                <h4>{{config.header}}</h4>
+                <div class="flex items-center justify-center w-20 h-20 rounded-full bg-primary-50">
+                    <i [class]="config.icon || 'pi pi-question'" [ngClass]="config.iconColor || 'text-yellow-500'" style="font-size: 2rem"></i>
+                </div>
+                <div class="flex-1 px-4">
+                    <p class="text-gray-700 leading-relaxed text-base" [innerHTML]="config.message"></p>
+                </div>
+            </div>
+            
+            <ng-template pTemplate="footer">
+                <div class="flex justify-center gap-3 pt-2">
+                    <button 
+                        pButton 
+                        type="button" 
+                        [label]="config.rejectLabel || 'Cancel'" 
+                        [class]="config.rejectButtonClass || 'p-button-text p-button-secondary'"
+                        (click)="onReject()"
+                    ></button>
+                    <button 
+                        pButton 
+                        type="button" 
+                        [label]="config.acceptLabel || 'Confirm'" 
+                        [class]="config.acceptButtonClass || 'p-button-danger'"
+                        (click)="onAccept()"
+                    ></button>
+                </div>
+            </ng-template>
+        </p-dialog>

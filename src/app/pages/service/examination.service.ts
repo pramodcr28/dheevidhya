@@ -28,6 +28,10 @@ export class ExaminationService {
         return this.http.get<ExaminationDTO>(`${this.resourceUrl}/${id}`, { observe: 'response' });
     }
 
+    delete(id: any): Observable<any> {
+        return this.http.delete<ExaminationDTO>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+    }
+
     search<T>(page: number = 0, size: number = 10, sortBy: string = 'id', sortDirection: string = 'ASC', filters: any = {}): Observable<any> {
         const searchRequest = {
             page: page,

@@ -1,17 +1,21 @@
 <p-table
     #dt
     [value]="students()!"
-    [rows]="itemsPerPage"
+    
     [columns]="cols"
+    [rows]="itemsPerPage"
     [paginator]="true"
-    [lazy]="true"
     [totalRecords]="totalItems"
+    [lazy]="true"
     (onLazyLoad)="onPageChange($event)"
     (onSort)="onSort($event)"
     [globalFilterFields]="['firstName', 'lastName', 'email']"
     [tableStyle]="{ 'min-width': '100%' }"
     [rowHover]="true"
     dataKey="id"
+    [rows]="itemsPerPage"
+    [paginator]="true"
+    [totalRecords]="totalItems"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Students"
     [showCurrentPageReport]="true"
     [rowsPerPageOptions]="[10, 20, 30, 50]"

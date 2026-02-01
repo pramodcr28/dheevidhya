@@ -1,5 +1,5 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, inject, Input } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -16,7 +16,6 @@ import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { ExaminationDTO, ExaminationTimeSlot, ExaminationTimeTable } from '../../models/examination.model';
 import { Subject } from '../../models/time-table';
-import { ExaminationService } from '../../service/examination.service';
 
 @Component({
     selector: 'app-exam-slots',
@@ -29,8 +28,9 @@ import { ExaminationService } from '../../service/examination.service';
 export class ExamSlotsComponent {
     draggedSubject: any;
     isDragOver = false;
-    validationErrors: string[] = [];
-
+    @Input() validationErrors: string[] = [];
+    @Output() validationErrorsChange = new EventEmitter<string[]>();
+    @Input() canEdit = true;
     slotOptions = [
         { label: '1 Slot', value: 1 },
         { label: '2 Slots', value: 2 },
@@ -55,13 +55,13 @@ export class ExamSlotsComponent {
     timeTable: ExaminationTimeTable;
 
     @Input() subjects: Subject[];
-
+    _subjects: Subject[] = [];
     commonService: CommonService = inject(CommonService);
     loader = inject(ApiLoaderService);
     messageService = inject(MessageService);
-    selectedExam: ExaminationDTO;
-    exams: any[] = [];
-    examinationService = inject(ExaminationService);
+    @Input() selectedExam: ExaminationDTO;
+    timeSlots = [];
+    days = [];
     ngOnInit() {
         // Initialize default times if not set
         if (!this.timeTable.settings.dayStartTime) {
@@ -75,15 +75,7 @@ export class ExamSlotsComponent {
         }
 
         this.validateForm();
-        this.getExams();
-    }
-
-    getExams() {
-        this.loader.show('Fetching Exams List');
-        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString() }).subscribe((res) => {
-            this.exams = res.content;
-            this.loader.hide();
-        });
+        this.generateTimeTable();
     }
 
     ngOnChanges() {
@@ -118,7 +110,6 @@ export class ExamSlotsComponent {
             }
         }
 
-        // Slot validations
         if (!this.timeTable.settings.slotsPerDay || this.timeTable.settings.slotsPerDay < 1) {
             this.validationErrors.push('At least 1 slot per day is required');
         }
@@ -126,7 +117,6 @@ export class ExamSlotsComponent {
             this.validationErrors.push('Slot duration must be at least 30 minutes');
         }
 
-        // Check if slots fit within day
         if (this.timeTable.settings.dayStartTime && this.timeTable.settings.dayEndTime && this.timeTable.settings.slotsPerDay && this.timeTable.settings.slotDuration) {
             const dayDurationMinutes = this.getDayDurationInMinutes();
             const totalSlotDuration = this.timeTable.settings.slotsPerDay * this.timeTable.settings.slotDuration;
@@ -138,7 +128,6 @@ export class ExamSlotsComponent {
             }
         }
 
-        // Subject validations
         if (!this.subjects || this.subjects.length === 0) {
             this.validationErrors.push('At least one subject is required');
         }
@@ -166,12 +155,8 @@ export class ExamSlotsComponent {
         return Math.floor((end.getTime() - start.getTime()) / (1000 * 60));
     }
 
-    getTimeSlots(): string[] {
+    getTimeSlots(): void {
         const slots: string[] = [];
-
-        if (!this.timeTable.settings.dayStartTime) {
-            return slots;
-        }
 
         let currentTime = new Date(this.timeTable.settings.dayStartTime);
 
@@ -185,7 +170,7 @@ export class ExamSlotsComponent {
             }
         }
 
-        return slots;
+        this.timeSlots = slots;
     }
 
     generateTimeTable() {
@@ -199,7 +184,9 @@ export class ExamSlotsComponent {
             });
             return;
         }
-
+        this.getTimeSlots();
+        this.getDays();
+        this._subjects = [...this.subjects];
         this.timeTable.schedules.splice(0, this.timeTable.schedules.length); // Clear in-place
 
         let currentDate = new Date(this.timeTable.settings.startDate);
@@ -229,11 +216,11 @@ export class ExamSlotsComponent {
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: `Timetable generated with ${this.timeTable.schedules.length} slots`
-        });
+        // this.messageService.add({
+        //     severity: 'success',
+        //     summary: 'Success',
+        //     detail: `Timetable generated with ${this.timeTable.schedules.length} slots`
+        // });
     }
 
     getSlotTimeRange(slot: ExaminationTimeSlot): string {
@@ -242,8 +229,8 @@ export class ExamSlotsComponent {
         return `${this.formatTime(start)} - ${this.formatTime(end)}`;
     }
 
-    getDays(): string[] {
-        return Array.from(new Set(this.timeTable.schedules.map((slot) => slot.day)));
+    getDays(): void {
+        this.days = Array.from(new Set(this.timeTable.schedules.map((slot) => slot.day)));
     }
 
     getSlotsForDay(dayISO: string): ExaminationTimeSlot[] {

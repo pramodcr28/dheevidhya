@@ -1,27 +1,114 @@
 <p-toast></p-toast>
+
+<!-- Confirmation Dialog -->
+<app-confirmation-dialog
+    [(visible)]="showConfirmDialog"
+    [config]="confirmConfig"
+    (onConfirm)="handleConfirmation()"
+    (onCancel)="handleCancellation()"
+></app-confirmation-dialog>
+
 <div class="p-8 space-y-6">
     <div class="flex items-center justify-between">
         <h2 class="text-2xl font-semibold">Examinations</h2>
         <button pButton label="Add New Exam" icon="pi pi-plus" class="p-button-success" (click)="openDialog()"></button>
     </div>
-    <p-table [value]="exams" [paginator]="true" [rows]="5" class="p-datatable-sm shadow-md">
+    <p-table 
+    [value]="exams" 
+    [rows]="itemsPerPage"
+    [paginator]="true"
+    [totalRecords]="totalItems"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Exams"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30, 50]"
+    [lazy]="true"
+    (onLazyLoad)="onPageChange($event)"
+    (onSort)="onSort($event)"
+    class="p-datatable-sm shadow-md">
         <ng-template pTemplate="header">
             <tr>
                 <th>Exam Type</th>
                 <th>Department</th>
-                <!-- <th>Branch</th> -->
+                <th>Exam Date(s)</th>
                 <th>Status</th>
                 <th>Time Table</th>
+                <th style="width: 180px">Actions</th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-exam>
             <tr>
                 <td>{{ ExamTypeLabels[exam.examType] || exam.examType }}</td>
                 <td>{{ exam.departmentName }}</td>
-                <!-- <td>{{ exam.branchId }}</td> -->
-                <td>{{ ExamStatusLabels[exam.status] || exam.status }}</td>
                 <td>
-                    <button pButton type="button" label="edit" class="p-button" (click)="openSlotDailog(exam)"></button>
+                    <div class="flex items-center gap-2 text-sm">
+                        <i class="pi pi-calendar text-blue-500"></i>
+                        @if (isSingleDayExam(exam)) {
+                            <span class="font-medium">{{ exam.timeTable?.settings?.startDate | date: commonService.dateFormate }}</span>
+                        } @else {
+                            <div class="flex flex-col">
+                                <span class="font-medium">{{ exam.timeTable?.settings?.startDate | date: commonService.dateFormate }}</span>
+                                <span class="text-xs text-gray-500">to</span>
+                                <span class="font-medium">{{ exam.timeTable?.settings?.endDate | date: commonService.dateFormate }}</span>
+                            </div>
+                        }
+                    </div>
+                </td>
+                <td>
+                    <span 
+                        [class]="'px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-1 w-fit ' + examStatusService.getStatusBadgeClass(exam.status)">
+                        <i [class]="examStatusService.getStatusIcon(exam.status)" class="text-xs"></i>
+                        {{ ExamStatusLabels[exam.status] || exam.status }}
+                    </span>
+                </td>
+                <td>
+                    <button 
+                        pButton 
+                        type="button" 
+                        [label]="examStatusService.canEdit(exam.status) ? 'View/Edit' : 'View'" 
+                        icon="pi pi-calendar" 
+                        class="p-button-sm p-button-text" 
+                        (click)="openSlotDailog(exam)"
+                    ></button>
+                    
+                        <!-- [disabled]="!examStatusService.canEdit(exam.status)" -->
+                </td>
+                <td>
+                    <div class="flex gap-2 items-center">
+                        <!-- Modern Status Change Menu -->
+                        @if (getAvailableActions(exam).length > 0) {
+                            <button
+                                pButton
+                                type="button"
+                                icon="pi pi-ellipsis-v"
+                                class="p-button-sm p-button-text p-button-rounded"
+                                (click)="menu.toggle($event)"
+                                pTooltip="Change Status"
+                            ></button>
+                            <p-menu #menu [model]="getStatusMenuItems(exam)" [popup]="true" appendTo="body">
+                                <ng-template pTemplate="item" let-item>
+                                    <div class="flex items-center gap-3 p-2 cursor-pointer hover:bg-gray-50 rounded">
+                                        <i [class]="item.icon + ' text-lg'" [ngClass]="getStatusColorClass(item.value)"></i>
+                                        <div class="flex flex-col">
+                                            <span class="font-medium text-sm">{{ item.label }}</span>
+                                            <span class="text-xs text-gray-500">{{ getStatusDescription(item.value) }}</span>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </p-menu>
+                        }
+                        
+                        <!-- Delete Button (only for DRAFT) -->
+                        @if (examStatusService.canDelete(exam.status)) {
+                            <button 
+                                pButton 
+                                type="button" 
+                                icon="pi pi-trash" 
+                                class="p-button-sm p-button-danger p-button-text p-button-rounded" 
+                                (click)="deleteExam(exam)"
+                                pTooltip="Delete Draft"
+                            ></button>
+                        }
+                    </div>
                 </td>
             </tr>
         </ng-template>
@@ -39,26 +126,21 @@
             (onHide)="clearDailogCache()"
         >
             @if (validationErrors?.length) {
-                  <div class="mb-3 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <div class="mb-3 p-3 bg-red-50 border border-red-200 rounded-md w-90 fixed top-20 left-5 right-5 z-[500]">
                 <div class="flex items-center mb-2">
                     <i class="pi pi-exclamation-triangle text-red-500 mr-2"></i>
-                    <span class="text-sm font-medium text-red-800">Please fix the following issues:</span>
+                    <span class="text-sm font-medium text-red-800">Please fix the following issues And try to Save Again</span>
                 </div>
-                <ul class="text-sm text-red-700 list-disc list-inside">
-                    <li *ngFor="let error of validationErrors">{{ error }}</li>
+                <ul class="text-sm text-red-700 list-disc px-2">
+                    @for (error of validationErrors; track $index) {
+                        <li>{{ error }}</li>
+                    }
                 </ul>
             </div>
-                <!-- <div class="mb-4">
-                    
-                    <div *ngFor="let error of validationErrors" class="flex items-start text-md font-bold text-red-600 mb-1">
-                        <i class="pi pi-exclamation-circle mr-2 mt-0.5"></i>
-                        <span>{{ error }}</span>
-                    </div>
-                </div> -->
             }
 
           
-            <form [formGroup]="examForm" (ngSubmit)="saveExam()" class="space-y-6">
+            <form [formGroup]="examForm" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block font-semibold mb-1">Exam Type</label>
@@ -129,16 +211,63 @@
                     </div>
                 }
             </form>
-
+@if(examStatusService.canEdit(selectedExam.status)){
             <ng-template pTemplate="footer">
                 <div class="w-full fixed bottom-0 left-0 bg-white p-4 border-t border-gray-200 flex justify-end space-x-2 z-10">
-                    <button pButton type="submit" label="Save Exam" [disabled]="examForm.invalid || !selectedSubjects.length" class="p-button-primary" (click)="saveExam()"></button>
-                    <button pButton type="button" label="Cancel" class="p-button-secondary" (click)="clearDailogCache()"></button>
+                    <!-- Show "Save as Draft" only for new exams or existing drafts -->
+                    @if (!selectedExam || selectedExam.status === 'DRAFT') {
+                        <button 
+                            pButton 
+                            type="button" 
+                            label="Save as Draft" 
+                            icon="pi pi-save"
+                            [disabled]="examForm.invalid || !selectedSubjects.length" 
+                            class="p-button-secondary" 
+                            (click)="saveExam('DRAFT')"
+                        ></button>
+                    }
+                    
+                    <!-- Show "Schedule" for new exams, drafts, or "Reschedule" for scheduled/RE_SCHEDULED exams -->
+                    @if (!selectedExam || selectedExam.status === 'DRAFT') {
+                        <button 
+                            pButton 
+                            type="submit" 
+                            label="Schedule Exam" 
+                            icon="pi pi-calendar-plus"
+                            [disabled]="examForm.invalid || !selectedSubjects.length || !isScheduleValid()" 
+                            class="p-button-success" 
+                            (click)="saveExam('SCHEDULED')"
+                        ></button>
+                    }
+                    @else if (selectedExam.status === 'SCHEDULED' || selectedExam.status === 'RE_SCHEDULED') {
+                        <button 
+                            pButton 
+                            type="submit" 
+                            label="Reschedule Exam" 
+                            icon="pi pi-refresh"
+                            [disabled]="examForm.invalid || !selectedSubjects.length || !isScheduleValid()" 
+                            class="p-button-warning" 
+                            (click)="rescheduleExam()"
+                        ></button>
+                    }
+                    
+                    <button 
+                        pButton 
+                        type="button" 
+                        label="Cancel" 
+                        icon="pi pi-times"
+                        class="p-button-text p-button-secondary" 
+                        (click)="clearDailogCache()"
+                    ></button>
                 </div>
             </ng-template>
+}
+
             <div class="py-6">
-                <app-exam-slots [subjects]="selectedSubjectsForTimeTable" [timeTable]="timeTable"></app-exam-slots>
-            </div>
+                @if(selectedSubjectsForTimeTable){
+                 <app-exam-slots [selectedExam]="selectedExam" (validationErrorsChange)="validationErrors = $event" [validationErrors]="validationErrors" [canEdit]="examStatusService.canEdit(selectedExam.status)" [subjects]="selectedSubjectsForTimeTable" [timeTable]="timeTable"></app-exam-slots>
+                }
+           </div>
         </p-dialog>
     }
 </div>

@@ -19,7 +19,7 @@
                                     <div class="text-sm text-gray-500 dark:text-white">{{ exam.timeTable.settings.startDate | date: 'shortDate' }}</div>
                                 </div>
                             </div>
-                            <p-tag [value]="exam.status" [severity]="exam.status === 'COMPLETED' ? 'success' : 'info'"></p-tag>
+                            <p-tag [value]="exam.status" [severity]="exam.status === 'RESULT_DECLARED' ? 'success' : 'info'"></p-tag>
                         </div>
                     </ng-template>
                 </p-select>

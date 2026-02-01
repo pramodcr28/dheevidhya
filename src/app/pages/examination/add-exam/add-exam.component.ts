@@ -10,15 +10,21 @@ import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { MenuModule } from 'primeng/menu';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { TreeSelectModule } from 'primeng/treeselect';
+import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
 import { ApiLoaderService } from '../../../core/services/loaderService';
-import { ExaminationDTO, ExamStatusLabels, ExamTypeLabels } from '../../models/examination.model';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationConfig } from '../../models/common.model';
+import { ExaminationDTO, ExamStatus, ExamStatusLabels, ExamTypeLabels } from '../../models/examination.model';
 import { IDepartmentConfig } from '../../models/org.model';
 import { Subject } from '../../models/time-table';
+import { ExamStatusService } from '../../service/exam-status.service';
 import { ExaminationService } from '../../service/examination.service';
 import { ExamSlotsComponent } from '../exam-slots/exam-slots.component';
 import { CommonService } from './../../../core/services/common.service';
@@ -43,7 +49,10 @@ import { ExaminationTimeTable, IExaminationSubject } from './../../models/examin
         SelectModule,
         InputNumberModule,
         ExamSlotsComponent,
-        ToastModule
+        ToastModule,
+        TooltipModule,
+        ConfirmationDialogComponent,
+        MenuModule
     ],
     templateUrl: './add-exam.component.html',
     styles: ``,
@@ -61,16 +70,28 @@ export class AddExamComponent {
     commonService: CommonService = inject(CommonService);
     loader = inject(ApiLoaderService);
     messageService = inject(MessageService);
+    examStatusService = inject(ExamStatusService);
     selectedExam: ExaminationDTO;
     exams: any[] = [];
     examinationService = inject(ExaminationService);
     examTypes = Object.entries(ExamTypeLabels).map(([value, label]) => ({ label, value }));
     examStatuses = Object.entries(ExamStatusLabels).map(([value, label]) => ({ label, value }));
     selectedSubjectsForTimeTable: Subject[] = [];
-
     timeTable: ExaminationTimeTable = null;
-
     validationErrors: string[];
+
+    // Confirmation dialog properties
+    showConfirmDialog = false;
+    confirmConfig: ConfirmationConfig = {
+        header: 'Confirmation',
+        message: 'Are you sure?'
+    };
+    pendingAction: (() => void) | null = null;
+    itemsPerPage = ITEMS_PER_PAGE;
+    totalItems = 0;
+    page = 0;
+    sortField = 'createdDate';
+    sortOrder: 'ASC' | 'DESC' = 'DESC';
     ngOnInit(): void {
         this.examForm = this.fb.group({
             totalMarks: [null, [Validators.required, Validators.min(1), Validators.max(1000)]],
@@ -83,10 +104,24 @@ export class AddExamComponent {
         this.getExams();
     }
 
+    onPageChange(event: any): void {
+        this.itemsPerPage = event.rows;
+        this.page = Math.floor(event.first / event.rows);
+        this.getExams();
+    }
+
+    onSort(event: any): void {
+        this.sortField = event.field || 'createdDate';
+        this.sortOrder = event.order === 1 ? 'ASC' : 'DESC';
+        this.page = 0;
+        this.getExams();
+    }
+
     getExams() {
         this.loader.show('Fetching Exams List');
-        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString() }).subscribe((res) => {
+        this.examinationService.search(this.page, this.itemsPerPage, this.sortField, this.sortOrder, { 'branchId.eq': this.commonService.branch?.id?.toString() }).subscribe((res) => {
             this.exams = res.content;
+            this.totalItems = res.totalElements;
             this.loader.hide();
         });
     }
@@ -294,24 +329,60 @@ export class AddExamComponent {
         return selected;
     }
 
-    validateTimetable(): string[] {
-        const errors: string[] = [];
-        return errors;
+    validateTimetable(status: String, timeTable): string[] {
+        this.validationErrors = [];
+        let isSlotsMissedConfiguration = false;
+
+        timeTable?.schedules.forEach((sc) => {
+            if (!sc.subjectName || sc.subjectName == '') {
+                isSlotsMissedConfiguration = true;
+            }
+        });
+
+        if (status != 'DRAFT' && isSlotsMissedConfiguration) {
+            this.validationErrors.push('Some slots are missing subject assignments.');
+        }
+        return this.validationErrors;
     }
 
-    saveExam() {
-        const errors = this.validateTimetable();
+    saveExam(status: 'DRAFT' | 'SCHEDULED') {
+        const errors = this.validateTimetable(status, this.timeTable);
         if (errors.length) {
-            this.validationErrors = errors;
             return;
         }
 
         this.validationErrors = [];
+
+        if (status === 'DRAFT') {
+            this.performSave(status);
+            return;
+        }
+
+        if (status === 'SCHEDULED') {
+            const rule = this.examStatusService.getTransitionRule(this.selectedExam?.status || ExamStatus.DRAFT, ExamStatus.SCHEDULED);
+
+            this.showConfirmationDialog(
+                {
+                    header: 'Schedule Exam',
+                    message: rule?.confirmationMessage || 'Are you sure you want to schedule this exam?',
+                    icon: 'pi pi-question-circle',
+                    iconColor: 'text-blue-500',
+                    acceptLabel: 'Yes, Schedule',
+                    acceptButtonClass: 'p-button-success'
+                },
+                () => this.performSave(status)
+            );
+        }
+    }
+
+    performSave(status: 'DRAFT' | 'SCHEDULED' | 'RE_SCHEDULED') {
         if (this.examForm.valid && this.timeTable.schedules.length >= this.selectedSubjectsForTimeTable.length) {
-            this.timeTable.settings.startDate = formatDate(this.timeTable.settings.startDate, this.commonService.dateTimeFormate, 'en-US');
-            this.timeTable.settings.endDate = formatDate(this.timeTable.settings.endDate, this.commonService.dateTimeFormate, 'en-US');
+            this.timeTable.settings.startDate = formatDate(new Date(this.timeTable.settings.startDate), this.commonService.dateTimeFormate, 'en-US');
+            this.timeTable.settings.endDate = formatDate(new Date(this.timeTable.settings.endDate), this.commonService.dateTimeFormate, 'en-US');
+
             let finalExamData: ExaminationDTO = {
                 ...this.examForm.value,
+                status: status,
                 timeTable: this.timeTable,
                 subjects: this.groupSubjectsFromTreeNodes(this.selectedSubjects)
             };
@@ -320,19 +391,22 @@ export class AddExamComponent {
                 finalExamData = {
                     ...this.selectedExam,
                     ...this.examForm.value,
+                    status: status,
                     timeTable: this.timeTable,
                     subjects: this.groupSubjectsFromTreeNodes(this.selectedSubjects)
                 };
             }
 
+            const actionText = status === 'DRAFT' ? 'saved as draft' : 'scheduled';
+
             if (finalExamData.examId) {
                 this.examinationService.update(finalExamData).subscribe({
                     next: (result) => {
-                        if (result.body.status == 200) {
+                        if (result.body.status == 200 || result.body.status == 201) {
                             this.messageService.add({
                                 severity: 'success',
                                 summary: 'Success',
-                                detail: 'Examination updated successfully'
+                                detail: `Examination ${actionText} successfully`
                             });
                             this.clearDailogCache();
                         } else {
@@ -347,11 +421,11 @@ export class AddExamComponent {
             } else {
                 this.examinationService.create(finalExamData).subscribe({
                     next: (result) => {
-                        if (result.body.status == 200) {
+                        if (result.body.status == 200 || result.body.status == 201) {
                             this.messageService.add({
                                 severity: 'success',
                                 summary: 'Success',
-                                detail: 'Examination updated successfully'
+                                detail: `Examination ${actionText} successfully`
                             });
                             this.clearDailogCache();
                         } else {
@@ -367,6 +441,277 @@ export class AddExamComponent {
         }
     }
 
+    rescheduleExam() {
+        const rule = this.examStatusService.getTransitionRule(this.selectedExam.status, ExamStatus.RE_SCHEDULED);
+
+        this.showConfirmationDialog(
+            {
+                header: 'Reschedule Exam',
+                message: rule?.confirmationMessage || 'Are you sure you want to reschedule this exam?',
+                icon: 'pi pi-question-circle',
+                iconColor: 'text-orange-500',
+                acceptLabel: 'Yes, Reschedule',
+                acceptButtonClass: 'p-button-warning'
+            },
+            () => this.performSave('RE_SCHEDULED')
+        );
+    }
+
+    isScheduleValid(): boolean {
+        return this.timeTable?.schedules?.length >= this.selectedSubjectsForTimeTable.length;
+    }
+
     ExamTypeLabels = ExamTypeLabels;
     ExamStatusLabels = ExamStatusLabels;
+
+    isSingleDayExam(exam: any): boolean {
+        if (!exam.timeTable?.settings?.startDate || !exam.timeTable?.settings?.endDate) {
+            return true;
+        }
+        const start = new Date(exam.timeTable.settings.startDate);
+        const end = new Date(exam.timeTable.settings.endDate);
+        return start.toDateString() === end.toDateString();
+    }
+
+    getStatusMenuItems(exam: any): any[] {
+        const availableStatuses = this.examStatusService.getAvailableTransitions(exam.status);
+        return availableStatuses.map((status) => ({
+            label: ExamStatusLabels[status] || status,
+            value: status,
+            icon: this.examStatusService.getStatusIcon(status),
+            command: () => this.onStatusMenuClick(exam, status)
+        }));
+    }
+
+    onStatusMenuClick(exam: any, newStatus: ExamStatus) {
+        const currentStatus = exam.status;
+
+        const errors = this.validateTimetable(newStatus, exam.timeTable);
+        if (errors.length) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Action',
+                detail: `Cannot change status from ${ExamStatusLabels[currentStatus]} to ${ExamStatusLabels[newStatus]} Examination Not Configered Properly`
+            });
+            return;
+        }
+
+        if (!this.examStatusService.canTransition(currentStatus, newStatus)) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Action',
+                detail: `Cannot change status from ${ExamStatusLabels[currentStatus]} to ${ExamStatusLabels[newStatus]}`
+            });
+            return;
+        }
+
+        const rule = this.examStatusService.getTransitionRule(currentStatus, newStatus);
+
+        if (rule?.requiresConfirmation) {
+            this.showConfirmationDialog(
+                {
+                    header: `Change Status to ${ExamStatusLabels[newStatus]}`,
+                    message: rule.confirmationMessage || `Are you sure you want to change the status to ${ExamStatusLabels[newStatus]}?`,
+                    icon: this.examStatusService.getStatusIcon(newStatus),
+                    iconColor: this.getIconColorForStatus(newStatus),
+                    acceptLabel: 'Yes, Change Status',
+                    acceptButtonClass: this.getButtonClassForStatus(newStatus)
+                },
+                () => this.updateExamStatus(exam, newStatus)
+            );
+        } else {
+            this.updateExamStatus(exam, newStatus);
+        }
+    }
+
+    getStatusDescription(status: ExamStatus): string {
+        const descriptions = {
+            [ExamStatus.SCHEDULED]: 'Set exam as scheduled',
+            [ExamStatus.RE_SCHEDULED]: 'Postpone the exam',
+            [ExamStatus.CANCELLED]: 'Cancel the exam',
+            [ExamStatus.ONGOING]: 'Mark exam as in progress',
+            [ExamStatus.RESULT_DECLARED]: 'Declare exam results'
+        };
+        return descriptions[status] || 'Change status';
+    }
+
+    getStatusColorClass(status: ExamStatus): string {
+        const colors = {
+            [ExamStatus.SCHEDULED]: 'text-blue-500',
+            [ExamStatus.RE_SCHEDULED]: 'text-orange-500',
+            [ExamStatus.CANCELLED]: 'text-red-500',
+            [ExamStatus.ONGOING]: 'text-green-500',
+            [ExamStatus.RESULT_DECLARED]: 'text-teal-500'
+        };
+        return colors[status] || 'text-gray-500';
+    }
+
+    getAvailableActions(exam: any): any[] {
+        const availableStatuses = this.examStatusService.getAvailableTransitions(exam.status);
+        return availableStatuses.map((status) => ({
+            label: ExamStatusLabels[status] || status,
+            value: status,
+            icon: this.examStatusService.getStatusIcon(status)
+        }));
+    }
+
+    onStatusChange(exam: any) {
+        if (!exam.tempStatus) return;
+
+        const newStatus = exam.tempStatus;
+        const currentStatus = exam.status;
+        if (!this.examStatusService.canTransition(currentStatus, newStatus)) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Action',
+                detail: `Cannot change status from ${ExamStatusLabels[currentStatus]} to ${ExamStatusLabels[newStatus]}`
+            });
+            exam.tempStatus = null;
+            return;
+        }
+
+        const rule = this.examStatusService.getTransitionRule(currentStatus, newStatus);
+
+        if (rule?.requiresConfirmation) {
+            this.showConfirmationDialog(
+                {
+                    header: `Change Status to ${ExamStatusLabels[newStatus]}`,
+                    message: rule.confirmationMessage || `Are you sure you want to change the status to ${ExamStatusLabels[newStatus]}?`,
+                    icon: this.examStatusService.getStatusIcon(newStatus),
+                    iconColor: this.getIconColorForStatus(newStatus),
+                    acceptLabel: 'Yes, Change Status',
+                    acceptButtonClass: this.getButtonClassForStatus(newStatus)
+                },
+                () => this.updateExamStatus(exam, newStatus)
+            );
+        } else {
+            this.updateExamStatus(exam, newStatus);
+        }
+
+        exam.tempStatus = null;
+    }
+
+    updateExamStatus(exam: any, newStatus: ExamStatus) {
+        this.loader.show('Updating exam status...');
+
+        const updatedExam = {
+            ...exam,
+            status: newStatus
+        };
+
+        this.examinationService.update(updatedExam).subscribe({
+            next: (result) => {
+                this.loader.hide();
+                if (result.body.status == 200) {
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: `Exam status changed to ${ExamStatusLabels[newStatus]}`
+                    });
+                    this.getExams();
+                } else {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: result.body.error || 'Failed to update exam status'
+                    });
+                }
+            },
+            error: () => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to update exam status'
+                });
+            }
+        });
+    }
+
+    deleteExam(exam: any) {
+        if (!this.examStatusService.canDelete(exam.status)) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Cannot Delete',
+                detail: 'Only draft exams can be deleted'
+            });
+            return;
+        }
+
+        this.showConfirmationDialog(
+            {
+                header: 'Delete Draft Exam',
+                message: `Are you sure you want to permanently delete this draft exam?<br><br><strong>Exam Type:</strong> ${ExamTypeLabels[exam.examType]}<br><strong>Department:</strong> ${exam.departmentName}<br><br>This action cannot be undone.`,
+                icon: 'pi pi-question-circle',
+                iconColor: 'text-red-500',
+                acceptLabel: 'Yes, Delete',
+                rejectLabel: 'Cancel',
+                acceptButtonClass: 'p-button-danger'
+            },
+            () => this.performDelete(exam)
+        );
+    }
+
+    performDelete(exam: any) {
+        this.loader.show('Deleting exam...');
+
+        this.examinationService.delete(exam.examId).subscribe({
+            next: () => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Deleted',
+                    detail: 'Draft exam deleted successfully'
+                });
+                this.getExams();
+            },
+            error: () => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to delete exam'
+                });
+            }
+        });
+    }
+
+    showConfirmationDialog(config: ConfirmationConfig, onConfirm: () => void) {
+        this.confirmConfig = config;
+        this.pendingAction = onConfirm;
+        this.showConfirmDialog = true;
+    }
+
+    handleConfirmation() {
+        if (this.pendingAction) {
+            this.pendingAction();
+            this.pendingAction = null;
+        }
+    }
+
+    handleCancellation() {
+        this.pendingAction = null;
+    }
+
+    getIconColorForStatus(status: ExamStatus): string {
+        const colors = {
+            [ExamStatus.SCHEDULED]: 'text-blue-500',
+            [ExamStatus.RE_SCHEDULED]: 'text-orange-500',
+            [ExamStatus.CANCELLED]: 'text-red-500',
+            [ExamStatus.ONGOING]: 'text-green-500',
+            [ExamStatus.RESULT_DECLARED]: 'text-teal-500'
+        };
+        return colors[status] || 'text-gray-500';
+    }
+
+    getButtonClassForStatus(status: ExamStatus): string {
+        const classes = {
+            [ExamStatus.SCHEDULED]: 'p-button-success',
+            [ExamStatus.RE_SCHEDULED]: 'p-button-warning',
+            [ExamStatus.CANCELLED]: 'p-button-danger',
+            [ExamStatus.ONGOING]: 'p-button-info',
+            [ExamStatus.RESULT_DECLARED]: 'p-button-help'
+        };
+        return classes[status] || 'p-button-primary';
+    }
 }
