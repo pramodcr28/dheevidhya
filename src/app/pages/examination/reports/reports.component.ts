@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -18,6 +18,7 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 
 import { CommonService } from '../../../core/services/common.service';
+import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getDepartmentById } from '../../../core/store/user-profile/user-profile.selectors';
 import { ExaminationDTO, ExamReport, ExamStatusLabels, ExamTypeLabels, ResultData } from '../../models/examination.model';
@@ -51,11 +52,12 @@ import { ExaminationService } from '../../service/examination.service';
 })
 export class ReportsComponent {
     private store = inject(Store<{ userProfile: UserProfileState }>);
-    private examinationService = inject(ExaminationService);
-    private messageService = inject(MessageService);
-    commonService = inject(CommonService);
-    @Input() exams: any[] = [];
-    selectedExam: ExaminationDTO | null = null;
+    commonService: CommonService = inject(CommonService);
+    loader = inject(ApiLoaderService);
+    messageService = inject(MessageService);
+    selectedExam: ExaminationDTO;
+    exams: any[] = [];
+    examinationService = inject(ExaminationService);
 
     report: ExamReport = {
         results: [],
@@ -79,6 +81,15 @@ export class ReportsComponent {
     public examinationSubjects: any[] = [];
     ngOnInit() {
         this.initializeCharts();
+        this.getExams();
+    }
+
+    getExams() {
+        this.loader.show('Fetching Exams List');
+        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString() }).subscribe((res) => {
+            this.exams = res.content;
+            this.loader.hide();
+        });
     }
 
     onSectionChange() {

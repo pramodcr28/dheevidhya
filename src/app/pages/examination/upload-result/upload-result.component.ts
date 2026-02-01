@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -12,6 +12,7 @@ import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
+import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getDepartmentById } from '../../../core/store/user-profile/user-profile.selectors';
 import { ExaminationDTO, ExamResult, StudentResult } from '../../models/examination.model';
@@ -27,20 +28,20 @@ import { UserService } from '../../service/user.service';
     templateUrl: './upload-result.component.html',
     providers: [ConfirmationService, MessageService]
 })
-export class UploadResultComponent {
-    // currentBranch: IBranch;
-    @Input() exams: any[] = [];
+export class UploadResultComponent implements OnInit {
+    commonService: CommonService = inject(CommonService);
+    loader = inject(ApiLoaderService);
+    messageService = inject(MessageService);
     selectedExam: ExaminationDTO;
+    exams: any[] = [];
+    examinationService = inject(ExaminationService);
     sections: any[] = [];
     selectedSection: any;
 
     private store = inject(Store<{ userProfile: UserProfileState }>);
-    private examinationService = inject(ExaminationService);
-    public commonService = inject(CommonService);
     public studentService = inject(UserService);
     public profileService = inject(ProfileConfigService);
     private confirmationService = inject(ConfirmationService);
-    private messageService = inject(MessageService);
 
     public students = signal<any[]>([]);
     public selectedSubjects: any[] = [];
@@ -48,7 +49,17 @@ export class UploadResultComponent {
 
     public isLoading = false;
     public isSaving = false;
+    ngOnInit(): void {
+        this.getExams();
+    }
 
+    getExams() {
+        this.loader.show('Fetching Exams List');
+        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString() }).subscribe((res) => {
+            this.exams = res.content;
+            this.loader.hide();
+        });
+    }
     onExamChange() {
         this.selectedSection = null;
         this.selectedSubjects = [];

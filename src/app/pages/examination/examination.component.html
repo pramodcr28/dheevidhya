@@ -1,37 +1,43 @@
 <div class="rounded-md p-2 h-[85vh] flex flex-col">
-  <p-tabs value="0" scrollable class="flex flex-col h-full">
+  <p-tabs [(value)]="activeTab" scrollable class="flex flex-col h-full">
+
     <p-tablist class="flex-shrink-0">
-      <p-tab value="0" class="flex items-center !gap-2">
-        <i [class]="'pi pi-book'"></i>
+      <p-tab value="0" class="flex items-center gap-2">
+        <i class="pi pi-book"></i>
         <span>Examination</span>
       </p-tab>
-      <!-- <p-tab value="1" class="flex items-center !gap-2">
-        <i [class]="'pi pi-book'"></i>
-        <span>Quession Papers</span>
-      </p-tab> -->
-       <p-tab value="1" class="flex items-center !gap-2">
-        <i [class]="'pi pi-upload'"></i>
+
+      <p-tab value="1" class="flex items-center gap-2">
+        <i class="pi pi-upload"></i>
         <span>Upload Result</span>
       </p-tab>
-      <p-tab value="2" class="flex items-center !gap-2">
-        <i [class]="'pi pi-book'"></i>
+
+      <p-tab value="2" class="flex items-center gap-2">
+        <i class="pi pi-book"></i>
         <span>Reports</span>
       </p-tab>
     </p-tablist>
 
     <p-tabpanels class="overflow-y-auto flex-grow">
+
       <p-tabpanel value="0">
-        <app-add-exam [exams]="exams" (examSaved)="refresh()" ></app-add-exam>
+        @if (activeTab === '0') {
+          <app-add-exam />
+        }
       </p-tabpanel>
-      <!-- <p-tabpanel value="1">
-        <app-quession-paper></app-quession-paper>
-      </p-tabpanel> -->
-       <p-tabpanel value="1">
-        <app-upload-result [exams]="exams"></app-upload-result>
+
+      <p-tabpanel value="1">
+        @if (activeTab === '1') {
+          <app-upload-result />
+        }
       </p-tabpanel>
+
       <p-tabpanel value="2">
-        <app-reports [exams]="exams"></app-reports>
+        @if (activeTab === '2') {
+          <app-reports />
+        }
       </p-tabpanel>
+
     </p-tabpanels>
   </p-tabs>
 </div>

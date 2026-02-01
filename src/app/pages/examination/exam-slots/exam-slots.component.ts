@@ -13,8 +13,10 @@ import { SliderModule } from 'primeng/slider';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
-import { ExaminationTimeSlot, ExaminationTimeTable } from '../../models/examination.model';
+import { ApiLoaderService } from '../../../core/services/loaderService';
+import { ExaminationDTO, ExaminationTimeSlot, ExaminationTimeTable } from '../../models/examination.model';
 import { Subject } from '../../models/time-table';
+import { ExaminationService } from '../../service/examination.service';
 
 @Component({
     selector: 'app-exam-slots',
@@ -54,9 +56,12 @@ export class ExamSlotsComponent {
 
     @Input() subjects: Subject[];
 
-    constructor(private messageService: MessageService) {}
-    commonService = inject(CommonService);
-
+    commonService: CommonService = inject(CommonService);
+    loader = inject(ApiLoaderService);
+    messageService = inject(MessageService);
+    selectedExam: ExaminationDTO;
+    exams: any[] = [];
+    examinationService = inject(ExaminationService);
     ngOnInit() {
         // Initialize default times if not set
         if (!this.timeTable.settings.dayStartTime) {
@@ -70,6 +75,15 @@ export class ExamSlotsComponent {
         }
 
         this.validateForm();
+        this.getExams();
+    }
+
+    getExams() {
+        this.loader.show('Fetching Exams List');
+        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString() }).subscribe((res) => {
+            this.exams = res.content;
+            this.loader.hide();
+        });
     }
 
     ngOnChanges() {

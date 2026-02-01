@@ -1,5 +1,5 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AccordionModule } from 'primeng/accordion';
 import { MessageService, TreeNode } from 'primeng/api';
@@ -56,20 +56,20 @@ export class AddExamComponent {
     submitted = false;
     fb: FormBuilder = inject(FormBuilder);
     examForm: FormGroup = this.fb.group({});
-    @Input() exams: any[] = [];
-    @Output() examSaved = new EventEmitter<void>();
     displayDialog = false;
     slotDailog = false;
+    commonService: CommonService = inject(CommonService);
+    loader = inject(ApiLoaderService);
+    messageService = inject(MessageService);
     selectedExam: ExaminationDTO;
+    exams: any[] = [];
     examinationService = inject(ExaminationService);
     examTypes = Object.entries(ExamTypeLabels).map(([value, label]) => ({ label, value }));
     examStatuses = Object.entries(ExamStatusLabels).map(([value, label]) => ({ label, value }));
     selectedSubjectsForTimeTable: Subject[] = [];
 
     timeTable: ExaminationTimeTable = null;
-    commonService: CommonService = inject(CommonService);
-    loader = inject(ApiLoaderService);
-    messageService = inject(MessageService);
+
     validationErrors: string[];
     ngOnInit(): void {
         this.examForm = this.fb.group({
@@ -80,6 +80,7 @@ export class AddExamComponent {
             examType: [null, Validators.required],
             resultDeclarationDate: [null]
         });
+        this.getExams();
     }
 
     getExams() {
@@ -328,7 +329,6 @@ export class AddExamComponent {
                 this.examinationService.update(finalExamData).subscribe({
                     next: (result) => {
                         if (result.body.status == 200) {
-                            this.examSaved.emit();
                             this.messageService.add({
                                 severity: 'success',
                                 summary: 'Success',
@@ -336,7 +336,6 @@ export class AddExamComponent {
                             });
                             this.clearDailogCache();
                         } else {
-                            debugger;
                             this.messageService.add({
                                 severity: 'error',
                                 summary: 'Error',
@@ -349,7 +348,6 @@ export class AddExamComponent {
                 this.examinationService.create(finalExamData).subscribe({
                     next: (result) => {
                         if (result.body.status == 200) {
-                            this.examSaved.emit();
                             this.messageService.add({
                                 severity: 'success',
                                 summary: 'Success',
@@ -357,7 +355,6 @@ export class AddExamComponent {
                             });
                             this.clearDailogCache();
                         } else {
-                            debugger;
                             this.messageService.add({
                                 severity: 'error',
                                 summary: 'Error',
