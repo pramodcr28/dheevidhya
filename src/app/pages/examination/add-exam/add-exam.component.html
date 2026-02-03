@@ -55,8 +55,8 @@
                 </td>
                 <td>
                     <span 
-                        [class]="'px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-1 w-fit ' + examStatusService.getStatusBadgeClass(exam.status)">
-                        <i [class]="examStatusService.getStatusIcon(exam.status)" class="text-xs"></i>
+                        [class]="'px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-1 w-fit ' + es.getStatusBadgeClass(exam.status)">
+                        <i [class]="es.getStatusIcon(exam.status)" class="text-xs"></i>
                         {{ ExamStatusLabels[exam.status] || exam.status }}
                     </span>
                 </td>
@@ -64,13 +64,13 @@
                     <button 
                         pButton 
                         type="button" 
-                        [label]="examStatusService.canEdit(exam.status) ? 'View/Edit' : 'View'" 
+                        [label]="es.canEdit(exam.status) ? 'View/Edit' : 'View'" 
                         icon="pi pi-calendar" 
                         class="p-button-sm p-button-text" 
                         (click)="openSlotDailog(exam)"
                     ></button>
                     
-                        <!-- [disabled]="!examStatusService.canEdit(exam.status)" -->
+                        <!-- [disabled]="!es.canEdit(exam.status)" -->
                 </td>
                 <td>
                     <div class="flex gap-2 items-center">
@@ -98,7 +98,7 @@
                         }
                         
                         <!-- Delete Button (only for DRAFT) -->
-                        @if (examStatusService.canDelete(exam.status)) {
+                        @if (es.canDelete(exam.status)) {
                             <button 
                                 pButton 
                                 type="button" 
@@ -113,20 +113,21 @@
             </tr>
         </ng-template>
     </p-table>
-    @if (this.timeTable) {
+
+    @if (this.es.timeTable) {
         <p-dialog
             header="Create New Exam"
             [(visible)]="displayDialog"
             [modal]="true"
             [style]="{ width: '90vw', height: '90vh' }"
-            [contentStyle]="{ 'overflow-y': 'auto', 'padding-bottom': '4rem' }"
+            [contentStyle]="{ 'overflow-y': 'auto', 'padding-bottom': '8rem' }"
             [dismissableMask]="true"
             [draggable]="false"
             [resizable]="false"
             (onHide)="clearDailogCache()"
         >
-            @if (validationErrors?.length) {
-                  <div class="mb-3 p-3 bg-red-50 border border-red-200 rounded-md w-90 fixed top-20 left-5 right-5 z-[500]">
+            @if (validationErrors?.length || es.scheduleValidationErrors.length) {
+                  <div class="mb-3 p-3 bg-red-50 border border-red-200 rounded-md w-90 fixed left-5 right-5 z-[500]" style="bottom: 50px;">
                 <div class="flex items-center mb-2">
                     <i class="pi pi-exclamation-triangle text-red-500 mr-2"></i>
                     <span class="text-sm font-medium text-red-800">Please fix the following issues And try to Save Again</span>
@@ -135,11 +136,12 @@
                     @for (error of validationErrors; track $index) {
                         <li>{{ error }}</li>
                     }
+                    @for (error of es.scheduleValidationErrors; track $index) {
+                        <li>{{ error }}</li>
+                    }
                 </ul>
             </div>
-            }
-
-          
+            }          
             <form [formGroup]="examForm" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -167,7 +169,7 @@
                     <label class="block font-bold mb-2">Department</label>
                     <p-select
                         [options]="commonService.associatedDepartments"
-                        [(ngModel)]="selectedDepartment"
+                        [(ngModel)]="es.selectedDepartment"
                         [ngModelOptions]="{ standalone: true }"
                         (onChange)="onDepartmentChange()"
                         optionLabel="name"
@@ -175,10 +177,10 @@
                         [style]="{ width: '100%' }"
                     >
                     </p-select>
-                    <small class="text-red-500" *ngIf="submitted && !selectedDepartment"> Department is required. </small>
+                    <small class="text-red-500" *ngIf="submitted && !es.selectedDepartment"> Department is required. </small>
                 </div>
 
-                @if (selectedDepartment) {
+                @if (es.selectedDepartment) {
                     <div>
                         <label class="block font-semibold mb-1">Select Subjects from Any Class</label>
                         <p-treeSelect
@@ -211,41 +213,41 @@
                     </div>
                 }
             </form>
-@if(examStatusService.canEdit(selectedExam.status)){
+@if(!es.selectedExam || es.canEdit(es.selectedExam?.status)){
             <ng-template pTemplate="footer">
                 <div class="w-full fixed bottom-0 left-0 bg-white p-4 border-t border-gray-200 flex justify-end space-x-2 z-10">
                     <!-- Show "Save as Draft" only for new exams or existing drafts -->
-                    @if (!selectedExam || selectedExam.status === 'DRAFT') {
+                    @if (!es.selectedExam || es.selectedExam.status === 'DRAFT') {
                         <button 
                             pButton 
                             type="button" 
                             label="Save as Draft" 
                             icon="pi pi-save"
-                            [disabled]="examForm.invalid || !selectedSubjects.length" 
+                            [disabled]="examForm.invalid || !selectedSubjects.length || es.scheduleValidationErrors.length" 
                             class="p-button-secondary" 
                             (click)="saveExam('DRAFT')"
                         ></button>
                     }
                     
                     <!-- Show "Schedule" for new exams, drafts, or "Reschedule" for scheduled/RE_SCHEDULED exams -->
-                    @if (!selectedExam || selectedExam.status === 'DRAFT') {
+                    @if (!es.selectedExam || es.selectedExam.status === 'DRAFT') {
                         <button 
                             pButton 
                             type="submit" 
                             label="Schedule Exam" 
                             icon="pi pi-calendar-plus"
-                            [disabled]="examForm.invalid || !selectedSubjects.length || !isScheduleValid()" 
+                            [disabled]="examForm.invalid || !selectedSubjects.length || !isScheduleValid() || es.scheduleValidationErrors.length" 
                             class="p-button-success" 
                             (click)="saveExam('SCHEDULED')"
                         ></button>
                     }
-                    @else if (selectedExam.status === 'SCHEDULED' || selectedExam.status === 'RE_SCHEDULED') {
+                    @else if (es.selectedExam.status === 'SCHEDULED' || es.selectedExam.status === 'RE_SCHEDULED') {
                         <button 
                             pButton 
                             type="submit" 
                             label="Reschedule Exam" 
                             icon="pi pi-refresh"
-                            [disabled]="examForm.invalid || !selectedSubjects.length || !isScheduleValid()" 
+                            [disabled]="examForm.invalid || !selectedSubjects.length || !isScheduleValid() || es.scheduleValidationErrors.length" 
                             class="p-button-warning" 
                             (click)="rescheduleExam()"
                         ></button>
@@ -264,8 +266,8 @@
 }
 
             <div class="py-6">
-                @if(selectedSubjectsForTimeTable){
-                 <app-exam-slots [selectedExam]="selectedExam" (validationErrorsChange)="validationErrors = $event" [validationErrors]="validationErrors" [canEdit]="examStatusService.canEdit(selectedExam.status)" [subjects]="selectedSubjectsForTimeTable" [timeTable]="timeTable"></app-exam-slots>
+                @if(es.selectedSubjectsForTimeTable){
+                 <app-exam-slots></app-exam-slots>
                 }
            </div>
         </p-dialog>

@@ -22,13 +22,12 @@ import { ApiLoaderService } from '../../../core/services/loaderService';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { ConfirmationConfig } from '../../models/common.model';
 import { ExaminationDTO, ExamStatus, ExamStatusLabels, ExamTypeLabels } from '../../models/examination.model';
-import { IDepartmentConfig } from '../../models/org.model';
 import { Subject } from '../../models/time-table';
 import { ExamStatusService } from '../../service/exam-status.service';
 import { ExaminationService } from '../../service/examination.service';
 import { ExamSlotsComponent } from '../exam-slots/exam-slots.component';
 import { CommonService } from './../../../core/services/common.service';
-import { ExaminationTimeTable, IExaminationSubject } from './../../models/examination.model';
+import { IExaminationSubject } from './../../models/examination.model';
 @Component({
     selector: 'app-add-exam',
     standalone: true,
@@ -59,7 +58,6 @@ import { ExaminationTimeTable, IExaminationSubject } from './../../models/examin
     providers: [MessageService]
 })
 export class AddExamComponent {
-    selectedDepartment: IDepartmentConfig;
     treeNodes: TreeNode[] = [];
     selectedSubjects: TreeNode[] = [];
     submitted = false;
@@ -70,14 +68,12 @@ export class AddExamComponent {
     commonService: CommonService = inject(CommonService);
     loader = inject(ApiLoaderService);
     messageService = inject(MessageService);
-    examStatusService = inject(ExamStatusService);
-    selectedExam: ExaminationDTO;
+    es = inject(ExamStatusService);
     exams: any[] = [];
     examinationService = inject(ExaminationService);
     examTypes = Object.entries(ExamTypeLabels).map(([value, label]) => ({ label, value }));
     examStatuses = Object.entries(ExamStatusLabels).map(([value, label]) => ({ label, value }));
-    selectedSubjectsForTimeTable: Subject[] = [];
-    timeTable: ExaminationTimeTable = null;
+
     validationErrors: string[];
 
     // Confirmation dialog properties
@@ -128,12 +124,12 @@ export class AddExamComponent {
 
     clearDailogCache() {
         this.displayDialog = false;
-        this.selectedSubjectsForTimeTable = [];
-        this.timeTable = null;
+        this.es.selectedSubjectsForTimeTable = [];
+        this.es.timeTable = null;
         this.selectedSubjects = [];
-        this.selectedExam = null;
+        this.es.selectedExam = null;
         this.examForm.reset();
-        this.selectedDepartment = null;
+        this.es.selectedDepartment = null;
         this.getExams();
     }
 
@@ -150,7 +146,7 @@ export class AddExamComponent {
         const dayEndTime = new Date();
         dayEndTime.setHours(17, 0, 0, 0);
 
-        this.timeTable = {
+        this.es.timeTable = {
             settings: {
                 startDate: startDate,
                 endDate: endDate,
@@ -167,7 +163,7 @@ export class AddExamComponent {
 
     openSlotDailog(input: ExaminationDTO) {
         this.examinationService.find(input.examId).subscribe((result) => {
-            this.selectedExam = input;
+            this.es.selectedExam = input;
             let exam = result.body;
             this.examForm?.patchValue({
                 totalMarks: exam.totalMarks,
@@ -177,10 +173,10 @@ export class AddExamComponent {
                 examType: exam.examType,
                 resultDeclarationDate: exam.resultDeclarationDate ?? null
             });
-            this.timeTable = exam.timeTable;
-            this.timeTable.settings.startDate = new Date(this.timeTable.settings.startDate);
-            this.timeTable.settings.endDate = new Date(this.timeTable.settings.endDate);
-            this.selectedDepartment = this.commonService.associatedDepartments.find((dep) => dep.id == exam.departmentId);
+            this.es.timeTable = exam.timeTable;
+            this.es.timeTable.settings.startDate = new Date(this.es.timeTable.settings.startDate);
+            this.es.timeTable.settings.endDate = new Date(this.es.timeTable.settings.endDate);
+            this.es.selectedDepartment = this.commonService.associatedDepartments.find((dep) => dep.id == exam.departmentId);
             this.onDepartmentChange();
             this.selectedSubjects = this.getSelectedSubjectNodes(exam.subjects, this.treeNodes);
             this.onSubjectChange();
@@ -189,11 +185,11 @@ export class AddExamComponent {
     }
 
     onDepartmentChange() {
-        if (this.selectedDepartment) {
-            this.examForm.get('departmentId').setValue(this.selectedDepartment?.id);
-            this.examForm.get('departmentName').setValue(this.selectedDepartment?.department.name);
+        if (this.es.selectedDepartment) {
+            this.examForm.get('departmentId').setValue(this.es.selectedDepartment?.id);
+            this.examForm.get('departmentName').setValue(this.es.selectedDepartment?.department.name);
             this.examForm.get('branchId').setValue(this.commonService.branch?.id?.toString());
-            this.treeNodes = this.selectedDepartment?.department.classes?.map((cls) => ({
+            this.treeNodes = this.es.selectedDepartment?.department.classes?.map((cls) => ({
                 label: 'Class: ' + cls.name,
                 key: cls.name,
                 data: cls,
@@ -202,7 +198,7 @@ export class AddExamComponent {
                     key: cls.name + ':' + sec.name,
                     data: sec,
                     children: sec.subjects.map((sub) => {
-                        let subject: IExaminationSubject = { id: sub.id, name: sub.name, className: cls.name, sectionName: sec.name, departmentName: this.selectedDepartment.department.name };
+                        let subject: IExaminationSubject = { id: sub.id, name: sub.name, className: cls.name, sectionName: sec.name, departmentName: this.es.selectedDepartment.department.name };
                         return {
                             label: `${sub.name}`,
                             key: cls.name + ':' + sec.name + ':' + sub.name + ':' + sub.id,
@@ -212,6 +208,7 @@ export class AddExamComponent {
                 }))
             }));
         }
+        this.es.generateTimeTable();
     }
 
     onSubjectChange() {
@@ -236,7 +233,17 @@ export class AddExamComponent {
             }
         });
 
-        this.selectedSubjectsForTimeTable = [...timeTableSubjects];
+        this.es.selectedSubjectsForTimeTable = [...timeTableSubjects];
+
+        if (timeTableSubjects?.length && timeTableSubjects.length < 6) {
+            this.es.timeTable.settings.slotsPerDay = 6;
+        } else {
+            this.es.timeTable.settings.slotDuration = this.es.durationOptions[0].value;
+            this.es.timeTable.settings.slotsPerDay = timeTableSubjects.length;
+        }
+        setTimeout(() => {
+            this.es.generateTimeTable();
+        });
     }
 
     get groupedSelectedSubjects() {
@@ -288,7 +295,7 @@ export class AddExamComponent {
             if (keyParts.length !== 4) continue;
 
             const [className, sectionName, _subName, _subId] = keyParts;
-            let subject: IExaminationSubject = { id: _subId, name: _subName, className: className, sectionName: sectionName, departmentName: this.selectedDepartment.department.name };
+            let subject: IExaminationSubject = { id: _subId, name: _subName, className: className, sectionName: sectionName, departmentName: this.es.selectedDepartment.department.name };
             subjects.push(subject);
         }
         return subjects;
@@ -346,7 +353,7 @@ export class AddExamComponent {
     }
 
     saveExam(status: 'DRAFT' | 'SCHEDULED') {
-        const errors = this.validateTimetable(status, this.timeTable);
+        const errors = this.validateTimetable(status, this.es.timeTable);
         if (errors.length) {
             return;
         }
@@ -359,7 +366,7 @@ export class AddExamComponent {
         }
 
         if (status === 'SCHEDULED') {
-            const rule = this.examStatusService.getTransitionRule(this.selectedExam?.status || ExamStatus.DRAFT, ExamStatus.SCHEDULED);
+            const rule = this.es.getTransitionRule(this.es.selectedExam?.status || ExamStatus.DRAFT, ExamStatus.SCHEDULED);
 
             this.showConfirmationDialog(
                 {
@@ -376,23 +383,23 @@ export class AddExamComponent {
     }
 
     performSave(status: 'DRAFT' | 'SCHEDULED' | 'RE_SCHEDULED') {
-        if (this.examForm.valid && this.timeTable.schedules.length >= this.selectedSubjectsForTimeTable.length) {
-            this.timeTable.settings.startDate = formatDate(new Date(this.timeTable.settings.startDate), this.commonService.dateTimeFormate, 'en-US');
-            this.timeTable.settings.endDate = formatDate(new Date(this.timeTable.settings.endDate), this.commonService.dateTimeFormate, 'en-US');
+        if (this.examForm.valid && this.es.timeTable.schedules.length >= this.es.selectedSubjectsForTimeTable.length) {
+            this.es.timeTable.settings.startDate = formatDate(new Date(this.es.timeTable.settings.startDate), this.commonService.dateTimeFormate, 'en-US');
+            this.es.timeTable.settings.endDate = formatDate(new Date(this.es.timeTable.settings.endDate), this.commonService.dateTimeFormate, 'en-US');
 
             let finalExamData: ExaminationDTO = {
                 ...this.examForm.value,
                 status: status,
-                timeTable: this.timeTable,
+                timeTable: this.es.timeTable,
                 subjects: this.groupSubjectsFromTreeNodes(this.selectedSubjects)
             };
 
-            if (this.selectedExam) {
+            if (this.es.selectedExam) {
                 finalExamData = {
-                    ...this.selectedExam,
+                    ...this.es.selectedExam,
                     ...this.examForm.value,
                     status: status,
-                    timeTable: this.timeTable,
+                    timeTable: this.es.timeTable,
                     subjects: this.groupSubjectsFromTreeNodes(this.selectedSubjects)
                 };
             }
@@ -442,7 +449,7 @@ export class AddExamComponent {
     }
 
     rescheduleExam() {
-        const rule = this.examStatusService.getTransitionRule(this.selectedExam.status, ExamStatus.RE_SCHEDULED);
+        const rule = this.es.getTransitionRule(this.es.selectedExam.status, ExamStatus.RE_SCHEDULED);
 
         this.showConfirmationDialog(
             {
@@ -458,7 +465,7 @@ export class AddExamComponent {
     }
 
     isScheduleValid(): boolean {
-        return this.timeTable?.schedules?.length >= this.selectedSubjectsForTimeTable.length;
+        return this.es.timeTable?.schedules?.length >= this.es.selectedSubjectsForTimeTable.length;
     }
 
     ExamTypeLabels = ExamTypeLabels;
@@ -474,11 +481,11 @@ export class AddExamComponent {
     }
 
     getStatusMenuItems(exam: any): any[] {
-        const availableStatuses = this.examStatusService.getAvailableTransitions(exam.status);
+        const availableStatuses = this.es.getAvailableTransitions(exam.status);
         return availableStatuses.map((status) => ({
             label: ExamStatusLabels[status] || status,
             value: status,
-            icon: this.examStatusService.getStatusIcon(status),
+            icon: this.es.getStatusIcon(status),
             command: () => this.onStatusMenuClick(exam, status)
         }));
     }
@@ -496,7 +503,7 @@ export class AddExamComponent {
             return;
         }
 
-        if (!this.examStatusService.canTransition(currentStatus, newStatus)) {
+        if (!this.es.canTransition(currentStatus, newStatus)) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Invalid Action',
@@ -505,14 +512,14 @@ export class AddExamComponent {
             return;
         }
 
-        const rule = this.examStatusService.getTransitionRule(currentStatus, newStatus);
+        const rule = this.es.getTransitionRule(currentStatus, newStatus);
 
         if (rule?.requiresConfirmation) {
             this.showConfirmationDialog(
                 {
                     header: `Change Status to ${ExamStatusLabels[newStatus]}`,
                     message: rule.confirmationMessage || `Are you sure you want to change the status to ${ExamStatusLabels[newStatus]}?`,
-                    icon: this.examStatusService.getStatusIcon(newStatus),
+                    icon: this.es.getStatusIcon(newStatus),
                     iconColor: this.getIconColorForStatus(newStatus),
                     acceptLabel: 'Yes, Change Status',
                     acceptButtonClass: this.getButtonClassForStatus(newStatus)
@@ -547,11 +554,11 @@ export class AddExamComponent {
     }
 
     getAvailableActions(exam: any): any[] {
-        const availableStatuses = this.examStatusService.getAvailableTransitions(exam.status);
+        const availableStatuses = this.es.getAvailableTransitions(exam.status);
         return availableStatuses.map((status) => ({
             label: ExamStatusLabels[status] || status,
             value: status,
-            icon: this.examStatusService.getStatusIcon(status)
+            icon: this.es.getStatusIcon(status)
         }));
     }
 
@@ -560,7 +567,7 @@ export class AddExamComponent {
 
         const newStatus = exam.tempStatus;
         const currentStatus = exam.status;
-        if (!this.examStatusService.canTransition(currentStatus, newStatus)) {
+        if (!this.es.canTransition(currentStatus, newStatus)) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Invalid Action',
@@ -570,14 +577,14 @@ export class AddExamComponent {
             return;
         }
 
-        const rule = this.examStatusService.getTransitionRule(currentStatus, newStatus);
+        const rule = this.es.getTransitionRule(currentStatus, newStatus);
 
         if (rule?.requiresConfirmation) {
             this.showConfirmationDialog(
                 {
                     header: `Change Status to ${ExamStatusLabels[newStatus]}`,
                     message: rule.confirmationMessage || `Are you sure you want to change the status to ${ExamStatusLabels[newStatus]}?`,
-                    icon: this.examStatusService.getStatusIcon(newStatus),
+                    icon: this.es.getStatusIcon(newStatus),
                     iconColor: this.getIconColorForStatus(newStatus),
                     acceptLabel: 'Yes, Change Status',
                     acceptButtonClass: this.getButtonClassForStatus(newStatus)
@@ -629,7 +636,7 @@ export class AddExamComponent {
     }
 
     deleteExam(exam: any) {
-        if (!this.examStatusService.canDelete(exam.status)) {
+        if (!this.es.canDelete(exam.status)) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Cannot Delete',

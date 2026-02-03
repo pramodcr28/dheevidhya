@@ -1,5 +1,5 @@
-import { CommonModule, formatDate } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -14,8 +14,8 @@ import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
-import { ExaminationDTO, ExaminationTimeSlot, ExaminationTimeTable } from '../../models/examination.model';
-import { Subject } from '../../models/time-table';
+import { ExaminationTimeSlot } from '../../models/examination.model';
+import { ExamStatusService } from '../../service/exam-status.service';
 
 @Component({
     selector: 'app-exam-slots',
@@ -28,9 +28,6 @@ import { Subject } from '../../models/time-table';
 export class ExamSlotsComponent {
     draggedSubject: any;
     isDragOver = false;
-    @Input() validationErrors: string[] = [];
-    @Output() validationErrorsChange = new EventEmitter<string[]>();
-    @Input() canEdit = true;
     slotOptions = [
         { label: '1 Slot', value: 1 },
         { label: '2 Slots', value: 2 },
@@ -40,217 +37,30 @@ export class ExamSlotsComponent {
         { label: '6 Slots', value: 6 }
     ];
 
-    durationOptions = [
-        { label: '30 Minutes', value: 30 },
-        { label: '1 Hour', value: 60 },
-        { label: '1.5 Hours', value: 90 },
-        { label: '2 Hours', value: 120 },
-        { label: '2.5 Hours', value: 150 },
-        { label: '3 Hours', value: 180 },
-        { label: '3.5 Hours', value: 210 },
-        { label: '4 Hours', value: 240 }
-    ];
-
-    @Input()
-    timeTable: ExaminationTimeTable;
-
-    @Input() subjects: Subject[];
-    _subjects: Subject[] = [];
     commonService: CommonService = inject(CommonService);
     loader = inject(ApiLoaderService);
     messageService = inject(MessageService);
-    @Input() selectedExam: ExaminationDTO;
-    timeSlots = [];
-    days = [];
+
+    es = inject(ExamStatusService);
+
     ngOnInit() {
         // Initialize default times if not set
-        if (!this.timeTable.settings.dayStartTime) {
-            this.timeTable.settings.dayStartTime = new Date();
-            this.timeTable.settings.dayStartTime.setHours(9, 0, 0, 0);
+        if (!this.es.timeTable.settings.dayStartTime) {
+            this.es.timeTable.settings.dayStartTime = new Date();
+            this.es.timeTable.settings.dayStartTime.setHours(9, 0, 0, 0);
         }
 
-        if (!this.timeTable.settings.dayEndTime) {
-            this.timeTable.settings.dayEndTime = new Date();
-            this.timeTable.settings.dayEndTime.setHours(17, 0, 0, 0);
+        if (!this.es.timeTable.settings.dayEndTime) {
+            this.es.timeTable.settings.dayEndTime = new Date();
+            this.es.timeTable.settings.dayEndTime.setHours(17, 0, 0, 0);
         }
 
-        this.validateForm();
-        this.generateTimeTable();
-    }
-
-    ngOnChanges() {
-        this.validateForm();
-    }
-
-    validateForm(): void {
-        this.validationErrors = [];
-        let dayDifference = this.getExactDayDiff(this.timeTable.settings.startDate, this.timeTable.settings.endDate);
-        if (!this.timeTable.settings.startDate) {
-            this.validationErrors.push('Start date is required');
-        }
-        if (!this.timeTable.settings.endDate) {
-            this.validationErrors.push('End date is required');
-        }
-        if (this.timeTable.settings.startDate && this.timeTable.settings.endDate) {
-            if (this.timeTable.settings.startDate > this.timeTable.settings.endDate) {
-                this.validationErrors.push('End date must be after start date');
-            }
-        }
-
-        // Time validations
-        if (!this.timeTable.settings.dayStartTime) {
-            this.validationErrors.push('Day start time is required');
-        }
-        if (!this.timeTable.settings.dayEndTime) {
-            this.validationErrors.push('Day end time is required');
-        }
-        if (this.timeTable.settings.dayStartTime && this.timeTable.settings.dayEndTime) {
-            if (this.timeTable.settings.dayStartTime >= this.timeTable.settings.dayEndTime) {
-                this.validationErrors.push('Day end time must be after start time');
-            }
-        }
-
-        if (!this.timeTable.settings.slotsPerDay || this.timeTable.settings.slotsPerDay < 1) {
-            this.validationErrors.push('At least 1 slot per day is required');
-        }
-        if (!this.timeTable.settings.slotDuration || this.timeTable.settings.slotDuration < 30) {
-            this.validationErrors.push('Slot duration must be at least 30 minutes');
-        }
-
-        if (this.timeTable.settings.dayStartTime && this.timeTable.settings.dayEndTime && this.timeTable.settings.slotsPerDay && this.timeTable.settings.slotDuration) {
-            const dayDurationMinutes = this.getDayDurationInMinutes();
-            const totalSlotDuration = this.timeTable.settings.slotsPerDay * this.timeTable.settings.slotDuration;
-            const totalBreakDuration = (this.timeTable.settings.slotsPerDay - (this.timeTable.settings.slotsPerDay <= 1 ? this.timeTable.settings.slotsPerDay : 1)) * this.timeTable.settings.breakDuration;
-            const requiredTime = totalSlotDuration + totalBreakDuration;
-
-            if (requiredTime > dayDurationMinutes * dayDifference) {
-                this.validationErrors.push(`Total time required (${requiredTime} min) exceeds available day time (${dayDurationMinutes} min)`);
-            }
-        }
-
-        if (!this.subjects || this.subjects.length === 0) {
-            this.validationErrors.push('At least one subject is required');
-        }
-
-        if (this.subjects?.length && dayDifference && this.timeTable.settings.slotsPerDay) {
-            const totalAvailableSlots = dayDifference * this.timeTable.settings.slotsPerDay;
-
-            if (totalAvailableSlots < this.subjects.length) {
-                this.validationErrors.push(`Insufficient time slots: ${totalAvailableSlots} available, but ${this.subjects.length} subjects selected.`);
-            }
-        }
+        this.es.generateTimeTable();
     }
 
     getExactDayDiff(start: Date, end: Date): number {
         const diffMs = end.getTime() - start.getTime();
         return Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-    }
-
-    getDayDurationInMinutes(): number {
-        if (!this.timeTable.settings.dayStartTime || !this.timeTable.settings.dayEndTime) {
-            return 0;
-        }
-        const start = new Date(this.timeTable.settings.dayStartTime);
-        const end = new Date(this.timeTable.settings.dayEndTime);
-        return Math.floor((end.getTime() - start.getTime()) / (1000 * 60));
-    }
-
-    getTimeSlots(): void {
-        const slots: string[] = [];
-
-        let currentTime = new Date(this.timeTable.settings.dayStartTime);
-
-        for (let i = 0; i < this.timeTable.settings.slotsPerDay; i++) {
-            const endTime = new Date(currentTime.getTime() + this.timeTable.settings.slotDuration * 60000);
-            slots.push(`${this.formatTime(currentTime)} - ${this.formatTime(endTime)}`);
-
-            // Add break time for next slot (except for last slot)
-            if (i < this.timeTable.settings.slotsPerDay - 1) {
-                currentTime = new Date(endTime.getTime() + this.timeTable.settings.breakDuration * 60000);
-            }
-        }
-
-        this.timeSlots = slots;
-    }
-
-    generateTimeTable() {
-        // Validate before generating
-        this.validateForm();
-        if (this.validationErrors.length > 0) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Validation Error',
-                detail: 'Please fix validation errors before generating timetable'
-            });
-            return;
-        }
-        this.getTimeSlots();
-        this.getDays();
-        this._subjects = [...this.subjects];
-        this.timeTable.schedules.splice(0, this.timeTable.schedules.length); // Clear in-place
-
-        let currentDate = new Date(this.timeTable.settings.startDate);
-        let endDate = new Date(this.timeTable.settings.endDate);
-        currentDate.setHours(0, 0, 0, 0);
-        endDate.setHours(0, 0, 0, 0);
-        while (currentDate <= endDate) {
-            let slotStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), this.timeTable.settings.dayStartTime.getHours(), this.timeTable.settings.dayStartTime.getMinutes(), 0, 0);
-            for (let i = 0; i < this.timeTable.settings.slotsPerDay; i++) {
-                const slotEnd = new Date(slotStart.getTime() + this.timeTable.settings.slotDuration * 60000);
-
-                let slot = {
-                    startTime: formatDate(slotStart, this.commonService.dateTimeFormate, 'en-US'),
-                    endTime: formatDate(slotEnd, this.commonService.dateTimeFormate, 'en-US'),
-                    day: formatDate(slotStart, this.commonService.dateFormate, 'en-US'),
-                    breakDuration: this.timeTable.settings.breakDuration,
-                    subjectName: '',
-                    color: ''
-                };
-                this.timeTable.schedules.push(slot);
-
-                if (i < this.timeTable.settings.slotsPerDay - 1) {
-                    slotStart = new Date(slotEnd.getTime() + this.timeTable.settings.breakDuration * 60000);
-                }
-            }
-
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-
-        // this.messageService.add({
-        //     severity: 'success',
-        //     summary: 'Success',
-        //     detail: `Timetable generated with ${this.timeTable.schedules.length} slots`
-        // });
-    }
-
-    getSlotTimeRange(slot: ExaminationTimeSlot): string {
-        const start = new Date(slot.startTime);
-        const end = new Date(slot.endTime);
-        return `${this.formatTime(start)} - ${this.formatTime(end)}`;
-    }
-
-    getDays(): void {
-        this.days = Array.from(new Set(this.timeTable.schedules.map((slot) => slot.day)));
-    }
-
-    getSlotsForDay(dayISO: string): ExaminationTimeSlot[] {
-        return this.timeTable.schedules.filter((slot) => slot.day === dayISO);
-    }
-
-    formatTime(date: Date): string {
-        const hour = date.getHours();
-        const minute = date.getMinutes();
-        const period = hour >= 12 ? 'PM' : 'AM';
-        const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-        const displayMinute = minute.toString().padStart(2, '0');
-        return `${displayHour}:${displayMinute} ${period}`;
-    }
-
-    formatDate(date: Date | string): string {
-        date = new Date(date);
-        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
     }
 
     onDragStart(subject: any) {
@@ -277,7 +87,7 @@ export class ExamSlotsComponent {
         }
 
         // 2. Remove subject from any previously assigned slot
-        for (const slot of this.timeTable.schedules) {
+        for (const slot of this.es.timeTable.schedules) {
             if (slot.subjectName === this.draggedSubject.name) {
                 slot.subjectName = null;
                 slot.color = null;

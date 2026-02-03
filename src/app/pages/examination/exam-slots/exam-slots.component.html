@@ -9,32 +9,32 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
         <p-date-picker 
-          [(ngModel)]="timeTable.settings.startDate" 
+          [(ngModel)]="es.timeTable.settings.startDate" 
           [showIcon]="true"
           appendTo="body"
-          (onClose)="validateForm(); selectedExam?.examId ? generateTimeTable() : null"
+          (onClose)="es.generateTimeTable()"
           class="w-full">
         </p-date-picker>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
         <p-date-picker 
-          [(ngModel)]="timeTable.settings.endDate" 
+          [(ngModel)]="es.timeTable.settings.endDate" 
           [showIcon]="true"
           appendTo="body"
-          (onClose)="validateForm(); selectedExam?.examId ? generateTimeTable() : null"
-          [minDate]="timeTable.settings.startDate"
+          (onClose)="es.generateTimeTable()"
+          [minDate]="es.timeTable.settings.startDate"
           class="w-full">
         </p-date-picker>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Day Start Time</label>
         <p-date-picker 
-          [(ngModel)]="timeTable.settings.dayStartTime" 
+          [(ngModel)]="es.timeTable.settings.dayStartTime" 
           [timeOnly]="true"
           appendTo="body"
           [hourFormat]="'12'"
-          (onClose)="validateForm()"
+          (onClose)="es.generateTimeTable();"
           class="w-full">
         </p-date-picker>
       </div>
@@ -42,10 +42,10 @@
         <label class="block text-sm font-medium text-gray-700 mb-2">Day End Time</label>
         <p-date-picker 
           appendTo="body"
-          [(ngModel)]="timeTable.settings.dayEndTime" 
+          [(ngModel)]="es.timeTable.settings.dayEndTime" 
           [timeOnly]="true"
           [hourFormat]="'12'" 
-          (onClose)="validateForm()"
+          (onClose)="es.generateTimeTable();"
           class="w-full">
         </p-date-picker>
       </div>
@@ -53,9 +53,9 @@
         <label class="block text-sm font-medium text-gray-700 mb-2">Slots Per Day</label>
         <p-select 
           appendTo="body"
-          [(ngModel)]="timeTable.settings.slotsPerDay" 
+          [(ngModel)]="es.timeTable.settings.slotsPerDay" 
           [options]="slotOptions"
-          (onChange)="validateForm(); selectedExam?.examId ? generateTimeTable() : null"
+          (onChange)="es.generateTimeTable()"
           optionLabel="label"
           optionValue="value"
           class="w-full">
@@ -65,9 +65,9 @@
         <label class="block text-sm font-medium text-gray-700 mb-2">Slot Duration</label>
         <p-select 
           appendTo="body"
-          [(ngModel)]="timeTable.settings.slotDuration" 
-          [options]="durationOptions"
-          (onChange)="validateForm()"
+          [(ngModel)]="es.timeTable.settings.slotDuration" 
+          [options]="es.durationOptions"
+          (onChange)="es.generateTimeTable();"
           optionLabel="label"
           optionValue="value"
           class="w-full">
@@ -76,23 +76,26 @@
     </div>
     
     <!-- Validation Messages -->
-    @if(validationErrors.length > 0) {
+    <!-- @if(es.scheduleValidationErrors.length > 0) {
       <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
         <div class="flex items-center mb-2">
           <i class="pi pi-exclamation-triangle text-red-500 mr-2"></i>
           <span class="text-sm font-medium text-red-800">Please fix the following issues:</span>
         </div>
         <ul class="text-sm text-red-700 list-disc list-inside">
-          <li *ngFor="let error of validationErrors">{{ error }}</li>
+          @for (error of es.scheduleValidationErrors; track $index) {
+            <li>{{ error }}</li>
+          }
+       
         </ul>
       </div>
-    }
+    } -->
     <!-- @if(canEdit){
     <div class="flex justify-end item-end mt-6">
       <p-button 
         label="Add Template" 
         icon="pi pi-calendar"
-        [disabled]="validationErrors.length > 0"
+        [disabled]="es.scheduleValidationErrors.length > 0"
         (onClick)="generateTimeTable()">
       </p-button>
     </div>
@@ -105,24 +108,24 @@
   <h3 class="text-lg font-semibold text-yellow-700 mb-6 flex items-center">
     <i class="pi pi-clock text-yellow-600 mr-2"></i> Break Configuration
   </h3>
-@if(timeTable.settings.slotsPerDay !=0){
+@if(es.timeTable.settings.slotsPerDay !=0){
   <div class="space-y-6">
  
           <div class="flex justify-between items-center mb-2">
             <label class="text-sm font-medium text-gray-700">Set Common Break for All</label>
-            <span class="text-sm text-gray-600">{{ timeTable.settings.breakDuration }} min</span>
+            <span class="text-sm text-gray-600">{{ es.timeTable.settings.breakDuration }} min</span>
           </div>
           <p-slider
-            [(ngModel)]="timeTable.settings.breakDuration"
+            [(ngModel)]="es.timeTable.settings.breakDuration"
             [max]="180"
-            (onChange)="validateForm()"
+            (onChange)="es.generateTimeTable();"
             [style]="{ width: '100%' }">
           </p-slider>
 
           <div class="p-8">Implementation pending</div>
         <!-- <div class="grid md:grid-cols-5 gap-2">
-          <div *ngFor="let slot of timeTable.schedules; let i = index" class="bg-gray-50 p-2 rounded-md shadow-sm">
-           @if(timeTable.schedules.length-1 != i){
+          <div *ngFor="let slot of es.timeTable.schedules; let i = index" class="bg-gray-50 p-2 rounded-md shadow-sm">
+           @if(es.timeTable.schedules.length-1 != i){
             <div class="flex justify-center">
               <p-knob 
                 [(ngModel)]="slot.breakDuration" 
@@ -140,21 +143,19 @@
   </div>
 }
 
-  <div *ngIf="timeTable.settings.slotsPerDay <= 1" class="text-gray-500 text-sm italic">
+  <div *ngIf="es.timeTable.settings.slotsPerDay <= 1" class="text-gray-500 text-sm italic">
     No breaks needed for a single slot.
   </div>
 </div>
    </div>
    
-@if(this.timeTable.schedules.length){
+@if(this.es.timeTable.schedules.length){
   <div class="grid grid-cols-1 lg:grid-cols-8 gap-6 mt-6 h-[50vh]">
-    <!-- Subjects Panel -->
-  <!-- Subjects Panel -->
 <div class="lg:col-span-1">
   <div class="sticky top-20 h-full">
     <div class="rounded-lg shadow-md h-full flex flex-col justify-center">
       <div class="space-y-2 overflow-y-auto p-3 max-h-[70vh]">
-        @for (subject of subjects; track $index) {
+        @for (subject of es.selectedSubjectsForTimeTable; track $index) {
           <div 
             class="p-3 rounded-lg cursor-move transition-all duration-200 hover:shadow-md"
             [style.background-image]="subject.color"
@@ -169,16 +170,15 @@
   </div>
 </div>
 
-    <!-- Time Table -->
     <div class="lg:col-span-7 overflow-y-auto max-h-[50vh]">
-      <div class="bg-white rounded-lg shadow-md overflow-hidden" *ngIf="timeTable.schedules.length > 0">
+      <div class="bg-white rounded-lg shadow-md overflow-hidden" *ngIf="es.timeTable.schedules.length > 0">
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead>
               <tr>
                 <th class="p-3 text-left font-medium bg-gray-100 text-gray-700 border-r">Date</th>
                 <th 
-                *ngFor="let slot of timeSlots; let i = index"
+                *ngFor="let slot of es.timeSlots; let i = index"
                 class="p-3 bg-gray-100 text-center font-medium text-gray-700 border-r min-w-48">
                 Slot {{ i + 1 }}
                 <div class="text-xs text-gray-500 mt-1">{{ slot }}</div>
@@ -186,12 +186,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let day of days">
+              <tr *ngFor="let day of es.days">
                 <td class="p-3 font-medium bg-gray-100 text-primary-600 w-20">
-                  {{ formatDate(day) }}
+                  {{ es.formatDate(day) }}
                 </td>
                 <td 
-                  *ngFor="let slot of getSlotsForDay(day); let slotIndex = index"
+                  *ngFor="let slot of es.getSlotsForDay(day); let slotIndex = index"
                   class="px-2 py-2 border-r h-20 align-top"
                   pDroppable
                   (onDrop)="onDrop($event, slot)">
@@ -210,7 +210,7 @@
                   <div 
                     *ngIf="!slot.subjectName"
                     class="h-full flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-md">
-                    {{ getSlotTimeRange(slot) }} <br/>
+                    {{ es.getSlotTimeRange(slot) }} <br/>
                     Drop subject here
                   </div>
                 </td>
@@ -221,7 +221,7 @@
       </div>
       
       <!-- Placeholder when no schedule -->
-      <div *ngIf="timeTable.schedules.length === 0" class="bg-white p-12 rounded-lg shadow-md text-center">
+      <div *ngIf="es.timeTable.schedules.length === 0" class="bg-white p-12 rounded-lg shadow-md text-center">
         <i class="pi pi-calendar text-6xl text-gray-300 mb-4"></i>
         <h3 class="text-xl font-semibold text-gray-600 mb-2">No Schedule Generated</h3>
         <p class="text-gray-500">Configure the dates and slots, then click "Add Template" to create your schedule.</p>

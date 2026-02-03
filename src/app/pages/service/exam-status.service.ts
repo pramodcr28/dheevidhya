@@ -1,5 +1,10 @@
-import { Injectable } from '@angular/core';
-import { ExamStatus } from '../models/examination.model';
+import { formatDate } from '@angular/common';
+import { inject, Injectable } from '@angular/core';
+import { MessageService } from 'primeng/api';
+import { CommonService } from '../../core/services/common.service';
+import { ExaminationDTO, ExaminationTimeSlot, ExaminationTimeTable, ExamStatus } from '../models/examination.model';
+import { IDepartmentConfig } from '../models/org.model';
+import { Subject } from '../models/time-table';
 
 export interface StatusTransition {
     from: ExamStatus;
@@ -13,7 +18,15 @@ export interface StatusTransition {
     providedIn: 'root'
 })
 export class ExamStatusService {
-    // Define allowed status transitions
+    timeTable: ExaminationTimeTable = null;
+    selectedSubjectsForTimeTable: Subject[] = [];
+    scheduleValidationErrors: string[] = [];
+    selectedExam: ExaminationDTO;
+    messageService = inject(MessageService);
+    commonService = inject(CommonService);
+    timeSlots = [];
+    days = [];
+    selectedDepartment: IDepartmentConfig;
     private transitionRules: Map<string, StatusTransition> = new Map([
         // From DRAFT
         [
@@ -86,27 +99,18 @@ export class ExamStatusService {
             }
         ]
     ]);
-
-    /**
-     * Check if a status transition is allowed
-     */
+    allValidations = [];
     canTransition(from: ExamStatus, to: ExamStatus): boolean {
         const key = `${from}->${to}`;
         const rule = this.transitionRules.get(key);
         return rule?.allowed || false;
     }
 
-    /**
-     * Get transition rule
-     */
     getTransitionRule(from: ExamStatus, to: ExamStatus): StatusTransition | undefined {
         const key = `${from}->${to}`;
         return this.transitionRules.get(key);
     }
 
-    /**
-     * Get all possible next statuses from current status
-     */
     getAvailableTransitions(currentStatus: ExamStatus): ExamStatus[] {
         const available: ExamStatus[] = [];
 
@@ -118,23 +122,14 @@ export class ExamStatusService {
         return available;
     }
 
-    /**
-     * Check if exam can be deleted (only DRAFT status)
-     */
     canDelete(status: ExamStatus): boolean {
         return status === ExamStatus.DRAFT;
     }
 
-    /**
-     * Check if exam can be edited
-     */
     canEdit(status: ExamStatus): boolean {
         return status === ExamStatus.DRAFT || status === ExamStatus.SCHEDULED || status === ExamStatus.RE_SCHEDULED;
     }
 
-    /**
-     * Get status badge color
-     */
     getStatusBadgeClass(status: ExamStatus): string {
         const classes = {
             [ExamStatus.DRAFT]: 'bg-gray-100 text-gray-800',
@@ -148,9 +143,6 @@ export class ExamStatusService {
         return classes[status] || 'bg-gray-100 text-gray-800';
     }
 
-    /**
-     * Get status icon
-     */
     getStatusIcon(status: ExamStatus): string {
         const icons = {
             [ExamStatus.DRAFT]: 'pi pi-file-edit',
@@ -162,5 +154,188 @@ export class ExamStatusService {
         };
 
         return icons[status] || 'pi pi-info-circle';
+    }
+
+    durationOptions = [
+        { label: '30 Minutes', value: 30 },
+        { label: '1 Hour', value: 60 },
+        { label: '1.5 Hours', value: 90 },
+        { label: '2 Hours', value: 120 },
+        { label: '2.5 Hours', value: 150 },
+        { label: '3 Hours', value: 180 },
+        { label: '3.5 Hours', value: 210 },
+        { label: '4 Hours', value: 240 }
+    ];
+
+    getExactDayDiff(start: Date, end: Date): number {
+        const diffMs = end.getTime() - start.getTime();
+        return Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    }
+
+    getDayDurationInMinutes(): number {
+        if (!this.timeTable.settings.dayStartTime || !this.timeTable.settings.dayEndTime) {
+            return 0;
+        }
+        const start = new Date(this.timeTable.settings.dayStartTime);
+        const end = new Date(this.timeTable.settings.dayEndTime);
+        return Math.floor((end.getTime() - start.getTime()) / (1000 * 60));
+    }
+
+    getTimeSlots(): void {
+        const slots: string[] = [];
+
+        let currentTime = new Date(this.timeTable.settings.dayStartTime);
+
+        for (let i = 0; i < this.timeTable.settings.slotsPerDay; i++) {
+            const endTime = new Date(currentTime.getTime() + this.timeTable.settings.slotDuration * 60000);
+            slots.push(`${this.formatTime(currentTime)} - ${this.formatTime(endTime)}`);
+
+            // Add break time for next slot (except for last slot)
+            if (i < this.timeTable.settings.slotsPerDay - 1) {
+                currentTime = new Date(endTime.getTime() + this.timeTable.settings.breakDuration * 60000);
+            }
+        }
+
+        this.timeSlots = slots;
+    }
+
+    getSlotTimeRange(slot: ExaminationTimeSlot): string {
+        const start = new Date(slot.startTime);
+        const end = new Date(slot.endTime);
+        return `${this.formatTime(start)} - ${this.formatTime(end)}`;
+    }
+
+    getDays(): void {
+        this.days = Array.from(new Set(this.timeTable.schedules.map((slot) => slot.day)));
+    }
+
+    getSlotsForDay(dayISO: string): ExaminationTimeSlot[] {
+        return this.timeTable.schedules.filter((slot) => slot.day === dayISO);
+    }
+
+    formatTime(date: Date): string {
+        const hour = date.getHours();
+        const minute = date.getMinutes();
+        const period = hour >= 12 ? 'PM' : 'AM';
+        const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+        const displayMinute = minute.toString().padStart(2, '0');
+        return `${displayHour}:${displayMinute} ${period}`;
+    }
+
+    formatDate(date: Date | string): string {
+        date = new Date(date);
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+    }
+
+    getAllValidations() {
+        return;
+    }
+
+    generateTimeTable() {
+        this.validateForm();
+        if (this.scheduleValidationErrors.length > 0) {
+            // this.messageService.add({
+            //     severity: 'error',
+            //     summary: 'Validation Error',
+            //     detail: 'Please fix validation errors before generating timetable'
+            // });
+            return;
+        }
+
+        this.timeTable.schedules.splice(0, this.timeTable.schedules.length); // Clear in-place
+
+        let currentDate = new Date(this.timeTable.settings.startDate);
+        let endDate = new Date(this.timeTable.settings.endDate);
+        currentDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        while (currentDate <= endDate) {
+            let slotStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), this.timeTable.settings.dayStartTime.getHours(), this.timeTable.settings.dayStartTime.getMinutes(), 0, 0);
+            for (let i = 0; i < this.timeTable.settings.slotsPerDay; i++) {
+                const slotEnd = new Date(slotStart.getTime() + this.timeTable.settings.slotDuration * 60000);
+
+                let slot = {
+                    startTime: formatDate(slotStart, this.commonService.dateTimeFormate, 'en-US'),
+                    endTime: formatDate(slotEnd, this.commonService.dateTimeFormate, 'en-US'),
+                    day: formatDate(slotStart, this.commonService.dateFormate, 'en-US'),
+                    breakDuration: this.timeTable.settings.breakDuration,
+                    subjectName: '',
+                    color: ''
+                };
+                this.timeTable.schedules.push(slot);
+
+                if (i < this.timeTable.settings.slotsPerDay - 1) {
+                    slotStart = new Date(slotEnd.getTime() + this.timeTable.settings.breakDuration * 60000);
+                }
+            }
+
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        this.getTimeSlots();
+        this.getDays();
+        // this.messageService.add({
+        //     severity: 'success',
+        //     summary: 'Success',
+        //     detail: `Timetable generated with ${this.timeTable.schedules.length} slots`
+        // });
+    }
+
+    validateForm(): void {
+        this.scheduleValidationErrors = [];
+        let dayDifference = this.getExactDayDiff(this.timeTable.settings.startDate, this.timeTable.settings.endDate);
+        if (!this.timeTable.settings.startDate) {
+            this.scheduleValidationErrors.push('Start date is required');
+        }
+        if (!this.timeTable.settings.endDate) {
+            this.scheduleValidationErrors.push('End date is required');
+        }
+        if (this.timeTable.settings.startDate && this.timeTable.settings.endDate) {
+            if (this.timeTable.settings.startDate > this.timeTable.settings.endDate) {
+                this.scheduleValidationErrors.push('End date must be after start date');
+            }
+        }
+
+        if (!this.timeTable.settings.dayStartTime) {
+            this.scheduleValidationErrors.push('Day start time is required');
+        }
+        if (!this.timeTable.settings.dayEndTime) {
+            this.scheduleValidationErrors.push('Day end time is required');
+        }
+        if (this.timeTable.settings.dayStartTime && this.timeTable.settings.dayEndTime) {
+            if (this.timeTable.settings.dayStartTime >= this.timeTable.settings.dayEndTime) {
+                this.scheduleValidationErrors.push('Day end time must be after start time');
+            }
+        }
+
+        if (!this.timeTable.settings.slotsPerDay || this.timeTable.settings.slotsPerDay < 1) {
+            this.scheduleValidationErrors.push('At least 1 slot per day is required');
+        }
+        if (!this.timeTable.settings.slotDuration || this.timeTable.settings.slotDuration < 30) {
+            this.scheduleValidationErrors.push('Slot duration must be at least 30 minutes');
+        }
+
+        if (this.timeTable.settings.dayStartTime && this.timeTable.settings.dayEndTime && this.timeTable.settings.slotsPerDay && this.timeTable.settings.slotDuration) {
+            const dayDurationMinutes = this.getDayDurationInMinutes();
+            const totalSlotDuration = this.timeTable.settings.slotsPerDay * this.timeTable.settings.slotDuration;
+            const totalBreakDuration = (this.timeTable.settings.slotsPerDay - (this.timeTable.settings.slotsPerDay <= 1 ? this.timeTable.settings.slotsPerDay : 1)) * this.timeTable.settings.breakDuration;
+            const requiredTime = totalSlotDuration + totalBreakDuration;
+
+            if (requiredTime > dayDurationMinutes * dayDifference) {
+                this.scheduleValidationErrors.push(`Total time required (${requiredTime} min) exceeds available day time (${dayDurationMinutes} min)`);
+            }
+        }
+
+        if (this.selectedDepartment && (!this.selectedSubjectsForTimeTable || this.selectedSubjectsForTimeTable.length === 0)) {
+            this.scheduleValidationErrors.push('At least one subject is required');
+        }
+
+        if (this.selectedSubjectsForTimeTable?.length && dayDifference && this.timeTable.settings.slotsPerDay) {
+            const totalAvailableSlots = dayDifference * this.timeTable.settings.slotsPerDay;
+
+            if (totalAvailableSlots < this.selectedSubjectsForTimeTable.length) {
+                this.scheduleValidationErrors.push(`Insufficient time slots: ${totalAvailableSlots} available, but ${this.selectedSubjectsForTimeTable.length} subjects selected.`);
+            }
+        }
     }
 }

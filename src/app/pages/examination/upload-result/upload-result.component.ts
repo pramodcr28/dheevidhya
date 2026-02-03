@@ -55,7 +55,7 @@ export class UploadResultComponent implements OnInit {
 
     getExams() {
         this.loader.show('Fetching Exams List');
-        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString() }).subscribe((res) => {
+        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString(), 'status.in': ['SCHEDULED', 'RE_SCHEDULED', 'ONGOING'] }).subscribe((res) => {
             this.exams = res.content;
             this.loader.hide();
         });
