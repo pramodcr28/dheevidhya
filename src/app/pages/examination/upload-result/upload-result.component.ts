@@ -12,10 +12,11 @@ import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
+import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getDepartmentById } from '../../../core/store/user-profile/user-profile.selectors';
-import { ExaminationDTO, ExamResult, StudentResult } from '../../models/examination.model';
+import { ExaminationDTO, ExamResult, ExamStatus, StudentResult } from '../../models/examination.model';
 import { IDepartmentConfig } from '../../models/org.model';
 import { ExaminationService } from '../../service/examination.service';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -41,7 +42,7 @@ export class UploadResultComponent implements OnInit {
     private store = inject(Store<{ userProfile: UserProfileState }>);
     public studentService = inject(UserService);
     public profileService = inject(ProfileConfigService);
-    private confirmationService = inject(ConfirmationService);
+    private confirmationService = inject(DheeConfirmationService);
 
     public students = signal<any[]>([]);
     public selectedSubjects: any[] = [];
@@ -220,6 +221,7 @@ export class UploadResultComponent implements OnInit {
         const payload = this.prepareSavePayload();
         this.examinationService.saveResults(payload).subscribe({
             next: () => {
+                this.selectedExam.status = ExamStatus.ONGOING;
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
@@ -248,7 +250,7 @@ export class UploadResultComponent implements OnInit {
                         id: result.id,
                         examId: result.examId,
                         studentId: result.studentId,
-                        academicYear: '2025-2026',
+                        academicYear: this.selectedExam.academicYear,
                         subjectId: result.subjectId,
                         subjectName: result.subjectName,
                         obtainedMarks: result.obtainedMarks,

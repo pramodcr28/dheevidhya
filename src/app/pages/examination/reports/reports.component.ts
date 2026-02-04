@@ -86,7 +86,7 @@ export class ReportsComponent {
 
     getExams() {
         this.loader.show('Fetching Exams List');
-        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString() }).subscribe((res) => {
+        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString(), 'status.eq': 'RESULT_DECLARED' }).subscribe((res) => {
             this.exams = res.content;
             this.loader.hide();
         });

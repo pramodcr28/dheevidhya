@@ -31,6 +31,7 @@ export enum ExamStatus {
 export interface ExaminationDTO {
     examId?: string;
     status: ExamStatus;
+    academicYear: string;
     departmentId: string;
     branchId: string;
     examType: ExamType;

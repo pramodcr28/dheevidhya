@@ -10,14 +10,16 @@ import { CommonService } from './app/core/services/common.service';
 import { WebSocketService } from './app/core/services/websocket.service';
 import { UserProfileState } from './app/core/store/user-profile/user-profile.reducer';
 import { selectUserConfig } from './app/core/store/user-profile/user-profile.selectors';
+import { ConfirmationDialogComponent } from './app/shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterModule, ApiLoaderComponent, CommonModule, ToastModule, ConfirmDialogModule],
+    imports: [RouterModule, ApiLoaderComponent, CommonModule, ToastModule, ConfirmDialogModule, ConfirmationDialogComponent],
     template: ` <p-toast></p-toast>
         <!-- API Loader Component -->
         <p-confirmDialog> </p-confirmDialog>
+        <app-confirmation-dialog></app-confirmation-dialog>
         <app-api-loader></app-api-loader>
         <router-outlet></router-outlet>`
 })
