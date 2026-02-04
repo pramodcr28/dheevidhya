@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -25,7 +27,7 @@ import { UserService } from '../../service/user.service';
 @Component({
     selector: 'app-upload-result',
     standalone: true,
-    imports: [SelectModule, FormsModule, CommonModule, ButtonModule, InputTextModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TagModule, InputNumberModule],
+    imports: [SelectModule, FormsModule, CommonModule, ButtonModule, InputTextModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TagModule, InputNumberModule, DialogModule, CheckboxModule],
     templateUrl: './upload-result.component.html',
     providers: [ConfirmationService, MessageService]
 })
@@ -50,6 +52,11 @@ export class UploadResultComponent implements OnInit {
 
     public isLoading = false;
     public isSaving = false;
+
+    // Declare Result Dialog
+    public showDeclareDialog = false;
+    public sendNotification = true;
+
     ngOnInit(): void {
         this.getExams();
     }
@@ -61,6 +68,7 @@ export class UploadResultComponent implements OnInit {
             this.loader.hide();
         });
     }
+
     onExamChange() {
         this.selectedSection = null;
         this.selectedSubjects = [];
@@ -216,23 +224,106 @@ export class UploadResultComponent implements OnInit {
         });
     }
 
-    // add here to declare examination with validation like for all students all subject is mandatoryly need to add before declare the exam validate that first show proper message
+    declareResults() {
+        // Validate all subjects are filled
+        const validation = this.validateAllResults();
+        if (!validation.isValid) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Validation Error',
+                detail: validation.message
+            });
+            return;
+        }
+
+        // Show custom confirmation dialog
+        this.showDeclareDialog = true;
+        this.sendNotification = true;
+    }
+
+    validateAllResults(): { isValid: boolean; message: string } {
+        if (!this.studentResults || this.studentResults.length === 0) {
+            return {
+                isValid: false,
+                message: 'No student results found to declare.'
+            };
+        }
+
+        const studentsWithMissingMarks: string[] = [];
+        const studentsWithInvalidMarks: string[] = [];
+
+        for (const student of this.studentResults) {
+            const missingSubjects: string[] = [];
+            const invalidSubjects: string[] = [];
+
+            for (const result of student.examResults) {
+                // Check if marks are missing
+                if (result.obtainedMarks === null || result.obtainedMarks === undefined) {
+                    missingSubjects.push(result.subjectName);
+                } else {
+                    // Check if marks are within valid range
+                    const totalMarks = result.totalMarks || this.selectedExam?.totalMarks;
+                    if (result.obtainedMarks < 0 || result.obtainedMarks > totalMarks) {
+                        invalidSubjects.push(result.subjectName);
+                    }
+                }
+            }
+
+            if (missingSubjects.length > 0) {
+                studentsWithMissingMarks.push(`${student.fullName}: ${missingSubjects.join(', ')}`);
+            }
+            if (invalidSubjects.length > 0) {
+                studentsWithInvalidMarks.push(`${student.fullName}: ${invalidSubjects.join(', ')}`);
+            }
+        }
+
+        if (studentsWithMissingMarks.length > 0) {
+            return {
+                isValid: false,
+                message: `Missing marks for the following students: ${studentsWithMissingMarks.join(' | ')}`
+            };
+        }
+
+        if (studentsWithInvalidMarks.length > 0) {
+            return {
+                isValid: false,
+                message: `Invalid marks (out of range) for the following students: ${studentsWithInvalidMarks.join(' | ')}`
+            };
+        }
+
+        return {
+            isValid: true,
+            message: 'All validations passed'
+        };
+    }
+
+    confirmDeclareResults() {
+        this.showDeclareDialog = false;
+        this.performSave(ExamStatus.RESULT_DECLARED);
+    }
+
+    cancelDeclareResults() {
+        this.showDeclareDialog = false;
+        this.sendNotification = true;
+    }
 
     performSave(status: ExamStatus) {
         this.isSaving = true;
         const payload: ExamResultDTO = {
             examId: this.selectedExam.examId,
             status: status,
+            sendNotification: status === ExamStatus.RESULT_DECLARED ? this.sendNotification : false,
             students: this.prepareSavePayload() as any
         };
 
         this.examinationService.saveResults(payload).subscribe({
             next: () => {
-                this.selectedExam.status = ExamStatus.ONGOING;
+                this.selectedExam.status = status;
+                const message = status === ExamStatus.RESULT_DECLARED ? 'Results declared successfully!' : 'Results saved successfully!';
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
-                    detail: 'Results saved successfully!'
+                    detail: message
                 });
                 this.isSaving = false;
             },
@@ -303,5 +394,9 @@ export class UploadResultComponent implements OnInit {
         }
 
         return this.getStudentPercentage(student) >= 40;
+    }
+
+    get canDeclareResults(): boolean {
+        return this.selectedExam?.status !== ExamStatus.RESULT_DECLARED && this.studentResults.length > 0 && !this.isLoading && !this.isSaving;
     }
 }

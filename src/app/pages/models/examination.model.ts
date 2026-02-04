@@ -93,6 +93,7 @@ export const ExamStatusLabels: Record<ExamStatus, string> = {
 export interface ExamResultDTO {
     examId: string;
     status?: ExamStatus;
+    sendNotification: Boolean;
     students?: StudentResult[];
 }
 

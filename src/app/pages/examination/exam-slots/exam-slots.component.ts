@@ -54,7 +54,6 @@ export class ExamSlotsComponent {
             this.es.timeTable.settings.dayEndTime = new Date();
             this.es.timeTable.settings.dayEndTime.setHours(17, 0, 0, 0);
         }
-
         this.es.generateTimeTable();
     }
 

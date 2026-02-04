@@ -174,6 +174,7 @@ export class AddExamComponent {
                 resultDeclarationDate: exam.resultDeclarationDate ?? null
             });
             this.es.timeTable = exam.timeTable;
+
             this.es.timeTable.settings.startDate = new Date(this.es.timeTable.settings.startDate);
             this.es.timeTable.settings.endDate = new Date(this.es.timeTable.settings.endDate);
             this.es.selectedDepartment = this.commonService.associatedDepartments.find((dep) => dep.id == exam.departmentId);

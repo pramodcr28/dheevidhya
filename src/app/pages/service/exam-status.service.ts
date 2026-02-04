@@ -243,7 +243,7 @@ export class ExamStatusService {
             // });
             return;
         }
-
+        debugger;
         this.timeTable.schedules.splice(0, this.timeTable.schedules.length); // Clear in-place
 
         let currentDate = new Date(this.timeTable.settings.startDate);
