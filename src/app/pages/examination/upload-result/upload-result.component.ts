@@ -16,7 +16,7 @@ import { DheeConfirmationService } from '../../../core/services/dhee-confirmatio
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getDepartmentById } from '../../../core/store/user-profile/user-profile.selectors';
-import { ExaminationDTO, ExamResult, ExamStatus, StudentResult } from '../../models/examination.model';
+import { ExaminationDTO, ExamResult, ExamResultDTO, ExamStatus, StudentResult } from '../../models/examination.model';
 import { IDepartmentConfig } from '../../models/org.model';
 import { ExaminationService } from '../../service/examination.service';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -56,7 +56,7 @@ export class UploadResultComponent implements OnInit {
 
     getExams() {
         this.loader.show('Fetching Exams List');
-        this.examinationService.search(0, 100, 'id', 'ASC', { 'branchId.eq': this.commonService.branch?.id?.toString(), 'status.in': ['SCHEDULED', 'RE_SCHEDULED', 'ONGOING'] }).subscribe((res) => {
+        this.examinationService.search(0, 100, 'createdDate', 'DESC', { 'branchId.eq': this.commonService.branch?.id?.toString(), 'status.in': ['SCHEDULED', 'RE_SCHEDULED', 'ONGOING'] }).subscribe((res) => {
             this.exams = res.content;
             this.loader.hide();
         });
@@ -212,13 +212,20 @@ export class UploadResultComponent implements OnInit {
             message: 'Are you sure you want to save the results?',
             header: 'Confirm Save',
             icon: 'pi pi-exclamation-triangle',
-            accept: () => this.performSave()
+            accept: () => this.performSave(ExamStatus.ONGOING)
         });
     }
 
-    performSave() {
+    // add here to declare examination with validation like for all students all subject is mandatoryly need to add before declare the exam validate that first show proper message
+
+    performSave(status: ExamStatus) {
         this.isSaving = true;
-        const payload = this.prepareSavePayload();
+        const payload: ExamResultDTO = {
+            examId: this.selectedExam.examId,
+            status: status,
+            students: this.prepareSavePayload() as any
+        };
+
         this.examinationService.saveResults(payload).subscribe({
             next: () => {
                 this.selectedExam.status = ExamStatus.ONGOING;

@@ -90,6 +90,12 @@ export const ExamStatusLabels: Record<ExamStatus, string> = {
 
 // upload result entity
 
+export interface ExamResultDTO {
+    examId: string;
+    status?: ExamStatus;
+    students?: StudentResult[];
+}
+
 export interface StudentResult {
     userId: string;
     fullName: string;
