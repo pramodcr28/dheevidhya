@@ -28,7 +28,6 @@ export class ExamStatusService {
     days = [];
     selectedDepartment: IDepartmentConfig;
     private transitionRules: Map<string, StatusTransition> = new Map([
-        // From DRAFT
         [
             'DRAFT->SCHEDULED',
             {
@@ -195,7 +194,6 @@ export class ExamStatusService {
                 currentTime = new Date(endTime.getTime() + this.timeTable.settings.breakDuration * 60000);
             }
         }
-
         this.timeSlots = slots;
     }
 
@@ -236,34 +234,48 @@ export class ExamStatusService {
     generateTimeTable() {
         this.validateForm();
         if (this.scheduleValidationErrors.length > 0) {
-            // this.messageService.add({
-            //     severity: 'error',
-            //     summary: 'Validation Error',
-            //     detail: 'Please fix validation errors before generating timetable'
-            // });
             return;
         }
-        debugger;
-        this.timeTable.schedules.splice(0, this.timeTable.schedules.length); // Clear in-place
+
+        const oldSchedules = [...this.timeTable.schedules];
+
+        const existingScheduleMap = new Map<string, any>();
+        const daySlotCounter = new Map<string, number>();
+
+        oldSchedules.forEach((s: any) => {
+            const day = s.day;
+            const index = daySlotCounter.get(day) ?? 0;
+
+            existingScheduleMap.set(`${day}_${index}`, s);
+            daySlotCounter.set(day, index + 1);
+        });
+
+        this.timeTable.schedules.length = 0;
 
         let currentDate = new Date(this.timeTable.settings.startDate);
         let endDate = new Date(this.timeTable.settings.endDate);
         currentDate.setHours(0, 0, 0, 0);
         endDate.setHours(0, 0, 0, 0);
+
         while (currentDate <= endDate) {
             let slotStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), this.timeTable.settings.dayStartTime.getHours(), this.timeTable.settings.dayStartTime.getMinutes(), 0, 0);
+
+            const day = formatDate(slotStart, this.commonService.dateFormate, 'en-US');
+
             for (let i = 0; i < this.timeTable.settings.slotsPerDay; i++) {
                 const slotEnd = new Date(slotStart.getTime() + this.timeTable.settings.slotDuration * 60000);
 
-                let slot = {
+                const key = `${day}_${i}`;
+                const existing = existingScheduleMap.get(key);
+
+                this.timeTable.schedules.push({
                     startTime: formatDate(slotStart, this.commonService.dateTimeFormate, 'en-US'),
                     endTime: formatDate(slotEnd, this.commonService.dateTimeFormate, 'en-US'),
-                    day: formatDate(slotStart, this.commonService.dateFormate, 'en-US'),
+                    day,
                     breakDuration: this.timeTable.settings.breakDuration,
-                    subjectName: '',
-                    color: ''
-                };
-                this.timeTable.schedules.push(slot);
+                    subjectName: existing?.subjectName ?? '',
+                    color: existing?.color ?? ''
+                });
 
                 if (i < this.timeTable.settings.slotsPerDay - 1) {
                     slotStart = new Date(slotEnd.getTime() + this.timeTable.settings.breakDuration * 60000);
@@ -272,13 +284,9 @@ export class ExamStatusService {
 
             currentDate.setDate(currentDate.getDate() + 1);
         }
+
         this.getTimeSlots();
         this.getDays();
-        // this.messageService.add({
-        //     severity: 'success',
-        //     summary: 'Success',
-        //     detail: `Timetable generated with ${this.timeTable.schedules.length} slots`
-        // });
     }
 
     validateForm(): void {
@@ -330,12 +338,11 @@ export class ExamStatusService {
             this.scheduleValidationErrors.push('At least one subject is required');
         }
 
-        if (this.selectedSubjectsForTimeTable?.length && dayDifference && this.timeTable.settings.slotsPerDay) {
-            const totalAvailableSlots = dayDifference * this.timeTable.settings.slotsPerDay;
-
-            if (totalAvailableSlots < this.selectedSubjectsForTimeTable.length) {
-                this.scheduleValidationErrors.push(`Insufficient time slots: ${totalAvailableSlots} available, but ${this.selectedSubjectsForTimeTable.length} subjects selected.`);
-            }
-        }
+        // if (this.selectedSubjectsForTimeTable?.length && dayDifference && this.timeTable.settings.slotsPerDay) {
+        // const totalAvailableSlots = dayDifference * this.timeTable.settings.slotsPerDay;
+        // if (totalAvailableSlots < this.selectedSubjectsForTimeTable.length) {
+        //     this.scheduleValidationErrors.push(`Insufficient time slots: ${totalAvailableSlots} available, but ${this.selectedSubjectsForTimeTable.length} subjects selected.`);
+        // }
+        // }
     }
 }

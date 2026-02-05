@@ -174,7 +174,6 @@ export class AddExamComponent {
                 resultDeclarationDate: exam.resultDeclarationDate ?? null
             });
             this.es.timeTable = exam.timeTable;
-
             this.es.timeTable.settings.startDate = new Date(this.es.timeTable.settings.startDate);
             this.es.timeTable.settings.endDate = new Date(this.es.timeTable.settings.endDate);
             this.es.selectedDepartment = this.commonService.associatedDepartments.find((dep) => dep.id == exam.departmentId);
@@ -235,13 +234,15 @@ export class AddExamComponent {
         });
 
         this.es.selectedSubjectsForTimeTable = [...timeTableSubjects];
-
-        if (timeTableSubjects?.length && timeTableSubjects.length < 6) {
-            this.es.timeTable.settings.slotsPerDay = 6;
-        } else {
-            this.es.timeTable.settings.slotDuration = this.es.durationOptions[0].value;
-            this.es.timeTable.settings.slotsPerDay = timeTableSubjects.length;
+        if (!this.es.selectedExam?.examId) {
+            if (timeTableSubjects?.length && timeTableSubjects.length < 6) {
+                this.es.timeTable.settings.slotsPerDay = 6;
+            } else {
+                this.es.timeTable.settings.slotDuration = this.es.durationOptions[0].value;
+                this.es.timeTable.settings.slotsPerDay = timeTableSubjects.length;
+            }
         }
+
         setTimeout(() => {
             this.es.generateTimeTable();
         });
@@ -337,19 +338,43 @@ export class AddExamComponent {
         return selected;
     }
 
-    validateTimetable(status: String, timeTable): string[] {
-        this.validationErrors = [];
-        let isSlotsMissedConfiguration = false;
+    // validateTimetable(status: String, timeTable): string[] {
+    //     this.validationErrors = [];
+    //     let isSlotsMissedConfiguration = false;
+    //     console.log(this.es.selectedSubjectsForTimeTable);
+    //     timeTable?.schedules.forEach((sc) => {
+    //         if (!sc.subjectName || sc.subjectName == '') {
+    //             isSlotsMissedConfiguration = true;
+    //         }
+    //     });
 
-        timeTable?.schedules.forEach((sc) => {
-            if (!sc.subjectName || sc.subjectName == '') {
-                isSlotsMissedConfiguration = true;
+    //     if (status != 'DRAFT' && isSlotsMissedConfiguration) {
+    //         this.validationErrors.push('Some slots are missing subject assignments.');
+    //     }
+    //     return this.validationErrors;
+    // }
+
+    validateTimetable(status: string, timeTable): string[] {
+        this.validationErrors = [];
+
+        if (!timeTable?.schedules?.length) {
+            return this.validationErrors;
+        }
+
+        const assignedSubjects = new Set<string>();
+
+        timeTable.schedules.forEach((sc) => {
+            if (sc.subjectName && sc.subjectName.trim()) {
+                assignedSubjects.add(sc.subjectName.trim());
             }
         });
 
-        if (status != 'DRAFT' && isSlotsMissedConfiguration) {
-            this.validationErrors.push('Some slots are missing subject assignments.');
+        const missingSubjects = this.es.selectedSubjectsForTimeTable.filter((sub) => sub?.name && !assignedSubjects.has(sub.name.trim()));
+
+        if (status !== 'DRAFT' && missingSubjects.length > 0) {
+            this.validationErrors.push(`Selected subjects not added to timetable: ${missingSubjects.map((s) => s.name).join(', ')}`);
         }
+
         return this.validationErrors;
     }
 
