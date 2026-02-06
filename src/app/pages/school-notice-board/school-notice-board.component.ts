@@ -55,7 +55,7 @@ export class SchoolNoticeBoardComponent implements OnInit {
     // dateRange: Date[] | null = null;
 
     // Sorting
-    sortField = 'createdAt';
+    sortField = 'createdDate';
     sortOrder = 'DESC';
 
     categoryOptions = [
@@ -106,8 +106,8 @@ export class SchoolNoticeBoardComponent implements OnInit {
     onLazyLoad(event: TableLazyLoadEvent) {
         this.pageNumber = (event.first ?? 0) / (event.rows ?? 10);
         this.pageSize = event.rows ?? 10;
-        this.sortField = (event.sortField as string) || 'createdAt';
-        this.sortOrder = event.sortOrder === 1 ? 'ASC' : 'DESC';
+        this.sortField = (event.sortField as string) || 'createdDate';
+        this.sortOrder = event.sortOrder === 0 ? 'ASC' : 'DESC';
 
         this.loadNotices();
     }
@@ -121,9 +121,6 @@ export class SchoolNoticeBoardComponent implements OnInit {
             filters['priorities'] = this.selectedPriorities;
         }
 
-        // "targetAudience": {
-        //   "ACADEMIC_UNIT": ["2026-2027:696b6ecd98a76aa52bd90e9e:682b560a77794f7170f3d73f:68282c6489869816a4108492"]
-        // }
         filters['targetAudience'] = {};
         this.commonService.getUserAuthorities.forEach((authority) => {
             if (authority == 'STUDENT' && this.commonService.getStudentInfo) {
@@ -133,10 +130,15 @@ export class SchoolNoticeBoardComponent implements OnInit {
                     STUDENT: [studentInfo.userId]
                 };
             }
-            if (authority != 'STUDENT' && this.commonService.getStudentInfo) {
-                const studentInfo = this.commonService.getStudentInfo;
+            if (authority != 'STUDENT' && this.commonService.currentUser) {
+                const userInfo = this.commonService.currentUser;
+                let targetIds = [];
+                this.commonService.currentUser.departments.forEach((d) => {
+                    targetIds.push(userInfo.academicYear + ':' + d.id);
+                });
+
                 filters['targetAudience'] = {
-                    ACADEMIC_UNIT: [studentInfo.academicYear + ':' + studentInfo.departmentId],
+                    ACADEMIC_UNIT: targetIds,
                     STAFF: [this.commonService.currentUser.userId]
                 };
             }

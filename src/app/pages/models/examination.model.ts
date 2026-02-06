@@ -36,9 +36,6 @@ export interface ExaminationDTO {
     branchId: string;
     examType: ExamType;
     resultDeclarationDate?: string;
-    createdBy?: string;
-    createdAt?: string;
-    updatedAt?: string;
     subjects: IExaminationSubject[];
     timeTable: ExaminationTimeTable;
     totalMarks: number;
