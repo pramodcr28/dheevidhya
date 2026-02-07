@@ -15,7 +15,22 @@ export const getAssociatedDepartments = createSelector(selectUserProfileState, (
         return { ...department, name: department.department?.name };
     })
 );
+
 export const getDepartmentById = (id: string) => createSelector(getAssociatedDepartments, (departments) => departments?.find((department) => department.id === id));
+export const getStudentSectionByIds = (departmentId: string, classId: string, sectionId: string) =>
+    createSelector(getDepartmentById(departmentId), (department) => {
+        if (!department?.department?.classes) {
+            return null;
+        }
+
+        const cls = department.department.classes.find((c: any) => c.id === classId);
+
+        if (!cls?.sections) {
+            return null;
+        }
+
+        return cls.sections.find((s: any) => s.id === sectionId) ?? null;
+    });
 
 export const getUserAssociatedSubjects = createSelector(selectUserProfileState, (state) => {
     const userConfig = state.userConfig ?? {};

@@ -52,6 +52,7 @@ export class CommonService {
     getStudentInfo = null;
     getUserInfo = null;
     getUserAuthorities: string[] = [];
+    isStudent: boolean = true;
     messageService = inject(MessageService);
     /* ================= MENU SOURCE ================= */
     menuModel = signal<MenuItem[]>([]);
@@ -83,6 +84,7 @@ export class CommonService {
 
         this.store.select(getAuthorities).subscribe((res) => {
             this.getUserAuthorities = res ?? [];
+            this.isStudent = this.getUserAuthorities?.includes('STUDENT');
             this.buildMenuModel();
         });
 

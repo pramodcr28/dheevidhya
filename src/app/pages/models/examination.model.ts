@@ -4,6 +4,8 @@ export interface IExaminationSubject {
     departmentName: string;
     sectionName: string;
     className: string;
+    sectionId: string;
+    classId: string;
 }
 
 export enum ExamType {
@@ -132,7 +134,7 @@ export interface ResultData {
     status: 'PASS' | 'FAIL';
 }
 
-interface SubjectResult {
+export interface SubjectResult {
     subjectId: string;
     subjectName: string;
     maxMarks: number;

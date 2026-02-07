@@ -1,6 +1,35 @@
 <div class="rounded-md p-2 h-[85vh] flex flex-col">
   <p-tabs [(value)]="activeTab" scrollable class="flex flex-col h-full">
+   @if(commonService.isStudent){
+    <p-tablist class="flex-shrink-0">
+      <p-tab value="0" class="flex items-center gap-2">
+        <i class="pi pi-book"></i>
+        <span>Examination</span>
+      </p-tab>
 
+      <p-tab value="1" class="flex items-center gap-2">
+        <i class="pi pi-upload"></i>
+        <span>Result</span>
+      </p-tab>
+      
+    </p-tablist>
+
+    <p-tabpanels class="overflow-y-auto flex-grow">
+
+      <p-tabpanel value="0">
+        @if (activeTab === '0') {
+          <app-student-exams></app-student-exams>
+        }
+      </p-tabpanel>
+
+      <p-tabpanel value="1">
+        @if (activeTab === '1') {
+          <app-student-results></app-student-results>
+        }
+      </p-tabpanel>
+
+    </p-tabpanels>
+   }@else {
     <p-tablist class="flex-shrink-0">
       <p-tab value="0" class="flex items-center gap-2">
         <i class="pi pi-book"></i>
@@ -11,7 +40,7 @@
         <i class="pi pi-upload"></i>
         <span>Upload Result</span>
       </p-tab>
-
+      
       <p-tab value="2" class="flex items-center gap-2">
         <i class="pi pi-book"></i>
         <span>Reports</span>
@@ -39,5 +68,7 @@
       </p-tabpanel>
 
     </p-tabpanels>
+   }
+
   </p-tabs>
 </div>

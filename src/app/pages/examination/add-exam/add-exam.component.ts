@@ -1,6 +1,7 @@
 import { CommonModule, formatDate } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Store } from '@ngrx/store';
 import { AccordionModule } from 'primeng/accordion';
 import { MessageService, TreeNode } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -19,6 +20,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
 import { ApiLoaderService } from '../../../core/services/loaderService';
+import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
+import { getStudentSectionByIds } from '../../../core/store/user-profile/user-profile.selectors';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { ConfirmationConfig } from '../../models/common.model';
 import { ExaminationDTO, ExamStatus, ExamStatusLabels, ExamTypeLabels } from '../../models/examination.model';
@@ -88,6 +91,8 @@ export class AddExamComponent {
     page = 0;
     sortField = 'createdDate';
     sortOrder: 'ASC' | 'DESC' = 'DESC';
+    private store = inject(Store<{ userProfile: UserProfileState }>);
+    examinationIds = [];
     ngOnInit(): void {
         this.examForm = this.fb.group({
             totalMarks: [null, [Validators.required, Validators.min(1), Validators.max(1000)]],
@@ -97,7 +102,25 @@ export class AddExamComponent {
             examType: [null, Validators.required],
             resultDeclarationDate: [null]
         });
-        this.getExams();
+        if (this.commonService.isStudent) {
+            this.store.select(getStudentSectionByIds(this.commonService.getStudentInfo.departmentId, this.commonService.getStudentInfo.classId, this.commonService.getStudentInfo.sectionId)).subscribe((s) => {
+                const examMap = new Map<string, any>();
+
+                s?.subjects?.forEach((subject: any) => {
+                    subject?.exams?.forEach((exam: any) => {
+                        if (!examMap.has(exam.examId)) {
+                            examMap.set(exam.examId, exam);
+                        }
+                    });
+                });
+
+                this.examinationIds = Array.from(examMap.values());
+
+                this.getExams();
+            });
+        } else {
+            this.getExams();
+        }
     }
 
     onPageChange(event: any): void {
@@ -115,7 +138,12 @@ export class AddExamComponent {
 
     getExams() {
         this.loader.show('Fetching Exams List');
-        this.examinationService.search(this.page, this.itemsPerPage, this.sortField, this.sortOrder, { 'branchId.eq': this.commonService.branch?.id?.toString() }).subscribe((res) => {
+        if (!this.commonService.isStudent) {
+            var filterParams: any = { 'branchId.eq': this.commonService.branch?.id?.toString() };
+        } else {
+            var filterParams: any = { 'examId.in': this.examinationIds.map((e) => e.examId) };
+        }
+        this.examinationService.search(this.page, this.itemsPerPage, this.sortField, this.sortOrder, filterParams).subscribe((res) => {
             this.exams = res.content;
             this.totalItems = res.totalElements;
             this.loader.hide();
@@ -198,7 +226,7 @@ export class AddExamComponent {
                     key: cls.name + ':' + sec.name,
                     data: sec,
                     children: sec.subjects.map((sub) => {
-                        let subject: IExaminationSubject = { id: sub.id, name: sub.name, className: cls.name, sectionName: sec.name, departmentName: this.es.selectedDepartment.department.name };
+                        let subject: IExaminationSubject = { id: sub.id, name: sub.name, className: cls.name, sectionName: sec.name, departmentName: this.es.selectedDepartment.department.name, sectionId: sec.id, classId: cls.id?.toString() };
                         return {
                             label: `${sub.name}`,
                             key: cls.name + ':' + sec.name + ':' + sub.name + ':' + sub.id,
@@ -296,8 +324,8 @@ export class AddExamComponent {
             const keyParts = node.key?.split(':') ?? [];
             if (keyParts.length !== 4) continue;
 
-            const [className, sectionName, _subName, _subId] = keyParts;
-            let subject: IExaminationSubject = { id: _subId, name: _subName, className: className, sectionName: sectionName, departmentName: this.es.selectedDepartment.department.name };
+            const [className, sectionName, _subName, _subId, sectionId, classId] = keyParts;
+            let subject: IExaminationSubject = { id: _subId, name: _subName, className: className, sectionName: sectionName, departmentName: this.es.selectedDepartment.department.name, sectionId: sectionId, classId: classId };
             subjects.push(subject);
         }
         return subjects;

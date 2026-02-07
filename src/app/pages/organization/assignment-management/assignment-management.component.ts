@@ -133,7 +133,7 @@ export class AssignmentManagementComponent implements OnInit {
                     key: cls.name + ':' + sec.name,
                     data: sec,
                     children: sec.subjects.map((sub) => {
-                        let subject: IExaminationSubject = { id: sub.id, name: sub.name, className: cls.name, sectionName: sec.name, departmentName: this.selectedDepartment.department.name };
+                        let subject: IExaminationSubject = { id: sub.id, name: sub.name, className: cls.name, sectionName: sec.name, departmentName: this.selectedDepartment.department.name, sectionId: sec.id, classId: cls.id?.toString() };
                         return {
                             label: `${sub.name}`,
                             key: cls.name + ':' + sec.name + ':' + sub.name + ':' + sub.id,
