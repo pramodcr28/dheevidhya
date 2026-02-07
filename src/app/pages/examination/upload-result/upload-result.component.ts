@@ -317,15 +317,26 @@ export class UploadResultComponent implements OnInit {
         };
 
         this.examinationService.saveResults(payload).subscribe({
-            next: () => {
-                this.selectedExam.status = status;
-                const message = status === ExamStatus.RESULT_DECLARED ? 'Results declared successfully!' : 'Results saved successfully!';
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: message
-                });
-                this.isSaving = false;
+            next: (response) => {
+                if (response.status == 201 || response.status == 200) {
+                    this.selectedExam.status = status;
+                    const message = status === ExamStatus.RESULT_DECLARED ? 'Results declared successfully!' : 'Results saved successfully!';
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: message
+                    });
+                    this.isSaving = false;
+                } else {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Cannot declare results. Following students in Class',
+                        detail: response.message
+                    });
+                    this.isSaving = false;
+                }
+
+                console.log(response);
             },
             error: () => {
                 this.messageService.add({
