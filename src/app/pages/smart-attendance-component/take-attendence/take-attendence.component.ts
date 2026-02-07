@@ -47,6 +47,7 @@ export class TakeAttendenceComponent {
     students = signal<any[] | null>([]);
     today: Date = new Date();
     takeAttandence = false;
+    todayAttendence: AttendanceRequest;
     onSectionChange() {
         this.store.select(getSubjectsByFilters([this.selectedSection.departmentId], [this.selectedSection.classId], [this.selectedSection.sectionId])).subscribe((subjects) => {
             this.subjects = subjects;
@@ -92,7 +93,7 @@ export class TakeAttendenceComponent {
                         .subscribe((result: any) => {
                             this.takeAttandence = result?.content?.length > 0;
                             let exceptions: any[] = result?.content[0]?.exceptions ?? [];
-
+                            this.todayAttendence = result?.content[0];
                             res.content?.forEach((student: IProfileConfig) => {
                                 let status: AttendanceStatus = 'PRESENT';
 
@@ -128,7 +129,7 @@ export class TakeAttendenceComponent {
     saveAttendance() {
         if (this.selectedSubject) {
             let todayAttendence: AttendanceRequest = {
-                id: null,
+                ...this.todayAttendence,
                 academicYear: this.commonService.currentUser.academicYear,
                 semester: 'Fall',
                 departmentId: this.selectedSection.departmentId,

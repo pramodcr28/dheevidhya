@@ -63,14 +63,14 @@ export class DetailedReportsComponent {
         });
     }
 
-    exportToExcel() {
-        console.log('Exporting to Excel');
-        alert('Export to Excel functionality would be implemented here');
-    }
+    // exportToExcel() {
+    //     console.log('Exporting to Excel');
+    //     alert('Export to Excel functionality would be implemented here');
+    // }
 
-    printReport() {
-        window.print();
-    }
+    // printReport() {
+    //     window.print();
+    // }
 
     getAverageAttendance(): number {
         if (this.classAttendanceReport.length === 0) return 0;
