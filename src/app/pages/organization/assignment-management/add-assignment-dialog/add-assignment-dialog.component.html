@@ -81,7 +81,8 @@
         label="Save as Draft"
         icon="pi pi-save"
         severity="secondary"
-         size="small"
+        size="small"
+        [disabled]="newAssignment.id"
         (onClick)="newAssignment.status = 'DRAFT'; save()">
        </p-button>
 

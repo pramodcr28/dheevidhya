@@ -55,7 +55,7 @@ export class SchoolNoticeBoardComponent implements OnInit {
     // dateRange: Date[] | null = null;
 
     // Sorting
-    sortField = 'createdDate';
+    sortField = 'lastModifiedDate';
     sortOrder = 'DESC';
 
     categoryOptions = [
@@ -106,7 +106,7 @@ export class SchoolNoticeBoardComponent implements OnInit {
     onLazyLoad(event: TableLazyLoadEvent) {
         this.pageNumber = (event.first ?? 0) / (event.rows ?? 10);
         this.pageSize = event.rows ?? 10;
-        this.sortField = (event.sortField as string) || 'createdDate';
+        this.sortField = (event.sortField as string) || 'lastModifiedDate';
         this.sortOrder = event.sortOrder === 0 ? 'ASC' : 'DESC';
 
         this.loadNotices();

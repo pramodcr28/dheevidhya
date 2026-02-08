@@ -42,7 +42,7 @@ export interface IMasterSection {
     name?: string | null;
     code?: string | null;
     capacity?: number | null;
-    room?: number | null;
+    room?: string | null;
     description?: string | null;
     sectionTeacher?: string | null;
     status?: boolean | null;

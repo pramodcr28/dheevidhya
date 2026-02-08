@@ -54,7 +54,9 @@
             <div class="w-full lg:w-48">
                 <p-select [options]="statusOptions" [(ngModel)]="statusFilter" (onChange)="apiCall()" optionLabel="label" optionValue="value" placeholder="Select Status" class="w-full"> </p-select>
             </div>
-            <button pButton icon="pi pi-plus" label="New Timetable" [routerLink]="['/time-table-setup']" class="bg-orange-500 ms-auto"></button>
+            @if(isManagementUser()){  
+               <button pButton icon="pi pi-plus" label="New Timetable" [routerLink]="['/time-table-setup']" class="bg-orange-500 ms-auto"></button>
+            }
         </div>
 
     <div *ngIf="timetables.length === 0" class="text-center py-12 text-gray-500">

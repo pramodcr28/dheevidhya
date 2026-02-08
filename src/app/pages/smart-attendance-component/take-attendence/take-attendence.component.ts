@@ -1,12 +1,12 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { DatePicker } from 'primeng/datepicker';
+import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
@@ -15,88 +15,346 @@ import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { getSubjectsByFilters } from '../../../core/store/user-profile/user-profile.selectors';
 import { AttendanceException, AttendanceRequest, AttendanceStatus } from '../../models/attendence.model';
-import { IMasterSubject, Section } from '../../models/org.model';
 import { IProfileConfig } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { StudentAttendenceServiceService } from '../../service/student-attendence-service.service';
-import { UserService } from '../../service/user.service';
+
+interface TimetableSlot {
+    dayIndex: string;
+    className: string;
+    sectionName: string;
+    classId: string;
+    sectionId: string;
+    deptName: string;
+    deptId: string;
+    startTime: string;
+    endTime: string;
+    instructorName: string;
+    instructorId: string;
+    subjectName: string;
+}
+
+interface SlotWithDate extends TimetableSlot {
+    displayDate: Date;
+    isPast: boolean;
+    isToday: boolean;
+    hasAttendance?: boolean;
+}
+
+interface DaySchedule {
+    dayName: string;
+    dayIndex: number;
+    date: Date;
+    slots: SlotWithDate[];
+}
 
 @Component({
     selector: 'app-take-attendence',
-    imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputTextModule, CardModule, BadgeModule, TagModule, TableModule, DatePicker, ToastModule],
+    imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputTextModule, CardModule, BadgeModule, TagModule, TableModule, ToastModule, DialogModule],
     templateUrl: './take-attendence.component.html',
-    styles: ``,
     providers: [MessageService]
 })
-export class TakeAttendenceComponent {
-    selectedTimePeriod: any = null;
+export class TakeAttendenceComponent implements OnInit {
     attendenceService = inject(StudentAttendenceServiceService);
     commonService = inject(CommonService);
     profileService = inject(ProfileConfigService);
-    selectedSection: Section | null;
-    selectedSubject: IMasterSubject;
-    slotDate: Date | undefined = new Date();
     messageService = inject(MessageService);
-    currentAttendence: AttendanceException[] = [];
-    subjects: any[] = [];
-    private store = inject(Store<{ userProfile: UserProfileState }>);
-    studentService = inject(UserService);
     loader = inject(ApiLoaderService);
-    students = signal<any[] | null>([]);
+    private store = inject(Store<{ userProfile: UserProfileState }>);
+
+    // Dialog state
+    showSlotPicker = false;
+
+    // Timetable data
+    instructorTimetable: TimetableSlot[] = [];
+    weekSchedule: DaySchedule[] = [];
+    selectedSlot: SlotWithDate | null = null;
+    selectedWeekStart: Date = new Date();
+
+    // Attendance data
+    currentAttendence: AttendanceException[] = [];
     today: Date = new Date();
     takeAttandence = false;
     todayAttendence: AttendanceRequest;
-    onSectionChange() {
-        this.store.select(getSubjectsByFilters([this.selectedSection.departmentId], [this.selectedSection.classId], [this.selectedSection.sectionId])).subscribe((subjects) => {
-            this.subjects = subjects;
-            this.selectedSubject = null;
-        });
-        //  this.load();
+
+    // Days mapping
+    dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    ngOnInit() {
+        this.loadInstructorTimetable();
+        this.setCurrentWeek();
     }
 
-    selectionChange() {
-        if (this.selectedSubject && this.selectedSection && this.slotDate) {
-            // if(this.slotDate?.getTime() == this.today?.getTime()){
-            //   this.takeAttandence = true
-            // }
-            this.load();
+    loadInstructorTimetable() {
+        // TODO: Replace with actual API call
+        // this.timetableService.getInstructorSchedule(this.commonService.currentUser.userId)
+        //     .subscribe(timetable => {
+        //         this.instructorTimetable = timetable;
+        //         this.generateWeekSchedule();
+        //     });
+
+        // Sample data with classId and sectionId
+        this.instructorTimetable = [
+            {
+                dayIndex: '1',
+                className: 'EIGHTH_STANDARD',
+                sectionName: 'SECTION_A',
+                classId: '682b560a77794f7170f3d73f',
+                sectionId: '68282c6489869816a4108492',
+                deptName: 'HIGH_SCHOOL',
+                deptId: '69777a647e96df86d5e8d806',
+                startTime: '10:15',
+                endTime: '11:00',
+                instructorName: 'Ganga Murthy',
+                instructorId: '177',
+                subjectName: 'KANNADA'
+            },
+            {
+                dayIndex: '2',
+                className: 'EIGHTH_STANDARD',
+                sectionName: 'SECTION_A',
+                classId: '682b560a77794f7170f3d73f',
+                sectionId: '68282c6489869816a4108492',
+                deptName: 'HIGH_SCHOOL',
+                deptId: '69777a647e96df86d5e8d806',
+                startTime: '12:30',
+                endTime: '13:15',
+                instructorName: 'Ganga Murthy',
+                instructorId: '177',
+                subjectName: 'KANNADA'
+            },
+            {
+                dayIndex: '3',
+                className: 'EIGHTH_STANDARD',
+                sectionName: 'SECTION_A',
+                classId: '682b560a77794f7170f3d73f',
+                sectionId: '68282c6489869816a4108492',
+                deptName: 'HIGH_SCHOOL',
+                deptId: '69777a647e96df86d5e8d806',
+                startTime: '09:30',
+                endTime: '10:15',
+                instructorName: 'Ganga Murthy',
+                instructorId: '177',
+                subjectName: 'KANNADA'
+            },
+            {
+                dayIndex: '4',
+                className: 'EIGHTH_STANDARD',
+                sectionName: 'SECTION_A',
+                classId: '682b560a77794f7170f3d73f',
+                sectionId: '68282c6489869816a4108492',
+                deptName: 'HIGH_SCHOOL',
+                deptId: '69777a647e96df86d5e8d806',
+                startTime: '11:00',
+                endTime: '11:45',
+                instructorName: 'Ganga Murthy',
+                instructorId: '177',
+                subjectName: 'KANNADA'
+            },
+            {
+                dayIndex: '5',
+                className: 'EIGHTH_STANDARD',
+                sectionName: 'SECTION_A',
+                classId: '682b560a77794f7170f3d73f',
+                sectionId: '68282c6489869816a4108492',
+                deptName: 'HIGH_SCHOOL',
+                deptId: '69777a647e96df86d5e8d806',
+                startTime: '08:00',
+                endTime: '08:45',
+                instructorName: 'Ganga Murthy',
+                instructorId: '177',
+                subjectName: 'KANNADA'
+            },
+            {
+                dayIndex: '1',
+                className: 'NINTH_STANDARD',
+                sectionName: 'SECTION_B',
+                classId: '682b561c77794f7170f3d740',
+                sectionId: '68282c9089869816a4108493',
+                deptName: 'HIGH_SCHOOL',
+                deptId: '69777a647e96df86d5e8d806',
+                startTime: '11:45',
+                endTime: '12:30',
+                instructorName: 'Ganga Murthy',
+                instructorId: '177',
+                subjectName: 'KANNADA'
+            },
+            {
+                dayIndex: '2',
+                className: 'NINTH_STANDARD',
+                sectionName: 'SECTION_B',
+                classId: '682b561c77794f7170f3d740',
+                sectionId: '68282c9089869816a4108493',
+                deptName: 'HIGH_SCHOOL',
+                deptId: '69777a647e96df86d5e8d806',
+                startTime: '08:00',
+                endTime: '08:45',
+                instructorName: 'Ganga Murthy',
+                instructorId: '177',
+                subjectName: 'KANNADA'
+            },
+            {
+                dayIndex: '3',
+                className: 'NINTH_STANDARD',
+                sectionName: 'SECTION_B',
+                classId: '682b561c77794f7170f3d740',
+                sectionId: '68282c9089869816a4108493',
+                deptName: 'HIGH_SCHOOL',
+                deptId: '69777a647e96df86d5e8d806',
+                startTime: '08:45',
+                endTime: '09:30',
+                instructorName: 'Ganga Murthy',
+                instructorId: '177',
+                subjectName: 'KANNADA'
+            },
+            {
+                dayIndex: '4',
+                className: 'NINTH_STANDARD',
+                sectionName: 'SECTION_B',
+                classId: '682b561c77794f7170f3d740',
+                sectionId: '68282c9089869816a4108493',
+                deptName: 'HIGH_SCHOOL',
+                deptId: '69777a647e96df86d5e8d806',
+                startTime: '09:30',
+                endTime: '10:15',
+                instructorName: 'Ganga Murthy',
+                instructorId: '177',
+                subjectName: 'KANNADA'
+            },
+            {
+                dayIndex: '5',
+                className: 'NINTH_STANDARD',
+                sectionName: 'SECTION_B',
+                classId: '682b561c77794f7170f3d740',
+                sectionId: '68282c9089869816a4108493',
+                deptName: 'HIGH_SCHOOL',
+                deptId: '69777a647e96df86d5e8d806',
+                startTime: '12:30',
+                endTime: '13:15',
+                instructorName: 'Ganga Murthy',
+                instructorId: '177',
+                subjectName: 'KANNADA'
+            }
+        ];
+
+        this.generateWeekSchedule();
+    }
+
+    setCurrentWeek() {
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
+        monday.setHours(0, 0, 0, 0);
+        this.selectedWeekStart = monday;
+        this.generateWeekSchedule();
+    }
+
+    changeWeek(direction: number) {
+        const newWeekStart = new Date(this.selectedWeekStart);
+        newWeekStart.setDate(newWeekStart.getDate() + direction * 7);
+        this.selectedWeekStart = newWeekStart;
+        this.generateWeekSchedule();
+    }
+
+    generateWeekSchedule() {
+        this.weekSchedule = [];
+
+        // Group slots by day
+        const slotsByDay: { [key: number]: SlotWithDate[] } = {};
+
+        this.instructorTimetable.forEach((slot) => {
+            const dayIndex = parseInt(slot.dayIndex);
+            const slotDate = new Date(this.selectedWeekStart);
+            slotDate.setDate(this.selectedWeekStart.getDate() + dayIndex - 1);
+
+            const slotWithDate: SlotWithDate = {
+                ...slot,
+                displayDate: slotDate,
+                isPast: this.isDateTimePast(slotDate, slot.endTime),
+                isToday: this.isDateToday(slotDate)
+            };
+
+            if (!slotsByDay[dayIndex]) {
+                slotsByDay[dayIndex] = [];
+            }
+            slotsByDay[dayIndex].push(slotWithDate);
+        });
+
+        // Create day schedules for weekdays only (Monday-Friday)
+        for (let i = 1; i <= 5; i++) {
+            const date = new Date(this.selectedWeekStart);
+            date.setDate(this.selectedWeekStart.getDate() + i - 1);
+
+            this.weekSchedule.push({
+                dayName: this.dayNames[i],
+                dayIndex: i,
+                date: date,
+                slots: (slotsByDay[i] || []).sort((a, b) => a.startTime.localeCompare(b.startTime))
+            });
         }
     }
 
-    isSelectedDateToday() {
-        return formatDate(this.slotDate, this.commonService.dateFormate, 'en-US') == formatDate(this.today, this.commonService.dateFormate, 'en-US');
+    openSlotPicker() {
+        this.showSlotPicker = true;
     }
 
-    load(): void {
+    selectSlot(slot: SlotWithDate) {
+        this.selectedSlot = slot;
+        this.showSlotPicker = false;
+        this.takeAttandence = false;
+        this.checkAndLoadAttendance();
+    }
+
+    isDateTimePast(date: Date, endTime: string): boolean {
+        const slotDateTime = new Date(date);
+        const [hours, minutes] = endTime.split(':');
+        slotDateTime.setHours(parseInt(hours), parseInt(minutes));
+        return slotDateTime < this.today;
+    }
+
+    isDateToday(date: Date): boolean {
+        return formatDate(date, this.commonService.dateFormate, 'en-US') === formatDate(this.today, this.commonService.dateFormate, 'en-US');
+    }
+
+    canTakeAttendance(): boolean {
+        if (!this.selectedSlot) return false;
+        // this.selectedSlot.isToday ||
+        return this.takeAttandence;
+    }
+
+    checkAndLoadAttendance() {
+        if (!this.selectedSlot) return;
+
         this.currentAttendence = [];
-        this.loader.show('Fetching Student Attendence');
+        this.loader.show('Fetching Student Attendance');
 
         this.profileService
             .search(0, 100, 'id', 'ASC', {
                 'profileType.equals': 'STUDENT',
-                'roles.student.section_id.equals': this.selectedSection.sectionId,
-                'roles.student.class_id.equals': this.selectedSection.classId,
-                'departments.in': this.commonService.associatedDepartments.map((dpt) => dpt.id)
+                'roles.student.section_id.equals': this.selectedSlot.sectionId,
+                'roles.student.class_id.equals': this.selectedSlot.classId,
+                'departments.in': [this.selectedSlot.deptId]
             })
             .subscribe({
                 next: (res: any) => {
                     this.attendenceService
                         .search(0, 100, 'id', 'ASC', {
-                            'departmentId.in': this.commonService.associatedDepartments.map((dpt) => dpt.id),
-                            'classId.equals': this.selectedSection.classId,
-                            'sectionId.equals': this.selectedSection.sectionId,
-                            'subjectCode.equals': this.selectedSubject.code,
-                            'sessionDate.equals': formatDate(this.slotDate, this.commonService.dateFormate, 'en-US')
+                            'departmentId.equals': this.selectedSlot.deptId,
+                            'classId.equals': this.selectedSlot.classId,
+                            'sectionId.equals': this.selectedSlot.sectionId,
+                            'subjectName.equals': this.selectedSlot.subjectName,
+                            'sessionDate.equals': formatDate(this.selectedSlot.displayDate, this.commonService.dateFormate, 'en-US'),
+                            'startTime.equals': this.selectedSlot.startTime
                         })
                         .subscribe((result: any) => {
-                            this.takeAttandence = result?.content?.length > 0;
+                            this.takeAttandence = res?.content?.length > 0;
                             let exceptions: any[] = result?.content[0]?.exceptions ?? [];
                             this.todayAttendence = result?.content[0];
+
                             res.content?.forEach((student: IProfileConfig) => {
                                 let status: AttendanceStatus = 'PRESENT';
-
                                 let exception = exceptions.find((e) => e.studentId === student.userId);
 
                                 if (exception) {
@@ -127,48 +385,76 @@ export class TakeAttendenceComponent {
     }
 
     saveAttendance() {
-        if (this.selectedSubject) {
-            let todayAttendence: AttendanceRequest = {
-                ...this.todayAttendence,
-                academicYear: this.commonService.currentUser.academicYear,
-                semester: 'Fall',
-                departmentId: this.selectedSection.departmentId,
-                classId: this.selectedSection.classId,
-                sectionId: this.selectedSection.sectionId,
-                subjectCode: this.selectedSubject.code,
-                subjectName: this.selectedSubject.name,
-                instructorName: this.commonService.currentUser.username,
-                instructorId: this.commonService.currentUser.userId,
-                sessionDate: formatDate(this.slotDate, this.commonService.dateFormate, 'en-US'),
-                scheduleDay: 'monday',
-                startTime: '10:00:00',
-                endTime: '11:00:00',
-                period: 0,
-                exceptions: this.currentAttendence.filter((attendence) => attendence.status != 'PRESENT')
-            };
-
-            this.attendenceService.create(todayAttendence).subscribe((res) => {
-                this.messageService.add({ text: 'Congrats! Record created!', summary: 'Success', severity: 'success', closeIcon: 'close' });
-            });
-        } else {
+        if (!this.selectedSlot) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Please select the subject'
+                detail: 'Please select a timetable slot'
             });
+            return;
         }
+
+        let attendanceRecord: AttendanceRequest = {
+            ...this.todayAttendence,
+            academicYear: this.commonService.currentUser.academicYear,
+            semester: 'Fall',
+            departmentId: this.selectedSlot.deptId,
+            classId: this.selectedSlot.classId,
+            sectionId: this.selectedSlot.sectionId,
+            subjectCode: this.selectedSlot.subjectName,
+            subjectName: this.selectedSlot.subjectName,
+            instructorName: this.selectedSlot.instructorName,
+            instructorId: this.selectedSlot.instructorId,
+            sessionDate: formatDate(this.selectedSlot.displayDate, this.commonService.dateFormate, 'en-US'),
+            scheduleDay: this.dayNames[parseInt(this.selectedSlot.dayIndex)].toLowerCase(),
+            startTime: this.selectedSlot.startTime,
+            endTime: this.selectedSlot.endTime,
+            period: 0,
+            exceptions: this.currentAttendence.filter((attendence) => attendence.status != 'PRESENT')
+        };
+
+        this.attendenceService.create(attendanceRecord).subscribe({
+            next: (res) => {
+                this.messageService.add({
+                    text: 'Attendance saved successfully!',
+                    summary: 'Success',
+                    severity: 'success',
+                    closeIcon: 'close'
+                });
+                this.takeAttandence = true;
+            },
+            error: (err) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to save attendance'
+                });
+            }
+        });
     }
 
     getTagSeverity(status: any): 'success' | 'danger' | 'warn' {
         switch (status) {
-            case 'Present':
+            case 'PRESENT':
                 return 'success';
-            case 'Absent':
+            case 'ABSENT':
                 return 'danger';
-            case 'Late':
+            case 'LATE':
                 return 'warn';
             default:
                 return 'success';
         }
+    }
+
+    getWeekRange(): string {
+        const weekEnd = new Date(this.selectedWeekStart);
+        weekEnd.setDate(this.selectedWeekStart.getDate() + 4); // Friday
+        return `${formatDate(this.selectedWeekStart, 'MMM dd', 'en-US')} - ${formatDate(weekEnd, 'MMM dd, yyyy', 'en-US')}`;
+    }
+
+    getSelectedSlotDisplay(): string {
+        if (!this.selectedSlot) return 'Select a slot';
+
+        return `${this.dayNames[parseInt(this.selectedSlot.dayIndex)]} (${formatDate(this.selectedSlot.displayDate, 'MMM dd', 'en-US')}) - ${this.selectedSlot.className.replace(/_/g, ' ')} ${this.selectedSlot.sectionName.replace(/_/g, ' ')} - ${this.selectedSlot.subjectName} (${this.selectedSlot.startTime}-${this.selectedSlot.endTime})`;
     }
 }

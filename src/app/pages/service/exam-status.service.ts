@@ -329,7 +329,7 @@ export class ExamStatusService {
             const totalBreakDuration = (this.timeTable.settings.slotsPerDay - (this.timeTable.settings.slotsPerDay <= 1 ? this.timeTable.settings.slotsPerDay : 1)) * this.timeTable.settings.breakDuration;
             const requiredTime = totalSlotDuration + totalBreakDuration;
 
-            if (requiredTime > dayDurationMinutes * dayDifference) {
+            if (requiredTime * dayDifference > dayDurationMinutes * dayDifference) {
                 this.scheduleValidationErrors.push(`Total time required (${requiredTime} min) exceeds available day time (${dayDurationMinutes} min)`);
             }
         }

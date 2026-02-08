@@ -184,10 +184,10 @@ export class AssignmentManagementComponent implements OnInit {
         return `${colors.bg} ${colors.text} px-2 py-1 rounded-md text-xs`;
     }
 
-    getAssignmentsForDate(date: number): Assignment[] {
-        const dateStr = `2025-02-${date.toString().padStart(2, '0')}`;
-        return this.assignments.filter((assignment) => assignment.dueDate === dateStr);
-    }
+    // getAssignmentsForDate(date: number): Assignment[] {
+    //     const dateStr = `2025-02-${date.toString().padStart(2, '0')}`;
+    //     return this.assignments.filter((assignment) => assignment.dueDate === dateStr);
+    // }
 
     viewAssignment(assignment: Assignment) {
         this.selectedAssignment = assignment;
@@ -256,8 +256,9 @@ export class AssignmentManagementComponent implements OnInit {
         this.loader.show('updating Assignment');
 
         if (this.selectedAssignment && !this.selectedAssignment.id && this.subjectInfo) {
-            this.selectedAssignment = { ...this.selectedAssignment, ...this.subjectInfo, visibilityType: 'GROUP', dueDate: new Date(this.selectedAssignment.dueDate!).toISOString().split('T')[0] };
+            this.selectedAssignment = { ...this.selectedAssignment, ...this.subjectInfo, visibilityType: 'GROUP' };
         }
+        this.selectedAssignment = { ...this.selectedAssignment, dueDate: this.commonService.formatDateForApi(new Date(this.selectedAssignment.dueDate!)) };
         this.assignmentService.create(this.selectedAssignment).subscribe((result) => {
             this.loader.hide();
             this.messageService.add({

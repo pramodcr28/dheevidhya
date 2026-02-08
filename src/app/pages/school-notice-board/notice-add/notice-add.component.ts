@@ -504,7 +504,11 @@ export class NoticeAddComponent implements OnInit {
         }
 
         if (this._noticeData.meeting) {
-            this.noticeForm.get('meeting')?.patchValue(this._noticeData.meeting);
+            this.noticeForm.get('meeting')?.patchValue({
+                ...this._noticeData.meeting,
+                meetingDate: this._noticeData.meeting.meetingDate ? new Date(this._noticeData.meeting.meetingDate) : null,
+                meetingTime: this._noticeData.meeting.meetingTime ? new Date(this._noticeData.meeting.meetingTime) : null
+            });
         }
 
         if (this._noticeData.fest) {

@@ -267,7 +267,13 @@
                   </div>
                   <div>
                     <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Meeting Time</label>
-                    <input pInputText formControlName="meetingTime" type="time" class="w-full" />
+              <p-date-picker
+                  timeOnly
+                  hourFormat="12"
+                  formControlName="meetingTime"
+                  appendTo="body"
+                  class="w-full">
+                </p-date-picker>
                   </div>
                 </div>
                 <div>

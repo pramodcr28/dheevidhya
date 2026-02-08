@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApplicationConfigService } from '../../core/services/application-config.service';
+import { CommonService } from '../../core/services/common.service';
 import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
 import { getSubjectsByFilters } from '../../core/store/user-profile/user-profile.selectors';
 import { InstructorSlotRequest, Teacher, TimeTable } from '../models/time-table';
@@ -19,6 +20,7 @@ export class TimeTableService {
     private userService = inject(UserService);
     private profileService = inject(ProfileConfigService);
     private applicationConfigService = inject(ApplicationConfigService);
+    private commonService = inject(CommonService);
     public teachers: Teacher[] = [];
     public teacherslots: any[] = [];
     public classes: any[] = [];
@@ -292,6 +294,7 @@ export class TimeTableService {
     getPersonalTimetable(id): Observable<any[]> {
         let request = {
             instructorIds: [id],
+            academicYear: this.commonService.currentUser.academicYear,
             departmentId: null,
             scheduleDay: null // optional
         };

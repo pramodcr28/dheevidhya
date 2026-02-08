@@ -1,167 +1,396 @@
 <p-toast></p-toast>
 
-<!-- Controls Bar -->
-<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
- <div
-  class="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0"
+<!-- Slot Picker Dialog -->
+<p-dialog 
+    [(visible)]="showSlotPicker" 
+    [modal]="true" 
+    [style]="{width: '95vw', maxWidth: '1200px'}"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="slot-picker-dialog"
 >
-    <p-select 
-      [options]="commonService.associatedSections" 
-      [(ngModel)]="selectedSection" 
-      optionLabel="sectionName"
-      placeholder="Select Section"
-      class="w-full"
-      (onChange)="onSectionChange(); selectionChange()"
-    >
-      <ng-template let-section pTemplate="item">
-        {{ section.className }} - {{ section.sectionName }}
-      </ng-template>
-      <ng-template let-section pTemplate="selectedItem">
-        {{ section?.className }} - {{ section?.sectionName }}
-      </ng-template>
-    </p-select>
-
-    <p-select 
-      [options]="subjects" 
-      [(ngModel)]="selectedSubject" 
-      optionLabel="name"
-      placeholder="Select Subject"
-      class="w-full"
-      (onChange)="selectionChange()"
-    ></p-select>
-
-    <p-datepicker 
-      [(ngModel)]="slotDate" 
-      [maxDate]="today" 
-      (onSelect)="selectionChange()" 
-      [iconDisplay]="'input'" 
-      [showIcon]="true" 
-      inputId="icondisplay" 
-      class="w-full"
-    />
-
-    <div class="text-sm text-gray-600 col-span-2 sm:col-span-1">
-      Students:
-      <span class="font-medium">{{ currentAttendence?.length }}</span>
-    </div>
-</div>
-
-
-  <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full lg:w-auto">
-    <button 
-      pButton 
-      type="button" 
-      label="Mark All PRESENT" 
-      icon="pi pi-check" 
-      class="p-button-success p-button-outlined w-full sm:w-auto"
-      [disabled]="
-      !selectedSection || 
-      !selectedSubject || 
-      !(takeAttandence || isSelectedDateToday())"
-      (click)="markAllPresent()"
-    ></button>
-    <button 
-      pButton 
-      type="button" 
-      label="Save Attendance" 
-      icon="pi pi-save" 
-      class="p-button-primary w-full sm:w-auto"
-      [disabled]="
-        !selectedSection || 
-        !selectedSubject || 
-        !(takeAttandence || isSelectedDateToday())
-"
-      (click)="saveAttendance()"
-    ></button>
-  </div>
-</div>
-
-<!-- Students Grid -->
-@if(selectedSection && selectedSubject && (takeAttandence || isSelectedDateToday())){
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    @for (student of currentAttendence; track $index) {
-      <p-card>
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center space-x-3">
-            <div 
-              class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-medium text-base sm:text-lg"
-              [ngClass]="{
-                'bg-blue-500': student.status === 'PRESENT',
-                'bg-red-500': student.status === 'ABSENT',
-                'bg-orange-500': student.status === 'LATE'
-              }"
-            >
-              {{ student.studentName.charAt(0) }}
-            </div>
+    <ng-template pTemplate="header">
+        <div class="flex items-center justify-between w-full pr-8">
             <div>
-              <h3 class="font-medium text-gray-900 text-sm sm:text-base">{{ student.studentName }}</h3>
-              <p class="text-xs sm:text-sm text-gray-500">ID: {{ student.studentId }}</p>
+                <h2 class="text-xl font-semibold text-gray-800">Select Lecture Slot</h2>
+                <p class="text-sm text-gray-500 mt-1">Choose a lecture from your weekly timetable</p>
             </div>
-          </div>
-          <p-tag 
-            [value]="student.status"
-            [severity]="getTagSeverity(student.status)"
-          ></p-tag>
+            <div class="flex items-center gap-2">
+                <button 
+                    pButton 
+                    type="button" 
+                    icon="pi pi-chevron-left" 
+                    class="p-button-text p-button-sm"
+                    (click)="changeWeek(-1)"
+                    pTooltip="Previous Week"
+                ></button>
+                <div class="px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-md">
+                    <div class="text-xs text-blue-600 font-medium">{{ getWeekRange() }}</div>
+                </div>
+                <button 
+                    pButton 
+                    type="button" 
+                    icon="pi pi-chevron-right" 
+                    class="p-button-text p-button-sm"
+                    (click)="changeWeek(1)"
+                    pTooltip="Next Week"
+                ></button>
+                <button 
+                    pButton 
+                    type="button" 
+                    label="Today" 
+                    icon="pi pi-calendar" 
+                    class="p-button-outlined p-button-sm ml-2"
+                    (click)="setCurrentWeek()"
+                ></button>
+            </div>
         </div>
-        <div class="flex space-x-2">
-          <button 
-            pButton 
-            type="button" 
-            label="PRESENT" 
-            class="flex-1 p-button-sm text-xs sm:text-sm"
-            [class.p-button-success]="student.status === 'PRESENT'"
-            [class.p-button-outlined]="student.status !== 'PRESENT'"
-            (click)="updateAttendance(student, 'PRESENT')"
-          ></button>
-          <button 
-            pButton 
-            type="button" 
-            label="LATE" 
-            class="flex-1 p-button-sm text-xs sm:text-sm"
-            [class.p-button-warning]="student.status === 'LATE'"
-            [class.p-button-outlined]="student.status !== 'LATE'"
-            (click)="updateAttendance(student, 'LATE')"
-          ></button>
-          <button 
-            pButton 
-            type="button" 
-            label="ABSENT" 
-            class="flex-1 p-button-sm text-xs sm:text-sm"
-            [class.p-button-danger]="student.status === 'ABSENT'"
-            [class.p-button-outlined]="student.status !== 'ABSENT'"
-            (click)="updateAttendance(student, 'ABSENT')"
-          ></button>
+    </ng-template>
+
+    <!-- Timetable Grid -->
+    <div class="timetable-container overflow-x-auto">
+        <div class="grid grid-cols-5 gap-3 min-w-[800px]">
+            @for (day of weekSchedule; track day.dayIndex) {
+                <div class="timetable-day">
+                    <!-- Day Header -->
+                    <div 
+                        class="day-header p-3 rounded-t-lg text-center border-b-2"
+                        [ngClass]="{
+                            'bg-blue-600 border-blue-700': day.date.toDateString() === today.toDateString(),
+                            'bg-gray-100 border-gray-300': day.date.toDateString() !== today.toDateString()
+                        }"
+                    >
+                        <div 
+                            class="font-semibold text-sm"
+                            [ngClass]="{
+                                'text-white': day.date.toDateString() === today.toDateString(),
+                                'text-gray-700': day.date.toDateString() !== today.toDateString()
+                            }"
+                        >
+                            {{ day.dayName }}
+                        </div>
+                        <div 
+                            class="text-xs mt-0.5"
+                            [ngClass]="{
+                                'text-blue-100': day.date.toDateString() === today.toDateString(),
+                                'text-gray-500': day.date.toDateString() !== today.toDateString()
+                            }"
+                        >
+                            {{ day.date | date:'MMM dd' }}
+                        </div>
+                    </div>
+
+                    <!-- Slots for this day -->
+                    <div class="slots-container space-y-2 p-2 bg-gray-50 rounded-b-lg min-h-[400px]">
+                        @if (day.slots.length === 0) {
+                            <div class="flex items-center justify-center h-32 text-gray-400 text-sm">
+                                <div class="text-center">
+                                    <i class="pi pi-calendar-times text-2xl mb-2"></i>
+                                    <div>No lectures</div>
+                                </div>
+                            </div>
+                        }
+                        @for (slot of day.slots; track slot.startTime + slot.className) {
+                            <div 
+                                class="slot-card p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md"
+                                [ngClass]="{
+                                    'bg-white border-blue-500 hover:border-blue-600 hover:bg-blue-50': !slot.isPast,
+                                    'bg-gray-100 border-gray-300 hover:border-gray-400 opacity-75': slot.isPast,
+                                    'ring-2 ring-green-400': slot.hasAttendance
+                                }"
+                                (click)="selectSlot(slot)"
+                            >
+                                <!-- Time Badge -->
+                                <div class="flex items-center justify-between mb-2">
+                                    <div 
+                                        class="text-xs font-semibold px-2 py-1 rounded"
+                                        [ngClass]="{
+                                            'bg-blue-100 text-blue-700': !slot.isPast,
+                                            'bg-gray-200 text-gray-600': slot.isPast
+                                        }"
+                                    >
+                                        {{ slot.startTime }} - {{ slot.endTime }}
+                                    </div>
+                                    @if (slot.isToday) {
+                                        <p-tag value="Now" severity="success" [style]="{'font-size': '0.65rem', 'padding': '0.15rem 0.4rem'}"></p-tag>
+                                    }
+                                    @if (slot.hasAttendance) {
+                                        <i class="pi pi-check-circle text-green-500 text-sm" pTooltip="Attendance taken"></i>
+                                    }
+                                </div>
+
+                                <!-- Subject -->
+                                <div class="font-semibold text-sm text-gray-800 mb-1">
+                                    {{ slot.subjectName }}
+                                </div>
+
+                                <!-- Class/Section -->
+                                <div class="text-xs text-gray-600 mb-1">
+                                    {{ slot.className }}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    {{ slot.sectionName }}
+                                </div>
+
+                                <!-- Status indicator -->
+                                @if (slot.isPast) {
+                                    <div class="mt-2 pt-2 border-t border-gray-200">
+                                        <div class="text-xs text-gray-500 flex items-center gap-1">
+                                            <i class="pi pi-clock"></i>
+                                            <span>Past</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
-      </p-card>
-    }
-  </div>
-} 
-@else if (selectedSection && selectedSubject && !isSelectedDateToday()) {
-  <!-- Past Date Attendance Block -->
-  <div class="flex flex-col items-center justify-center my-40 space-y-4">
-    <p class="text-gray-600 text-sm text-center">
-      Click below if you want to take attendance for that day.
-    </p>
-    <button 
-      pButton 
-      type="button" 
-      label="Take Attendance" 
-      icon="pi pi-calendar-plus" 
-      class="p-button-warning"
-      (click)="takeAttandence = true;"
-    ></button>
-  </div>
-} 
-@else {
-  <!-- Mandatory Fields Info Message -->
-  <div  class="flex justify-center items-center my-40">
-    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center max-w-md w-full">
-      <div class="flex items-center justify-center">
-        <h4 class="text-yellow-800 font-medium">Selection Required</h4>
-      </div>
-      <p class="text-yellow-700 text-sm">
-        Please select both <strong>Section</strong> and <strong>Subject</strong> to take attendance.
-      </p>
     </div>
-  </div>
+</p-dialog>
+
+<!-- Main Content -->
+<div class="attendance-container">
+    <!-- Header with Slot Selector Button -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+        <!-- Slot Selector Button -->
+        <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Selected Lecture Slot</label>
+            <button 
+                pButton 
+                type="button" 
+                [label]="getSelectedSlotDisplay()" 
+                icon="pi pi-calendar-plus"
+                class="p-button-outlined w-full justify-start"
+                [class.p-button-success]="selectedSlot"
+                (click)="openSlotPicker()"
+                style="text-align: left;"
+            ></button>
+        </div>
+
+        <!-- Student Count and Actions -->
+        @if (selectedSlot) {
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 lg:w-auto w-full">
+                @if(currentAttendence?.length > 0) {
+                    <div class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-center">
+                        <div class="text-xs text-gray-600">Students</div>
+                        <div class="text-lg font-semibold text-gray-900">{{ currentAttendence?.length }}</div>
+                    </div>
+                }
+                <button 
+                    pButton 
+                    type="button" 
+                    label="Mark All Present" 
+                    icon="pi pi-check" 
+                    class="p-button-success p-button-outlined"
+                    [disabled]="!canTakeAttendance()"
+                    (click)="markAllPresent()"
+                ></button>
+                <button 
+                    pButton 
+                    type="button" 
+                    label="Save Attendance" 
+                    icon="pi pi-save" 
+                    class="p-button-primary"
+                    [disabled]="!canTakeAttendance()"
+                    (click)="saveAttendance()"
+                ></button>
+            </div>
+        }
+    </div>
+
+    <!-- Selected Slot Info Card -->
+    @if(selectedSlot) {
+        <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg shadow-sm">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+                <div>
+                    <div class="text-gray-600 text-xs font-medium mb-1">Date</div>
+                    <div class="font-semibold text-gray-900">{{ selectedSlot.displayDate | date:'EEE, MMM dd' }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-600 text-xs font-medium mb-1">Time</div>
+                    <div class="font-semibold text-gray-900">{{ selectedSlot.startTime }} - {{ selectedSlot.endTime }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-600 text-xs font-medium mb-1">Class</div>
+                    <div class="font-semibold text-gray-900">{{ selectedSlot.className}}</div>
+                </div>
+                <div>
+                    <div class="text-gray-600 text-xs font-medium mb-1">Section</div>
+                    <div class="font-semibold text-gray-900">{{ selectedSlot.sectionName }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-600 text-xs font-medium mb-1">Subject</div>
+                    <div class="font-semibold text-gray-900">{{ selectedSlot.subjectName }}</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Students Grid -->
+    @if(selectedSlot && canTakeAttendance()) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @for (student of currentAttendence; track student.studentId) {
+                <p-card>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div 
+                                class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-medium text-base sm:text-lg"
+                                [ngClass]="{
+                                    'bg-blue-500': student.status === 'PRESENT',
+                                    'bg-red-500': student.status === 'ABSENT',
+                                    'bg-orange-500': student.status === 'LATE'
+                                }"
+                            >
+                                {{ student.studentName.charAt(0) }}
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900 text-sm sm:text-base">{{ student.studentName }}</h3>
+                                <p class="text-xs sm:text-sm text-gray-500">ID: {{ student.studentId }}</p>
+                            </div>
+                        </div>
+                        <p-tag 
+                            [value]="student.status"
+                            [severity]="getTagSeverity(student.status)"
+                        ></p-tag>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button 
+                            pButton 
+                            type="button" 
+                            label="PRESENT" 
+                            class="flex-1 p-button-sm text-xs sm:text-sm"
+                            [class.p-button-success]="student.status === 'PRESENT'"
+                            [class.p-button-outlined]="student.status !== 'PRESENT'"
+                            (click)="updateAttendance(student, 'PRESENT')"
+                        ></button>
+                        <button 
+                            pButton 
+                            type="button" 
+                            label="LATE" 
+                            class="flex-1 p-button-sm text-xs sm:text-sm"
+                            [class.p-button-warning]="student.status === 'LATE'"
+                            [class.p-button-outlined]="student.status !== 'LATE'"
+                            (click)="updateAttendance(student, 'LATE')"
+                        ></button>
+                        <button 
+                            pButton 
+                            type="button" 
+                            label="ABSENT" 
+                            class="flex-1 p-button-sm text-xs sm:text-sm"
+                            [class.p-button-danger]="student.status === 'ABSENT'"
+                            [class.p-button-outlined]="student.status !== 'ABSENT'"
+                            (click)="updateAttendance(student, 'ABSENT')"
+                        ></button>
+                    </div>
+                </p-card>
+            }
+        </div>
+    } 
+    @else if (selectedSlot && !canTakeAttendance() && selectedSlot.isPast) {
+        <!-- Past Session Attendance Prompt -->
+        <div class="flex flex-col items-center justify-center my-40 space-y-4">
+            <div class="text-center">
+                <i class="pi pi-clock text-6xl text-orange-400 mb-4"></i>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Past Lecture Session</h3>
+                <p class="text-gray-600 text-sm mb-2">
+                    This lecture was on {{ selectedSlot.displayDate | date:'EEEE, MMMM dd, yyyy' }}
+                </p>
+                <p class="text-gray-600 text-sm mb-2">
+                    {{ selectedSlot.startTime }} - {{ selectedSlot.endTime }}
+                </p>
+                <p class="text-gray-500 text-sm mb-6">
+                    Click below to take attendance for this past session.
+                </p>
+            </div>
+            <button 
+                pButton 
+                type="button" 
+                label="Take Attendance for Past Session" 
+                icon="pi pi-calendar-plus" 
+                class="p-button-warning"
+                (click)="takeAttandence = true; checkAndLoadAttendance()"
+            ></button>
+        </div>
+    } 
+    @else {
+        <!-- No Slot Selected -->
+        <div class="flex justify-center items-center my-40">
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-8 text-center max-w-md w-full">
+                <i class="pi pi-calendar-plus text-6xl text-blue-500 mb-4"></i>
+                <h4 class="text-blue-800 font-semibold text-lg mb-3">Select a Lecture Slot</h4>
+                <p class="text-blue-700 text-sm mb-6">
+                    Click the button above to open your weekly timetable and select a lecture slot to take attendance.
+                </p>
+                <!-- <button 
+                    pButton 
+                    type="button" 
+                    label="Open Timetable" 
+                    icon="pi pi-calendar" 
+                    class="p-button-primary"
+                    (click)="openSlotPicker()"
+                ></button> -->
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+.slot-picker-dialog ::ng-deep .p-dialog-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
 }
+
+.slot-picker-dialog ::ng-deep .p-dialog-header .p-dialog-title {
+    color: white;
+}
+
+.slot-picker-dialog ::ng-deep .p-dialog-header-icon {
+    color: white;
+}
+
+.slot-picker-dialog ::ng-deep .p-dialog-header-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.slot-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.slot-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #667eea, #764ba2);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.slot-card:hover::before {
+    opacity: 1;
+}
+
+.timetable-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.timetable-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.timetable-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.timetable-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>

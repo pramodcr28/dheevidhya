@@ -98,7 +98,9 @@ export class TimetableListComponent implements OnInit {
     };
 
     editMode = signal(true);
-
+    isManagementUser(): boolean {
+        return this.commonService.getUserAuthorities?.some((role) => ['IT_ADMINISTRATOR', 'HEAD_OF_DEPARTMENT', 'HEAD_MASTER', 'VICE_PRINCIPAL', 'PRINCIPAL'].includes(role));
+    }
     ngOnInit() {
         this.selectedDepartment = this.commonService.associatedDepartments?.map((d) => d.id);
         if (this.commonService.getUserAuthorities.includes('STUDENT')) {

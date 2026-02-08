@@ -45,15 +45,15 @@ export class ExamSlotsComponent {
 
     ngOnInit() {
         // Initialize default times if not set
-        if (!this.es.timeTable.settings.dayStartTime) {
-            this.es.timeTable.settings.dayStartTime = new Date();
-            this.es.timeTable.settings.dayStartTime.setHours(9, 0, 0, 0);
-        }
+        // if (!this.es.timeTable.settings.dayStartTime) {
+        //     this.es.timeTable.settings.dayStartTime = new Date();
+        //     this.es.timeTable.settings.dayStartTime.setHours(9, 0, 0, 0);
+        // }
 
-        if (!this.es.timeTable.settings.dayEndTime) {
-            this.es.timeTable.settings.dayEndTime = new Date();
-            this.es.timeTable.settings.dayEndTime.setHours(17, 0, 0, 0);
-        }
+        // if (!this.es.timeTable.settings.dayEndTime) {
+        //     this.es.timeTable.settings.dayEndTime = new Date();
+        //     this.es.timeTable.settings.dayEndTime.setHours(17, 0, 0, 0);
+        // }
         this.es.generateTimeTable();
     }
 
