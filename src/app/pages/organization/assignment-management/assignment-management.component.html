@@ -343,7 +343,6 @@
             <app-submit-assignment-dialog
                 [visible]="showSubmitDialog"
                 (visibleChange)="showSubmitDialog = $event"
-                [isStudentView]="isStudentView"
                 [selectedAssignment]="selectedAssignment"
                 [(studentResponse)]="assignmentSubmission"
                 (submit)="submitAssignment()"

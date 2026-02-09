@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { TreeNode } from 'primeng/api';
@@ -10,6 +10,7 @@ import { EditorModule } from 'primeng/editor';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TreeSelectModule } from 'primeng/treeselect';
+import { CommonService } from '../../../../core/services/common.service';
 
 @Component({
     selector: 'app-add-assignment-dialog',
@@ -41,7 +42,7 @@ export class AddAssignmentDialogComponent {
     @Output() departmentChange = new EventEmitter<void>(); // to call onDepartmentChange() in parent
     @Output() submit = new EventEmitter<void>();
     @Output() cancel = new EventEmitter<void>();
-
+    commonService = inject(CommonService);
     // helpers to support [(...)] banana-in-a-box bindings
     onSelectedDepartmentModelChange(val: any) {
         this.selectedDepartmentChange.emit(val);

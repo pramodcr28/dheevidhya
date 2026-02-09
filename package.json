@@ -2,17 +2,17 @@
     "name": "dheevidhya",
     "version": "19.0.1",
     "scripts": {
-    "ng": "ng",
-    "start": "ng serve --configuration local",
-    "start:dev": "ng serve --configuration dev",
-    "start:prod": "ng serve --configuration prod",
-    "build": "ng build --configuration prod",
-    "build:dev": "ng build --configuration dev",
-    "build:local": "ng build --configuration local",
-    "watch": "ng build --watch --configuration dev",
-    "format": "prettier --write \"**/*.{js,mjs,ts,mts,d.ts,html}\" --cache",
-    "test": "ng test"
-},
+        "ng": "ng",
+        "start": "ng serve --configuration local",
+        "start:dev": "ng serve --configuration dev",
+        "start:prod": "ng serve --configuration prod",
+        "build": "ng build --configuration prod",
+        "build:dev": "ng build --configuration dev",
+        "build:local": "ng build --configuration local",
+        "watch": "ng build --watch --configuration dev",
+        "format": "prettier --write \"**/*.{js,mjs,ts,mts,d.ts,html}\" --cache",
+        "test": "ng test"
+    },
     "private": true,
     "dependencies": {
         "@angular/animations": "^19.0.0",

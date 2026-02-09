@@ -1,5 +1,5 @@
 <p-dialog 
-  [header]="isStudentView ? 'Submit Assignment' : 'Review Submission'" 
+  [header]="commonService.isStudent ? 'Submit Assignment' : 'Review Submission'" 
   [(visible)]="visible" 
   [modal]="true" 
   [draggable]="false"
@@ -61,13 +61,28 @@
       </div>
     </div>
 
-    <!-- Response Section -->
     <div class="space-y-6">
 
-      <!-- ✅ STUDENT VIEW -->
-      @if (isStudentView) {
-        @if (!studentResponse.feedback) {
-          <!-- No feedback yet → Only response editor -->
+      @if (commonService.isStudent) {
+        @if (!studentResponse.feedback || studentResponse.status ==  "REOPENED") {
+              @if(studentResponse.status ==  "REOPENED"){
+ 
+            <div class="bg-white border-2 border-green-200 rounded-xl p-6 shadow-sm">
+              <div class="flex items-center mb-5">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+                  <i class="pi pi-comments text-white text-lg"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900">Teacher Feedback</h3>
+                  <p class="text-sm text-gray-500 mt-0.5">Reviewed by your teacher</p>
+                </div>
+              </div>
+
+              <div class="prose prose-sm max-w-none bg-green-50 border border-green-200 p-5 rounded-lg min-h-[280px] overflow-auto"
+                   [innerHTML]="studentResponse.feedback">
+              </div>
+            </div>
+           }
           <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm hover:border-blue-300 transition-colors">
             <div class="flex items-center mb-5">
               <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
@@ -85,6 +100,44 @@
                 (ngModelChange)="onResponseChange($event)" 
                 [style]="{'height':'320px'}"
                 placeholder="Start typing your answer here... Be clear and detailed in your response.">
+                  <ng-template #header>
+
+    <!-- Font size -->
+    <span class="ql-formats">
+      <select class="ql-size" aria-label="Font Size">
+        <option value="small"></option>
+        <option selected></option> <!-- normal -->
+        <option value="large"></option>
+      </select>
+    </span>
+
+    <!-- Basic formatting -->
+    <span class="ql-formats">
+      <button type="button" class="ql-bold" aria-label="Bold"></button>
+      <button type="button" class="ql-italic" aria-label="Italic"></button>
+      <button type="button" class="ql-underline" aria-label="Underline"></button>
+      <button type="button" class="ql-strike" aria-label="Strike"></button>
+    </span>
+
+    <!-- Colors -->
+    <span class="ql-formats">
+      <select class="ql-color" aria-label="Text Color"></select>
+      <select class="ql-background" aria-label="Background Color"></select>
+    </span>
+
+    <!-- Lists & alignment -->
+    <span class="ql-formats">
+      <button class="ql-list" value="ordered" aria-label="Ordered List"></button>
+      <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
+      <select class="ql-align"></select>
+    </span>
+
+    <!-- Clear formatting -->
+    <span class="ql-formats">
+      <button class="ql-clean" aria-label="Clear Formatting"></button>
+    </span>
+
+          </ng-template>
               </p-editor>
             </div>
 
@@ -95,6 +148,7 @@
               </p>
             </div> -->
           </div>
+          
         } @else {
           <!-- ✅ Feedback exists → Show side-by-side -->
           <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
@@ -179,6 +233,44 @@
                 (ngModelChange)="onResponseChange($event)" 
                 [style]="{'height':'220px'}"
                 placeholder="Write your feedback here... Be specific and constructive to help the student improve.">
+                  <ng-template #header>
+
+    <!-- Font size -->
+    <span class="ql-formats">
+      <select class="ql-size" aria-label="Font Size">
+        <option value="small"></option>
+        <option selected></option> <!-- normal -->
+        <option value="large"></option>
+      </select>
+    </span>
+
+    <!-- Basic formatting -->
+    <span class="ql-formats">
+      <button type="button" class="ql-bold" aria-label="Bold"></button>
+      <button type="button" class="ql-italic" aria-label="Italic"></button>
+      <button type="button" class="ql-underline" aria-label="Underline"></button>
+      <button type="button" class="ql-strike" aria-label="Strike"></button>
+    </span>
+
+    <!-- Colors -->
+    <span class="ql-formats">
+      <select class="ql-color" aria-label="Text Color"></select>
+      <select class="ql-background" aria-label="Background Color"></select>
+    </span>
+
+    <!-- Lists & alignment -->
+    <span class="ql-formats">
+      <button class="ql-list" value="ordered" aria-label="Ordered List"></button>
+      <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
+      <select class="ql-align"></select>
+    </span>
+
+    <!-- Clear formatting -->
+    <span class="ql-formats">
+      <button class="ql-clean" aria-label="Clear Formatting"></button>
+    </span>
+
+          </ng-template>
               </p-editor>
             </div>
 
@@ -221,7 +313,7 @@
     (onClick)="close()">
   </p-button>
 
-@if (isStudentView) {
+@if (commonService.isStudent ) {
   <div class="flex gap-4">
     
     @if (studentResponse.status === SubmissionStatus.DRAFT) {

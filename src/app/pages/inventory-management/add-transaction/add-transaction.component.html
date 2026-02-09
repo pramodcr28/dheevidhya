@@ -276,6 +276,44 @@
                 placeholder="Add comments"
                 class="w-full"
                 >
+                  <ng-template #header>
+
+    <!-- Font size -->
+    <span class="ql-formats">
+      <select class="ql-size" aria-label="Font Size">
+        <option value="small"></option>
+        <option selected></option> <!-- normal -->
+        <option value="large"></option>
+      </select>
+    </span>
+
+    <!-- Basic formatting -->
+    <span class="ql-formats">
+      <button type="button" class="ql-bold" aria-label="Bold"></button>
+      <button type="button" class="ql-italic" aria-label="Italic"></button>
+      <button type="button" class="ql-underline" aria-label="Underline"></button>
+      <button type="button" class="ql-strike" aria-label="Strike"></button>
+    </span>
+
+    <!-- Colors -->
+    <span class="ql-formats">
+      <select class="ql-color" aria-label="Text Color"></select>
+      <select class="ql-background" aria-label="Background Color"></select>
+    </span>
+
+    <!-- Lists & alignment -->
+    <span class="ql-formats">
+      <button class="ql-list" value="ordered" aria-label="Ordered List"></button>
+      <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
+      <select class="ql-align"></select>
+    </span>
+
+    <!-- Clear formatting -->
+    <span class="ql-formats">
+      <button class="ql-clean" aria-label="Clear Formatting"></button>
+    </span>
+
+          </ng-template>
               </p-editor>
 
             </div>

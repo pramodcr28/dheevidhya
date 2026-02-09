@@ -67,7 +67,7 @@ export class AssignmentManagementComponent implements OnInit {
     selectedAssignment: Partial<Assignment> = {};
     subjectInfo: any = {};
     assignmentSubmission: AssignmentSubmission = null;
-    isStudentView = true;
+    // isStudentView = true;
     loader = inject(ApiLoaderService);
     groupedAssignments: any[] = [];
     currentView: 'cards' | 'submissions' | 'group' = 'group';
@@ -81,11 +81,11 @@ export class AssignmentManagementComponent implements OnInit {
             this.associatedDepartments = departments;
         });
         this.getGroupedAssignments();
-        if (this.commonService.getStudentInfo) {
-            this.isStudentView = true;
-        } else {
-            this.isStudentView = false;
-        }
+        // if (this.commonService.getStudentInfo) {
+        //     this.isStudentView = true;
+        // } else {
+        //     this.isStudentView = false;
+        // }
     }
 
     selectGroup(group) {
@@ -162,7 +162,7 @@ export class AssignmentManagementComponent implements OnInit {
     }
 
     getActiveColors() {
-        return this.isStudentView ? this.studentColors : this.staffColors;
+        return this.commonService.isStudent ? this.studentColors : this.staffColors;
     }
 
     getStatusColor(assignment: Assignment): string {
@@ -200,8 +200,8 @@ export class AssignmentManagementComponent implements OnInit {
         };
 
         searchRequest.filters['assignmentId'] = this.selectedAssignment.id;
-        if (this.isStudentView) {
-            searchRequest.filters['studentId.like'] = this.commonService.currentUser.userId;
+        if (this.commonService.isStudent) {
+            searchRequest.filters['studentId.eq'] = this.commonService.currentUser.userId;
         }
         this.loader.show('Fetching Assignments');
         this.assignmentService.searchSubmission(searchRequest).subscribe((response) => {
@@ -275,7 +275,7 @@ export class AssignmentManagementComponent implements OnInit {
     }
 
     editAssignment(assignment: Assignment) {
-        this.selectedAssignment = assignment;
+        this.selectedAssignment = { ...assignment };
         this.showAddDialog = true;
         // open dialog or navigate to edit page
     }

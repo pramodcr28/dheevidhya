@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { EditorModule } from 'primeng/editor';
+import { CommonService } from '../../../../core/services/common.service';
 import { AssignmentSubmission, SubmissionStatus } from '../../../models/assignment.model';
 
 @Component({
@@ -20,12 +21,10 @@ export class SubmitAssignmentDialogComponent {
 
     /** the assignment to display on top */
     @Input() selectedAssignment: any;
-
-    @Input() isStudentView: boolean;
     /** two-way bound studentResponse (parent already creates it) */
     @Input() studentResponse: AssignmentSubmission;
     @Output() studentResponseChange = new EventEmitter<any>();
-
+    commonService = inject(CommonService);
     /** events */
     @Output() submit = new EventEmitter<void>();
     @Output() cancel = new EventEmitter<void>();

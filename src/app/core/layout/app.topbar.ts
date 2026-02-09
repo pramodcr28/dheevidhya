@@ -11,6 +11,7 @@ import { CommonService } from '../services/common.service';
 import { LayoutService } from '../services/layout.service';
 import { addToken, loadUserProfile } from '../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
+import { selectUserConfig } from '../store/user-profile/user-profile.selectors';
 import { AppConfigurator } from './app.configurator';
 
 @Component({
@@ -121,6 +122,9 @@ export class AppTopbar {
 
     ngOnInit(): void {
         this.loadAcademicYears();
+        this.store.select(selectUserConfig).subscribe((res) => {
+            this.selectedAcademicYear = this.commonService.currentUser?.academicYear;
+        });
     }
 
     onAcademicYearChange(): void {

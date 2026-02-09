@@ -470,6 +470,38 @@ export class StaffAttendanceComponent implements OnInit {
     saveAttendanceChanges() {
         if (!this.selectedDayAttendance) return;
 
+        const { checkInTime, checkOutTime } = this.selectedDayAttendance;
+        const normalizedCheckIn = new Date(checkInTime);
+        const normalizedCheckOut = new Date(checkOutTime);
+        const now = new Date();
+
+        if (!checkInTime || !checkOutTime) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Validation Error',
+                detail: 'Check-in time and Check-out time are required.'
+            });
+            return;
+        }
+
+        if (normalizedCheckIn > now) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Check-in Time',
+                detail: 'Check-in time cannot be in the future.'
+            });
+            return;
+        }
+
+        if (normalizedCheckOut > now) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Check-out Time',
+                detail: 'Check-out time cannot be in the future.'
+            });
+            return;
+        }
+
         this.staffAttendanceService
             .addAttendance({
                 ...this.selectedDayAttendance,
