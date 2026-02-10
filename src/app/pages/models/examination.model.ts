@@ -53,8 +53,8 @@ export interface ExaminationTimeSlot {
 export interface ExaminationTimeSlotSettings {
     startDate: Date | any;
     endDate: Date | any;
-    dayStartTime: Date; // New property
-    dayEndTime: Date;
+    dayStartTime: Date | any; // New property
+    dayEndTime: Date | any;
     slotDuration: number;
     slotsPerDay: number;
     breakDuration: number;
