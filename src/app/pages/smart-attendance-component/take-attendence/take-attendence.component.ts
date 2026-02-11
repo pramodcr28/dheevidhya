@@ -19,6 +19,7 @@ import { AttendanceException, AttendanceRequest, AttendanceStatus } from '../../
 import { IProfileConfig } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { StudentAttendenceServiceService } from '../../service/student-attendence-service.service';
+import { TimeTableService } from '../../service/time-table.service';
 
 interface TimetableSlot {
     dayIndex: string;
@@ -62,23 +63,16 @@ export class TakeAttendenceComponent implements OnInit {
     messageService = inject(MessageService);
     loader = inject(ApiLoaderService);
     private store = inject(Store<{ userProfile: UserProfileState }>);
-
-    // Dialog state
     showSlotPicker = false;
-
-    // Timetable data
     instructorTimetable: TimetableSlot[] = [];
     weekSchedule: DaySchedule[] = [];
     selectedSlot: SlotWithDate | null = null;
     selectedWeekStart: Date = new Date();
-
-    // Attendance data
+    timeTableService = inject(TimeTableService);
     currentAttendence: AttendanceException[] = [];
     today: Date = new Date();
     takeAttandence = false;
     todayAttendence: AttendanceRequest;
-
-    // Days mapping
     dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     ngOnInit() {
@@ -87,158 +81,16 @@ export class TakeAttendenceComponent implements OnInit {
     }
 
     loadInstructorTimetable() {
-        // TODO: Replace with actual API call
-        // this.timetableService.getInstructorSchedule(this.commonService.currentUser.userId)
-        //     .subscribe(timetable => {
-        //         this.instructorTimetable = timetable;
-        //         this.generateWeekSchedule();
-        //     });
-
-        // Sample data with classId and sectionId
-        this.instructorTimetable = [
-            {
-                dayIndex: '1',
-                className: 'EIGHTH_STANDARD',
-                sectionName: 'SECTION_A',
-                classId: '682b560a77794f7170f3d73f',
-                sectionId: '68282c6489869816a4108492',
-                deptName: 'HIGH_SCHOOL',
-                deptId: '69777a647e96df86d5e8d806',
-                startTime: '10:15',
-                endTime: '11:00',
-                instructorName: 'Ganga Murthy',
-                instructorId: '177',
-                subjectName: 'KANNADA'
-            },
-            {
-                dayIndex: '2',
-                className: 'EIGHTH_STANDARD',
-                sectionName: 'SECTION_A',
-                classId: '682b560a77794f7170f3d73f',
-                sectionId: '68282c6489869816a4108492',
-                deptName: 'HIGH_SCHOOL',
-                deptId: '69777a647e96df86d5e8d806',
-                startTime: '12:30',
-                endTime: '13:15',
-                instructorName: 'Ganga Murthy',
-                instructorId: '177',
-                subjectName: 'KANNADA'
-            },
-            {
-                dayIndex: '3',
-                className: 'EIGHTH_STANDARD',
-                sectionName: 'SECTION_A',
-                classId: '682b560a77794f7170f3d73f',
-                sectionId: '68282c6489869816a4108492',
-                deptName: 'HIGH_SCHOOL',
-                deptId: '69777a647e96df86d5e8d806',
-                startTime: '09:30',
-                endTime: '10:15',
-                instructorName: 'Ganga Murthy',
-                instructorId: '177',
-                subjectName: 'KANNADA'
-            },
-            {
-                dayIndex: '4',
-                className: 'EIGHTH_STANDARD',
-                sectionName: 'SECTION_A',
-                classId: '682b560a77794f7170f3d73f',
-                sectionId: '68282c6489869816a4108492',
-                deptName: 'HIGH_SCHOOL',
-                deptId: '69777a647e96df86d5e8d806',
-                startTime: '11:00',
-                endTime: '11:45',
-                instructorName: 'Ganga Murthy',
-                instructorId: '177',
-                subjectName: 'KANNADA'
-            },
-            {
-                dayIndex: '5',
-                className: 'EIGHTH_STANDARD',
-                sectionName: 'SECTION_A',
-                classId: '682b560a77794f7170f3d73f',
-                sectionId: '68282c6489869816a4108492',
-                deptName: 'HIGH_SCHOOL',
-                deptId: '69777a647e96df86d5e8d806',
-                startTime: '08:00',
-                endTime: '08:45',
-                instructorName: 'Ganga Murthy',
-                instructorId: '177',
-                subjectName: 'KANNADA'
-            },
-            {
-                dayIndex: '1',
-                className: 'NINTH_STANDARD',
-                sectionName: 'SECTION_B',
-                classId: '682b561c77794f7170f3d740',
-                sectionId: '68282c9089869816a4108493',
-                deptName: 'HIGH_SCHOOL',
-                deptId: '69777a647e96df86d5e8d806',
-                startTime: '11:45',
-                endTime: '12:30',
-                instructorName: 'Ganga Murthy',
-                instructorId: '177',
-                subjectName: 'KANNADA'
-            },
-            {
-                dayIndex: '2',
-                className: 'NINTH_STANDARD',
-                sectionName: 'SECTION_B',
-                classId: '682b561c77794f7170f3d740',
-                sectionId: '68282c9089869816a4108493',
-                deptName: 'HIGH_SCHOOL',
-                deptId: '69777a647e96df86d5e8d806',
-                startTime: '08:00',
-                endTime: '08:45',
-                instructorName: 'Ganga Murthy',
-                instructorId: '177',
-                subjectName: 'KANNADA'
-            },
-            {
-                dayIndex: '3',
-                className: 'NINTH_STANDARD',
-                sectionName: 'SECTION_B',
-                classId: '682b561c77794f7170f3d740',
-                sectionId: '68282c9089869816a4108493',
-                deptName: 'HIGH_SCHOOL',
-                deptId: '69777a647e96df86d5e8d806',
-                startTime: '08:45',
-                endTime: '09:30',
-                instructorName: 'Ganga Murthy',
-                instructorId: '177',
-                subjectName: 'KANNADA'
-            },
-            {
-                dayIndex: '4',
-                className: 'NINTH_STANDARD',
-                sectionName: 'SECTION_B',
-                classId: '682b561c77794f7170f3d740',
-                sectionId: '68282c9089869816a4108493',
-                deptName: 'HIGH_SCHOOL',
-                deptId: '69777a647e96df86d5e8d806',
-                startTime: '09:30',
-                endTime: '10:15',
-                instructorName: 'Ganga Murthy',
-                instructorId: '177',
-                subjectName: 'KANNADA'
-            },
-            {
-                dayIndex: '5',
-                className: 'NINTH_STANDARD',
-                sectionName: 'SECTION_B',
-                classId: '682b561c77794f7170f3d740',
-                sectionId: '68282c9089869816a4108493',
-                deptName: 'HIGH_SCHOOL',
-                deptId: '69777a647e96df86d5e8d806',
-                startTime: '12:30',
-                endTime: '13:15',
-                instructorName: 'Ganga Murthy',
-                instructorId: '177',
-                subjectName: 'KANNADA'
-            }
-        ];
-
-        this.generateWeekSchedule();
+        let request = {
+            academicYear: this.commonService.currentUser.academicYear,
+            instructorIds: [this.commonService.currentUser.userId],
+            departmentId: null,
+            scheduleDay: null
+        };
+        this.timeTableService.getInstructorSlots(request).subscribe((slots) => {
+            this.instructorTimetable = slots;
+            this.generateWeekSchedule();
+        });
     }
 
     setCurrentWeek() {
@@ -260,8 +112,6 @@ export class TakeAttendenceComponent implements OnInit {
 
     generateWeekSchedule() {
         this.weekSchedule = [];
-
-        // Group slots by day
         const slotsByDay: { [key: number]: SlotWithDate[] } = {};
 
         this.instructorTimetable.forEach((slot) => {
@@ -282,7 +132,6 @@ export class TakeAttendenceComponent implements OnInit {
             slotsByDay[dayIndex].push(slotWithDate);
         });
 
-        // Create day schedules for weekdays only (Monday-Friday)
         for (let i = 1; i <= 5; i++) {
             const date = new Date(this.selectedWeekStart);
             date.setDate(this.selectedWeekStart.getDate() + i - 1);
@@ -320,7 +169,6 @@ export class TakeAttendenceComponent implements OnInit {
 
     canTakeAttendance(): boolean {
         if (!this.selectedSlot) return false;
-        // this.selectedSlot.isToday ||
         return this.takeAttandence;
     }
 
@@ -448,7 +296,7 @@ export class TakeAttendenceComponent implements OnInit {
 
     getWeekRange(): string {
         const weekEnd = new Date(this.selectedWeekStart);
-        weekEnd.setDate(this.selectedWeekStart.getDate() + 4); // Friday
+        weekEnd.setDate(this.selectedWeekStart.getDate() + 4);
         return `${formatDate(this.selectedWeekStart, 'MMM dd', 'en-US')} - ${formatDate(weekEnd, 'MMM dd, yyyy', 'en-US')}`;
     }
 
