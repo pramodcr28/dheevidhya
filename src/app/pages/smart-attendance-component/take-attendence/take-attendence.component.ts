@@ -12,6 +12,7 @@ import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
@@ -52,7 +53,7 @@ interface DaySchedule {
 
 @Component({
     selector: 'app-take-attendence',
-    imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputTextModule, CardModule, BadgeModule, TagModule, TableModule, ToastModule, DialogModule],
+    imports: [CommonModule, FormsModule, ButtonModule, SelectModule, TooltipModule, InputTextModule, CardModule, BadgeModule, TagModule, TableModule, ToastModule, DialogModule],
     templateUrl: './take-attendence.component.html',
     providers: [MessageService]
 })
@@ -101,6 +102,15 @@ export class TakeAttendenceComponent implements OnInit {
         monday.setHours(0, 0, 0, 0);
         this.selectedWeekStart = monday;
         this.generateWeekSchedule();
+    }
+
+    isCurrentWeek(): boolean {
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
+        monday.setHours(0, 0, 0, 0);
+        return this.selectedWeekStart.getTime() === monday.getTime();
     }
 
     changeWeek(direction: number) {
@@ -165,6 +175,15 @@ export class TakeAttendenceComponent implements OnInit {
 
     isDateToday(date: Date): boolean {
         return formatDate(date, this.commonService.dateFormate, 'en-US') === formatDate(this.today, this.commonService.dateFormate, 'en-US');
+    }
+
+    /**
+     * Determines if a slot can be selected for taking attendance
+     * Only allows selection of past slots and today's slots, not future slots
+     */
+    canSelectSlot(slot: SlotWithDate): boolean {
+        // Allow selection if it's today or in the past
+        return slot.isToday || slot.isPast;
     }
 
     canTakeAttendance(): boolean {
