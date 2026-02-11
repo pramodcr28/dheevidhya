@@ -253,5 +253,5 @@
         '768px': '100vw'
     }"
 >
-    <app-timetable-view [timetableJson]="seletedTimeTable" [dailogeType]="'View'" [canDragAndDrop]="true" (publish)="saveTimetable($event)" (cancel)="cancel()" />
+    <app-timetable-view [timetableJson]="seletedTimeTable" [dailogeType]="'View'" [canDragAndDrop]="true" (publish)="saveTimetable($event)" (swapPeriods)="swapPeriods($event)" (cancel)="cancel()" />
 </p-dialog>

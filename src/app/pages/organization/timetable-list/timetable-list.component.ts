@@ -258,6 +258,7 @@ export class TimetableListComponent implements OnInit {
     cancel() {
         this.showTimetableDialog = false;
         this.seletedTimeTable = null;
+        this.apiCall();
     }
 
     saveTimetable(updatedTimetable: DepartmentTimetable): void {
@@ -276,16 +277,26 @@ export class TimetableListComponent implements OnInit {
         });
     }
 
-    handleTimetableChange(updatedTimetable: DepartmentTimetable): void {
-        // this.timeTableService.update(updatedTimetable, updatedTimetable.id || '').subscribe(() => {
-        //     this.messageService.add({
-        //         severity: 'success',
-        //         summary: 'Success',
-        //         detail: 'Timetable Updated successfully',
-        //         life: 2000
-        //     });
-        //     this.loader.hide();
-        // });
+    swapPeriods(updatedTimetable: DepartmentTimetable): void {
+        this.loader.show('Updating Timetable...');
+        this.timeTableService.update(updatedTimetable, updatedTimetable.id || '').subscribe((response: any) => {
+            if (response.status == 200 || response.status == 201) {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Periods Swaped  successfully',
+                    life: 2000
+                });
+            } else {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'something went wrong',
+                    detail: 'Unable to Updated the Timetable',
+                    life: 2000
+                });
+            }
+            this.loader.hide();
+        });
     }
 
     getAvailableStatusTransitions(currentStatus: string): string[] {

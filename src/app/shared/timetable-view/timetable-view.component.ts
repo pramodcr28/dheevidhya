@@ -4,6 +4,7 @@ import { MessageService } from 'primeng/api';
 import { DragDropModule } from 'primeng/dragdrop';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { DheeConfirmationService } from '../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../core/services/loaderService';
 import { BreakConfig, DepartmentTimetable } from '../../pages/models/time-table';
 import { TimeTableService } from '../../pages/service/time-table.service';
@@ -56,6 +57,7 @@ export class TimetableViewComponent {
     @Input() dailogeType: 'Edit' | 'View' | any = 'View';
     @Input() canDragAndDrop: boolean = false;
     @Output() publish = new EventEmitter<DepartmentTimetable>();
+    @Output() swapPeriods = new EventEmitter<DepartmentTimetable>();
     @Output() saveAsDraft = new EventEmitter<DepartmentTimetable>();
     @Output() cancel = new EventEmitter<void>();
     @Output() timetableChange = new EventEmitter<DepartmentTimetable>();
@@ -67,7 +69,7 @@ export class TimetableViewComponent {
     selectedPeriod: SelectedPeriod | null = null;
     isValidatingConflicts = false;
     validatingPeriodKey: string | null = null;
-
+    confirmationService = inject(DheeConfirmationService);
     @Input()
     set timetableJson(value: DepartmentTimetable | null) {
         if (!value) return;
@@ -337,14 +339,24 @@ export class TimetableViewComponent {
 
         this.processForDisplay();
         this.deselectPeriod(classSec);
-        this.timetableChange.emit(this.displayTimeTableJson);
 
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Periods swapped successfully',
-            life: 2000
+        this.confirmationService.confirm({
+            message: 'Swapping periods will permanently save the changes. Please confirm to proceed or revert.',
+            header: 'Period Swap Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this.swapPeriods.emit(this.timetableJson);
+            },
+            reject: () => {
+                // Revert to original tab - tabs will handle this automatically
+            }
         });
+        // this.messageService.add({
+        //     severity: 'success',
+        //     summary: 'Success',
+        //     detail: 'Periods swapped successfully',
+        //     life: 2000
+        // });
     }
 
     onSaveAsDraft(): void {
