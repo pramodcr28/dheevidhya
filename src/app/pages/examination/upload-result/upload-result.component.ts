@@ -52,7 +52,7 @@ export class UploadResultComponent implements OnInit {
 
     public isLoading = false;
     public isSaving = false;
-
+    today: Date = new Date();
     // Declare Result Dialog
     public showDeclareDialog = false;
     public sendNotification = true;
@@ -216,6 +216,15 @@ export class UploadResultComponent implements OnInit {
     }
 
     saveResults() {
+        if (new Date(this.selectedExam.timeTable.settings.startDate).getTime() > new Date(this.today).getTime()) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Validation Error',
+                detail: 'Cannot save  results before the exam start date. Please wait until the exam start.'
+            });
+            return;
+        }
+
         this.confirmationService.confirm({
             message: 'Are you sure you want to save the results?',
             header: 'Confirm Save',
@@ -288,6 +297,13 @@ export class UploadResultComponent implements OnInit {
             return {
                 isValid: false,
                 message: `Invalid marks (out of range) for the following students: ${studentsWithInvalidMarks.join(' | ')}`
+            };
+        }
+
+        if (new Date(this.selectedExam.timeTable.settings.endDate).getTime() > new Date(this.today).getTime()) {
+            return {
+                isValid: false,
+                message: 'Cannot declare results before the exam end date. Please wait until the exam is completed.'
             };
         }
 
