@@ -216,6 +216,11 @@ export class AddExamComponent {
 
     onDepartmentChange() {
         if (this.es.selectedDepartment) {
+            if (this.es.selectedDepartment?.id != this.examForm.get('departmentId').value) {
+                this.es.selectedSubjectsForTimeTable = [];
+                this.es.timeTable.schedules = [];
+                this.selectedSubjects = [];
+            }
             this.examForm.get('departmentId').setValue(this.es.selectedDepartment?.id);
             this.examForm.get('departmentName').setValue(this.es.selectedDepartment?.department.name);
             this.examForm.get('branchId').setValue(this.commonService.branch?.id?.toString());

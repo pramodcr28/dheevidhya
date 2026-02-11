@@ -179,6 +179,7 @@
                         (onChange)="onDepartmentChange()"
                         optionLabel="name"
                         placeholder="Select Department"
+                        [disabled]="this.es.selectedExam?.examId != null"
                         [style]="{ width: '100%' }"
                     >
                     </p-select>
@@ -197,6 +198,7 @@
                             [required]="true"
                             [fluid]="true"
                             scrollHeight="200px"
+                            [disabled]="this.es.selectedExam?.examId != null"
                             placeholder="Select Subjects"
                         />
                     </div>
@@ -210,7 +212,7 @@
 
                                 <div class="flex flex-wrap gap-2">
                                     <ng-container *ngFor="let subject of classGroup.subjects">
-                                        <p-chip [label]="subject.label" class="bg-white text-gray-800" removable="true" (onRemove)="removeSubject(subject)"> </p-chip>
+                                        <p-chip [label]="subject.label" class="bg-white text-gray-800" [removable]="this.es.selectedExam?.examId != null ? false : true" (onRemove)="removeSubject(subject)"> </p-chip>
                                     </ng-container>
                                 </div>
                             </div>
