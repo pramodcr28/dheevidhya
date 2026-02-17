@@ -218,21 +218,24 @@ export class ReviewComponent {
             errors.push('Invalid number of periods per day.');
         }
 
-        // per day duration validation
-        const totalPeriodDuration = settings.periodsPerDay * settings.periodDuration;
-        const perDayDurationInMinutes = this.toMinutes(settings.endTime) - this.toMinutes(settings.startTime);
-
-        if (totalPeriodDuration > perDayDurationInMinutes) {
-            errors.push('Periods exceed the available daily time. Adjust periods or duration.');
-        }
+        let totalBreakInMinutes = 0;
         // break validation
         settings.breaks.forEach((brk) => {
             if (brk.enabled) {
+                totalBreakInMinutes += brk.duration;
                 if (brk.afterPeriod < 1 || brk.afterPeriod >= settings.periodsPerDay) {
                     errors.push('Break period is out of bounds.');
                 }
             }
         });
+
+        // per day duration validation
+        const totalPeriodDuration = settings.periodsPerDay * settings.periodDuration + totalBreakInMinutes;
+        const perDayDurationInMinutes = this.toMinutes(settings.endTime) - this.toMinutes(settings.startTime);
+
+        if (totalPeriodDuration > perDayDurationInMinutes) {
+            errors.push('Periods exceed the available daily time. Adjust periods or duration.');
+        }
 
         this.timeTableService.classes.forEach((cls) => {
             console.log('Validating class:', cls);

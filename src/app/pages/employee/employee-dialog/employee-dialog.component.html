@@ -200,7 +200,7 @@
                                        @if(associatedDepartments.length){
                                         <div class="md:col-span-2">
                                             <label class="block font-semibold mb-1 text-sm text-gray-700">Departments *</label>
-                                            <p-multi-select [options]="associatedDepartments" [(ngModel)]="profileData.selectedDepartments" (onChange)="markAsChanged()" optionLabel="name" placeholder="Select Departments" [style]="{ width: '100%' }">
+                                            <p-multi-select [options]="associatedDepartments" [(ngModel)]="profileData.selectedDepartments" (onChange)="markAsChanged();onDepartmentChange(profileData)" optionLabel="name" placeholder="Select Departments" [style]="{ width: '100%' }">
                                                 <ng-template pTemplate="item" let-dept>
                                                     <div class="flex flex-col">
                                                         <span class="font-medium">

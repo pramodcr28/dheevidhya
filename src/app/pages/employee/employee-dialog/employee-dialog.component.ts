@@ -366,6 +366,10 @@ export class EmployeeDialogComponent {
         }
     }
 
+    onDepartmentChange(profileData) {
+        profileData.profile.subjectIds = [];
+    }
+
     onAcademicYearChange(profileIndex: number, value: Date[]): void {
         if (!value || value.filter((v) => v != null).length !== 2) {
             return;

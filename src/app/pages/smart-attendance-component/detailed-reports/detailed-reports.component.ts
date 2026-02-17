@@ -37,7 +37,6 @@ export class DetailedReportsComponent {
     }
 
     getReports() {
-        console.log();
         let reqBody = {
             academicYear: this.commonService.currentUser.academicYear,
             departmentIds: this.selectedSection.map((sec) => sec.departmentId),
@@ -50,7 +49,7 @@ export class DetailedReportsComponent {
             // ]
         };
         if (this.selectedSubject.length) {
-            reqBody['subjectIds'] = [...this.selectedSubject.map((sub) => sub.code)];
+            reqBody['subjectIds'] = [...this.selectedSubject.map((sub) => sub.name)];
         }
         if (this.attendanceDateRange?.length === 2) {
             reqBody['attendanceDateRange'] = this.attendanceDateRange.map((d) => this.commonService.formatDateForApi(d));
