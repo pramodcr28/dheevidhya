@@ -65,7 +65,7 @@ export class StaffTimetableComponent implements OnInit {
     isLoading = false;
     weekSchedule: { dayName: string; periods: PeriodSlot[] }[] = [];
     timeSlots: TimeSlot[] = [];
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     ngOnInit() {
         this.fetchStaffTimetable();

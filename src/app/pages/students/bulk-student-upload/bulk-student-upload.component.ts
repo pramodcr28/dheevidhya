@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -33,7 +34,7 @@ export class BulkStudentUploadComponent implements OnInit {
     private messageService = inject(MessageService);
     private loader = inject(ApiLoaderService);
     public commonService = inject(CommonService);
-
+    router = inject(Router);
     // Signals
     uploadedStudents = signal<StudentExcelRow[]>([]);
     isProcessing = signal(false);
@@ -331,6 +332,7 @@ export class BulkStudentUploadComponent implements OnInit {
     }
 
     goBack() {
-        window.history.back();
+        // window.history.back();
+        this.router.navigate(['/students']);
     }
 }
