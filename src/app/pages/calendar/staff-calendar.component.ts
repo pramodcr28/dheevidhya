@@ -20,7 +20,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../core/services/common.service';
 import { Notice } from '../models/notification.model';
-import { StaffAttendance } from '../models/staff-attendence.mdel';
+import { AttendanceStatus, StaffAttendance } from '../models/staff-attendence.mdel';
 import { NotificationService } from '../service/notification.service';
 import { StaffAttendanceService } from '../service/staff-attendance.service';
 
@@ -266,7 +266,7 @@ export class StaffAttendanceComponent implements OnInit {
     }
 
     getEventsForDate(date: Date): Notice[] {
-        const dateKey = this.datePipe.transform(date, 'yyyy-MM-dd') || '';
+        // const dateKey = this.datePipe.transform(date, 'yyyy-MM-dd') || '';
         const dayOfWeek = date.getDay();
         return this.events.filter((event) => {
             if (event.holiday.holidayType === 'Week_off') {
@@ -470,36 +470,37 @@ export class StaffAttendanceComponent implements OnInit {
     saveAttendanceChanges() {
         if (!this.selectedDayAttendance) return;
 
-        const { checkInTime, checkOutTime } = this.selectedDayAttendance;
+        const { checkInTime, checkOutTime, status } = this.selectedDayAttendance;
         const normalizedCheckIn = new Date(checkInTime);
         const normalizedCheckOut = new Date(checkOutTime);
         const now = new Date();
+        if (status != AttendanceStatus.ABSENT && status != AttendanceStatus.LEAVE) {
+            if (!checkInTime || !checkOutTime) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Validation Error',
+                    detail: 'Check-in time and Check-out time are required.'
+                });
+                return;
+            }
 
-        if (!checkInTime || !checkOutTime) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Validation Error',
-                detail: 'Check-in time and Check-out time are required.'
-            });
-            return;
-        }
+            if (normalizedCheckIn > now) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Invalid Check-in Time',
+                    detail: 'Check-in time cannot be in the future.'
+                });
+                return;
+            }
 
-        if (normalizedCheckIn > now) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Invalid Check-in Time',
-                detail: 'Check-in time cannot be in the future.'
-            });
-            return;
-        }
-
-        if (normalizedCheckOut > now) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Invalid Check-out Time',
-                detail: 'Check-out time cannot be in the future.'
-            });
-            return;
+            if (normalizedCheckOut > now) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Invalid Check-out Time',
+                    detail: 'Check-out time cannot be in the future.'
+                });
+                return;
+            }
         }
 
         this.staffAttendanceService

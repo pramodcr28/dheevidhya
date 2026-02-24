@@ -220,11 +220,9 @@ export class BulkStudentUploadComponent implements OnInit {
     }
 
     isValidEmail(email: string): boolean {
-        // Simple regex check
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
-    // New: Open student detail dialog
     openStudentDetails(student: StudentExcelRow) {
         this.selectedStudentDetail = student;
         this.showStudentDetailDialog = true;
