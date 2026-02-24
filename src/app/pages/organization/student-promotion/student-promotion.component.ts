@@ -16,7 +16,7 @@ import { DepartmentConfigService } from '../../../core/services/department-confi
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { MasterClassService } from '../../../core/services/master-class.service';
 import { DheeSelectComponent } from '../../../shared/dhee-select/dhee-select.component';
-import { IProfileConfig, UserStatus } from '../../models/user.model';
+import { IProfileConfig } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { UserService } from '../../service/user.service';
 
@@ -100,6 +100,7 @@ export class StudentPromotionComponent implements OnInit {
     exitReason: string = '';
     masterClassService = inject(MasterClassService);
     masterClasses: any[] = [];
+    allDepartments: any[] = [];
     ngOnInit() {
         this.loadDepartments();
         this.masterClassService.query().subscribe((res) => {
@@ -111,27 +112,33 @@ export class StudentPromotionComponent implements OnInit {
         const filterParams = {
             branch: this.commonService.branch?.id
         };
-
+        const isITAdmin = this.commonService?.getUserAuthorities?.includes('IT_ADMINISTRATOR');
         this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
-            this.sourceDepartments = res.content.map((re) => ({
+            this.allDepartments = res.content.map((re) => ({
                 ...re,
                 name: re.department.name,
                 id: re.id,
                 department: re.department
             }));
+
+            if (isITAdmin) {
+                this.sourceDepartments = this.allDepartments;
+            } else {
+                this.sourceDepartments = this.commonService?.associatedDepartments;
+            }
             this.updateTargetDepartments();
         });
     }
 
     public updateTargetDepartments() {
         if (!this.selectedDepartment?.academicYear) {
-            this.targetDepartments = [...this.sourceDepartments];
+            this.targetDepartments = [...this.allDepartments];
             return;
         }
 
         const sourceYear = parseInt(this.selectedDepartment.academicYear.split('-')[0]);
 
-        this.targetDepartments = this.sourceDepartments.filter((dept) => {
+        this.targetDepartments = this.allDepartments.filter((dept) => {
             if (!dept.academicYear) return false;
 
             const targetYear = parseInt(dept.academicYear.split('-')[0]);
@@ -340,12 +347,8 @@ export class StudentPromotionComponent implements OnInit {
         this.selectedSection = null;
         this.selectedStudents = [];
         this.sourceStudents.set([]);
-
-        // Clear target data
         this.clearTargetData();
-
         this.updateTargetDepartments();
-
         this.validateSourceAndTarget();
         this.validateAcademicYearGap();
     }
@@ -355,7 +358,6 @@ export class StudentPromotionComponent implements OnInit {
         this.selectedStudents = [];
         this.sourceStudents.set([]);
         this.clearTargetData();
-
         this.validateSourceAndTarget();
     }
 
@@ -436,9 +438,7 @@ export class StudentPromotionComponent implements OnInit {
         this.showPromotionDialog = false;
         this.loader.show('Promoting students...');
 
-        // FIX #2: Filter out EXITED students before sending to backend
-        const eligibleStudents = this.selectedStudents.filter((student) => student.status !== UserStatus.EXITED && student.status !== UserStatus.PROMOTED);
-
+        const eligibleStudents = this.selectedStudents.filter((student) => student.status.toString() != 'EXITED' && student.status.toString() != 'PROMOTED');
         if (eligibleStudents.length === 0) {
             this.loader.hide();
             this.messageService.add({

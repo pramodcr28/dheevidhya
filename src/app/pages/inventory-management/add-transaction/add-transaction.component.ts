@@ -310,7 +310,7 @@ export class AddTransactionComponent implements OnInit {
         const newTransaction: InventoryTransaction = {
             ...this.transactionForm.value,
             item: this.selectedItem,
-            date: this.commonService.formatDate(this.transactionForm.value['date'])
+            date: this.commonService.formatDateForApi(this.transactionForm.value['date'])
         };
 
         this.inventoryService.addTransaction(newTransaction).subscribe({

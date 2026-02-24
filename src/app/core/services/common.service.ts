@@ -54,7 +54,7 @@ export class CommonService {
     getUserAuthorities: string[] = [];
     isStudent: boolean = true;
     messageService = inject(MessageService);
-    /* ================= MENU SOURCE ================= */
+
     menuModel = signal<MenuItem[]>([]);
 
     constructor() {
@@ -252,11 +252,88 @@ export class CommonService {
         return this.http.post<T>(url, body);
     }
 
-    formatDate(date: Date): string {
-        return date.toISOString().slice(0, -1);
+    formatDateTimeForApi(value: Date | string | null | undefined): string | null {
+        if (!value) return null;
+
+        let date: Date;
+
+        if (value instanceof Date) {
+            date = value;
+        } else if (typeof value === 'string') {
+            date = new Date(value);
+        } else {
+            return null;
+        }
+
+        if (isNaN(date.getTime())) {
+            console.warn('Invalid datetime:', value);
+            return null;
+        }
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+
+        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
     }
 
-    formatDateForApi(date: Date): string {
+    formatTimeForApi(value: Date | string | null | undefined): string | null {
+        if (!value) return null;
+
+        let date: Date;
+
+        if (value instanceof Date) {
+            date = value;
+        } else if (typeof value === 'string') {
+            date = new Date(value);
+        } else {
+            return null;
+        }
+
+        if (isNaN(date.getTime())) {
+            console.warn('Invalid time:', value);
+            return null;
+        }
+
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${hours}:${minutes}`;
+    }
+
+    convertTimeStringToDate(time: string): Date {
+        if (!time) return null as any;
+
+        const [hours, minutes, seconds] = time.split(':').map(Number);
+        const date = new Date();
+        date.setHours(hours, minutes, seconds || 0, 0);
+        return date;
+    }
+
+    formatDateForApi(value: Date | string | null | undefined): string | null {
+        if (!value) {
+            return null;
+        }
+
+        let date: Date;
+
+        if (value instanceof Date) {
+            date = value;
+        } else if (typeof value === 'string') {
+            date = new Date(value);
+        } else {
+            return null;
+        }
+
+        if (isNaN(date.getTime())) {
+            console.warn('Invalid date:', value);
+            return null;
+        }
+
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');

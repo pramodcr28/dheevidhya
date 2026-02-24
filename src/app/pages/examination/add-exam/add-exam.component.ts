@@ -204,8 +204,8 @@ export class AddExamComponent {
             this.es.timeTable = exam.timeTable;
             this.es.timeTable.settings.startDate = new Date(this.es.timeTable.settings.startDate);
             this.es.timeTable.settings.endDate = new Date(this.es.timeTable.settings.endDate);
-            this.es.timeTable.settings.dayStartTime = new Date(this.es.timeTable.settings.dayStartTime);
-            this.es.timeTable.settings.dayEndTime = new Date(this.es.timeTable.settings.dayEndTime);
+            this.es.timeTable.settings.dayStartTime = this.commonService.convertTimeStringToDate(this.es.timeTable.settings.dayStartTime);
+            this.es.timeTable.settings.dayEndTime = this.commonService.convertTimeStringToDate(this.es.timeTable.settings.dayEndTime);
             this.es.selectedDepartment = this.commonService.associatedDepartments.find((dep) => dep.id == exam.departmentId);
             this.onDepartmentChange();
             this.selectedSubjects = this.getSelectedSubjectNodes(exam.subjects, this.treeNodes);
@@ -442,14 +442,18 @@ export class AddExamComponent {
             );
         }
     }
-
+    formatTime(date: Date): string {
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+    }
     performSave(status: 'DRAFT' | 'SCHEDULED' | 'RE_SCHEDULED') {
         if (this.examForm.valid && this.es.timeTable.schedules.length >= this.es.selectedSubjectsForTimeTable.length) {
             this.es.timeTable.settings.startDate = formatDate(new Date(this.es.timeTable.settings.startDate), this.commonService.dateTimeFormate, 'en-US');
             this.es.timeTable.settings.endDate = formatDate(new Date(this.es.timeTable.settings.endDate), this.commonService.dateTimeFormate, 'en-US');
-            this.es.timeTable.settings.dayStartTime = formatDate(new Date(this.es.timeTable.settings.dayStartTime), this.commonService.dateTimeFormate, 'en-US');
-            this.es.timeTable.settings.dayEndTime = formatDate(new Date(this.es.timeTable.settings.dayEndTime), this.commonService.dateTimeFormate, 'en-US');
-
+            this.es.timeTable.settings.dayStartTime = this.commonService.formatTimeForApi(new Date(this.es.timeTable.settings.dayStartTime));
+            this.es.timeTable.settings.dayEndTime = this.commonService.formatTimeForApi(new Date(this.es.timeTable.settings.dayEndTime));
             let finalExamData: ExaminationDTO = {
                 ...this.examForm.value,
                 status: status,

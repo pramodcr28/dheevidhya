@@ -322,7 +322,6 @@ export class ExamStatusService {
         if (!this.timeTable.settings.slotDuration || this.timeTable.settings.slotDuration < 30) {
             this.scheduleValidationErrors.push('Slot duration must be at least 30 minutes');
         }
-
         if (this.timeTable.settings.dayStartTime && this.timeTable.settings.dayEndTime && this.timeTable.settings.slotsPerDay && this.timeTable.settings.slotDuration) {
             const dayDurationMinutes = this.getDayDurationInMinutes();
             const totalSlotDuration = this.timeTable.settings.slotsPerDay * this.timeTable.settings.slotDuration;

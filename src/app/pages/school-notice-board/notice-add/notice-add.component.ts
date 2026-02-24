@@ -530,20 +530,6 @@ export class NoticeAddComponent implements OnInit {
         }
     }
 
-    private formatDate(dateInput: any): string | null {
-        if (!dateInput) return null;
-
-        if (typeof dateInput === 'string') {
-            return dateInput;
-        }
-
-        if (dateInput instanceof Date) {
-            return dateInput.toISOString().split('T')[0];
-        }
-
-        return null;
-    }
-
     private hasValidData(obj: any): boolean {
         if (!obj) return false;
         return Object.values(obj).some((val) => {
@@ -603,7 +589,7 @@ export class NoticeAddComponent implements OnInit {
         // Only add timetable if it has the effectiveDate
         if (raw.categoryType === CategoryType.TIMETABLE && raw.timetable?.effectiveDate) {
             notice.timetable = {
-                effectiveDate: this.formatDate(raw.timetable.effectiveDate)
+                effectiveDate: this.commonService.formatDateForApi(raw.timetable.effectiveDate)
             };
         }
 
@@ -621,8 +607,8 @@ export class NoticeAddComponent implements OnInit {
             notice.examAnnouncement = {
                 examTitle: raw.examAnnouncement.examTitle ?? undefined,
                 examType: raw.examAnnouncement.examType ?? undefined,
-                examStartDate: this.formatDate(raw.examAnnouncement.examStartDate) ?? undefined,
-                examEndDate: this.formatDate(raw.examAnnouncement.examEndDate) ?? undefined
+                examStartDate: this.commonService.formatDateForApi(raw.examAnnouncement.examStartDate) ?? undefined,
+                examEndDate: this.commonService.formatDateForApi(raw.examAnnouncement.examEndDate) ?? undefined
             };
         }
 
@@ -631,7 +617,7 @@ export class NoticeAddComponent implements OnInit {
             notice.examResult = {
                 examTitle: raw.examResult.examTitle ?? undefined,
                 examType: raw.examResult.examType ?? undefined,
-                resultDeclarationDate: this.formatDate(raw.examResult.resultDeclarationDate) ?? undefined
+                resultDeclarationDate: this.commonService.formatDateForApi(raw.examResult.resultDeclarationDate) ?? undefined
             };
         }
 
@@ -639,8 +625,8 @@ export class NoticeAddComponent implements OnInit {
         if (raw.categoryType === CategoryType.HOLIDAY && this.hasValidData(raw.holiday)) {
             notice.holiday = {
                 holidayType: raw.holiday.holidayType as 'Emergency' | 'Government' | 'Weather',
-                holidayStartDate: this.formatDate(raw.holiday.holidayStartDate) ?? undefined,
-                holidayEndDate: this.formatDate(raw.holiday.holidayEndDate) ?? undefined,
+                holidayStartDate: this.commonService.formatDateForApi(raw.holiday.holidayStartDate) ?? undefined,
+                holidayEndDate: this.commonService.formatDateForApi(raw.holiday.holidayEndDate) ?? undefined,
                 weekOffDay: raw.holiday.weekOffDay ?? undefined
             };
         }
@@ -649,7 +635,7 @@ export class NoticeAddComponent implements OnInit {
         if (raw.categoryType === CategoryType.MEETING && this.hasValidData(raw.meeting)) {
             notice.meeting = {
                 meetingType: raw.meeting.meetingType as 'PTM' | 'Individual' | 'Emergency' | 'Progress' | 'Staff',
-                meetingDate: this.formatDate(raw.meeting.meetingDate) ?? undefined,
+                meetingDate: this.commonService.formatDateForApi(raw.meeting.meetingDate) ?? undefined,
                 meetingTime: raw.meeting.meetingTime ?? undefined,
                 venue: raw.meeting.venue ?? undefined
             };
@@ -660,8 +646,8 @@ export class NoticeAddComponent implements OnInit {
             notice.fest = {
                 festName: raw.fest.festName ?? undefined,
                 festType: raw.fest.festType as 'Cultural' | 'Sports' | 'Science' | 'Literary',
-                eventStartDate: this.formatDate(raw.fest.eventStartDate) ?? undefined,
-                eventEndDate: this.formatDate(raw.fest.eventEndDate) ?? undefined,
+                eventStartDate: this.commonService.formatDateForApi(raw.fest.eventStartDate) ?? undefined,
+                eventEndDate: this.commonService.formatDateForApi(raw.fest.eventEndDate) ?? undefined,
                 venue: raw.fest.venue ?? undefined
             };
         }
@@ -684,7 +670,7 @@ export class NoticeAddComponent implements OnInit {
             notice.schoolAchievement = {
                 recipientIds: schoolAchievementRecipientIds.length > 0 ? schoolAchievementRecipientIds : undefined,
                 achievementCategory: raw.schoolAchievement.achievementCategory as 'Academic' | 'Infrastructure' | 'Awards' | 'Recognition',
-                achievementDate: this.formatDate(raw.schoolAchievement.achievementDate) ?? undefined
+                achievementDate: this.commonService.formatDateForApi(raw.schoolAchievement.achievementDate) ?? undefined
             };
         }
         this.save.emit(notice);
