@@ -178,6 +178,12 @@ export class CommonService {
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
                     },
                     {
+                        label: 'Attendence',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/attendence'],
+                        visible: this.hasRoles(['STUDENT'])
+                    },
+                    {
                         label: 'Examination',
                         icon: 'pi pi-fw pi-verified',
                         routerLink: ['/examination'],

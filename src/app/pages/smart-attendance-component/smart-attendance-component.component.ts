@@ -11,8 +11,6 @@ import { TakeAttendenceComponent } from './take-attendence/take-attendence.compo
     templateUrl: './smart-attendance-component.component.html'
 })
 export class SmartAttendanceComponent {
-    // activeTab: string = '0';
     activeView: 'take' | 'report' = 'take';
-
     today: Date = new Date();
 }

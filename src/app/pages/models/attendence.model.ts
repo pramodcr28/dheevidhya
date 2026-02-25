@@ -47,3 +47,29 @@ export interface AttendanceReport {
     totalLate: number;
     attendancePercentage: number;
 }
+
+export interface SubjectAttendanceSummary {
+    subjectCode: string;
+    subjectName: string;
+    totalSessions: number;
+    totalPresent: number;
+    totalAbsent: number;
+    totalLate: number;
+    totalExcused: number;
+    attendancePercentage: number;
+    attendanceStatus: 'GOOD' | 'WARNING' | 'CRITICAL';
+}
+
+export interface StudentAttendanceReportResponse {
+    studentId: string;
+    studentName: string;
+    rollNumber: string;
+    academicYear: string;
+    totalSessions: number;
+    totalPresent: number;
+    totalAbsent: number;
+    totalLate: number;
+    totalExcused: number;
+    overallAttendancePercentage: number;
+    subjects: SubjectAttendanceSummary[];
+}

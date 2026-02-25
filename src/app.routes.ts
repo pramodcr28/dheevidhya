@@ -20,6 +20,7 @@ import { TimetableGeneratorComponent } from './app/pages/organization/time-table
 import { TimetableListComponent } from './app/pages/organization/timetable-list/timetable-list.component';
 import { ProfileComponent } from './app/pages/profile/profile.component';
 import { SchoolNoticeBoardComponent } from './app/pages/school-notice-board/school-notice-board.component';
+import { MyAttendanceReportComponent } from './app/pages/smart-attendance-component/my-attendance-report/my-attendance-report.component';
 import { StaffAttendanceManagementComponent } from './app/pages/staff-attendance-management/staff-attendance-management.component';
 import { BulkStudentUploadComponent } from './app/pages/students/bulk-student-upload/bulk-student-upload.component';
 import { StudentListComponent } from './app/pages/students/student-list/student-list.component';
@@ -62,6 +63,7 @@ export const appRoutes: Routes = [
             { path: 'time-table-setup', component: TimetableGeneratorComponent },
             { path: 'time-table-list', component: TimetableListComponent },
             { path: 'student-attendence', component: StudentAttendenceComponent },
+            { path: 'attendence', component: MyAttendanceReportComponent },
             { path: 'examination', component: ExaminationComponent },
             { path: 'assignment', component: AssignmentManagementComponent },
             { path: 'notice-board', component: SchoolNoticeBoardComponent },
