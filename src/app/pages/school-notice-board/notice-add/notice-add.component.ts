@@ -335,7 +335,8 @@ export class NoticeAddComponent implements OnInit {
     loadStaff(): void {
         const filterParams = {
             'branch_id.eq': this.commonService.branch?.id,
-            'authorities.name.nin': ['IT_ADMINISTRATOR', 'STUDENT']
+            'authorities.name.nin': ['IT_ADMINISTRATOR', 'STUDENT'],
+            'id.nin': [+this.commonService.currentUser.userId]
         };
 
         this.userService.userSearch(0, 1000, 'id', 'ASC', filterParams).subscribe({
