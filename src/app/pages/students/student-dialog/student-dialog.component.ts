@@ -109,23 +109,6 @@ export class StudentDialogComponent {
         this.initializeStudentForm();
     }
 
-    // getAssociatedDepartmentsOnAcademicyear(academicYear: String) {
-    //     let filterParams = {
-    //         branch: this.commonService.branch?.id || 0,
-    //         academicYear: academicYear
-    //     };
-    //     this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
-    //         this.associatedDepartments = res.content.map((re) => ({ ...re, name: re.department.name }));
-
-    //         let selectedProfile = this.profilesList()[this.activeProfileIndex()].profile;
-
-    //         this.profilesList()[this.activeProfileIndex()] = selectedProfile = {
-    //             ...selectedProfile,
-    //             ...this.selectDepartmentAssets(this.associatedDepartments, selectedProfile)
-    //         };
-    //     });
-    // }
-
     getAssociatedDepartmentsOnAcademicyear(academicYear: string) {
         const filterParams = {
             branch: this.commonService.branch?.id || 0,
@@ -185,8 +168,8 @@ export class StudentDialogComponent {
 
     initializeNewStudent(): void {
         const currentYear = new Date().getFullYear();
-        const startDate = new Date(currentYear, 3, 1);
-        const endDate = new Date(currentYear + 1, 2, 31);
+        const startDate = new Date(currentYear, 3, 1); // Apr 1
+        const endDate = new Date(currentYear + 1, 2, 31); // Mar 31
 
         const newProfile: IProfileConfig = {
             id: null as any,
@@ -216,6 +199,7 @@ export class StudentDialogComponent {
 
         this.saveOriginalProfileData();
     }
+
     selectDepartmentAssets(
         departments: any[] | null | undefined,
         profile: IProfileConfig
@@ -254,74 +238,6 @@ export class StudentDialogComponent {
             selectedSection
         };
     }
-
-    // selectDepartmentAssets(
-    //     departments: any[] | null | undefined,
-    //     profile: IProfileConfig
-    // ): {
-    //     selectedDepartment: any | null;
-    //     selectedClass: any | null;
-    //     selectedSection: any | null;
-    // } {
-    //     // SAFETY: do nothing if departments not available
-    //     if (!departments || departments.length === 0) {
-    //         return {
-    //             selectedDepartment: null,
-    //             selectedClass: null,
-    //             selectedSection: null
-    //         };
-    //     }
-
-    //     const departmentId = profile.departments?.[0];
-    //     const selectedDepartment = departments.find((d) => d.id === departmentId) || null;
-
-    //     let selectedClass: any = null;
-    //     let selectedSection: any = null;
-
-    //     if (profile.roles?.student && selectedDepartment) {
-    //         const studentRole = profile.roles.student as IStudentProfile;
-
-    //         selectedClass = selectedDepartment.department?.classes?.find((c: any) => c.id === studentRole.classId) || null;
-
-    //         if (selectedClass) {
-    //             selectedSection = selectedClass.sections?.find((s: any) => s.id === studentRole.sectionId) || null;
-    //         }
-    //     }
-
-    //     return {
-    //         selectedDepartment,
-    //         selectedClass,
-    //         selectedSection
-    //     };
-    // }
-
-    // loadStudentProfiles(userId: string): void {
-    //     this.studentProfileService.search(0, 100, 'academicYear', 'DESC', { 'userId.eq': userId }).subscribe((res: any) => {
-    //         const profiles = res.content || [];
-    //         if (profiles.length === 0) {
-    //             this.initializeNewStudent();
-    //         } else {
-    //             const profilesUIData: ProfileUIData[] = profiles
-    //                 .map((profile: IProfileConfig) => {
-    //                     const assets = this.selectDepartmentAssets(this.associatedDepartments, profile);
-
-    //                     return {
-    //                         profile,
-    //                         ...assets,
-    //                         dateRange: this.parseAcademicYear(profile.academicYear || '')
-    //                     };
-    //                 })
-    //                 .sort((a, b) => {
-    //                     const aTime = a.dateRange?.[0]?.getTime() ?? 0;
-    //                     const bTime = b.dateRange?.[0]?.getTime() ?? 0;
-    //                     return bTime - aTime;
-    //                 });
-
-    //             this.profilesList.set(profilesUIData);
-    //             this.saveOriginalProfileData();
-    //         }
-    //     });
-    // }
 
     loadStudentProfiles(userId: string): void {
         this.studentProfileService.search(0, 100, 'academicYear', 'DESC', { 'userId.eq': userId }).subscribe((res: any) => {
@@ -480,28 +396,34 @@ export class StudentDialogComponent {
             return;
         }
 
-        const startDate = new Date(value[0]);
-        const endInput = new Date(value[1]);
-        const endDate = new Date(endInput.getFullYear(), endInput.getMonth() + 1, 0);
-        const diffTime = endDate.getTime() - startDate.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const [rawStart, rawEnd] = value;
 
-        if (diffDays < 360 || diffDays > 370) {
+        const startYear = rawStart.getFullYear();
+        const endYear = rawEnd.getFullYear();
+
+        if (endYear - startYear !== 1) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Invalid Range',
-                detail: 'Academic year must be approximately one year (365 days)'
+                detail: 'Academic year must span exactly 2 consecutive years (e.g. 2024–2025)'
             });
+            this.profilesList.update((list) => [...list]);
+            return;
+        }
 
-            this.profilesList.update((list) => {
-                const updated = [...list];
-                updated[profileIndex] = {
-                    ...updated[profileIndex],
-                    dateRange: null
-                };
-                return updated;
+        const startDate = new Date(startYear, 3, 1); // Apr 1
+        const endDate = new Date(endYear, 2, 31); // Mar 31
+        const academicYear = this.formatAcademicYear(startDate, endDate);
+
+        const isDuplicate = this.profilesList().some((p, i) => i !== profileIndex && p.profile.academicYear === academicYear);
+
+        if (isDuplicate) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Duplicate Year',
+                detail: `Academic year ${academicYear} already exists in another profile`
             });
-
+            this.profilesList.update((list) => [...list]);
             return;
         }
 
@@ -512,16 +434,15 @@ export class StudentDialogComponent {
                 dateRange: [startDate, endDate],
                 profile: {
                     ...updated[profileIndex].profile,
-                    academicYear: this.formatAcademicYear(startDate, endDate)
+                    academicYear
                 }
             };
-            this.getAssociatedDepartmentsOnAcademicyear(updated[profileIndex].profile.academicYear);
             return updated;
         });
 
+        this.getAssociatedDepartmentsOnAcademicyear(academicYear);
         this.markAsChanged();
     }
-
     markAsChanged(): void {
         this.hasUnsavedChanges.set(true);
     }
@@ -705,11 +626,14 @@ export class StudentDialogComponent {
     }
 
     parseAcademicYear(academicYear: string): Date[] | null {
-        const match = academicYear.match(/(\d{4})-(\d{4})/);
+        const match = academicYear.match(/^(\d{4})-(\d{4})$/);
         if (match) {
             const startYear = parseInt(match[1]);
             const endYear = parseInt(match[2]);
-            return [new Date(startYear, 3, 1), new Date(endYear, 2, 31)];
+            return [
+                new Date(startYear, 3, 1), // Apr 1
+                new Date(endYear, 2, 31) // Mar 31
+            ];
         }
         return null;
     }

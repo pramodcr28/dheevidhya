@@ -375,28 +375,34 @@ export class EmployeeDialogComponent {
             return;
         }
 
-        const startDate = new Date(value[0]);
-        const endInput = new Date(value[1]);
-        const endDate = new Date(endInput.getFullYear(), endInput.getMonth() + 1, 0);
-        const diffTime = endDate.getTime() - startDate.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const [rawStart, rawEnd] = value;
 
-        if (diffDays < 360 || diffDays > 370) {
+        const startYear = rawStart.getFullYear();
+        const endYear = rawEnd.getFullYear();
+
+        if (endYear - startYear !== 1) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Invalid Range',
-                detail: 'Academic year must be approximately one year (365 days)'
+                detail: 'Academic year must span exactly 2 consecutive years (e.g. 2024–2025)'
             });
+            this.profilesList.update((list) => [...list]);
+            return;
+        }
 
-            this.profilesList.update((list) => {
-                const updated = [...list];
-                updated[profileIndex] = {
-                    ...updated[profileIndex],
-                    dateRange: null
-                };
-                return updated;
+        const startDate = new Date(startYear, 3, 1); // Apr 1
+        const endDate = new Date(endYear, 2, 31); // Mar 31
+        const academicYear = this.formatAcademicYear(startDate, endDate);
+
+        const isDuplicate = this.profilesList().some((p, i) => i !== profileIndex && p.profile.academicYear === academicYear);
+
+        if (isDuplicate) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Duplicate Year',
+                detail: `Academic year ${academicYear} already exists in another profile`
             });
-
+            this.profilesList.update((list) => [...list]);
             return;
         }
 
@@ -622,11 +628,14 @@ export class EmployeeDialogComponent {
     }
 
     parseAcademicYear(academicYear: string): Date[] | null {
-        const match = academicYear.match(/(\d{4})-(\d{4})/);
+        const match = academicYear.match(/^(\d{4})-(\d{4})$/);
         if (match) {
             const startYear = parseInt(match[1]);
             const endYear = parseInt(match[2]);
-            return [new Date(startYear, 3, 1), new Date(endYear, 2, 31)];
+            return [
+                new Date(startYear, 3, 1), // Apr 1
+                new Date(endYear, 2, 31) // Mar 31
+            ];
         }
         return null;
     }

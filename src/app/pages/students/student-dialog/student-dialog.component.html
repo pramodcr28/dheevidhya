@@ -147,7 +147,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                     <div>
                                         <label class="block font-semibold mb-1 text-sm text-gray-700">
-                                            Academic Year Period *
+                                            Academic Year Period * {{ profilesList()[idx]?.dateRange }}
                                             <span class="text-[10px] text-gray-500 font-normal block sm:inline sm:ml-2"> (Must be one year duration) </span>
                                         </label>
                                         <p-datepicker
@@ -155,20 +155,23 @@
                                             (ngModelChange)="onAcademicYearChange(idx, $event)"
                                             [ngModelOptions]="{ standalone: true }"
                                             selectionMode="range"
-                                            view="month"
-                                            dateFormat="MM yy"
+                                            view="year"
+                                            dateFormat="yy"
                                             [showIcon]="true"
                                             [iconDisplay]="'input'"
-                                            placeholder="Select range"
+                                            placeholder="Select start year then end year"
                                             [style]="{ width: '100%' }"
                                             appendTo="body"
+                                            [readonlyInput]="true"
                                         >
                                         </p-datepicker>
                                         <small class="text-blue-600 block mt-1 text-xs">
                                             <i class="pi pi-info-circle text-[10px]"></i>
                                             Year: <strong>{{ profilesList()[idx]?.profile?.academicYear || 'Not selected' }}</strong>
                                         </small>
-                                        <small class="text-red-500" *ngIf="submitted && (!profilesList()[idx]?.dateRange || profilesList()[idx]?.dateRange?.length !== 2)"> Academic year range is required. </small>
+                                        @if (submitted && (!profilesList()[idx]?.dateRange || profilesList()[idx]?.dateRange?.length !== 2)) {
+                                            <small class="text-red-500"> Academic year range is required. </small>
+                                        }
                                     </div>
 
                                     <div>
@@ -178,21 +181,14 @@
 
                                     <div>
                                         <label class="block font-semibold mb-1 text-sm text-gray-700">Gender *</label>
-                                        <p-select [options]="genderOptions" [(ngModel)]="profileData.profile.gender" (onChange)="markAsChanged()" optionLabel="label" optionValue="value" placeholder="Select Gender" [style]="{ width: '100%' }"> </p-select>
+                                        <p-select [options]="genderOptions" [(ngModel)]="profileData.profile.gender" (onChange)="markAsChanged()" optionLabel="label" optionValue="value" placeholder="Select Gender" [style]="{ width: '100%' }">
+                                        </p-select>
                                         <small class="text-red-500" *ngIf="submitted && !profileData.profile.gender"> Gender is required. </small>
                                     </div>
 
                                     <div class="md:col-span-2">
-                                        <label class="block font-semibold mb-1 text-sm text-gray-700">Department *</label>             
-                                        <p-select
-                                            [options]="associatedDepartments"
-                                            [(ngModel)]="profileData.selectedDepartment"
-                                            (onChange)="markAsChanged()"
-                                            optionLabel="name"
-                                            placeholder="Select Department"
-                                            [style]="{ width: '100%' }"
-                                        >
-                                        </p-select>
+                                        <label class="block font-semibold mb-1 text-sm text-gray-700">Department *</label>
+                                        <p-select [options]="associatedDepartments" [(ngModel)]="profileData.selectedDepartment" (onChange)="markAsChanged()" optionLabel="name" placeholder="Select Department" [style]="{ width: '100%' }"> </p-select>
                                         <small class="text-red-500" *ngIf="submitted && !profileData.selectedDepartment"> Department is required. </small>
                                     </div>
 
@@ -215,14 +211,7 @@
                                     @if (profileData.selectedClass) {
                                         <div class="md:col-span-2">
                                             <label class="block font-semibold mb-1 text-sm text-gray-700">Section *</label>
-                                            <p-select
-                                                [options]="profileData.selectedClass?.sections"
-                                                [(ngModel)]="profileData.selectedSection"
-                                                (onChange)="markAsChanged()"
-                                                optionLabel="name"
-                                                placeholder="Select Section"
-                                                [style]="{ width: '100%' }"
-                                            >
+                                            <p-select [options]="profileData.selectedClass?.sections" [(ngModel)]="profileData.selectedSection" (onChange)="markAsChanged()" optionLabel="name" placeholder="Select Section" [style]="{ width: '100%' }">
                                             </p-select>
                                             <small class="text-red-500" *ngIf="submitted && !profileData.selectedSection"> Section is required. </small>
                                         </div>
@@ -244,13 +233,13 @@
                                         <div>
                                             <span class="text-gray-600">Start Date:</span>
                                             <span class="ml-2 font-medium">
-                                                {{ getDateRangeForProfile(idx)?.[0] | date: 'dd MMM yyyy' }}
+                                                {{ getDateRangeForProfile(idx)?.[0] | date: 'yyyy' }}
                                             </span>
                                         </div>
                                         <div>
                                             <span class="text-gray-600">End Date:</span>
                                             <span class="ml-2 font-medium">
-                                                {{ getDateRangeForProfile(idx)?.[1] | date: 'dd MMM yyyy' }}
+                                                {{ getDateRangeForProfile(idx)?.[1] | date: 'yyyy' }}
                                             </span>
                                         </div>
                                         <div>
@@ -284,7 +273,8 @@
 
                                 @if (idx === activeProfileIndex()) {
                                     <div class="flex flex-col sm:flex-row gap-3 justify-end border-t pt-4">
-                                        <p-button label="Discard Changes" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" class="w-full sm:w-auto order-2 sm:order-1" [disabled]="!hasUnsavedChanges()" (click)="discardChanges()"> </p-button>
+                                        <p-button label="Discard Changes" icon="pi pi-undo" [outlined]="true" severity="secondary" size="small" class="w-full sm:w-auto order-2 sm:order-1" [disabled]="!hasUnsavedChanges()" (click)="discardChanges()">
+                                        </p-button>
                                         <p-button label="Save Profile" icon="pi pi-check" severity="success" size="small" class="w-full sm:w-auto order-1 sm:order-2" [disabled]="!hasUnsavedChanges()" (click)="onSave()"> </p-button>
                                     </div>
                                 }
