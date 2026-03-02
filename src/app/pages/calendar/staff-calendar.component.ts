@@ -97,7 +97,6 @@ export class StaffAttendanceComponent implements OnInit {
     currentViewDate = new Date();
 
     private datePipe = inject(DatePipe);
-    // userInfo: any = {};
 
     todayAttendance: StaffAttendance | null = null;
 
@@ -226,7 +225,7 @@ export class StaffAttendanceComponent implements OnInit {
         this.staffAttendanceService
             .searchAttendance({
                 filters: {
-                    'staffId.like': this.commonService.getUserInfo?.userId,
+                    'staffId.eq': this.commonService.getUserInfo?.userId,
                     'attendanceDate.gte': startStr,
                     'attendanceDate.lte': endStr
                 },
