@@ -355,6 +355,10 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
     }
 
     onCloneTypeChange(type: string): void {
+        if (this.cloneForm.get('cloneType')?.value !== type) {
+            this.cloneForm.get('cloneType')?.setValue(type);
+        }
+
         this.updateStaffBasedOnCloneType(type);
     }
 
