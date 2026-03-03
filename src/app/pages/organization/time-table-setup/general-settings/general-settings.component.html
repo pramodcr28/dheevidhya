@@ -128,11 +128,25 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
-                <input type="time" [(ngModel)]="timeTableService.timeTable.settings.startTime" [ngModelOptions]="{ standalone: true }" class="w-full border border-gray-300 rounded-lg p-2" />
+  <input
+  #timeInput
+  type="time"
+  [(ngModel)]="timeTableService.timeTable.settings.startTime"
+  [ngModelOptions]="{ standalone: true }"
+  (click)="openTimePicker(timeInput)"
+  class="w-full border border-gray-300 rounded-lg p-2 cursor-pointer"
+/>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
-                <input type="time" [(ngModel)]="timeTableService.timeTable.settings.endTime" [ngModelOptions]="{ standalone: true }" class="w-full border border-gray-300 rounded-lg p-2" />
+<input
+  #endTimeInput
+  type="time"
+  [(ngModel)]="timeTableService.timeTable.settings.endTime"
+  [ngModelOptions]="{ standalone: true }"
+  (click)="openTimePicker(endTimeInput)"
+  class="w-full border border-gray-300 rounded-lg p-2 cursor-pointer"
+/>
             </div>
         </div>
     </div>

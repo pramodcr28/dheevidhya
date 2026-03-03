@@ -45,7 +45,7 @@ export class MyAttendanceReportComponent implements OnInit {
         }
 
         this.loading.set(true);
-        let params = new HttpParams().set('academicYear', this.commonService.currentUser.academicYear).set('studentId', '264');
+        let params = new HttpParams().set('academicYear', this.commonService.currentUser.academicYear).set('studentId', this.commonService.currentUser.userId);
 
         if (this.dateRange?.length === 2) {
             params = params.set('startDate', this.commonService.formatDateForApi(this.dateRange[0])).set('endDate', this.commonService.formatDateForApi(this.dateRange[1]));

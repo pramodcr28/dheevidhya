@@ -65,6 +65,14 @@ export class GeneralSettingsComponent implements OnInit {
         day.selected = !day.selected;
     }
 
+    openTimePicker(input: HTMLInputElement) {
+        if (input.showPicker) {
+            input.showPicker();
+        } else {
+            input.focus();
+        }
+    }
+
     addBreak(): void {
         if (!this.timeTableService.timeTable.settings.breaks) {
             this.timeTableService.timeTable.settings.breaks = [];
