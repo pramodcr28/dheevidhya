@@ -161,6 +161,7 @@
                       formControlName="examEndDate" 
                       dateFormat="yy-mm-dd" 
                       appendTo="body"
+                      [minDate]="noticeForm.get('examAnnouncement.examStartDate')?.value"
                       [showIcon]="true"
                       placeholder="End Date" 
                       class="w-full">
@@ -229,6 +230,7 @@
                       dateFormat="yy-mm-dd"
                       appendTo="body" 
                       [showIcon]="true"
+                       [minDate]="noticeForm.get('holiday.holidayStartDate')?.value"
                       placeholder="End Date" 
                       class="w-full">
                     </p-datepicker>
@@ -398,6 +400,7 @@
                       formControlName="eventEndDate" 
                       dateFormat="yy-mm-dd" 
                       appendTo="body"
+                      [minDate]="noticeForm.get('fest.eventStartDate')?.value"
                       [showIcon]="true"
                       placeholder="End Date" 
                       class="w-full">

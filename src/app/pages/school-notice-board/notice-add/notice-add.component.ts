@@ -455,6 +455,16 @@ export class NoticeAddComponent implements OnInit {
                 achievementDate: [null]
             })
         });
+
+        this.noticeForm.get('fest.eventStartDate')?.valueChanges.subscribe(() => {
+            this.noticeForm.get('fest.eventEndDate')?.setValue(null);
+        });
+        this.noticeForm.get('examAnnouncement.examStartDate')?.valueChanges.subscribe(() => {
+            this.noticeForm.get('examAnnouncement.examEndDate')?.setValue(null);
+        });
+        this.noticeForm.get('holiday.holidayStartDate')?.valueChanges.subscribe(() => {
+            this.noticeForm.get('holiday.holidayEndDate')?.setValue(null);
+        });
     }
 
     populateForm(): void {
