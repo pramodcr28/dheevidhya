@@ -319,7 +319,6 @@ export class AddTransactionComponent implements OnInit {
                 this.resetForm();
                 this.isSubmitting = false;
 
-                // Switch to History tab (index 0)
                 this.activeTabIndex = 0;
 
                 this.loadItemTransactions(this.selectedItem!.id);
