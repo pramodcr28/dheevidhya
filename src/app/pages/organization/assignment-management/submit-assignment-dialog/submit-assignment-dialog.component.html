@@ -310,7 +310,7 @@
     class="hover:bg-gray-100 transition-colors duration-200"
     (onClick)="close()">
   </p-button>
-
+@if(selectedAssignment.status !== 'COMPLETED') {
 @if (commonService.isStudent ) {
   <div class="flex gap-4">
     
@@ -357,6 +357,7 @@
     </p-button>
 
   </div>
+}
 }
 
 

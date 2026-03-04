@@ -50,7 +50,7 @@ export class AssignmentManagementComponent implements OnInit {
         DRAFT: { bg: 'bg-gray-400', text: 'text-gray-800' },
         PUBLISHED: { bg: 'bg-yellow-400', text: 'text-yellow-800' },
         ONGOING: { bg: 'bg-blue-700', text: 'text-blue-100' },
-        Completed: { bg: 'bg-green-400', text: 'text-green-800' }
+        COMPLETED: { bg: 'bg-green-400', text: 'text-green-800' }
     };
 
     assignmentSubmissions = [];
@@ -157,9 +157,9 @@ export class AssignmentManagementComponent implements OnInit {
         return this.assignments.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()).slice(0, 5);
     }
 
-    setView(view: 'cards' | 'submissions') {
-        this.currentView = view;
-    }
+    // setView(view: 'cards' | 'submissions') {
+    //     this.currentView = view;
+    // }
 
     getActiveColors() {
         return this.commonService.isStudent ? this.studentColors : this.staffColors;
@@ -304,13 +304,13 @@ export class AssignmentManagementComponent implements OnInit {
             // this.assignmentSubmission.status = SubmissionStatus.SUBMITTED;
         } else {
             this.assignmentSubmission.evaluatedBy = this.commonService.getUserInfo.userId;
-            this.assignmentSubmission.evaluatedOn = new Date().toISOString();
+            this.assignmentSubmission.evaluatedOn = this.commonService.formatDateTimeForApi(new Date());
             // this.assignmentSubmission.status = SubmissionStatus.REVIEWED;
         }
 
         this.assignmentService.createSubmission(this.assignmentSubmission).subscribe((response) => {
             this.getGroupedAssignments();
-            this.selectGroup(this.selectedGroup);
+            // this.selectGroup(this.selectedGroup);
             this.messageService.add({
                 severity: 'success',
                 summary: 'Success',
