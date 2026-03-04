@@ -490,7 +490,7 @@ export class StudentListComponent {
         });
     }
 
-    editStudent(student: IProfileConfig) {
+    editStudent(student: IProfileConfig | any) {
         this.studentDialog = true;
         this.student = { ...student };
     }

@@ -1,45 +1,102 @@
 <p-table
     #dt
-    [value]="employees()!"
+    [value]="filteredEmployees()"
     [rows]="itemsPerPage"
     [columns]="cols"
     [paginator]="true"
-    [lazy]="true"
-    [totalRecords]="totalItems"
-    (onLazyLoad)="onPageChange($event)"
+    [lazy]="false"
+    [totalRecords]="filteredEmployees().length"
     (onSort)="onSort($event)"
-    [globalFilterFields]="['firstName', 'lastName', 'email']"
     [tableStyle]="{ 'min-width': '100%' }"
     [rowHover]="true"
     dataKey="id"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Staff"
     [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[10, 20, 30,50]"
+    [rowsPerPageOptions]="[10, 20, 30, 50]"
     styleClass="p-datatable-striped"
     [responsiveLayout]="'scroll'">
-    
+
     <ng-template pTemplate="caption">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
-            <h5 class="m-0 text-lg sm:text-xl font-bold text-gray-800">All Staff List</h5>
-            <span class="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto gap-2 sm:gap-3">
-                <p-iconfield class="w-full sm:w-auto">
-                    <p-inputicon styleClass="pi pi-search" />
-                    <input 
-                        pInputText 
-                        type="text" 
-                        placeholder="Search staff..."
-                        class="w-full sm:w-64 text-sm" />
-                </p-iconfield>
-                <p-button  
-                    icon="pi pi-plus" 
-                    label="Add Staff"
-                    [rounded]="true"
-                    styleClass="w-full sm:w-auto text-sm justify-center"
-                    (onClick)="openNew()" />
-            </span>
+        <div class="flex flex-col gap-2 px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+
+            <!-- 3-column grid: [Title] [Search] [Button] -->
+            <div class="grid items-center" style="grid-template-columns: 1fr auto 1fr;">
+
+                <!-- Col 1: Title — anchored left -->
+                <div class="flex items-center justify-start">
+                    <h5 class="m-0 text-base sm:text-lg font-bold text-gray-800 whitespace-nowrap">All Staff List</h5>
+                </div>
+
+                <!-- Col 2: Search bar — perfectly centered -->
+                <div class="relative" style="width: 420px; max-width: 50vw;">
+                    <!-- <span class="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                        <i class="pi pi-search text-gray-400"></i>
+                    </span> -->
+                    <input
+                        #searchInput
+                        pInputText
+                        type="text"
+                        [(ngModel)]="currentSearchText"
+                        (keydown.enter)="addSearchChip()"
+                        (keydown.backspace)="onBackspaceKey()"
+                        placeholder="{{ searchChips().length === 0 ? 'Search staff...  ↵ to add filter' : 'Add another filter  ↵' }}"
+                        class="w-full !pl-[30%] pr-10 text-sm bg-white border border-indigo-200 shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
+                        style="height: 3.50rem; border-radius: 9999px;" />
+                    @if (searchChips().length > 0 || currentSearchText) {
+                        <button
+                            type="button"
+                            class="absolute right-3.5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors z-10"
+                            (click)="clearAllSearch()"
+                            title="Clear all filters">
+                            <i class="pi pi-times text-gray-400 text-xs"></i>
+                        </button>
+                    }
+                </div>
+
+                <!-- Col 3: Button — anchored right -->
+                <div class="flex items-center justify-end">
+                    <p-button
+                        icon="pi pi-plus"
+                        label="Add Staff"
+                        [rounded]="true"
+                        styleClass="text-sm"
+                        (onClick)="openNew()" />
+                </div>
+            </div>
+
+            <!-- Chips row -->
+            @if (searchChips().length > 0) {
+                <div class="flex flex-wrap !items-center !justify-center gap-2 px-1 w-full">
+                    <span class="text-xs text-gray-500 font-medium shrink-0">Active filters:</span>
+                    @for (chip of searchChips(); track chip; let i = $index) {
+                        <span class="search-chip inline-flex items-center gap-1.5 bg-indigo-600 text-white px-2.5 py-1 rounded-full text-xs font-medium shadow-sm animate-chip-in">
+                            <i class="pi pi-filter text-indigo-200" style="font-size: 0.6rem;"></i>
+                            {{ chip }}
+                            <button
+                                type="button"
+                                class="ml-0.5 hover:bg-indigo-500 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                                (click)="removeChip(i)"
+                                title="Remove filter">
+                                <i class="pi pi-times" style="font-size: 0.55rem;"></i>
+                            </button>
+                        </span>
+                    }
+                    <span class="ml-5 text-xs text-gray-500 bg-white px-2 py-0.5 rounded-full border border-gray-200 shrink-0">
+                        {{ filteredEmployees().length }} result{{ filteredEmployees().length !== 1 ? 's' : '' }}
+                    </span>
+                </div>
+            }
+
+            <!-- Hint -->
+            @if (searchChips().length === 0 && !currentSearchText) {
+                <p class="text-xs text-center text-gray-400 m-0 px-1">
+                    <i class="pi pi-info-circle mr-1"></i>
+                    Type and press <kbd class="bg-gray-100 border border-gray-300 rounded px-1 py-0.5 text-gray-600 font-mono text-xs">Enter</kbd> to add a filter chip. Multiple chips narrow results further.
+                </p>
+            }
         </div>
     </ng-template>
-    
+
     <ng-template pTemplate="header">
         <tr>
             <th class="min-w-[10rem] text-xs sm:text-sm">Name</th>
@@ -51,9 +108,7 @@
                 Email
                 <p-sortIcon field="email" />
             </th>
-            <th class="min-w-[10rem] text-xs sm:text-sm">
-                User Name
-            </th>
+            <th class="min-w-[10rem] text-xs sm:text-sm">User Name</th>
             <th pSortableColumn="authorities" class="min-w-[10rem] text-xs sm:text-sm">
                 Authorities
                 <p-sortIcon field="authorities" />
@@ -61,41 +116,38 @@
             <th class="min-w-[8rem] text-center text-xs sm:text-sm">Actions</th>
         </tr>
     </ng-template>
-    
+
     <ng-template pTemplate="body" let-employee>
         <tr class="hover:bg-blue-50 transition-colors">
             <td class="min-w-[10rem]">
                 <div class="flex items-center gap-2">
                     <i class="pi pi-user text-blue-600 text-sm"></i>
-                    <span class="font-medium text-xs sm:text-sm">{{ employee.firstName + " " + employee.lastName }}</span>
+                    <span class="font-medium text-xs sm:text-sm" [innerHTML]="highlight(employee.firstName + ' ' + employee.lastName)"></span>
                 </div>
             </td>
             <td class="min-w-[10rem] text-xs sm:text-sm">{{ employee.contactNumber || 'N/A' }}</td>
-            <td class="min-w-[10rem] text-xs sm:text-sm break-all">{{ employee.email }}</td>
+            <td class="min-w-[10rem] text-xs sm:text-sm break-all" [innerHTML]="highlight(employee.email)"></td>
             <td class="min-w-[10rem]">
-                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                    {{ employee.login }}
-                </span>
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs" [innerHTML]="highlight(employee.login)"></span>
             </td>
             <td class="min-w-[10rem]">
                 <div class="flex flex-wrap gap-1">
                     @for (auth of employee.authorities; track auth.name) {
-                        <span class="bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-xs">
-                            {{ auth.name }}
+                        <span class="bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-xs" [innerHTML]="highlight(auth.name)">
                         </span>
                     }
                 </div>
             </td>
             <td class="text-center">
                 <div class="flex justify-center gap-1 sm:gap-2">
-                    <button 
+                    <button
                         type="button"
                         class="p-1.5 sm:p-2 hover:bg-blue-100 rounded-full transition-colors"
                         (click)="editEmployee(employee)"
                         title="Edit Staff">
                         <i class="pi pi-user-edit text-blue-600 text-base sm:text-lg"></i>
                     </button>
-                    <button 
+                    <button
                         type="button"
                         class="p-1.5 sm:p-2 hover:bg-red-100 rounded-full transition-colors"
                         (click)="deleteEmployee(employee)"
@@ -106,20 +158,32 @@
             </td>
         </tr>
     </ng-template>
-    
+
     <ng-template pTemplate="emptymessage">
         <tr>
             <td colspan="6" class="text-center py-6 sm:py-8">
                 <div class="flex flex-col items-center gap-2 sm:gap-3">
-                    <i class="pi pi-users text-gray-400 text-4xl sm:text-5xl"></i>
-                    <p class="text-gray-600 text-base sm:text-lg">No staff members found</p>
-                    <p-button 
-                        label="Add First Staff Member" 
-                        icon="pi pi-plus" 
-                        (onClick)="openNew()"
-                        styleClass="text-sm"
-                        [outlined]="true">
-                    </p-button>
+                    @if (searchChips().length > 0 || currentSearchText) {
+                        <i class="pi pi-search text-gray-400 text-4xl sm:text-5xl"></i>
+                        <p class="text-gray-600 text-base sm:text-lg">No staff match your filters</p>
+                        <p-button
+                            label="Clear Filters"
+                            icon="pi pi-times"
+                            (onClick)="clearAllSearch()"
+                            styleClass="text-sm"
+                            [outlined]="true">
+                        </p-button>
+                    } @else {
+                        <i class="pi pi-users text-gray-400 text-4xl sm:text-5xl"></i>
+                        <p class="text-gray-600 text-base sm:text-lg">No staff members found</p>
+                        <p-button
+                            label="Add First Staff Member"
+                            icon="pi pi-plus"
+                            (onClick)="openNew()"
+                            styleClass="text-sm"
+                            [outlined]="true">
+                        </p-button>
+                    }
                 </div>
             </td>
         </tr>
@@ -127,9 +191,9 @@
 </p-table>
 
 @if(this.studentDialog) {
-    <app-employee-dialog 
-        [visible]="studentDialog" 
-        [employee]="employee" 
+    <app-employee-dialog
+        [visible]="studentDialog"
+        [employee]="employee"
         (save)="onEmployeeSave($event)"
         (saveUser)="onUserSave($event)"
         (cancel)="hideDialog()">
@@ -137,3 +201,20 @@
 }
 <p-confirmdialog [style]="{ width: '90vw', 'max-width': '450px' }" />
 <p-toast position="top-right" />
+
+<style>
+@keyframes chip-in {
+    from { opacity: 0; transform: scale(0.7) translateY(-4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-chip-in {
+    animation: chip-in 0.18s cubic-bezier(.34,1.56,.64,1) both;
+}
+.search-highlight {
+    background: #fde68a;
+    color: #92400e;
+    border-radius: 2px;
+    padding: 0 1px;
+    font-weight: 600;
+}
+</style>

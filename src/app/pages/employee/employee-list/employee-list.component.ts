@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, NgZone, signal } from '@angular/core';
+import { Component, computed, inject, NgZone, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -16,7 +16,6 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Subscription } from 'rxjs';
-import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
 import { Column, ExportColumn } from '../../../core/model/table.model';
 import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
@@ -44,6 +43,7 @@ export class EmployeeListComponent {
     tenantAuthorities = signal<ITenantAuthority[]>([]);
     isLoading = false;
     employees = signal<ITenantUser[]>([]);
+
     router = inject(Router);
     employeeService = inject(UserService);
     profileService = inject(ProfileConfigService);
@@ -55,13 +55,41 @@ export class EmployeeListComponent {
     confirmationService = inject(ConfirmationService);
     loader = inject(ApiLoaderService);
     commonService = inject(CommonService);
-    // pagination related code
-    itemsPerPage = ITEMS_PER_PAGE;
+
+    // Pagination — kept for server load, but table is now client-side filtered
+    itemsPerPage = 1000;
     totalItems = 0;
     page = 0;
     sortField = 'id';
     sortOrder: 'ASC' | 'DESC' = 'ASC';
-    // ----------------------------------
+
+    // ── Local search state ───────────────────────────────────────────────────
+    /** Text currently typed in the input (not yet committed as a chip). */
+    currentSearchText: string = '';
+
+    /** Committed filter chips — each one must match for a row to show. */
+    searchChips = signal<string[]>([]);
+
+    /**
+     * Derived list: all employees filtered by every chip AND the live
+     * currentSearchText that has not yet been committed.
+     * Uses AND logic: a row must satisfy ALL chips + live text.
+     */
+    filteredEmployees = computed(() => {
+        const allChips = [...this.searchChips()];
+        // Also filter on live typing (not-yet-committed text)
+        const live = this.currentSearchText.trim().toLowerCase();
+        if (live) allChips.push(live);
+
+        if (allChips.length === 0) return this.employees();
+
+        return this.employees().filter((emp) => {
+            const haystack = this.buildSearchableString(emp);
+            return allChips.every((chip) => haystack.includes(chip.toLowerCase()));
+        });
+    });
+    // ────────────────────────────────────────────────────────────────────────
+
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body);
@@ -74,9 +102,7 @@ export class EmployeeListComponent {
         let filterParams = {};
 
         if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
-            filterParams = {
-                'authorities.name.equals': 'IT_ADMINISTRATOR'
-            };
+            filterParams = { 'authorities.name.equals': 'IT_ADMINISTRATOR' };
         } else {
             filterParams = {
                 'branch_id.eq': this.commonService.branch?.id,
@@ -84,13 +110,14 @@ export class EmployeeListComponent {
             };
         }
 
-        this.employeeService.userSearch(this.page, this.itemsPerPage, this.sortField, this.sortOrder, filterParams).subscribe({
+        // Load all staff at once for local search (up to ~1000 is fine client-side)
+        this.employeeService.userSearch(0, this.itemsPerPage, this.sortField, this.sortOrder, filterParams).subscribe({
             next: (res: any) => {
                 this.employees.set(res.content);
                 this.totalItems = res.totalElements || 0;
                 this.loader.hide();
             },
-            error: (error) => {
+            error: () => {
                 this.loader.hide();
                 this.messageService.add({
                     severity: 'error',
@@ -100,18 +127,91 @@ export class EmployeeListComponent {
             }
         });
     }
-    onPageChange(event: any): void {
-        this.itemsPerPage = event.rows;
-        this.page = Math.floor(event.first / event.rows);
-        this.load();
+
+    // ── Search helpers ───────────────────────────────────────────────────────
+
+    /** Build a single lowercase string from all searchable fields of an employee. */
+    private buildSearchableString(emp: ITenantUser): string {
+        const authorityNames = emp.authorities?.map((a: any) => a.name).join(' ') ?? '';
+        return [emp.firstName, emp.lastName, `${emp.firstName} ${emp.lastName}`, emp.email, emp.login, authorityNames].filter(Boolean).join(' ').toLowerCase();
     }
+
+    /** Commit the current input as a chip when Enter is pressed. */
+    addSearchChip(): void {
+        const text = this.currentSearchText.trim();
+        if (!text) return;
+
+        // Avoid duplicate chips
+        if (this.searchChips().some((c) => c.toLowerCase() === text.toLowerCase())) {
+            this.currentSearchText = '';
+            return;
+        }
+
+        this.searchChips.update((chips) => [...chips, text]);
+        this.currentSearchText = '';
+    }
+
+    /** Remove a chip by index. */
+    removeChip(index: number): void {
+        this.searchChips.update((chips) => chips.filter((_, i) => i !== index));
+    }
+
+    /** On Backspace with empty input, remove the last chip. */
+    onBackspaceKey(): void {
+        if (this.currentSearchText === '' && this.searchChips().length > 0) {
+            this.searchChips.update((chips) => chips.slice(0, -1));
+        }
+    }
+
+    /** Clear all chips and live text. */
+    clearAllSearch(): void {
+        this.searchChips.set([]);
+        this.currentSearchText = '';
+    }
+
+    /**
+     * Returns an HTML string with all chip terms (and live text) highlighted.
+     * Used with [innerHTML] in the template.
+     */
+    highlight(value: string): string {
+        if (!value) return '';
+
+        const chips = [...this.searchChips()];
+        const live = this.currentSearchText.trim();
+        if (live) chips.push(live);
+
+        if (chips.length === 0) return this.escapeHtml(value);
+
+        // Escape the original value for safe HTML rendering
+        let result = this.escapeHtml(value);
+
+        chips.forEach((chip) => {
+            if (!chip) return;
+            const escaped = this.escapeRegex(this.escapeHtml(chip));
+            const regex = new RegExp(`(${escaped})`, 'gi');
+            result = result.replace(regex, '<mark class="search-highlight">$1</mark>');
+        });
+
+        return result;
+    }
+
+    private escapeHtml(text: string): string {
+        return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    private escapeRegex(text: string): string {
+        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // ── Sort ─────────────────────────────────────────────────────────────────
 
     onSort(event: any): void {
         this.sortField = event.field || 'id';
         this.sortOrder = event.order === 1 ? 'ASC' : 'DESC';
-        this.page = 0; // Reset to first page on sort
-        this.load();
+        // Sorting handled by PrimeNG table client-side (lazy=false)
     }
+
+    // ── Dialog / CRUD — unchanged ─────────────────────────────────────────
 
     openNew() {
         this.employee = {
@@ -140,51 +240,29 @@ export class EmployeeListComponent {
         this.submitted = true;
 
         if (!data.profile) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Warning',
-                detail: 'Profile configuration is required'
-            });
+            this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Profile configuration is required' });
             return;
         }
 
         this.loader.show('Saving Staff Data');
 
-        // Clean up profile roles
         if (data.profile.roles) {
             for (let role in data.profile.roles) {
-                if (data.profile.roles[role] == null) {
-                    delete data.profile.roles[role];
-                }
+                if (data.profile.roles[role] == null) delete data.profile.roles[role];
             }
         }
         data.profile.profileType = 'STAFF';
 
-        if (!data.user.id) {
-            data.user.passwordHash = 'User@123';
-        }
+        if (!data.user.id) data.user.passwordHash = 'User@123';
 
-        const userConfig = {
-            user: data.user,
-            profile: data.profile
-        };
-
-        this.employeeService.create(userConfig).subscribe((res: any) => {
+        this.employeeService.create({ user: data.user, profile: data.profile }).subscribe((res: any) => {
             if (res && res.body.status === 200) {
                 this.hideDialog();
                 this.load();
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Student profile saved successfully'
-                });
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Student profile saved successfully' });
             } else {
                 this.loader.hide();
-                this.messageService.add({
-                    severity: 'error',
-                    summary: res.body.error || 'Error',
-                    detail: res.body.message || 'Failed to save student data'
-                });
+                this.messageService.add({ severity: 'error', summary: res.body.error || 'Error', detail: res.body.message || 'Failed to save student data' });
             }
         });
     }
@@ -193,38 +271,20 @@ export class EmployeeListComponent {
         this.submitted = true;
 
         if (!user.id) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Warning',
-                detail: 'Cannot save user without ID. Please create user with profile first.'
-            });
+            this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Cannot save user without ID. Please create user with profile first.' });
             return;
         }
 
         this.loader.show('Updating User Information');
 
-        // Send only user data (no profile)
-        const userConfig = {
-            user: user,
-            profile: null
-        };
-
-        this.employeeService.create(userConfig).subscribe((res: any) => {
+        this.employeeService.create({ user, profile: null }).subscribe((res: any) => {
             if (res && res.body.status === 200) {
                 this.hideDialog();
                 this.load();
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Employee profile saved successfully'
-                });
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Employee profile saved successfully' });
             } else {
                 this.loader.hide();
-                this.messageService.add({
-                    severity: 'error',
-                    summary: res.body.error || 'Error',
-                    detail: res.body.message || 'Failed to save employee data'
-                });
+                this.messageService.add({ severity: 'error', summary: res.body.error || 'Error', detail: res.body.message || 'Failed to save employee data' });
             }
         });
     }
@@ -237,21 +297,13 @@ export class EmployeeListComponent {
             accept: () => {
                 this.loader.show('Deleting Staff');
                 this.employeeService.delete(+employee.id!, null).subscribe({
-                    next: (res) => {
+                    next: () => {
                         this.load();
-                        this.messageService.add({
-                            severity: 'success',
-                            summary: 'Success',
-                            detail: 'Staff deleted successfully'
-                        });
+                        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Staff deleted successfully' });
                     },
-                    error: (error) => {
+                    error: () => {
                         this.loader.hide();
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Failed to delete staff'
-                        });
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete staff' });
                     }
                 });
             }
