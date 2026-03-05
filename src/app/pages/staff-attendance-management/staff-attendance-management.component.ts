@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
 import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
@@ -15,7 +14,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
-// TabsModule is now correct for v18+
 import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
@@ -23,48 +21,30 @@ import { CommonService } from '../../core/services/common.service';
 import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
 import { getAssociatedDepartments } from '../../core/store/user-profile/user-profile.selectors';
 import { StaffAttendance, StaffAttendanceReport } from '../models/staff-attendence.mdel';
+import { ITenantUser } from '../models/user.model';
 import { StaffAttendanceService } from '../service/staff-attendance.service';
+import { UserService } from '../service/user.service';
 
 @Component({
     selector: 'app-staff-attendance-management',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        CardModule,
-        ButtonModule,
-        DatePickerModule,
-        TableModule,
-        TagModule,
-        ToastModule,
-        TabsModule, // Ensure this is imported for the new tabs structure
-        ChartModule,
-        MultiSelectModule,
-        ProgressBarModule,
-        InputTextModule,
-        AvatarModule,
-        IconFieldModule,
-        InputIconModule
-    ],
+    imports: [CommonModule, FormsModule, CardModule, ButtonModule, DatePickerModule, TableModule, TagModule, ToastModule, TabsModule, ChartModule, MultiSelectModule, ProgressBarModule, InputTextModule, AvatarModule, IconFieldModule, InputIconModule],
     providers: [MessageService],
     templateUrl: './staff-attendance-management.component.html',
     styles: []
 })
 export class StaffAttendanceManagementComponent implements OnInit {
-    // The 'value' property in p-tabs corresponds to this.
-    // In v18, value can be a number or a string.
     activeTab: number | string = 0;
-
     loadingLogs = false;
     staffAttendanceService = inject(StaffAttendanceService);
     associatedDepartments: any[] = [];
     private store = inject(Store<{ userProfile: UserProfileState }>);
     commonService = inject(CommonService);
-
     logFilters = {
         startDate: null as Date | null,
         endDate: null as Date | null,
-        departments: [] as string[]
+        departments: [] as string[],
+        staffIds: [] as number[]
     };
 
     attendanceLogs: StaffAttendance[] = [];
@@ -76,7 +56,8 @@ export class StaffAttendanceManagementComponent implements OnInit {
     statusDistributionData: any;
     chartOptions: any;
     pieChartOptions: any;
-
+    userService = inject(UserService);
+    staffOptions: any[] = [];
     topPerformers: any[] = [];
 
     constructor(private messageService: MessageService) {
@@ -91,6 +72,26 @@ export class StaffAttendanceManagementComponent implements OnInit {
             }
         });
         this.loadAttendanceLogs();
+        this.loadStaff();
+    }
+
+    loadStaff(): void {
+        const filterParams = {
+            'branch_id.eq': this.commonService.branch?.id,
+            'authorities.name.nin': ['IT_ADMINISTRATOR', 'STUDENT']
+        };
+
+        this.userService.userSearch(0, 1000, 'id', 'ASC', filterParams).subscribe({
+            next: (res: any) => {
+                this.staffOptions = (res.content || []).map((staff: ITenantUser) => ({
+                    label: `${staff.firstName} ${staff.lastName} (${staff.login})`,
+                    value: staff.id
+                }));
+            },
+            error: (error) => {
+                console.error('Failed to load staff', error);
+            }
+        });
     }
 
     loadAttendanceLogs() {
@@ -107,6 +108,10 @@ export class StaffAttendanceManagementComponent implements OnInit {
 
         if (this.logFilters.departments && this.logFilters.departments.length > 0) {
             filters['departmentId.in'] = this.logFilters.departments;
+        }
+
+        if (this.logFilters.staffIds && this.logFilters.staffIds.length > 0) {
+            filters['staffId.in'] = this.logFilters.staffIds.map((id) => id.toString());
         }
 
         filters['branchId.eq'] = this.commonService.branch?.id?.toString() || '';

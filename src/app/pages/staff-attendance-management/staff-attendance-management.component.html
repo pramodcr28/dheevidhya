@@ -27,7 +27,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                         <p-date-picker 
                             [(ngModel)]="logFilters.startDate" 
                             [showIcon]="true" 
@@ -50,9 +50,22 @@
                                 optionLabel="name"
                                 optionValue="id"
                                 placeholder="Select Department"
-                                [style]="{ width: '100%' }">
+                                appendTo="body"
+                                class="w-full">
                             </p-multi-select>
                         </div>
+                        <p-multiSelect
+                            [options]="staffOptions"
+                            [(ngModel)]="logFilters.staffIds"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select staff members"
+                            [filter]="true"
+                            filterPlaceHolder="Search staff"
+                            display="chip"
+                            class="w-full"
+                            appendTo="body">
+                        </p-multiSelect>
 
                         <button 
                             pButton 
