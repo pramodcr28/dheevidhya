@@ -331,7 +331,6 @@ export class UploadResultComponent implements OnInit {
             sendNotification: status === ExamStatus.RESULT_DECLARED ? this.sendNotification : false,
             students: this.prepareSavePayload() as any
         };
-
         this.examinationService.saveResults(payload).subscribe({
             next: (response) => {
                 if (response.status == 201 || response.status == 200) {
@@ -353,6 +352,7 @@ export class UploadResultComponent implements OnInit {
                 }
 
                 console.log(response);
+                this.loadStudentResults();
             },
             error: () => {
                 this.messageService.add({
