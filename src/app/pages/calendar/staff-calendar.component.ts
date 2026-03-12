@@ -265,7 +265,6 @@ export class StaffAttendanceComponent implements OnInit {
     }
 
     getEventsForDate(date: Date): Notice[] {
-        // const dateKey = this.datePipe.transform(date, 'yyyy-MM-dd') || '';
         const dayOfWeek = date.getDay();
         return this.events.filter((event) => {
             if (event.holiday.holidayType === 'Week_off') {
@@ -340,7 +339,6 @@ export class StaffAttendanceComponent implements OnInit {
             }
         }
 
-        // Next month's leading days
         const remainingDays = 42 - this.calendarDays.length;
         for (let i = 1; i <= remainingDays; i++) {
             const date = new Date(year, month + 1, i);
@@ -406,7 +404,6 @@ export class StaffAttendanceComponent implements OnInit {
     onDayClick(day: CalendarDay) {
         if (!day.isCurrentMonth) return;
 
-        // Check if it has events first
         if (day.events.length > 0) {
             this.selectedDayEvents = day.events;
             this.selectedDayDate = day.date;
@@ -414,7 +411,6 @@ export class StaffAttendanceComponent implements OnInit {
             return;
         }
 
-        // Check if date is in the past or today
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const selectedDate = new Date(day.date);
@@ -635,7 +631,6 @@ export class StaffAttendanceComponent implements OnInit {
         });
     }
 
-    // Event-related helper methods
     isSingleDayEvent(event: Notice): boolean {
         if (event.holiday.holidayType === 'Week_off') return true;
 
@@ -712,13 +707,11 @@ export class StaffAttendanceComponent implements OnInit {
         return iconMap[eventType] || 'pi pi-calendar';
     }
 
-    // Check if this day is the start of an event
     isEventStart(day: CalendarDay): boolean {
         if (day.events.length === 0) return false;
 
         const currentDate = this.datePipe.transform(day.date, 'yyyy-MM-dd');
 
-        // Check if any regular event starts on this day
         return day.events.some((event) => {
             if (event.holiday.holidayType === 'Week_off') return false;
 
@@ -727,15 +720,13 @@ export class StaffAttendanceComponent implements OnInit {
         });
     }
 
-    // Check if this day is the end of an event
     isEventEnd(day: CalendarDay): boolean {
         if (day.events.length === 0) return false;
 
         const currentDate = this.datePipe.transform(day.date, 'yyyy-MM-dd');
 
-        // Check if any regular event ends on this day
         return day.events.some((event) => {
-            if (event.holiday.holidayType === 'Week_off') return true; // Week_off events are considered both start and end
+            if (event.holiday.holidayType === 'Week_off') return true;
 
             if (!event.holiday.holidayEndDate) return false;
 
@@ -744,21 +735,17 @@ export class StaffAttendanceComponent implements OnInit {
         });
     }
 
-    // Check if day has Week_off events
     hasWeekOffEvent(events: Notice[]): boolean {
         return events.some((event) => event.holiday.holidayType === 'Week_off');
     }
 
-    // Check if day has regular events (non Week_off)
     hasRegularEvents(events: Notice[]): boolean {
         return events.some((event) => event.holiday.holidayType !== 'Week_off');
     }
 
-    // Get event indicators for calendar display
     getEventIndicators(events: Notice[]): EventIndicator[] {
         const indicators: EventIndicator[] = [];
 
-        // Add Week_off events first
         const weekOffEvents = events.filter((event) => event.holiday.holidayType === 'Week_off');
         if (weekOffEvents.length > 0) {
             indicators.push({
@@ -767,7 +754,6 @@ export class StaffAttendanceComponent implements OnInit {
             });
         }
 
-        // Add regular events (limit to 2 for display)
         const regularEvents = events.filter((event) => event.holiday.holidayType !== 'Week_off');
         for (let i = 0; i < Math.min(regularEvents.length, 2 - indicators.length); i++) {
             indicators.push({
@@ -785,12 +771,10 @@ export class StaffAttendanceComponent implements OnInit {
         }
 
         if (day.events.length > 0) {
-            // Week_off events - dashed amber border
             if (this.hasWeekOffEvent(day.events)) {
                 return 'border-amber-200 dark:border-amber-400 border-2 border-dashed rounded-lg';
             }
 
-            // Regular events - solid purple border
             if (this.isEventStart(day) && this.isEventEnd(day)) {
                 return 'border-purple-500 dark:border-purple-400 border-2 rounded-lg';
             } else if (this.isEventStart(day)) {

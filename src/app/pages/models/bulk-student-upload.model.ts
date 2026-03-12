@@ -15,12 +15,6 @@ export interface StudentExcelRow {
     state: string;
     country: string;
     postalCode: string;
-
-    // Academic
-    // departmentName: string;
-    // className: string;
-    // sectionName: string;
-
     // Guardian Info
     guardianFirstName?: string;
     guardianLastName?: string;

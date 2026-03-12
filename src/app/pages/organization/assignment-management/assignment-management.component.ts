@@ -252,7 +252,6 @@ export class AssignmentManagementComponent implements OnInit {
     }
 
     addAssignment() {
-        // still pending functionality visibilityType assignedStudentIds
         this.loader.show('updating Assignment');
 
         if (this.selectedAssignment && !this.selectedAssignment.id && this.subjectInfo) {

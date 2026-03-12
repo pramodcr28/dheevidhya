@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './app/core/auth/auth-guard.guard';
 import { AppLayout } from './app/core/layout/app.layout';
 import { StaffAttendanceComponent } from './app/pages/calendar/staff-calendar.component';
-import { Dashboard } from './app/pages/dashboard/dashboard';
+import { DashboardComponent } from './app/pages/dashboard/dashboard';
 import { EmployeeListComponent } from './app/pages/employee/employee-list/employee-list.component';
 import { ExaminationComponent } from './app/pages/examination/examination.component';
 import { CategoryManagementComponent } from './app/pages/inventory-management/category-management/category-management.component';
@@ -33,7 +33,7 @@ export const appRoutes: Routes = [
         canActivate: [authGuard],
         component: AppLayout,
         children: [
-            { path: '', component: Dashboard },
+            { path: '', component: DashboardComponent },
             {
                 path: 'tenant',
                 children: [
@@ -107,7 +107,6 @@ export const appRoutes: Routes = [
                 path: 'clone-academic-year/:id',
                 component: CloneAcademicYearComponent
             },
-            // NEW: Student Promotion Route
             {
                 path: 'student-promotion',
                 component: StudentPromotionComponent,
