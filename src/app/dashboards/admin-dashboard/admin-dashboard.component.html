@@ -1,58 +1,60 @@
-<div class="flex gap-4 min-h-screen">
+<div class="flex flex-col lg:flex-row gap-4 min-h-screen px-3 md:px-0">
   <div class="flex flex-col gap-4 flex-1 min-w-0">
     <div class="grid grid-cols-2 xl:grid-cols-3 gap-3">
 
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-start gap-3">
-        <div class="w-11 h-11 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl bg-orange-50 dark:bg-orange-950 flex items-center justify-center flex-shrink-0">
           <i class="pi pi-users text-orange-500 text-lg"></i>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Total Students</p>
-          <p class="text-2xl font-extrabold text-gray-900 leading-tight mt-0.5">{{ data?.totalStudents | number }}</p>
+          <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide">Total Students</p>
+          <p class="text-2xl font-extrabold text-gray-900 dark:text-gray-100 leading-tight mt-0.5">{{ data?.totalStudents | number }}</p>
           <p class="text-xs font-semibold text-green-500 mt-0.5">↑ {{ data?.studentChange }} this term</p>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-start gap-3">
-        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-950 flex items-center justify-center flex-shrink-0">
           <i class="pi pi-id-card text-blue-500 text-lg"></i>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Total Staff</p>
-          <p class="text-2xl font-extrabold text-gray-900 leading-tight mt-0.5">{{ data?.totalStaff | number }}</p>
+          <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide">Total Staff</p>
+          <p class="text-2xl font-extrabold text-gray-900 dark:text-gray-100 leading-tight mt-0.5">{{ data?.totalStaff | number }}</p>
           <p class="text-xs font-semibold text-green-500 mt-0.5">↑ {{ data?.staffChange }} new hires</p>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-start gap-3">
-        <div class="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950 flex items-center justify-center flex-shrink-0">
           <i class="pi pi-building text-purple-500 text-lg"></i>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Departments</p>
-          <p class="text-2xl font-extrabold text-gray-900 leading-tight mt-0.5">{{ data?.totalDepartments }}</p>
-          <p class="text-xs font-semibold text-gray-400 mt-0.5">→ No change</p>
+          <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide">Departments</p>
+          <p class="text-2xl font-extrabold text-gray-900 dark:text-gray-100 leading-tight mt-0.5">{{ data?.totalDepartments }}</p>
+          <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 mt-0.5">→ No change</p>
         </div>
-      </div> 
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-start gap-3">
-        <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+      </div>
+<!-- 
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-950 flex items-center justify-center flex-shrink-0">
           <i class="pi pi-book text-amber-500 text-lg"></i>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Active Classes</p>
-          <p class="text-2xl font-extrabold text-gray-900 leading-tight mt-0.5">{{ data?.activeClasses }}</p>
+          <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide">Active Classes</p>
+          <p class="text-2xl font-extrabold text-gray-900 dark:text-gray-100 leading-tight mt-0.5">{{ data?.activeClasses }}</p>
           <p class="text-xs font-semibold text-green-500 mt-0.5">↑ 6 this month</p>
         </div>
-      </div> 
+      </div> -->
 
     </div>
-   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
       <!-- Timeline -->
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
         <div class="px-5 pt-4 pb-2">
-          <p class="text-sm font-bold text-gray-800">System Updates Timeline</p>
-          <p class="text-xs text-gray-400 mt-0.5">Recent deployments & changes</p>
+          <p class="text-sm font-bold text-gray-800 dark:text-gray-100">System Updates Timeline</p>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Recent deployments & changes</p>
         </div>
         <div class="px-5 pb-4">
           <div *ngFor="let item of data?.recentTimeline; let last = last"
@@ -60,50 +62,50 @@
                [class.pb-0]="last">
             <!-- connector -->
             <div *ngIf="!last"
-                 class="absolute left-4 top-7 bottom-0 w-px bg-gray-200"></div>
+                 class="absolute left-4 top-7 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
             <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10"
                  [ngClass]="getTimelineIconClass(item.type)">
               <i [class]="item.icon + ' text-xs'"></i>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-xs font-bold text-gray-800">{{ item.title }}</p>
-              <p class="text-[11px] text-gray-400 mt-0.5">{{ item.description }}</p>
+              <p class="text-xs font-bold text-gray-800 dark:text-gray-100">{{ item.title }}</p>
+              <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{{ item.description }}</p>
             </div>
-            <p class="text-[10px] text-gray-400 whitespace-nowrap pt-1 flex-shrink-0">{{ item.time }}</p>
+            <p class="text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap pt-1 flex-shrink-0">{{ item.time }}</p>
           </div>
         </div>
       </div>
 
       <!-- Quick Actions + Health -->
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
         <div class="px-5 pt-4 pb-2">
-          <p class="text-sm font-bold text-gray-800">Quick Actions</p>
-          <p class="text-xs text-gray-400 mt-0.5">Common admin tasks</p>
+          <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Quick Actions</p>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Common admin tasks</p>
         </div>
         <div class="px-5">
           <div class="grid grid-cols-4 gap-2">
             <button *ngFor="let qa of quickActions"
                     (click)="handleQuickAction(qa.action)"
-                    class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-gray-200
-                           bg-white hover:border-orange-400 hover:bg-orange-50 transition-all group">
-              <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center
+                    class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700
+                           bg-white dark:bg-gray-900 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 transition-all group">
+              <div class="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center
                           group-hover:bg-orange-500 transition-colors">
-                <i [class]="qa.icon + ' text-gray-500 group-hover:text-white text-sm transition-colors'"></i>
+                <i [class]="qa.icon + ' text-gray-500 dark:text-gray-400 group-hover:text-white text-sm transition-colors'"></i>
               </div>
-              <span class="text-[10px] font-semibold text-gray-500 text-center leading-tight">{{ qa.label }}</span>
+              <span class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 text-center leading-tight">{{ qa.label }}</span>
             </button>
           </div>
         </div>
 
         <!-- System Health -->
         <div class="px-5 pt-4 pb-4">
-          <p class="text-xs font-bold text-gray-600 mb-3">System Health</p>
+          <p class="text-xs font-bold text-gray-600 dark:text-gray-400 mb-3">System Health</p>
           <div *ngFor="let h of data?.systemHealth" class="mb-3 last:mb-0">
             <div class="flex justify-between items-center mb-1">
-              <span class="text-xs font-semibold text-gray-600">{{ h.label }}</span>
+              <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">{{ h.label }}</span>
               <span class="text-xs font-bold" [style.color]="getHealthColor(h.status)">{{ h.value }}%</span>
             </div>
-            <div class="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+            <div class="h-1.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
               <div class="h-full rounded-full transition-all"
                    [ngClass]="getHealthBarClass(h.status)"
                    [style.width.%]="h.value"></div>
@@ -113,45 +115,46 @@
       </div>
 
     </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
       <!-- Chart -->
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
         <div class="flex items-center justify-between px-5 pt-4 pb-0">
           <div>
-            <p class="text-sm font-bold text-gray-800">System Activity — Login Trends</p>
-            <p class="text-xs text-gray-400 mt-0.5">Daily active users · Last 7 days</p>
+            <p class="text-sm font-bold text-gray-800 dark:text-gray-100">System Activity — Login Trends</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Daily active users · Last 7 days</p>
           </div>
-          <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200">This Week</span>
+          <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800">This Week</span>
         </div>
         <div class="p-5 pt-3" style="height:200px;">
           <p-chart type="bar" [data]="chartData" [options]="chartOptions" height="170px" />
         </div>
         <div class="flex gap-4 px-5 pb-4">
-          <span class="flex items-center gap-1.5 text-xs font-semibold text-gray-400">
+          <span class="flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-gray-500">
             <span class="w-3 h-3 rounded-sm bg-orange-500 inline-block"></span>Students (avg 892)
           </span>
-          <span class="flex items-center gap-1.5 text-xs font-semibold text-gray-400">
+          <span class="flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-gray-500">
             <span class="w-3 h-3 rounded-sm bg-orange-200 inline-block"></span>Staff (avg 72)
           </span>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
         <div class="flex items-center justify-between px-5 pt-4 pb-2">
-          <p class="text-sm font-bold text-gray-800">Recent Notifications</p>
+          <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Recent Notifications</p>
           <button class="text-xs font-semibold text-orange-500 hover:text-orange-700 transition-colors">View all →</button>
         </div>
         <div class="px-5 pb-4">
           <div *ngFor="let n of data?.recentNotices"
-               class="flex gap-3 py-2.5 border-b border-gray-100 last:border-none">
+               class="flex gap-3 py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-none">
             <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
                   [ngClass]="getNoticeDotClass(n.priority)"></span>
             <div class="min-w-0">
-                  <p class="text-xs text-gray-600 leading-relaxed">
-                <span class="font-bold text-gray-800 text-wrap">{{ n.title }}</span>  <span [innerHTML]="n.content"></span>
+              <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                <span class="font-bold text-gray-800 dark:text-gray-100 text-wrap">{{ n.title }}</span>  <span [innerHTML]="n.content"></span>
               </p>
-              <p class="text-[10px] text-gray-400 mt-0.5">{{ n.publishedAt | date:'MMM d, h:mm a' }}</p>
+              <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ n.publishedAt | date:'MMM d, h:mm a' }}</p>
             </div>
           </div>
         </div>
@@ -160,15 +163,16 @@
     </div>
   </div>
 
-  <div class="flex flex-col gap-4 w-[36%] min-w-[280px] flex-shrink-0">
+  <!-- ── Right Sidebar ── -->
+  <div class="flex flex-col gap-4 w-full lg:w-[36%] lg:min-w-[280px] lg:flex-shrink-0">
 
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
 
       <div class="h-20 relative"
            style="background: linear-gradient(135deg, #EA580C 0%, #F97316 55%, #FDBA74 100%);">
         <div class="absolute inset-0 opacity-10"
              style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='1'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E&quot;)"></div>
-        <div class="absolute -bottom-8 left-5 w-16 h-16 rounded-full border-4 border-white shadow-md
+        <div class="absolute -bottom-8 left-5 w-16 h-16 rounded-full border-4 border-white dark:border-gray-900 shadow-md
                     bg-gradient-to-br from-orange-600 to-orange-400
                     flex items-center justify-center text-white text-xl font-extrabold">
           {{ data?.profile?.fullName | slice:0:1 }}{{ (data?.profile?.fullName.split(' ')[1] || '') | slice:0:1 }}
@@ -176,91 +180,72 @@
       </div>
 
       <div class="pt-10 px-5 pb-5">
-        <p class="text-base font-extrabold text-gray-900">{{ data?.profile?.fullName }}</p>
-        <p class="text-xs text-gray-400 font-medium mt-0.5 mb-4">
+        <p class="text-base font-extrabold text-gray-900 dark:text-gray-100">{{ data?.profile?.fullName }}</p>
+        <p class="text-xs text-gray-400 dark:text-gray-500 font-medium mt-0.5 mb-4">
           IT Administrator · {{ data?.profile?.employeeId }}
         </p>
 
         <p-divider styleClass="my-3" />
 
-  
         <div class="space-y-2">
           <div class="flex items-start gap-2">
-            <i class="pi pi-building text-gray-400 text-xs mt-0.5 w-4 flex-shrink-0"></i>
-            <span class="text-xs text-gray-600 font-medium">{{ data?.profile?.departments?.join(', ') }}</span>
+            <i class="pi pi-building text-gray-400 dark:text-gray-500 text-xs mt-0.5 w-4 flex-shrink-0"></i>
+            <span class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ data?.profile?.departments?.join(', ') }}</span>
           </div>
           <div class="flex items-start gap-2">
-            <i class="pi pi-envelope text-gray-400 text-xs mt-0.5 w-4 flex-shrink-0"></i>
-            <span class="text-xs text-gray-600 font-medium break-all">{{ data?.profile?.email }}</span>
+            <i class="pi pi-envelope text-gray-400 dark:text-gray-500 text-xs mt-0.5 w-4 flex-shrink-0"></i>
+            <span class="text-xs text-gray-600 dark:text-gray-400 font-medium break-all">{{ data?.profile?.email }}</span>
           </div>
           <div class="flex items-start gap-2">
-            <i class="pi pi-phone text-gray-400 text-xs mt-0.5 w-4 flex-shrink-0"></i>
-            <span class="text-xs text-gray-600 font-medium">{{ data?.profile?.contactNumber }}</span>
+            <i class="pi pi-phone text-gray-400 dark:text-gray-500 text-xs mt-0.5 w-4 flex-shrink-0"></i>
+            <span class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ data?.profile?.contactNumber }}</span>
           </div>
-          <!-- <div class="flex items-start gap-2">
-            <i class="pi pi-calendar text-gray-400 text-xs mt-0.5 w-4 flex-shrink-0"></i>
-            <span class="text-xs text-gray-600 font-medium">
-              Joined {{ data?.profile?.joinedDate | date:'MMM yyyy' }}
-            </span>
-          </div> -->
-          <!-- <div class="flex items-start gap-2">
-            <i class="pi pi-lock text-gray-400 text-xs mt-0.5 w-4 flex-shrink-0"></i>
-            <span class="text-xs text-gray-600 font-medium">{{ data?.profile?.responsibilities }}</span>
-          </div> -->
         </div>
 
         <p-divider styleClass="my-3" />
 
         <div class="grid grid-cols-2 gap-2">
-          <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
-            <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Managed Users</p>
+          <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+            <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Managed Users</p>
             <p class="text-xl font-extrabold text-orange-500 mt-1">{{data?.totalStaff  + data?.totalStudents}}</p>
           </div>
-          <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
-            <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Uptime</p>
+          <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+            <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Uptime</p>
             <p class="text-xl font-extrabold text-green-500 mt-1">99.7%</p>
           </div>
-          <!-- <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
-            <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Open Tickets</p>
-            <p class="text-xl font-extrabold text-red-500 mt-1">0</p>
-          </div> -->
-          <!-- <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
-            <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Deployments</p>
-            <p class="text-xl font-extrabold text-gray-900 mt-1">18</p>
-          </div> -->
         </div>
 
         <p-divider styleClass="my-3" />
 
-        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-2">Access Roles</p>
+        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Access Roles</p>
         <div class="flex flex-wrap gap-1.5">
           <span *ngFor="let tag of ['Super Admin','DB Manager','DevOps','Config']"
                 class="px-2.5 py-1 rounded-full text-[10px] font-bold
-                       bg-orange-50 text-orange-700 border border-orange-200">
+                       bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
             {{ tag }}
           </span>
         </div>
       </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
       <div class="flex items-center justify-between px-5 pt-4 pb-2">
-        <p class="text-sm font-bold text-gray-800">Server Status</p>
-        <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
+        <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Server Status</p>
+        <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
           All Operational
         </span>
       </div>
       <div class="px-5 pb-4">
         <div *ngFor="let s of [
-          {name:'App Server (Primary)', status:'Online',    cls:'bg-green-500', badge:'bg-green-50 text-green-700 border-green-200'},
-          {name:'Database Server',       status:'Online',    cls:'bg-green-500', badge:'bg-green-50 text-green-700 border-green-200'},
-          {name:'File Server (Backup)',  status:'High Load', cls:'bg-amber-400', badge:'bg-amber-50 text-amber-700 border-amber-200'},
-          {name:'Mail Server',           status:'Online',    cls:'bg-green-500', badge:'bg-green-50 text-green-700 border-green-200'}
+          {name:'App Server (Primary)', status:'Online',    cls:'bg-green-500', badge:'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'},
+          {name:'Database Server',       status:'Online',    cls:'bg-green-500', badge:'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'},
+          {name:'File Server (Backup)',  status:'High Load', cls:'bg-amber-400', badge:'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'},
+          {name:'Mail Server',           status:'Online',    cls:'bg-green-500', badge:'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'}
         ]"
-             class="flex items-center justify-between py-2.5 border-b border-gray-100 last:border-none">
+             class="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-none">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full flex-shrink-0" [ngClass]="s.cls"></span>
-            <span class="text-xs font-semibold text-gray-700">{{ s.name }}</span>
+            <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ s.name }}</span>
           </div>
           <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border"
                 [ngClass]="s.badge">{{ s.status }}</span>
