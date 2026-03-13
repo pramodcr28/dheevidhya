@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { BadgeModule } from 'primeng/badge';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
@@ -24,6 +25,8 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
     loading = true;
     error: string | null = null;
 
+    currentMonthYear = new Date();
+
     get upcomingExams() {
         return (this.data?.exams ?? []).filter((e) => e.status == 'SCHEDULED' || e.status === 'DRAFT');
     }
@@ -36,6 +39,7 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
 
     commonService = inject(CommonService);
     dashboardService = inject(DashboardService);
+    router = inject(Router);
 
     ngOnInit(): void {
         const staffId = this.commonService.currentUser?.userId;
@@ -103,5 +107,20 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
     }
     getAvatarColors() {
         return ['bg-orange-500', 'bg-blue-500', 'bg-purple-500', 'bg-red-500', 'bg-teal-500'];
+    }
+
+    viewAllNotices() {
+        this.router.navigate(['./notice-board']);
+    }
+
+    viewAllExams() {
+        this.router.navigate(['./examination']);
+    }
+
+    viewAllInventory() {
+        this.router.navigate(['./inventory/assets']);
+    }
+    viewAllStaffAttendance() {
+        this.router.navigate(['./attendance-management']);
     }
 }

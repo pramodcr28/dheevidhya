@@ -22,22 +22,3 @@ a {
 .layout-wrapper {
     min-height: 100vh;
 }
-
-::-webkit-scrollbar {
-    width: 4px;
-    background-color: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: var(--primary-color);
-}
-::-webkit-scrollbar-track {
-    border-radius: 4px;
-    background-color: transparent;
-}
-
-::selection {
-    background: var(--primary-tint);
-    text-shadow: none;
-}
