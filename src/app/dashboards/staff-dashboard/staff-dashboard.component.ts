@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 
+import { Router } from '@angular/router';
 import { BadgeModule } from 'primeng/badge';
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
@@ -38,6 +39,12 @@ export class StaffDashboardComponent implements OnInit, OnDestroy {
     get pastExams() {
         return (this.data?.exams ?? []).filter((e) => e.status === 'RESULT_DECLARED' || e.status === 'CANCELLED');
     }
+
+    get subjects() {
+        return this.commonService?.associatedSubjects?.filter((s) => this.data?.profile?.subjects?.includes(s.id)) ?? [];
+    }
+
+    router = inject(Router);
     commonService = inject(CommonService);
     dashboardService = inject(DashboardService);
 
@@ -238,5 +245,16 @@ export class StaffDashboardComponent implements OnInit, OnDestroy {
 
     getNoticeDotClass(p: string) {
         return p === 'HIGH' ? 'bg-red-500' : p === 'MEDIUM' ? 'bg-amber-400' : 'bg-blue-400';
+    }
+
+    viewAllAssignments() {
+        this.router.navigate(['./assignment']);
+    }
+
+    viewAllNotifications() {
+        this.router.navigate(['./notice-board']);
+    }
+    viewAllExams() {
+        this.router.navigate(['./examination']);
     }
 }

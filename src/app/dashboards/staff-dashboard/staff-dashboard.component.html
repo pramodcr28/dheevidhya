@@ -1,7 +1,551 @@
 <div class="flex flex-col lg:flex-row gap-4 min-h-screen px-3 md:px-0">
 
 <div class="flex flex-col gap-4 flex-1 min-w-0">
-<div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-md overflow-hidden flex flex-col" style="height: 420px;">
+   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <!-- <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+        <div class="flex items-center justify-between px-5 pt-4 pb-2">
+          <div>
+            <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Today's Attendance</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ data?.classAttendance?.classLabel }} · {{ data?.classAttendance?.subjectLabel }}</p>
+          </div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800">
+            {{ data?.classAttendance?.isMarked ? 'Marked' : 'Pending' }}
+          </span>
+        </div>
+        <div class="px-5 pb-4 flex items-center gap-4">
+          <div class="relative w-24 h-24 flex-shrink-0">
+            <p-chart type="doughnut" [data]="attChartData" [options]="attChartOptions" height="96px" width="96px" />
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span class="text-base font-extrabold text-green-600">{{ getAttPercent() }}%</span>
+              <span class="text-[9px] text-gray-400 dark:text-gray-500 font-semibold">Present</span>
+            </div>
+          </div>
+          <div class="flex-1">
+            <div *ngFor="let bar of [
+              {label:'✅ Present', val: data?.classAttendance?.present, total: data?.classAttendance?.totalStudents, cls:'bg-green-500', txtCls:'text-green-600'},
+              {label:'❌ Absent',  val: data?.classAttendance?.absent,  total: data?.classAttendance?.totalStudents, cls:'bg-red-400',   txtCls:'text-red-500'},
+              {label:'⏰ Late',    val: data?.classAttendance?.late,    total: data?.classAttendance?.totalStudents, cls:'bg-amber-400', txtCls:'text-amber-500'}
+            ]" class="mb-2 last:mb-0">
+              <div class="flex justify-between items-center mb-0.5">
+                <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">{{ bar.label }} ({{ bar.val }})</span>
+                <span class="text-xs font-bold" [ngClass]="bar.txtCls">
+                  {{ (bar.val / bar.total * 100) | number:'1.0-0' }}%
+                </span>
+              </div>
+              <div class="h-1.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                <div class="h-full rounded-full" [ngClass]="bar.cls"
+                     [style.width.%]="bar.val / bar.total * 100"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+        <div class="px-5 pt-4 pb-2">
+          <p class="text-sm font-bold text-gray-800 dark:text-gray-100">My Attendance · March</p>
+        </div>
+        <div class="px-5 pb-4">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">Present Days</span>
+            <span class="text-xs font-bold text-green-600">{{ data?.monthlyAttendance?.presentDays }} / {{ data?.monthlyAttendance?.totalDays }}</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden mb-4">
+            <div class="h-full rounded-full bg-green-500"
+                 [style.width.%]="data?.monthlyAttendance?.percentage"></div>
+          </div>
+          <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Daily Dots</p>
+          <div class="flex flex-wrap gap-1">
+            <span *ngFor="let d of data?.monthlyAttendance?.dailyDots"
+                  class="w-3 h-3 rounded-sm"
+                  [ngClass]="{
+                    'bg-green-400': d === true,
+                    'bg-red-400':   d === false,
+                    'bg-gray-200 dark:bg-gray-700':  d === null
+                  }">
+            </span>
+          </div>
+          <div class="flex gap-3 mt-2">
+            <span class="flex items-center gap-1 text-[10px] font-semibold text-gray-400 dark:text-gray-500">
+              <span class="w-2.5 h-2.5 rounded-sm bg-green-400 inline-block"></span>Present
+            </span>
+            <span class="flex items-center gap-1 text-[10px] font-semibold text-gray-400 dark:text-gray-500">
+              <span class="w-2.5 h-2.5 rounded-sm bg-red-400 inline-block"></span>Absent
+            </span>
+            <span class="flex items-center gap-1 text-[10px] font-semibold text-gray-400 dark:text-gray-500">
+              <span class="w-2.5 h-2.5 rounded-sm bg-gray-200 dark:bg-gray-700 inline-block"></span>Holiday
+            </span>
+          </div>
+        </div>
+      </div>
+ <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-5 pt-4 pb-2">
+    <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Latest Assignments</p>
+
+    <button
+      class="text-xs font-semibold text-orange-500 hover:text-orange-700"
+      (click)="viewAllAssignments()">
+      View all →
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="px-5 pb-4">
+
+    <!-- Assignments List -->
+    <ng-container *ngIf="data?.assignments?.length > 0; else emptyAssignments">
+
+      <div *ngFor="let a of data.assignments; let i = index"
+           class="flex items-center gap-3 py-2 border-b border-gray-100 dark:border-gray-700 last:border-none">
+
+        <span class="w-2.5 h-2.5 rounded-full flex-shrink-0"
+              [ngClass]="getSubjectColor(i)">
+        </span>
+
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-bold text-gray-800 dark:text-gray-100 truncate">
+            {{ a.title }}
+          </p>
+
+          <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+            Due {{ a.dueDate | date:'MMM d' }} · {{ a.className }}-{{ a.sectionName }}
+          </p>
+        </div>
+
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0"
+              [ngClass]="getAssignmentStatusClass(a.status!)">
+          {{ a.status }}
+        </span>
+
+      </div>
+
+    </ng-container>
+
+    <!-- Empty State -->
+    <ng-template #emptyAssignments>
+      <div class="flex flex-col items-center justify-center py-10 text-center">
+
+        <!-- Icon -->
+        <div class="w-14 h-14 flex items-center justify-center rounded-full bg-orange-50 dark:bg-gray-800 mb-3">
+          <i class="pi pi-file-edit text-xl text-orange-400"></i>
+        </div>
+
+        <!-- Text -->
+        <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+          No Assignments Yet
+        </p>
+
+        <!-- <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+          New assignments from your teachers will appear here.
+        </p> -->
+
+      </div>
+    </ng-template>
+
+  </div>
+</div>
+
+    </div>
+
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+        <!-- <div class="px-5 pt-4 pb-2">
+          <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Exams</p>
+        </div> -->
+          <div class="flex items-center justify-between px-5 pt-4 pb-2">
+    <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Exams</p>
+
+    <button
+      class="text-xs font-semibold text-orange-500 hover:text-orange-700"
+      (click)="viewAllExams()">
+      View all →
+    </button>
+  </div>
+        <div class="px-5 pb-4">
+            <p-tabView>
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <span class="text-xs font-semibold">
+            Upcoming
+            <span
+              class="ml-1 w-4 h-4 inline-flex items-center justify-center rounded-full bg-orange-500 text-white text-[9px] font-black">
+              {{ upcomingExams.length }}
+            </span>
+          </span>
+        </ng-template>
+
+        @if (upcomingExams.length === 0) {
+
+          <div class="flex flex-col items-center justify-center py-8 text-center">
+
+            <div class="w-10 h-10 rounded-full flex items-center justify-center bg-orange-100 dark:bg-orange-900/30 mb-2">
+              <i class="pi pi-calendar text-orange-500 text-sm"></i>
+            </div>
+
+            <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">
+              No Upcoming Exams
+            </p>
+
+            <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+              Scheduled exams will appear here.
+            </p>
+
+          </div>
+
+        }
+
+        @for (e of upcomingExams; track e.examType) {
+
+          <div
+            class="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 mb-2 last:mb-0">
+   <div class="w-11 h-11 rounded-lg bg-orange-50 dark:bg-orange-950 flex flex-col items-center justify-center flex-shrink-0">
+                  <span class="text-base font-extrabold text-orange-700 dark:text-orange-400 leading-none">{{ getExamDate(e.startDate).day }}</span>
+                  <span class="text-[9px] font-bold text-orange-500">{{ getExamDate(e.startDate).month }}</span>
+                </div>
+            <div class="flex flex-col min-w-0">
+              <p class="text-xs font-bold m-0 text-gray-800 dark:text-gray-100 truncate">
+                {{ e.examType }}
+              </p>
+
+              <p class="text-[10px] text-gray-400 dark:text-gray-500">
+                {{ e.departmentName }}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <!-- <span class="text-[11px] font-bold text-orange-600 dark:text-orange-400">
+                {{ e.totalMarks }} Marks
+              </span> -->
+
+              <span
+                class="text-[10px] font-bold px-2 py-0.5 rounded-full border"
+                [ngClass]="getExamStatusClass(e.status)">
+                {{ e.status }}
+              </span>
+            </div>
+
+          </div>
+
+        }
+
+      </p-tabPanel>
+      <p-tabPanel>
+
+        <ng-template pTemplate="header">
+          <span class="text-xs font-semibold">
+            Current
+            <span
+              class="ml-1 w-4 h-4 inline-flex items-center justify-center rounded-full bg-green-500 text-white text-[9px] font-black">
+              {{ ongoingExams.length }}
+            </span>
+          </span>
+        </ng-template>
+
+        @if (ongoingExams.length === 0) {
+
+          <div class="flex flex-col items-center justify-center py-8 text-center">
+
+            <div class="w-10 h-10 rounded-full flex items-center justify-center bg-green-100 dark:bg-green-900/30 mb-2">
+              <i class="pi pi-clock text-green-500 text-sm"></i>
+            </div>
+
+            <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">
+              No Ongoing Exams
+            </p>
+
+            <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+              Exams currently in progress will appear here.
+            </p>
+
+          </div>
+
+        }
+
+        @for (e of ongoingExams; track e.examType) {
+
+         <div
+            class="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 mb-2 last:mb-0">
+   <div class="w-11 h-11 rounded-lg bg-orange-50 dark:bg-orange-950 flex flex-col items-center justify-center flex-shrink-0">
+                  <span class="text-base font-extrabold text-orange-700 dark:text-orange-400 leading-none">{{ getExamDate(e.startDate).day }}</span>
+                  <span class="text-[9px] font-bold text-orange-500">{{ getExamDate(e.startDate).month }}</span>
+                </div>
+            <div class="flex flex-col min-w-0">
+              <p class="text-xs font-bold m-0 text-gray-800 dark:text-gray-100 truncate">
+                {{ e.examType }}
+              </p>
+
+              <p class="text-[10px] text-gray-400 dark:text-gray-500">
+                {{ e.departmentName }}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <!-- <span class="text-[11px] font-bold text-orange-600 dark:text-orange-400">
+                {{ e.totalMarks }} Marks
+              </span> -->
+
+              <span
+                class="text-[10px] font-bold px-2 py-0.5 rounded-full border"
+                [ngClass]="getExamStatusClass(e.status)">
+                {{ e.status }}
+              </span>
+            </div>
+
+          </div>
+
+        }
+
+      </p-tabPanel>
+
+      <p-tabPanel>
+
+        <ng-template pTemplate="header">
+          <span class="text-xs font-semibold">
+            Past
+            <span
+              class="ml-1 w-4 h-4 inline-flex items-center justify-center rounded-full bg-gray-500 text-white text-[9px] font-black">
+              {{ pastExams.length }}
+            </span>
+          </span>
+        </ng-template>
+
+        @if (pastExams.length === 0) {
+
+          <div class="flex flex-col items-center justify-center py-8 text-center">
+
+            <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 mb-2">
+              <i class="pi pi-history text-gray-500 text-sm"></i>
+            </div>
+
+            <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">
+              No Past Records
+            </p>
+
+            <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+              Completed exams will appear here.
+            </p>
+
+          </div>
+
+        }
+
+        @for (e of pastExams; track e.examType) {
+  <div
+            class="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 mb-2 last:mb-0">
+   <div class="w-11 h-11 rounded-lg bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center flex-shrink-0">
+                  <span class="text-base font-extrabold text-gray-700 dark:text-gray-400 leading-none">{{ getExamDate(e.startDate).day }}</span>
+                  <span class="text-[9px] font-gray text-gray-500">{{ getExamDate(e.startDate).month }}</span>
+                </div>
+            <div class="flex flex-col min-w-0">
+              <p class="text-xs font-bold m-0 text-gray-800 dark:text-gray-100 truncate">
+                {{ e.examType }}
+              </p>
+
+              <p class="text-[10px] text-gray-400 dark:text-gray-500">
+                {{ e.departmentName }}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <!-- <span class="text-[11px] font-bold text-orange-600 dark:text-orange-400">
+                {{ e.totalMarks }} Marks
+              </span> -->
+
+              <span
+                class="text-[10px] font-bold px-2 py-0.5 rounded-full border"
+                [ngClass]="getExamStatusClass(e.status)">
+                {{ e.status }}
+              </span>
+            </div>
+
+          </div>
+
+        }
+
+      </p-tabPanel>
+
+    </p-tabView>
+          <!-- <p-tabView styleClass="[&_.p-tabview-nav]:border-b [&_.p-tabview-nav]:border-gray-200 [&_.p-tabview-ink-bar]:bg-orange-500">
+            <p-tabPanel>
+              <ng-template pTemplate="header">
+                <span class="text-xs font-semibold">Upcoming
+                  <span class="ml-1 w-4 h-4 inline-flex items-center justify-center rounded-full bg-orange-500 text-white text-[9px] font-black">
+                    {{ upcomingExams.length }}
+                  </span>
+                </span>
+              </ng-template>
+              <div *ngFor="let e of upcomingExams" class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 mb-2 last:mb-0">
+                <div class="w-11 h-11 rounded-lg bg-orange-50 dark:bg-orange-950 flex flex-col items-center justify-center flex-shrink-0">
+                  <span class="text-base font-extrabold text-orange-700 dark:text-orange-400 leading-none">{{ getExamDate(e.startDate).day }}</span>
+                  <span class="text-[9px] font-bold text-orange-500">{{ getExamDate(e.startDate).month }}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-gray-800 dark:text-gray-100 truncate">{{ e.title }}</p>
+                  <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ e.className }}-{{ e.sectionName }} · {{ e.venue }} · {{ e.startTime | date:'h:mm a' }}</p>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0"
+                      [ngClass]="getExamStatusClass(e.status)">
+                  {{ e.status }}
+                </span>
+              </div>
+              <p *ngIf="!upcomingExams.length" class="text-xs text-gray-400 dark:text-gray-500 text-center py-4">No upcoming exams</p>
+            </p-tabPanel>
+
+            <p-tabPanel header="Current">
+              <p *ngIf="!ongoingExams.length" class="text-xs text-gray-400 dark:text-gray-500 text-center py-4">No ongoing exams</p>
+            </p-tabPanel>
+
+            <p-tabPanel header="Past">
+              <p *ngIf="!pastExams.length" class="text-xs text-gray-400 dark:text-gray-500 text-center py-4">No past records</p>
+            </p-tabPanel>
+          </p-tabView> -->
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+        <div class="flex items-center justify-between px-5 pt-4 pb-2">
+          <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Notifications</p>
+               <button 
+      class="text-xs font-semibold text-orange-500 hover:text-orange-700"
+      (click)="viewAllNotifications()">
+      View all →
+    </button>
+        </div>
+        <div class="px-5 pb-4">
+          <div *ngFor="let n of data?.notices"
+               class="flex gap-3 py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-none">
+            <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" [ngClass]="getNoticeDotClass(n.priority)"></span>
+            <div class="min-w-0">
+              <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed  m-0">
+                <span class="font-bold text-gray-800 dark:text-gray-100 text-wrap">{{ n.title }}</span>  <span [innerHTML]="n.content"></span>
+              </p>
+              <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ n.publishedAt | date:'MMM d, h:mm a' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </div>
+
+  <!-- ── Right Sidebar ── -->
+  <div class="flex flex-col gap-4 w-full lg:w-[36%] lg:min-w-[280px] lg:flex-shrink-0">
+
+   <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+
+  <!-- ── Header Banner ───────────────────────── -->
+  <div class="relative px-5 py-4"
+       style="background: linear-gradient(135deg, #0EA5E9 0%, #8B5CF6 100%);">
+
+    <div class="flex items-center gap-4">
+
+      <!-- Avatar -->
+      <div class="w-14 h-14 rounded-full border-2 border-white/60 shadow-md flex-shrink-0
+                  bg-gradient-to-br from-sky-500 to-violet-500
+                  flex items-center justify-center text-white text-lg font-extrabold">
+        {{ data?.profile?.fullName | slice:0:1 }}{{ (data?.profile?.fullName.split(' ')[1] || '') | slice:0:1 }}
+      </div>
+
+      <!-- Name + Info -->
+      <div class="flex-1 min-w-0">
+        <p class="text-base font-extrabold text-white truncate">
+          {{ data?.profile?.fullName }} - {{ commonService?.currentUser?.username}}
+        </p>
+
+        <!-- <p class="text-[10px] text-white/70 font-medium mt-0.5">
+          Mathematics Teacher · {{ data?.profile?.employeeId }}
+        </p> -->
+
+        <!-- Info Row -->
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
+
+          <div class="flex items-center gap-1">
+            <i class="pi pi-envelope text-white/60 text-[10px]"></i>
+            <span class="text-[10px] text-white/80 font-medium truncate max-w-[120px]">
+              {{ data?.profile?.email }}
+            </span>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <i class="pi pi-phone text-white/60 text-[10px]"></i>
+            <span class="text-[10px] text-white/80 font-medium">
+              {{ data?.profile?.contactNumber  }}
+            </span>
+          </div>
+
+          <!-- <div class="flex items-center gap-1">
+            <i class="pi pi-building text-white/60 text-[10px]"></i>
+            <span class="text-[10px] text-white/80 font-medium truncate max-w-[100px]">
+              {{ data?.profile?.departments }}
+            </span>
+          </div> -->
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Body ───────────────────────── -->
+  <div class="px-5 pb-5 pt-4">
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 gap-2">
+
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Classes</p>
+        <p class="text-xl font-extrabold text-orange-500 mt-1">{{ data?.deptStats?.assSubjects?.length || 0 }}</p>
+      </div>
+
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Students</p>
+        <p class="text-xl font-extrabold text-gray-900 dark:text-gray-100 mt-1">{{ data?.deptStats?.totalStudents || 0 }}</p>
+      </div>
+
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Attendance</p>
+       <p class="text-xl font-extrabold text-green-500 mt-1">
+        {{
+          (data?.monthlyAttendance?.percentage)
+
+        }}%
+      </p>
+      </div>
+
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Subjects</p>
+        <p class="text-xl font-extrabold text-gray-900 dark:text-gray-100 mt-1">{{ data?.profile?.subjects?.length || 0 }}</p>
+      </div>
+
+    </div>
+      <p-divider styleClass="my-3" />
+      <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Associated Departments</p>
+      <div class="flex flex-wrap gap-1.5">
+        <span *ngFor="let t of commonService.associatedDepartments"
+              class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+          {{ t.department.name }}
+        </span>
+      </div>
+
+      <p-divider styleClass="my-3" />
+      <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Subjects</p>
+      <div class="flex flex-wrap gap-1.5">
+        <span *ngFor="let s of subjects"
+              class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
+          {{ s.name }}
+        </span>
+      </div>
+
+  </div>
+  </div>
+
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-md overflow-hidden flex flex-col" style="height: 420px;">
 
  <div class="shrink-0 px-5 py-4 bg-primary text-primary-contrast shadow-sm relative overflow-hidden rounded-t-xl">
 
@@ -134,285 +678,4 @@
   </div>
 
 </div>
-
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
-        <div class="px-5 pt-4 pb-2">
-          <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Exams</p>
-        </div>
-        <div class="px-5 pb-4">
-          <p-tabView styleClass="[&_.p-tabview-nav]:border-b [&_.p-tabview-nav]:border-gray-200 [&_.p-tabview-ink-bar]:bg-orange-500">
-            <p-tabPanel>
-              <ng-template pTemplate="header">
-                <span class="text-xs font-semibold">Upcoming
-                  <span class="ml-1 w-4 h-4 inline-flex items-center justify-center rounded-full bg-orange-500 text-white text-[9px] font-black">
-                    {{ upcomingExams.length }}
-                  </span>
-                </span>
-              </ng-template>
-              <div *ngFor="let e of upcomingExams" class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 mb-2 last:mb-0">
-                <div class="w-11 h-11 rounded-lg bg-orange-50 dark:bg-orange-950 flex flex-col items-center justify-center flex-shrink-0">
-                  <span class="text-base font-extrabold text-orange-700 dark:text-orange-400 leading-none">{{ getExamDate(e.startDate).day }}</span>
-                  <span class="text-[9px] font-bold text-orange-500">{{ getExamDate(e.startDate).month }}</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p class="text-xs font-bold text-gray-800 dark:text-gray-100 truncate">{{ e.title }}</p>
-                  <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ e.className }}-{{ e.sectionName }} · {{ e.venue }} · {{ e.startTime | date:'h:mm a' }}</p>
-                </div>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0"
-                      [ngClass]="getExamStatusClass(e.status)">
-                  {{ e.status }}
-                </span>
-              </div>
-              <p *ngIf="!upcomingExams.length" class="text-xs text-gray-400 dark:text-gray-500 text-center py-4">No upcoming exams</p>
-            </p-tabPanel>
-
-            <p-tabPanel header="Current">
-              <p *ngIf="!ongoingExams.length" class="text-xs text-gray-400 dark:text-gray-500 text-center py-4">No ongoing exams</p>
-            </p-tabPanel>
-
-            <p-tabPanel header="Past">
-              <p *ngIf="!pastExams.length" class="text-xs text-gray-400 dark:text-gray-500 text-center py-4">No past records</p>
-            </p-tabPanel>
-          </p-tabView>
-        </div>
-      </div>
-
-      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
-        <div class="flex items-center justify-between px-5 pt-4 pb-2">
-          <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Notifications</p>
-          <button class="text-xs font-semibold text-orange-500 hover:text-orange-700">View all →</button>
-        </div>
-        <div class="px-5 pb-4">
-          <div *ngFor="let n of data?.notices"
-               class="flex gap-3 py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-none">
-            <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" [ngClass]="getNoticeDotClass(n.priority)"></span>
-            <div class="min-w-0">
-              <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                <span class="font-bold text-gray-800 dark:text-gray-100 text-wrap">{{ n.title }}</span>  <span [innerHTML]="n.content"></span>
-              </p>
-              <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ n.publishedAt | date:'MMM d, h:mm a' }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── Right Sidebar ── -->
-  <div class="flex flex-col gap-4 w-full lg:w-[36%] lg:min-w-[280px] lg:flex-shrink-0">
-
-   <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
-
-  <!-- ── Header Banner ───────────────────────── -->
-  <div class="relative px-5 py-4"
-       style="background: linear-gradient(135deg, #0EA5E9 0%, #8B5CF6 100%);">
-
-    <div class="flex items-center gap-4">
-
-      <!-- Avatar -->
-      <div class="w-14 h-14 rounded-full border-2 border-white/60 shadow-md flex-shrink-0
-                  bg-gradient-to-br from-sky-500 to-violet-500
-                  flex items-center justify-center text-white text-lg font-extrabold">
-        {{ data?.profile?.fullName | slice:0:1 }}{{ (data?.profile?.fullName.split(' ')[1] || '') | slice:0:1 }}
-      </div>
-
-      <!-- Name + Info -->
-      <div class="flex-1 min-w-0">
-        <p class="text-base font-extrabold text-white truncate">
-          {{ data?.profile?.fullName }}
-        </p>
-
-        <p class="text-[10px] text-white/70 font-medium mt-0.5">
-          Mathematics Teacher · {{ data?.profile?.employeeId }}
-        </p>
-
-        <!-- Info Row -->
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
-
-          <div class="flex items-center gap-1">
-            <i class="pi pi-envelope text-white/60 text-[10px]"></i>
-            <span class="text-[10px] text-white/80 font-medium truncate max-w-[120px]">
-              {{ data?.profile?.email }}
-            </span>
-          </div>
-
-          <div class="flex items-center gap-1">
-            <i class="pi pi-phone text-white/60 text-[10px]"></i>
-            <span class="text-[10px] text-white/80 font-medium">
-              {{ data?.profile?.contactNumber }}
-            </span>
-          </div>
-
-          <div class="flex items-center gap-1">
-            <i class="pi pi-building text-white/60 text-[10px]"></i>
-            <span class="text-[10px] text-white/80 font-medium truncate max-w-[100px]">
-              {{ data?.profile?.departments }}
-            </span>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ── Body ───────────────────────── -->
-  <div class="px-5 pb-5 pt-4">
-
-    <!-- Stats -->
-    <div class="grid grid-cols-2 gap-2">
-
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Classes</p>
-        <p class="text-xl font-extrabold text-orange-500 mt-1">4</p>
-      </div>
-
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Students</p>
-        <p class="text-xl font-extrabold text-gray-900 dark:text-gray-100 mt-1">160</p>
-      </div>
-
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Attendance</p>
-        <p class="text-xl font-extrabold text-green-500 mt-1">96%</p>
-      </div>
-
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Experience</p>
-        <p class="text-xl font-extrabold text-gray-900 dark:text-gray-100 mt-1">6 yrs</p>
-      </div>
-
-    </div>
-
-    <p-divider styleClass="my-3" />
-
-    <!-- Qualification -->
-    <div class="flex items-center gap-2 mb-3">
-      <i class="pi pi-graduation-cap text-gray-400 dark:text-gray-500 text-xs"></i>
-      <span class="text-xs text-gray-600 dark:text-gray-400 font-medium">
-        {{ data?.profile?.qualification }}
-      </span>
-    </div>
-
-    <!-- Subjects -->
-    <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">
-      Subjects Handled
-    </p>
-
-    <div class="flex flex-wrap gap-1.5">
-      <span *ngFor="let s of data?.profile?.subjects"
-            class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
-        {{ s }}
-      </span>
-    </div>
-
-  </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
-        <div class="flex items-center justify-between px-5 pt-4 pb-2">
-          <div>
-            <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Today's Attendance</p>
-            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ data?.classAttendance?.classLabel }} · {{ data?.classAttendance?.subjectLabel }}</p>
-          </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800">
-            {{ data?.classAttendance?.isMarked ? 'Marked' : 'Pending' }}
-          </span>
-        </div>
-        <div class="px-5 pb-4 flex items-center gap-4">
-          <div class="relative w-24 h-24 flex-shrink-0">
-            <p-chart type="doughnut" [data]="attChartData" [options]="attChartOptions" height="96px" width="96px" />
-            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span class="text-base font-extrabold text-green-600">{{ getAttPercent() }}%</span>
-              <span class="text-[9px] text-gray-400 dark:text-gray-500 font-semibold">Present</span>
-            </div>
-          </div>
-          <div class="flex-1">
-            <div *ngFor="let bar of [
-              {label:'✅ Present', val: data?.classAttendance?.present, total: data?.classAttendance?.totalStudents, cls:'bg-green-500', txtCls:'text-green-600'},
-              {label:'❌ Absent',  val: data?.classAttendance?.absent,  total: data?.classAttendance?.totalStudents, cls:'bg-red-400',   txtCls:'text-red-500'},
-              {label:'⏰ Late',    val: data?.classAttendance?.late,    total: data?.classAttendance?.totalStudents, cls:'bg-amber-400', txtCls:'text-amber-500'}
-            ]" class="mb-2 last:mb-0">
-              <div class="flex justify-between items-center mb-0.5">
-                <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">{{ bar.label }} ({{ bar.val }})</span>
-                <span class="text-xs font-bold" [ngClass]="bar.txtCls">
-                  {{ (bar.val / bar.total * 100) | number:'1.0-0' }}%
-                </span>
-              </div>
-              <div class="h-1.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
-                <div class="h-full rounded-full" [ngClass]="bar.cls"
-                     [style.width.%]="bar.val / bar.total * 100"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
-        <div class="px-5 pt-4 pb-2">
-          <p class="text-sm font-bold text-gray-800 dark:text-gray-100">My Attendance · March</p>
-        </div>
-        <div class="px-5 pb-4">
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">Present Days</span>
-            <span class="text-xs font-bold text-green-600">{{ data?.monthlyAttendance?.presentDays }} / {{ data?.monthlyAttendance?.totalDays }}</span>
-          </div>
-          <div class="h-1.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden mb-4">
-            <div class="h-full rounded-full bg-green-500"
-                 [style.width.%]="data?.monthlyAttendance?.percentage"></div>
-          </div>
-          <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Daily Dots</p>
-          <div class="flex flex-wrap gap-1">
-            <span *ngFor="let d of data?.monthlyAttendance?.dailyDots"
-                  class="w-3 h-3 rounded-sm"
-                  [ngClass]="{
-                    'bg-green-400': d === true,
-                    'bg-red-400':   d === false,
-                    'bg-gray-200 dark:bg-gray-700':  d === null
-                  }">
-            </span>
-          </div>
-          <div class="flex gap-3 mt-2">
-            <span class="flex items-center gap-1 text-[10px] font-semibold text-gray-400 dark:text-gray-500">
-              <span class="w-2.5 h-2.5 rounded-sm bg-green-400 inline-block"></span>Present
-            </span>
-            <span class="flex items-center gap-1 text-[10px] font-semibold text-gray-400 dark:text-gray-500">
-              <span class="w-2.5 h-2.5 rounded-sm bg-red-400 inline-block"></span>Absent
-            </span>
-            <span class="flex items-center gap-1 text-[10px] font-semibold text-gray-400 dark:text-gray-500">
-              <span class="w-2.5 h-2.5 rounded-sm bg-gray-200 dark:bg-gray-700 inline-block"></span>Holiday
-            </span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
-      <div class="flex items-center justify-between px-5 pt-4 pb-2">
-        <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Recent Assignments</p>
-        <button class="text-xs font-semibold text-orange-500 hover:text-orange-700">View all →</button>
-      </div>
-      <div class="px-5 pb-4">
-        <div *ngFor="let a of data?.assignments; let i = index"
-             class="flex items-center gap-3 py-2 border-b border-gray-100 dark:border-gray-700 last:border-none">
-          <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" [ngClass]="getSubjectColor(i)"></span>
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold text-gray-800 dark:text-gray-100 truncate">{{ a.title }}</p>
-            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Due {{ a.dueDate | date:'MMM d' }} · {{ a.className }}-{{ a.sectionName }}</p>
-          </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0"
-                [ngClass]="getAssignmentStatusClass(a.status!)">
-            {{ a.status }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-  </div>
 </div>

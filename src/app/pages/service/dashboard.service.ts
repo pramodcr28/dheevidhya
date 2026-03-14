@@ -143,9 +143,25 @@ export interface StaffDashboardResponse {
     exams: ExamSummaryDTO[];
     notices: NoticeSummaryDTO[];
     profile: ProfileSummaryDTO;
+    deptStats: DeptSummaryStatsStffDTO;
 }
 
-// ── 3. HOD Dashboard ──────────────────────────────────────────────────────────
+export interface DeptSummaryStatsStffDTO {
+    totalStudents: number;
+    assClassOrSection: ClassSectionDTO[];
+    assSubjects: ClassSectionDTO[];
+}
+
+export interface ClassSectionDTO {
+    classId: string;
+    sectionId: string;
+    className: string;
+    sectionName: string;
+    deptName: string;
+    deptId: string;
+    subCode: string;
+    subName: string;
+}
 
 export interface DeptSummaryStatsDTO {
     totalStaff: number;
@@ -155,6 +171,7 @@ export interface DeptSummaryStatsDTO {
     inventoryItems: number;
     upcomingExams: number;
     staffAttendancePercent: number;
+    selfAvrgAtendce: number;
     avgStudentScore: number;
     syllabusCoverage: number;
 }
