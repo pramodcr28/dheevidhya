@@ -41,6 +41,15 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
     commonService = inject(CommonService);
     dashboardService = inject(DashboardService);
 
+    getNoticeBadgeClass(priority: string): string {
+        const map: Record<string, string> = {
+            HIGH: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300',
+            MEDIUM: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
+            LOW: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
+        };
+        return map[priority] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400';
+    }
+
     ngOnInit(): void {
         const studentId = this.commonService.currentUser?.userId;
         const academicYear = this.commonService.currentUser.academicYear;
