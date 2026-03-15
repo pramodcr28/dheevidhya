@@ -216,7 +216,7 @@ export interface StudentAttendanceSummaryDTO {
     totalExcused: number;
     overallAttendancePercentage: number;
     minRequired: number;
-    isAtRisk: boolean;
+    atRisk: boolean;
 }
 
 export interface SubjectAttendanceSummaryDTO {

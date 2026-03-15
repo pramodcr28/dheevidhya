@@ -144,6 +144,7 @@ export class SchoolNoticeBoardComponent implements OnInit {
             }
             filters['targetAudience']['ROLE'] = [authority];
             filters['targetAudience']['ALL'] = [];
+            filters['createdBy'] = this.commonService.currentUser.userId;
         });
 
         return filters;

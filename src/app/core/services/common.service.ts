@@ -131,7 +131,7 @@ export class CommonService {
                         label: 'Calendar',
                         icon: 'pi pi-fw pi-calendar',
                         routerLink: ['/staff-calendar'],
-                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER', 'STUDENT'])
                     },
                     {
                         label: 'Staff Attendence',

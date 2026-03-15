@@ -44,6 +44,7 @@
                 formControlName="priority" 
                 optionLabel="label" 
                 optionValue="value" 
+                appendTo="body"
                 [multiple]="false"
                 styleClass="w-full">
               </p-selectButton>
@@ -62,6 +63,7 @@
                 [options]="categoryOptions" 
                 optionLabel="label" 
                 optionValue="value" 
+                appendTo="body"
                 formControlName="categoryType" 
                 placeholder="Select category" 
                 class="w-full">
@@ -111,6 +113,7 @@
                       [options]="attendanceTypes" 
                       formControlName="attendanceType" 
                       optionLabel="label" 
+                      appendTo="body"
                       optionValue="value" 
                       placeholder="Select Type" 
                       class="w-full">
@@ -139,6 +142,7 @@
                   <p-select 
                     [options]="examTypes" 
                     formControlName="examType" 
+                    appendTo="body"
                     placeholder="Select Exam Type" 
                     class="w-full">
                   </p-select>
@@ -181,6 +185,7 @@
                   <p-select 
                     [options]="examTypes" 
                     formControlName="examType" 
+                    appendTo="body"
                     placeholder="Select Exam Type" 
                     class="w-full">
                   </p-select>
@@ -206,6 +211,7 @@
                     formControlName="holidayType" 
                     optionLabel="label" 
                     optionValue="value" 
+                    appendTo="body"
                     placeholder="Select Holiday Type" 
                     (onChange)="onHolidayTypeChange()"
                     class="w-full">
@@ -243,6 +249,7 @@
                     formControlName="weekOffDay" 
                     optionLabel="label" 
                     optionValue="value" 
+                    appendTo="body"
                     placeholder="Select Day" 
                     class="w-full">
                   </p-select>
@@ -258,6 +265,7 @@
                     formControlName="meetingType" 
                     optionLabel="label" 
                     optionValue="value" 
+                    appendTo="body"
                     placeholder="Select Meeting Type" 
                     class="w-full">
                   </p-select>
@@ -309,6 +317,7 @@
                       formControlName="achievementCategory" 
                       optionLabel="label" 
                       optionValue="value" 
+                      appendTo="body"
                       placeholder="Select Category" 
                       class="w-full">
                     </p-select>
@@ -320,6 +329,7 @@
                       formControlName="recognitionLevel" 
                       optionLabel="label" 
                       optionValue="value" 
+                      appendTo="body"
                       placeholder="Select Level" 
                       class="w-full">
                     </p-select>
@@ -336,7 +346,8 @@
                       [options]="schoolAchievementCategories" 
                       formControlName="achievementCategory" 
                       optionLabel="label" 
-                      optionValue="value" 
+                      optionValue="value"
+                      appendTo="body" 
                       placeholder="Select Category" 
                       class="w-full">
                     </p-select>
@@ -377,6 +388,7 @@
                       formControlName="festType" 
                       optionLabel="label" 
                       optionValue="value" 
+                      appendTo="body"
                       placeholder="Select Type" 
                       class="w-full">
                     </p-select>
@@ -427,6 +439,7 @@
                 [options]="targetTypeOptions" 
                 optionLabel="label" 
                 optionValue="value" 
+                appendTo="body"
                 formControlName="type" 
                 placeholder="Select audience type" 
                 class="w-full">

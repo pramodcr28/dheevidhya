@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { BadgeModule } from 'primeng/badge';
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
@@ -27,9 +28,9 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
 
     attChartData: any;
     attChartOptions: any;
-
+    router = inject(Router);
     get upcomingExams() {
-        return (this.data?.exams ?? []).filter((e) => e.status === 'SCHEDULED' || e.status === 'DRAFT');
+        return (this.data?.exams ?? []).filter((e) => e.status === 'SCHEDULED');
     }
     get ongoingExams() {
         return (this.data?.exams ?? []).filter((e) => e.status === 'ONGOING');
@@ -40,6 +41,16 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
 
     commonService = inject(CommonService);
     dashboardService = inject(DashboardService);
+
+    getSubjectAttBadgeClass(status: string): string {
+        return (
+            {
+                GOOD: 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400',
+                WARNING: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
+                CRITICAL: 'bg-red-50   text-red-700   dark:bg-red-950   dark:text-red-400'
+            }[status] ?? ''
+        );
+    }
 
     getNoticeBadgeClass(priority: string): string {
         const map: Record<string, string> = {
@@ -142,5 +153,25 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
             .join('')
             .slice(0, 2)
             .toUpperCase();
+    }
+    viewAllAssignments() {
+        this.router.navigate(['./assignment']);
+    }
+
+    viewAllNotifications() {
+        this.router.navigate(['./notice-board']);
+    }
+    viewAllExams() {
+        this.router.navigate(['./examination']);
+    }
+
+    getExamStatusClass(s: string) {
+        const m: Record<string, string> = {
+            SCHEDULED: 'bg-blue-50 text-blue-700 border-blue-200',
+            DRAFT: 'bg-amber-50 text-amber-700 border-amber-200',
+            ONGOING: 'bg-green-50 text-green-700 border-green-200',
+            CANCELLED: 'bg-red-50 text-red-700 border-red-200'
+        };
+        return m[s] ?? 'bg-gray-50 text-gray-500 border-gray-200';
     }
 }
