@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -18,8 +19,7 @@ import { Section } from './../../models/org.model';
 @Component({
     selector: 'app-detailed-reports',
     imports: [CommonModule, FormsModule, ButtonModule, DropdownModule, InputTextModule, CardModule, BadgeModule, TagModule, TableModule, MultiSelect, DatePickerModule],
-    templateUrl: './detailed-reports.component.html',
-    styles: ``
+    templateUrl: './detailed-reports.component.html'
 })
 export class DetailedReportsComponent {
     attendenceService = inject(StudentAttendenceServiceService);
@@ -31,26 +31,62 @@ export class DetailedReportsComponent {
     selectedSubject: any[] = [];
     today: Date = new Date();
     attendanceDateRange: Date[] = [];
+    messageService = inject(MessageService);
     ngOnInit() {
         this.selectedSection = [];
-        this.getReports();
+        // this.getReports();
     }
 
+    // getReports() {
+    //     let reqBody = {
+    //         academicYear: this.commonService.currentUser.academicYear,
+    //         departmentIds: this.selectedSection.map((sec) => sec.departmentId),
+    //         classIds: this.selectedSection.map((sec) => sec.classId),
+    //         sectionIds: this.selectedSection.map((sec) => sec.sectionId)
+    //         // "subjectIds": [...this.selectedSubject.map(sub=>sub.code)],  // match subjectCode
+    //         // "attendanceDateRange": [
+    //         //   "2025-08-01",  // start date (ISO string or yyyy-MM-dd)
+    //         //   "2025-08-31"   // end date
+    //         // ]
+    //     };
+    //     if (this.selectedSubject.length) {
+    //         reqBody['subjectIds'] = [...this.selectedSubject.map((sub) => sub.name)];
+    //     }
+    //     if (this.attendanceDateRange?.length === 2) {
+    //         reqBody['attendanceDateRange'] = this.attendanceDateRange.map((d) => this.commonService.formatDateForApi(d));
+    //     }
+
+    //     this.attendenceService.getReports(0, 100, 'id', 'ASC', reqBody).subscribe({
+    //         next: (res: any) => {
+    //             this.classAttendanceReport = res.content;
+    //         }
+    //     });
+    // }
+
     getReports() {
-        let reqBody = {
+        // Validation: require at least class or section
+        if (!this.selectedSection || this.selectedSection.length === 0) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Validation Error',
+                detail: 'Please select at least a Section before generating the report.'
+            });
+            return;
+        }
+
+        let reqBody: any = {
             academicYear: this.commonService.currentUser.academicYear,
             departmentIds: this.selectedSection.map((sec) => sec.departmentId),
             classIds: this.selectedSection.map((sec) => sec.classId),
             sectionIds: this.selectedSection.map((sec) => sec.sectionId)
-            // "subjectIds": [...this.selectedSubject.map(sub=>sub.code)],  // match subjectCode
-            // "attendanceDateRange": [
-            //   "2025-08-01",  // start date (ISO string or yyyy-MM-dd)
-            //   "2025-08-31"   // end date
-            // ]
         };
-        if (this.selectedSubject.length) {
-            reqBody['subjectIds'] = [...this.selectedSubject.map((sub) => sub.name)];
+
+        // Optional subject filter
+        if (this.selectedSubject?.length) {
+            reqBody['subjectIds'] = this.selectedSubject.map((sub) => sub.name);
         }
+
+        // Optional date range filter
         if (this.attendanceDateRange?.length === 2) {
             reqBody['attendanceDateRange'] = this.attendanceDateRange.map((d) => this.commonService.formatDateForApi(d));
         }
@@ -58,18 +94,16 @@ export class DetailedReportsComponent {
         this.attendenceService.getReports(0, 100, 'id', 'ASC', reqBody).subscribe({
             next: (res: any) => {
                 this.classAttendanceReport = res.content;
+            },
+            error: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to fetch attendance report.'
+                });
             }
         });
     }
-
-    // exportToExcel() {
-    //     console.log('Exporting to Excel');
-    //     alert('Export to Excel functionality would be implemented here');
-    // }
-
-    // printReport() {
-    //     window.print();
-    // }
 
     getAverageAttendance(): number {
         if (this.classAttendanceReport.length === 0) return 0;

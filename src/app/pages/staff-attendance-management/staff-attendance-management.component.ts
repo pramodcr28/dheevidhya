@@ -270,11 +270,11 @@ export class StaffAttendanceManagementComponent implements OnInit {
     private buildStatusDistributionChart(dist: any) {
         if (!dist) return;
         this.statusDistributionData = {
-            labels: ['Present', 'Absent', 'Late', 'Leave', 'Half Day', 'On Duty'],
+            labels: ['Present', 'Absent', 'Late', 'Leave', 'Half Day'],
             datasets: [
                 {
-                    data: [dist.present, dist.absent, dist.late, dist.leave, dist.halfDay, dist.onDuty],
-                    backgroundColor: ['#22c55e', '#ef4444', '#f97316', '#3b82f6', '#8b5cf6', '#06b6d4'],
+                    data: [dist.present, dist.absent, dist.late, dist.leave, dist.halfDay],
+                    backgroundColor: ['#22c55e', '#ef4444', '#f97316', '#3b82f6', '#8b5cf6'],
                     borderWidth: 0
                 }
             ]
@@ -314,7 +314,7 @@ export class StaffAttendanceManagementComponent implements OnInit {
     }
 
     getStatusSeverity(status: string): 'success' | 'danger' | 'warn' | 'info' | 'secondary' | 'contrast' {
-        const map: any = { PRESENT: 'success', ABSENT: 'danger', LATE: 'warn', LEAVE: 'info', HALF_DAY: 'warn', ON_DUTY: 'info' };
+        const map: any = { PRESENT: 'success', ABSENT: 'danger', LATE: 'warn', LEAVE: 'info', HALF_DAY: 'warn' };
         return map[status] || 'info';
     }
 

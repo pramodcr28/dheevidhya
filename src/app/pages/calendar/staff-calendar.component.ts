@@ -120,8 +120,8 @@ export class StaffAttendanceComponent implements OnInit {
     statusOptions = [
         { label: 'Present', value: 'PRESENT' },
         { label: 'Absent', value: 'ABSENT' },
-        { label: 'Leave', value: 'LEAVE' },
-        { label: 'On Duty', value: 'ON_DUTY' }
+        { label: 'Leave', value: 'LEAVE' }
+        // { label: 'On Duty', value: 'ON_DUTY' }
     ];
 
     monthStats = {
@@ -159,11 +159,11 @@ export class StaffAttendanceComponent implements OnInit {
 
     initializeChart() {
         this.chartData = {
-            labels: ['Present', 'Absent', 'Leave', 'On Duty'],
+            labels: ['Present', 'Absent', 'Leave'],
             datasets: [
                 {
                     data: [0, 0, 0, 0],
-                    backgroundColor: ['rgb(34, 197, 94)', 'rgb(239, 68, 68)', 'rgb(59, 130, 246)', 'rgb(249, 115, 22)'],
+                    backgroundColor: ['rgb(34, 197, 94)', 'rgb(239, 68, 68)', 'rgb(59, 130, 246)'],
                     borderWidth: 0
                 }
             ]
