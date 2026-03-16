@@ -461,14 +461,15 @@ export class StudentListComponent {
         });
     }
 
-    deleteStudent(student: IProfileConfig) {
+    deleteStudent(student: NewTenantUser) {
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete ${student.fullName}?`,
+            message: `Are you sure you want to delete ${student.firstName} ${student.lastName}?`,
             header: 'Delete Confirmation',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.loader.show('Deleting Student');
-                this.studentService.delete(+student.userId, +student.roles?.student?.guardianId).subscribe({
+
+                this.studentService.delete(student.id, null).subscribe({
                     next: (res) => {
                         this.load();
                         this.messageService.add({

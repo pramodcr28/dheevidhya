@@ -73,6 +73,7 @@ export class StudentDialogComponent {
         this._student = student;
         if (student?.id) {
             this.loadStudentProfiles(student.id.toString());
+            this.initializeStudentForm();
         } else {
             this.initializeNewStudent();
         }
@@ -106,7 +107,7 @@ export class StudentDialogComponent {
     ];
 
     ngOnInit(): void {
-        this.initializeStudentForm();
+        // this.initializeStudentForm();
     }
 
     getAssociatedDepartmentsOnAcademicyear(academicYear: string) {
@@ -145,15 +146,15 @@ export class StudentDialogComponent {
     initializeStudentForm(): void {
         if (!this.student.id) {
             this.student = {
-                houseNumber: '',
-                street: '',
-                locality: '',
-                landmark: '',
-                taluk: '',
-                district: '',
-                state: '',
-                country: 'India',
-                postalCode: '',
+                // houseNumber: '',
+                // street: '',
+                // locality: '',
+                // landmark: '',
+                // taluk: '',
+                // district: '',
+                // state: '',
+                // country: 'India',
+                // postalCode: '',
                 ...this.student
             };
         }
@@ -443,6 +444,7 @@ export class StudentDialogComponent {
         this.getAssociatedDepartmentsOnAcademicyear(academicYear);
         this.markAsChanged();
     }
+
     markAsChanged(): void {
         this.hasUnsavedChanges.set(true);
     }
@@ -519,6 +521,7 @@ export class StudentDialogComponent {
             updatedStudent.branchId = this.commonService.branch?.id || null;
             updatedStudent.status = UserStatus.ACTIVE;
             if (isStudentProfile) {
+                updatedStudent.status = profileData.profile.status || UserStatus.ACTIVE;
                 updatedStudent.sectionName = profileData.selectedSection?.name || null;
                 updatedStudent.className = profileData.selectedClass?.name || null;
                 updatedStudent.deptName = profileData.selectedDepartment?.department?.name || null;
@@ -530,6 +533,7 @@ export class StudentDialogComponent {
                 updatedStudent.sectionName = profileData.selectedSection?.name || null;
                 updatedStudent.className = profileData.selectedClass?.name || null;
                 updatedStudent.deptName = profileData.selectedDepartment?.department?.name || null;
+                updatedStudent.status = profileData.profile.status || UserStatus.ACTIVE;
             }
         }
 
@@ -552,7 +556,7 @@ export class StudentDialogComponent {
         this.hasUnsavedChanges.set(false);
         this.hasUnsavedUserChanges.set(false);
         this.saveOriginalProfileData();
-        this.saveOriginalUserData();
+        // this.saveOriginalUserData();
     }
 
     onSaveUser(): void {

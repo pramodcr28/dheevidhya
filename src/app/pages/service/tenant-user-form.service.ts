@@ -40,6 +40,10 @@ type TenantUserFormGroupContent = {
     isTenantUser: FormControl<TenantUserFormRawValue['isTenantUser']>;
     authorities: FormControl<TenantUserFormRawValue['authorities']>;
     branchId: FormControl<TenantUserFormRawValue['branchId']>;
+    status: FormControl<TenantUserFormRawValue['status']>;
+    sectionName: FormControl<TenantUserFormRawValue['sectionName']>;
+    className: FormControl<TenantUserFormRawValue['className']>;
+    deptName: FormControl<TenantUserFormRawValue['deptName']>;
 };
 
 export type TenantUserFormGroup = FormGroup<TenantUserFormGroupContent>;
@@ -72,6 +76,10 @@ export class TenantUserFormService {
                 validators: [Validators.required]
             }),
             imageUrl: new FormControl(tenantUserRawValue.imageUrl),
+            sectionName: new FormControl(tenantUserRawValue.sectionName),
+            className: new FormControl(tenantUserRawValue.className),
+            deptName: new FormControl(tenantUserRawValue.deptName),
+
             activated: new FormControl(tenantUserRawValue.activated),
             langKey: new FormControl(tenantUserRawValue.langKey),
             houseNumber: new FormControl(tenantUserRawValue.houseNumber),
@@ -100,7 +108,8 @@ export class TenantUserFormService {
             resetDate: new FormControl(tenantUserRawValue.resetDate),
             isTenantUser: new FormControl(tenantUserRawValue.isTenantUser),
             authorities: new FormControl(tenantUserRawValue.authorities ?? []),
-            branchId: new FormControl(tenantUserRawValue.branchId)
+            branchId: new FormControl(tenantUserRawValue.branchId),
+            status: new FormControl(tenantUserRawValue.status)
         });
     }
 

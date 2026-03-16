@@ -1,6 +1,6 @@
 export const environment = {
     stage: 'local',
-    ServerUrl: 'http://192.168.0.13:8080/',
+    ServerUrl: 'http://localhost:8080/',
     // ServerUrl: 'https://dheevidhya.in/',
     UAA_BASE_URL: 'services/uaa/',
     ADMIN_BASE_URL: 'services/v3admin/',
