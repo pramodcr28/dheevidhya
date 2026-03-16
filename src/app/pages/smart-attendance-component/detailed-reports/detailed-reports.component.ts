@@ -34,37 +34,9 @@ export class DetailedReportsComponent {
     messageService = inject(MessageService);
     ngOnInit() {
         this.selectedSection = [];
-        // this.getReports();
     }
 
-    // getReports() {
-    //     let reqBody = {
-    //         academicYear: this.commonService.currentUser.academicYear,
-    //         departmentIds: this.selectedSection.map((sec) => sec.departmentId),
-    //         classIds: this.selectedSection.map((sec) => sec.classId),
-    //         sectionIds: this.selectedSection.map((sec) => sec.sectionId)
-    //         // "subjectIds": [...this.selectedSubject.map(sub=>sub.code)],  // match subjectCode
-    //         // "attendanceDateRange": [
-    //         //   "2025-08-01",  // start date (ISO string or yyyy-MM-dd)
-    //         //   "2025-08-31"   // end date
-    //         // ]
-    //     };
-    //     if (this.selectedSubject.length) {
-    //         reqBody['subjectIds'] = [...this.selectedSubject.map((sub) => sub.name)];
-    //     }
-    //     if (this.attendanceDateRange?.length === 2) {
-    //         reqBody['attendanceDateRange'] = this.attendanceDateRange.map((d) => this.commonService.formatDateForApi(d));
-    //     }
-
-    //     this.attendenceService.getReports(0, 100, 'id', 'ASC', reqBody).subscribe({
-    //         next: (res: any) => {
-    //             this.classAttendanceReport = res.content;
-    //         }
-    //     });
-    // }
-
     getReports() {
-        // Validation: require at least class or section
         if (!this.selectedSection || this.selectedSection.length === 0) {
             this.messageService.add({
                 severity: 'error',
@@ -81,12 +53,10 @@ export class DetailedReportsComponent {
             sectionIds: this.selectedSection.map((sec) => sec.sectionId)
         };
 
-        // Optional subject filter
         if (this.selectedSubject?.length) {
             reqBody['subjectIds'] = this.selectedSubject.map((sub) => sub.name);
         }
 
-        // Optional date range filter
         if (this.attendanceDateRange?.length === 2) {
             reqBody['attendanceDateRange'] = this.attendanceDateRange.map((d) => this.commonService.formatDateForApi(d));
         }
