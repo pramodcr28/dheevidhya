@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
 import { CommonService } from '../../../core/services/common.service';
 import { Notice } from '../../models/notification.model';
@@ -8,30 +9,9 @@ import { Notice } from '../../models/notification.model';
 @Component({
     selector: 'app-notice-view',
     standalone: true,
-    imports: [CommonModule, ButtonModule, TagModule],
+    imports: [CommonModule, DialogModule, ButtonModule, TagModule],
     templateUrl: './notice-view.component.html',
-    styles: [
-        `
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                }
-                to {
-                    opacity: 1;
-                }
-            }
-            @keyframes slideUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px) scale(0.98);
-                }
-                to {
-                    opacity: 1;
-                    transform: none;
-                }
-            }
-        `
-    ]
+    styles: []
 })
 export class NoticeViewComponent {
     @Input() visible = false;
@@ -48,6 +28,8 @@ export class NoticeViewComponent {
         this.visible = false;
         this.close.emit();
     }
+
+    // ── Category metadata ─────────────────────────────────────────
 
     private categories = [
         { value: 'GENERAL', label: 'General', icon: 'pi pi-bell', bg: 'bg-yellow-50 dark:bg-yellow-500/10', color: 'text-yellow-600 dark:text-yellow-400', gradient: 'bg-gradient-to-br from-yellow-400 to-amber-600' },
@@ -81,6 +63,8 @@ export class NoticeViewComponent {
     getCategoryGradient(type: string) {
         return this.cat(type)?.gradient ?? 'bg-gradient-to-br from-indigo-500 to-indigo-700';
     }
+
+    // ── Priority helpers ──────────────────────────────────────────
 
     getPrioritySeverity(priority: string): 'success' | 'warn' | 'danger' | 'info' {
         switch (priority?.toUpperCase()) {
@@ -120,6 +104,8 @@ export class NoticeViewComponent {
                 return 'text-gray-500';
         }
     }
+
+    // ── Date helpers ──────────────────────────────────────────────
 
     formatDate(dateString: string | null | undefined): string {
         if (!dateString) return '—';

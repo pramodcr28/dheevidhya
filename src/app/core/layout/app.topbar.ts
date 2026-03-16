@@ -64,7 +64,7 @@ import { AppConfigurator } from './app.configurator';
                 <button type="button" class="layout-topbar-action p-2 sm:p-2.5 min-w-[2rem] sm:min-w-[2.5rem] min-h-[2rem] sm:min-h-[2.5rem]" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi text-sm sm:text-base': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>
-                <div class="relative hidden sm:block">
+                <!-- <div class="relative hidden sm:block">
                     <button
                         class="layout-topbar-action layout-topbar-action-highlight p-2 sm:p-2.5 min-w-[2rem] sm:min-w-[2.5rem] min-h-[2rem] sm:min-h-[2.5rem]"
                         pStyleClass="@next"
@@ -75,9 +75,9 @@ import { AppConfigurator } from './app.configurator';
                         [hideOnOutsideClick]="true"
                     >
                         <i class="pi pi-palette text-sm sm:text-base"></i>
-                    </button>
-                    <app-configurator />
-                </div>
+                    </button> -->
+                <app-configurator />
+                <!-- </div> -->
             </div>
 
             <button
