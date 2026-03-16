@@ -2,7 +2,6 @@
 <div class="min-h-screen  overflow-y-auto">
   <p-toast position="top-right"></p-toast>
 
-  <!-- Header Card -->
   <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-4 p-4">
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
@@ -19,7 +18,6 @@
       }
     </div>
 
-    <!-- Filters -->
     <div class="flex flex-wrap gap-3">
       <div class="flex-1 min-w-40">
         <p-multi-select
@@ -64,7 +62,6 @@
     </div>
   </div>
 
-  <!-- Table Card -->
   <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
     <p-table
       [value]="notices"
@@ -83,7 +80,6 @@
 
       <ng-template pTemplate="header">
         <tr>
-          <!-- View column — first -->
           <th style="width: 48px"></th>
           <th pSortableColumn="categoryType" style="width: 12%">
             <div class="flex items-center gap-2">Category <p-sortIcon field="categoryType"></p-sortIcon></div>
@@ -108,7 +104,6 @@
       <ng-template pTemplate="body" let-notice>
         <tr class="transition-colors">
 
-          <!-- ① View button — FIRST -->
           <td>
             <div class="flex justify-center">
               <p-button
@@ -124,8 +119,7 @@
             </div>
           </td>
 
-          <!-- Category -->
-          <td>
+          <td (click)="viewNotice(notice)" class="cursor-pointer">
             <div class="flex items-center gap-2">
               <div
                 class="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm flex-shrink-0"
@@ -138,12 +132,10 @@
             </div>
           </td>
 
-          <!-- Title -->
-          <td>
+          <td (click)="viewNotice(notice)" class="cursor-pointer">
             <div class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{{ notice.title }}</div>
           </td>
 
-          <!-- Content -->
           <td>
             <div
               class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2"
@@ -151,12 +143,10 @@
             </div>
           </td>
 
-          <!-- Priority -->
           <td>
             <p-tag [value]="notice.priority" [severity]="getPrioritySeverity(notice.priority)" [rounded]="true"></p-tag>
           </td>
 
-          <!-- Audience -->
           <td>
             <div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
               <i class="pi pi-users text-blue-500"></i>
@@ -164,7 +154,6 @@
             </div>
           </td>
 
-          <!-- Published -->
           <td>
             <div class="text-xs">
               <div class="flex items-center gap-1 font-medium text-gray-700 dark:text-gray-300">
@@ -175,7 +164,6 @@
             </div>
           </td>
 
-          <!-- Edit — separate, non-students only -->
           @if(!isStudent) {
             <td>
               <div class="flex justify-center">
@@ -195,7 +183,6 @@
         </tr>
       </ng-template>
 
-      <!-- Empty State -->
       <ng-template pTemplate="emptymessage">
         <tr>
           <td [attr.colspan]="isStudent ? 7 : 8" class="text-center py-16">
@@ -211,7 +198,6 @@
         </tr>
       </ng-template>
 
-      <!-- Loading State -->
       <ng-template pTemplate="loadingbody">
         <tr>
           <td [attr.colspan]="isStudent ? 7 : 8">

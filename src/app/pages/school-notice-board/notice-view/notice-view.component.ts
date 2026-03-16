@@ -6,6 +6,16 @@ import { TagModule } from 'primeng/tag';
 import { CommonService } from '../../../core/services/common.service';
 import { Notice } from '../../models/notification.model';
 
+interface KeyDetailItem {
+    label: string;
+    value: string;
+    icon: string;
+    iconBg: string;
+    iconColor: string;
+    badge?: string;
+    badgeClass?: string;
+}
+
 @Component({
     selector: 'app-notice-view',
     standalone: true,
@@ -29,7 +39,348 @@ export class NoticeViewComponent {
         this.close.emit();
     }
 
-    // ── Category metadata ─────────────────────────────────────────
+    /**
+     * Returns a list of important key detail rows based on the notice category type.
+     * Each row has label, value, icon styling, and optional badge.
+     */
+    getKeyDetails(notice: Notice): KeyDetailItem[] {
+        const items: KeyDetailItem[] = [];
+
+        switch (notice.categoryType) {
+            case 'MEETING': {
+                const m = notice.meeting;
+                if (!m) break;
+                if (m.meetingDate) {
+                    items.push({
+                        label: 'Meeting Date',
+                        value: this.formatDate(m.meetingDate),
+                        icon: 'pi pi-calendar',
+                        iconBg: 'bg-emerald-50 dark:bg-emerald-500/10',
+                        iconColor: 'text-emerald-600 dark:text-emerald-400'
+                    });
+                }
+                if (m.meetingTime) {
+                    items.push({
+                        label: 'Meeting Time',
+                        value: m.meetingTime,
+                        icon: 'pi pi-clock',
+                        iconBg: 'bg-emerald-50 dark:bg-emerald-500/10',
+                        iconColor: 'text-emerald-600 dark:text-emerald-400'
+                    });
+                }
+                if (m.venue) {
+                    items.push({
+                        label: 'Venue',
+                        value: m.venue,
+                        icon: 'pi pi-map-marker',
+                        iconBg: 'bg-blue-50 dark:bg-blue-500/10',
+                        iconColor: 'text-blue-500 dark:text-blue-400'
+                    });
+                }
+                if (m.meetingType) {
+                    items.push({
+                        label: 'Meeting Type',
+                        value: m.meetingType,
+                        icon: 'pi pi-users',
+                        iconBg: 'bg-gray-100 dark:bg-gray-700',
+                        iconColor: 'text-gray-500 dark:text-gray-400',
+                        badge: m.meetingType,
+                        badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                    });
+                }
+                break;
+            }
+
+            case 'EXAM_ANNOUNCEMENT': {
+                const e = notice.examAnnouncement;
+                if (!e) break;
+                if (e.examTitle) {
+                    items.push({
+                        label: 'Exam Title',
+                        value: e.examTitle,
+                        icon: 'pi pi-file-edit',
+                        iconBg: 'bg-red-50 dark:bg-red-500/10',
+                        iconColor: 'text-red-500 dark:text-red-400'
+                    });
+                }
+                if (e.examStartDate) {
+                    items.push({
+                        label: 'Exam Start Date',
+                        value: this.formatDate(e.examStartDate),
+                        icon: 'pi pi-calendar',
+                        iconBg: 'bg-red-50 dark:bg-red-500/10',
+                        iconColor: 'text-red-500 dark:text-red-400'
+                    });
+                }
+                if (e.examEndDate) {
+                    items.push({
+                        label: 'Exam End Date',
+                        value: this.formatDate(e.examEndDate),
+                        icon: 'pi pi-calendar-times',
+                        iconBg: 'bg-orange-50 dark:bg-orange-500/10',
+                        iconColor: 'text-orange-500 dark:text-orange-400'
+                    });
+                }
+                if (e.examType) {
+                    items.push({
+                        label: 'Exam Type',
+                        value: String(e.examType),
+                        icon: 'pi pi-tag',
+                        iconBg: 'bg-gray-100 dark:bg-gray-700',
+                        iconColor: 'text-gray-500 dark:text-gray-400',
+                        badge: String(e.examType),
+                        badgeClass: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300'
+                    });
+                }
+                break;
+            }
+
+            case 'EXAM_RESULT': {
+                const r = notice.examResult;
+                if (!r) break;
+                if (r.examTitle) {
+                    items.push({
+                        label: 'Exam Title',
+                        value: r.examTitle,
+                        icon: 'pi pi-trophy',
+                        iconBg: 'bg-green-50 dark:bg-green-500/10',
+                        iconColor: 'text-green-600 dark:text-green-400'
+                    });
+                }
+                if (r.resultDeclarationDate) {
+                    items.push({
+                        label: 'Result Date',
+                        value: this.formatDate(r.resultDeclarationDate),
+                        icon: 'pi pi-calendar-plus',
+                        iconBg: 'bg-green-50 dark:bg-green-500/10',
+                        iconColor: 'text-green-600 dark:text-green-400'
+                    });
+                }
+                if (r.examType) {
+                    items.push({
+                        label: 'Exam Type',
+                        value: r.examType,
+                        icon: 'pi pi-tag',
+                        iconBg: 'bg-gray-100 dark:bg-gray-700',
+                        iconColor: 'text-gray-500 dark:text-gray-400',
+                        badge: r.examType,
+                        badgeClass: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'
+                    });
+                }
+                break;
+            }
+
+            case 'HOLIDAY': {
+                const h = notice.holiday;
+                if (!h) break;
+                if (h.holidayStartDate) {
+                    items.push({
+                        label: 'From',
+                        value: this.formatDate(h.holidayStartDate),
+                        icon: 'pi pi-calendar',
+                        iconBg: 'bg-amber-50 dark:bg-amber-500/10',
+                        iconColor: 'text-amber-600 dark:text-amber-400'
+                    });
+                }
+                if (h.holidayEndDate) {
+                    items.push({
+                        label: 'To',
+                        value: this.formatDate(h.holidayEndDate),
+                        icon: 'pi pi-calendar-times',
+                        iconBg: 'bg-amber-50 dark:bg-amber-500/10',
+                        iconColor: 'text-amber-600 dark:text-amber-400'
+                    });
+                }
+                if (h.holidayType) {
+                    items.push({
+                        label: 'Holiday Type',
+                        value: h.holidayType,
+                        icon: 'pi pi-sun',
+                        iconBg: 'bg-gray-100 dark:bg-gray-700',
+                        iconColor: 'text-gray-500 dark:text-gray-400',
+                        badge: h.holidayType,
+                        badgeClass: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
+                    });
+                }
+                if (h.weekOffDay) {
+                    items.push({
+                        label: 'Week Off Day',
+                        value: h.weekOffDay,
+                        icon: 'pi pi-clock',
+                        iconBg: 'bg-amber-50 dark:bg-amber-500/10',
+                        iconColor: 'text-amber-600 dark:text-amber-400'
+                    });
+                }
+                break;
+            }
+
+            case 'FEST': {
+                const f = notice.fest;
+                if (!f) break;
+                if (f.festName) {
+                    items.push({
+                        label: 'Fest Name',
+                        value: f.festName,
+                        icon: 'pi pi-heart',
+                        iconBg: 'bg-purple-50 dark:bg-purple-500/10',
+                        iconColor: 'text-purple-600 dark:text-purple-400'
+                    });
+                }
+                if (f.eventStartDate) {
+                    items.push({
+                        label: 'Start Date',
+                        value: this.formatDate(f.eventStartDate),
+                        icon: 'pi pi-calendar',
+                        iconBg: 'bg-purple-50 dark:bg-purple-500/10',
+                        iconColor: 'text-purple-600 dark:text-purple-400'
+                    });
+                }
+                if (f.eventEndDate) {
+                    items.push({
+                        label: 'End Date',
+                        value: this.formatDate(f.eventEndDate),
+                        icon: 'pi pi-calendar-times',
+                        iconBg: 'bg-violet-50 dark:bg-violet-500/10',
+                        iconColor: 'text-violet-600 dark:text-violet-400'
+                    });
+                }
+                if (f.venue) {
+                    items.push({
+                        label: 'Venue',
+                        value: f.venue,
+                        icon: 'pi pi-map-marker',
+                        iconBg: 'bg-blue-50 dark:bg-blue-500/10',
+                        iconColor: 'text-blue-500 dark:text-blue-400'
+                    });
+                }
+                if (f.festType) {
+                    items.push({
+                        label: 'Fest Type',
+                        value: f.festType,
+                        icon: 'pi pi-tag',
+                        iconBg: 'bg-gray-100 dark:bg-gray-700',
+                        iconColor: 'text-gray-500 dark:text-gray-400',
+                        badge: f.festType,
+                        badgeClass: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300'
+                    });
+                }
+                break;
+            }
+
+            case 'TIMETABLE': {
+                const t = notice.timetable;
+                if (!t) break;
+                if (t.effectiveDate) {
+                    items.push({
+                        label: 'Effective Date',
+                        value: this.formatDate(t.effectiveDate),
+                        icon: 'pi pi-calendar',
+                        iconBg: 'bg-blue-50 dark:bg-blue-500/10',
+                        iconColor: 'text-blue-600 dark:text-blue-400'
+                    });
+                }
+                break;
+            }
+
+            case 'ATTENDANCE': {
+                const a = notice.attendance;
+                if (!a) break;
+                if (a.attendancePercentage != null) {
+                    items.push({
+                        label: 'Attendance %',
+                        value: `${a.attendancePercentage}%`,
+                        icon: 'pi pi-chart-bar',
+                        iconBg: 'bg-orange-50 dark:bg-orange-500/10',
+                        iconColor: 'text-orange-600 dark:text-orange-400',
+                        badge: a.attendancePercentage < 75 ? 'Below 75%' : 'Adequate',
+                        badgeClass: a.attendancePercentage < 75 ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300' : 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'
+                    });
+                }
+                if (a.attendanceType) {
+                    items.push({
+                        label: 'Attendance Type',
+                        value: a.attendanceType,
+                        icon: 'pi pi-check-circle',
+                        iconBg: 'bg-orange-50 dark:bg-orange-500/10',
+                        iconColor: 'text-orange-600 dark:text-orange-400',
+                        badge: a.attendanceType,
+                        badgeClass: 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300'
+                    });
+                }
+                if (a.parentMeetingRequired != null) {
+                    items.push({
+                        label: 'Parent Meeting',
+                        value: a.parentMeetingRequired ? 'Required' : 'Not Required',
+                        icon: 'pi pi-users',
+                        iconBg: a.parentMeetingRequired ? 'bg-red-50 dark:bg-red-500/10' : 'bg-gray-100 dark:bg-gray-700',
+                        iconColor: a.parentMeetingRequired ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-400',
+                        badge: a.parentMeetingRequired ? 'Required' : undefined,
+                        badgeClass: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300'
+                    });
+                }
+                break;
+            }
+
+            case 'APPRECIATION': {
+                const ap = notice.appreciation;
+                if (!ap) break;
+                if (ap.achievementCategory) {
+                    items.push({
+                        label: 'Achievement Category',
+                        value: ap.achievementCategory,
+                        icon: 'pi pi-star',
+                        iconBg: 'bg-pink-50 dark:bg-pink-500/10',
+                        iconColor: 'text-pink-600 dark:text-pink-400',
+                        badge: ap.achievementCategory,
+                        badgeClass: 'bg-pink-100 text-pink-700 dark:bg-pink-500/20 dark:text-pink-300'
+                    });
+                }
+                if (ap.recognitionLevel) {
+                    items.push({
+                        label: 'Recognition Level',
+                        value: ap.recognitionLevel,
+                        icon: 'pi pi-trophy',
+                        iconBg: 'bg-rose-50 dark:bg-rose-500/10',
+                        iconColor: 'text-rose-600 dark:text-rose-400',
+                        badge: ap.recognitionLevel,
+                        badgeClass: 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300'
+                    });
+                }
+                break;
+            }
+
+            case 'SCHOOL_ACHIEVEMENT': {
+                const sa = notice.schoolAchievement;
+                if (!sa) break;
+                if (sa.achievementCategory) {
+                    items.push({
+                        label: 'Achievement Category',
+                        value: sa.achievementCategory,
+                        icon: 'pi pi-trophy',
+                        iconBg: 'bg-teal-50 dark:bg-teal-500/10',
+                        iconColor: 'text-teal-600 dark:text-teal-400',
+                        badge: sa.achievementCategory,
+                        badgeClass: 'bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-300'
+                    });
+                }
+                if (sa.achievementDate) {
+                    items.push({
+                        label: 'Achievement Date',
+                        value: this.formatDate(sa.achievementDate),
+                        icon: 'pi pi-calendar',
+                        iconBg: 'bg-teal-50 dark:bg-teal-500/10',
+                        iconColor: 'text-teal-600 dark:text-teal-400'
+                    });
+                }
+                break;
+            }
+
+            default:
+                break;
+        }
+
+        return items;
+    }
 
     private categories = [
         { value: 'GENERAL', label: 'General', icon: 'pi pi-bell', bg: 'bg-yellow-50 dark:bg-yellow-500/10', color: 'text-yellow-600 dark:text-yellow-400', gradient: 'bg-gradient-to-br from-yellow-400 to-amber-600' },
@@ -63,8 +414,6 @@ export class NoticeViewComponent {
     getCategoryGradient(type: string) {
         return this.cat(type)?.gradient ?? 'bg-gradient-to-br from-indigo-500 to-indigo-700';
     }
-
-    // ── Priority helpers ──────────────────────────────────────────
 
     getPrioritySeverity(priority: string): 'success' | 'warn' | 'danger' | 'info' {
         switch (priority?.toUpperCase()) {
@@ -104,8 +453,6 @@ export class NoticeViewComponent {
                 return 'text-gray-500';
         }
     }
-
-    // ── Date helpers ──────────────────────────────────────────────
 
     formatDate(dateString: string | null | undefined): string {
         if (!dateString) return '—';

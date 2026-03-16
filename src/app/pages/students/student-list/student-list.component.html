@@ -1,7 +1,6 @@
 <p-table
     #dt
     [value]="students()!"
-    
     [columns]="cols"
     [rows]="itemsPerPage"
     [paginator]="true"
@@ -24,7 +23,6 @@
     
     <ng-template pTemplate="caption">
         <div class="flex flex-col gap-3 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
-            <!-- Header Row -->
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <h5 class="m-0 text-lg sm:text-xl font-bold text-gray-800">All Students List</h5>
                 <span class="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto gap-2 sm:gap-3">
