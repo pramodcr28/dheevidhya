@@ -1,8 +1,9 @@
 @let isStudent = commonService.getUserAuthorities.includes('STUDENT');
-<div class="min-h-screen m-">
+<div class="min-h-screen  overflow-y-auto">
   <p-toast position="top-right"></p-toast>
 
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md mb-4 p-4">
+  <!-- Header Card -->
+  <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-4 p-4">
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
         <div class="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
@@ -10,22 +11,17 @@
         </div>
         <div>
           <h1 class="text-xl font-bold text-gray-900 dark:text-white">Notice Management</h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400">{{totalRecords}} notices</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">{{ totalRecords }} notices</p>
         </div>
       </div>
       @if(!isStudent) {
-        <p-button 
-          label="Add Notice" 
-          icon="pi pi-plus"
-          (click)="showAddDialog()"
-          size="small">
-        </p-button>
+        <p-button label="Add Notice" icon="pi pi-plus" (click)="showAddDialog()" size="small"></p-button>
       }
-   
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3">
-      <div>
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-3">
+      <div class="flex-1 min-w-40">
         <p-multi-select
           [options]="categoryOptions"
           [(ngModel)]="selectedCategories"
@@ -39,25 +35,13 @@
               <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs" [ngClass]="option.colorClass">
                 <i [class]="option.icon"></i>
               </div>
-              <span>{{option.label}}</span>
+              <span>{{ option.label }}</span>
             </div>
           </ng-template>
         </p-multi-select>
       </div>
 
-      <!-- <div>
-        <span class="p-input-icon-left w-full">
-          <input 
-            pInputText 
-            type="text" 
-            [(ngModel)]="searchText"
-            (ngModelChange)="onFilterChange()"
-            placeholder="Search notices..." 
-            class="w-full" />
-        </span>
-      </div> -->
-
-      <div>
+      <div class="flex-1 min-w-36">
         <p-multi-select
           [options]="priorityFilterOptions"
           [(ngModel)]="selectedPriorities"
@@ -67,20 +51,6 @@
         </p-multi-select>
       </div>
 
-      <!-- Date Range -->
-      <!-- <div>
-        <p-datepicker
-          [(ngModel)]="dateRange"
-          (ngModelChange)="onFilterChange()"
-          selectionMode="range"
-          [showIcon]="true"
-          placeholder="Date Range"
-          dateFormat="yy-mm-dd"
-          [showButtonBar]="true"
-          class="w-full">
-        </p-datepicker>
-      </div> -->
-      <!-- Clear Filters -->
       <div>
         <p-button
           label="Clear"
@@ -88,15 +58,14 @@
           severity="secondary"
           (click)="clearFilters()"
           [outlined]="true"
-          size="small"
-          class="w-full">
+          size="small">
         </p-button>
       </div>
     </div>
   </div>
 
   <!-- Table Card -->
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
+  <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
     <p-table
       [value]="notices"
       [lazy]="true"
@@ -109,109 +78,107 @@
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} notices"
       styleClass="p-datatable-gridlines"
-      [tableStyle]="{'min-width': '60rem'}"
+      [tableStyle]="{'min-width': '50rem'}"
       [rowHover]="true">
 
       <ng-template pTemplate="header">
         <tr>
+          <!-- View column — first -->
+          <th style="width: 48px"></th>
           <th pSortableColumn="categoryType" style="width: 12%">
-            <div class="flex items-center gap-2">
-              Category
-              <p-sortIcon field="categoryType"></p-sortIcon>
-            </div>
+            <div class="flex items-center gap-2">Category <p-sortIcon field="categoryType"></p-sortIcon></div>
           </th>
           <th pSortableColumn="title" style="width: 22%">
-            <div class="flex items-center gap-2">
-              Title
-              <p-sortIcon field="title"></p-sortIcon>
-            </div>
+            <div class="flex items-center gap-2">Title <p-sortIcon field="title"></p-sortIcon></div>
           </th>
-          <th style="width: 28%">Content</th>
-          <th pSortableColumn="priority" style="width: 10%">
-            <div class="flex items-center gap-2">
-              Priority
-              <p-sortIcon field="priority"></p-sortIcon>
-            </div>
+          <th style="width: 25%">Content</th>
+          <th pSortableColumn="priority" style="width: 9%">
+            <div class="flex items-center gap-2">Priority <p-sortIcon field="priority"></p-sortIcon></div>
           </th>
           <th style="width: 10%">Audience</th>
-          <th pSortableColumn="publishedAt" style="width: 12%">
-            <div class="flex items-center gap-2">
-              Published
-              <p-sortIcon field="publishedAt"></p-sortIcon>
-            </div>
+          <th pSortableColumn="publishedAt" style="width: 13%">
+            <div class="flex items-center gap-2">Published <p-sortIcon field="publishedAt"></p-sortIcon></div>
           </th>
-           @if(!isStudent) {
-             <th style="width: 6%">Actions</th>
-           }
-      
+          @if(!isStudent) {
+            <th style="width: 6%">Actions</th>
+          }
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-notice>
         <tr class="transition-colors">
+
+          <!-- ① View button — FIRST -->
+          <td>
+            <div class="flex justify-center">
+              <p-button
+                icon="pi pi-eye"
+                severity="secondary"
+                [text]="true"
+                [rounded]="true"
+                size="small"
+                (click)="viewNotice(notice)"
+                pTooltip="View"
+                tooltipPosition="top">
+              </p-button>
+            </div>
+          </td>
+
           <!-- Category -->
           <td>
             <div class="flex items-center gap-2">
-              <div 
-                class="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm"
+              <div
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm flex-shrink-0"
                 [ngClass]="getCategoryColorClass(notice.categoryType)">
                 <i [class]="getCategoryIcon(notice.categoryType)" class="text-xs"></i>
               </div>
               <span class="text-xs font-medium text-gray-700 dark:text-gray-300">
-                {{getCategoryLabel(notice.categoryType)}}
+                {{ getCategoryLabel(notice.categoryType) }}
               </span>
             </div>
           </td>
 
           <!-- Title -->
           <td>
-            <div class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">
-              {{notice.title}}
-            </div>
+            <div class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{{ notice.title }}</div>
           </td>
 
           <!-- Content -->
           <td>
-            <div 
-              class="text-xs text-gray-600 dark:text-gray-400 line-clamp-2"
+            <div
+              class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2"
               [innerHTML]="notice.content || 'No content'">
             </div>
           </td>
 
           <!-- Priority -->
           <td>
-            <p-tag 
-              [value]="notice.priority" 
-              [severity]="getPrioritySeverity(notice.priority)"
-              [rounded]="true">
-            </p-tag>
+            <p-tag [value]="notice.priority" [severity]="getPrioritySeverity(notice.priority)" [rounded]="true"></p-tag>
           </td>
 
           <!-- Audience -->
           <td>
-            <div class="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+            <div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
               <i class="pi pi-users text-blue-500"></i>
-              <span>{{notice.targetAudience.type}}</span>
+              <span>{{ notice.targetAudience.type }}</span>
             </div>
           </td>
 
-          <!-- Published Date -->
+          <!-- Published -->
           <td>
-            <div class="text-xs text-gray-600 dark:text-gray-400">
-              <div class="flex items-center gap-1 font-medium">
+            <div class="text-xs">
+              <div class="flex items-center gap-1 font-medium text-gray-700 dark:text-gray-300">
                 <i class="pi pi-calendar text-blue-500"></i>
-                <span>{{formatDate(notice.publishedAt)}}</span>
+                <span>{{ formatDate(notice.publishedAt) }}</span>
               </div>
-              <div class="text-xs text-gray-500 mt-1">
-                {{formatTime(notice.publishedAt)}}
-              </div>
+              <div class="text-gray-400 dark:text-gray-500 mt-0.5">{{ formatTime(notice.publishedAt) }}</div>
             </div>
           </td>
 
-          <!-- Actions -->
-          <td>
-            <div class="flex items-center gap-1">
-              @if(!isStudent) {
+          <!-- Edit — separate, non-students only -->
+          @if(!isStudent) {
+            <td>
+              <div class="flex justify-center">
                 <p-button
                   icon="pi pi-pencil"
                   severity="info"
@@ -222,41 +189,23 @@
                   pTooltip="Edit"
                   tooltipPosition="top">
                 </p-button>
-              }
-              
-              <!-- <p-button
-                icon="pi pi-trash"
-                severity="danger"
-                [text]="true"
-                [rounded]="true"
-                size="small"
-                (click)="deleteNotice(notice)"
-                pTooltip="Delete"
-                tooltipPosition="top">
-              </p-button> -->
-            </div>
-          </td>
+              </div>
+            </td>
+          }
         </tr>
       </ng-template>
 
       <!-- Empty State -->
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="7" class="text-center py-16">
-            <div class="flex flex-col items-center justify-center">
-              <i class="pi pi-inbox text-6xl text-gray-300 mb-4"></i>
-              <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                No notices found
-              </h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                Try adjusting your filters or add a new notice.
-              </p>
-              <p-button
-                label="Add Notice"
-                icon="pi pi-plus"
-                (click)="showAddDialog()"
-                size="small">
-              </p-button>
+          <td [attr.colspan]="isStudent ? 7 : 8" class="text-center py-16">
+            <div class="flex flex-col items-center justify-center gap-2">
+              <i class="pi pi-inbox text-6xl text-gray-300 dark:text-gray-600"></i>
+              <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-400">No notices found</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-500">Try adjusting your filters or add a new notice.</p>
+              @if(!isStudent) {
+                <p-button label="Add Notice" icon="pi pi-plus" (click)="showAddDialog()" size="small"></p-button>
+              }
             </div>
           </td>
         </tr>
@@ -265,7 +214,7 @@
       <!-- Loading State -->
       <ng-template pTemplate="loadingbody">
         <tr>
-          <td colspan="7">
+          <td [attr.colspan]="isStudent ? 7 : 8">
             <div class="flex items-center justify-center py-8">
               <i class="pi pi-spin pi-spinner text-3xl text-blue-500"></i>
             </div>
@@ -275,111 +224,20 @@
     </p-table>
   </div>
 
-  <!-- Add/Edit Notice Dialog -->
-   @if((isEditMode && selectedNotice != null) || (!isEditMode && addDialogVisible)) {
-  <app-notice-add 
-    [visible]="addDialogVisible"
-    [priorityOptions]="priorityOptions"
-    [editMode]="isEditMode"
-    [noticeData]="selectedNotice"
-    (save)="saveNotice($event)"
-    (cancel)="closeDialog()">
-  </app-notice-add>
-   }
- 
+  <app-notice-view
+    [visible]="viewDialogVisible"
+    [notice]="noticeToView"
+    (close)="closeViewDialog()">
+  </app-notice-view>
 
-  <!-- Delete Confirmation Dialog -->
-  <!-- <p-dialog 
-    header="Confirm Delete" 
-    [(visible)]="deleteDialogVisible" 
-    [modal]="true" 
-    [style]="{width: '450px'}"
-    [draggable]="false"
-    [resizable]="false">
-    <div class="flex items-start gap-4">
-      <i class="pi pi-exclamation-triangle text-4xl text-orange-500"></i>
-      <div>
-        <p class="text-gray-700 dark:text-gray-300 mb-2">
-          Are you sure you want to delete this notice?
-        </p>
-        <p class="text-sm text-gray-500 dark:text-gray-400 font-semibold">
-          "{{noticeToDelete?.title}}"
-        </p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-          This action cannot be undone.
-        </p>
-      </div>
-    </div>
-    <ng-template pTemplate="footer">
-      <p-button 
-        label="Cancel" 
-        icon="pi pi-times" 
-        severity="secondary"
-        [outlined]="true"
-        (click)="deleteDialogVisible = false">
-      </p-button>
-      <p-button 
-        label="Delete" 
-        icon="pi pi-trash" 
-        severity="danger"
-        (click)="confirmDelete()">
-      </p-button>
-    </ng-template>
-  </p-dialog> -->
+  @if((isEditMode && selectedNotice != null) || (!isEditMode && addDialogVisible)) {
+    <app-notice-add
+      [visible]="addDialogVisible"
+      [priorityOptions]="priorityOptions"
+      [editMode]="isEditMode"
+      [noticeData]="selectedNotice"
+      (save)="saveNotice($event)"
+      (cancel)="closeDialog()">
+    </app-notice-add>
+  }
 </div>
-
-<!-- <style>
-/* Line clamp utilities */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Custom table styling */
-:host ::ng-deep {
-  .p-datatable .p-datatable-thead > tr > th {
-    background: #f9fafb;
-    color: #374151;
-    font-weight: 600;
-    font-size: 0.875rem;
-    padding: 0.75rem 1rem;
-  }
-
-  .dark .p-datatable .p-datatable-thead > tr > th {
-    background: #1f2937;
-    color: #e5e7eb;
-  }
-
-  .p-datatable .p-datatable-tbody > tr > td {
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-  }
-
-  .p-datatable .p-datatable-tbody > tr:hover {
-    background: #f9fafb;
-  }
-
-  .dark .p-datatable .p-datatable-tbody > tr:hover {
-    background: #1f2937;
-  }
-
-  /* Pagination styling */
-  .p-paginator {
-    background: #ffffff;
-    border-top: 1px solid #e5e7eb;
-    padding: 1rem;
-  }
-
-  .dark .p-paginator {
-    background: #111827;
-    border-top-color: #374151;
-  }
-
-  /* Select dropdown in table */
-  .p-select-overlay {
-    max-height: 300px;
-  }
-}
-</style> -->

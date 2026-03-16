@@ -18,11 +18,29 @@ import { ApiLoaderService } from '../../core/services/loaderService';
 import { Notice } from '../models/notification.model';
 import { NotificationService } from '../service/notification.service';
 import { NoticeAddComponent } from './notice-add/notice-add.component';
+import { NoticeViewComponent } from './notice-view/notice-view.component';
 
 @Component({
     selector: 'app-school-notice-board',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, SelectModule, TagModule, ToastModule, DialogModule, DatePickerModule, TableModule, TooltipModule, NoticeAddComponent, MultiSelect],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ButtonModule,
+        CardModule,
+        InputTextModule,
+        SelectModule,
+        TagModule,
+        ToastModule,
+        DialogModule,
+        DatePickerModule,
+        TableModule,
+        TooltipModule,
+        NoticeAddComponent,
+        NoticeViewComponent,
+        MultiSelect
+    ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './school-notice-board.component.html',
     styles: []
@@ -36,6 +54,8 @@ export class SchoolNoticeBoardComponent implements OnInit {
     isEditMode = false;
     selectedNotice: Notice | null = null;
     noticeToDelete: Notice | null = null;
+    viewDialogVisible = false;
+    noticeToView: Notice | null = null;
 
     notificationService = inject(NotificationService);
     loader = inject(ApiLoaderService);
@@ -214,6 +234,16 @@ export class SchoolNoticeBoardComponent implements OnInit {
         // this.dateRange = null;
         this.selectedCategories = [];
         this.onFilterChange();
+    }
+
+    viewNotice(notice: Notice) {
+        this.noticeToView = { ...notice };
+        this.viewDialogVisible = true;
+    }
+
+    closeViewDialog() {
+        this.viewDialogVisible = false;
+        this.noticeToView = null;
     }
 
     showAddDialog() {

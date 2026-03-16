@@ -1,0 +1,134 @@
+@if(visible && notice) {
+
+  <div
+    class="fixed inset-0 z-50 flex top-5 items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-[fadeIn_0.2s_ease]"
+    (click)="onClose()">
+
+    <div
+      class="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-gray-900 shadow-2xl ring-1 ring-black/5 dark:ring-white/10 animate-[slideUp_0.25s_ease]"
+      (click)="$event.stopPropagation()">
+
+      <!-- <button
+        (click)="onClose()"
+        class="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/20 hover:bg-black/40 text-white transition-colors cursor-pointer border-0">
+        <i class="pi pi-times text-xs"></i>
+      </button> -->
+      <div class="relative overflow-hidden rounded-t-2xl px-6 pt-7 pb-6 text-white" [ngClass]="getCategoryGradient(notice.categoryType)">
+
+        <div class="relative z-10 flex flex-wrap items-center justify-between gap-2 mb-4">
+
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-white/20 border border-white/30 backdrop-blur-sm">
+            <i [class]="getCategoryIcon(notice.categoryType) + ' text-[10px]'"></i>
+            {{ getCategoryLabel(notice.categoryType) }}
+          </span>
+
+          <p-tag
+            [value]="notice.priority"
+            [severity]="getPrioritySeverity(notice.priority)"
+            [rounded]="true"
+            styleClass="text-[10px] font-bold uppercase tracking-widest me-10">
+          </p-tag>
+
+        </div>
+        <h2 class="relative z-10 text-xl sm:text-2xl font-bold leading-snug mb-4 drop-shadow-sm">
+          {{ notice.title }}
+        </h2>
+
+        <div class="relative z-10 flex flex-wrap gap-2">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-black/20">
+            <i class="pi pi-calendar text-[10px]"></i>{{ formatDate(notice.publishedAt) }}
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-black/20">
+            <i class="pi pi-clock text-[10px]"></i>{{ formatTime(notice.publishedAt) }}
+          </span>
+          @if(notice.targetAudience?.type) {
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-black/20">
+              <i class="pi pi-users text-[10px]"></i>{{ notice.targetAudience.type }}
+            </span>
+          }
+        </div>
+
+      </div>
+
+      <div class="flex flex-col gap-5 p-5 bg-gray-50 dark:bg-gray-800/50 rounded-b-2xl">
+        <div>
+          <div class="flex items-center gap-2 mb-2.5">
+            <div class="w-5 h-5 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700">
+              <i class="pi pi-align-left text-[9px] text-gray-500 dark:text-gray-400"></i>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Notice Content</span>
+          </div>
+          <div
+            class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-5 py-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300 min-h-[56px]"
+            [innerHTML]="notice.content || '<em>No content provided.</em>'">
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center gap-2 mb-2.5">
+            <div class="w-5 h-5 flex items-center justify-center rounded bg-gray-200 dark:bg-gray-700">
+              <i class="pi pi-info-circle text-[9px] text-gray-500 dark:text-gray-400"></i>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Details</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+
+            <div class="flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3.5 hover:shadow-md dark:hover:shadow-black/30 transition-shadow">
+              <div class="w-9 h-9 flex items-center justify-center rounded-lg flex-shrink-0" [ngClass]="getCategoryIconBg(notice.categoryType)">
+                <i [class]="getCategoryIcon(notice.categoryType) + ' text-sm'" [ngClass]="getCategoryIconColor(notice.categoryType)"></i>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Category</span>
+                <span class="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{{ getCategoryLabel(notice.categoryType) }}</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3.5 hover:shadow-md dark:hover:shadow-black/30 transition-shadow">
+              <div class="w-9 h-9 flex items-center justify-center rounded-lg flex-shrink-0" [ngClass]="getPriorityIconBg(notice.priority)">
+                <i class="pi pi-flag text-sm" [ngClass]="getPriorityIconColor(notice.priority)"></i>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Priority</span>
+                <span class="text-sm font-semibold truncate" [ngClass]="getPriorityIconColor(notice.priority)">{{ notice.priority }}</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3.5 hover:shadow-md dark:hover:shadow-black/30 transition-shadow">
+              <div class="w-9 h-9 flex items-center justify-center rounded-lg flex-shrink-0 bg-blue-50 dark:bg-blue-500/10">
+                <i class="pi pi-users text-sm text-blue-500"></i>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Audience</span>
+                <span class="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{{ notice.targetAudience?.type || '—' }}</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3.5 hover:shadow-md dark:hover:shadow-black/30 transition-shadow">
+              <div class="w-9 h-9 flex items-center justify-center rounded-lg flex-shrink-0 bg-violet-50 dark:bg-violet-500/10">
+                <i class="pi pi-calendar text-sm text-violet-500"></i>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Published</span>
+                <span class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ formatDate(notice.publishedAt) }}</span>
+                <span class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ formatTime(notice.publishedAt) }}</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="flex justify-end pt-2 border-t border-gray-200 dark:border-gray-700">
+          <p-button
+            label="Close"
+            icon="pi pi-times"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+            (click)="onClose()">
+          </p-button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+}

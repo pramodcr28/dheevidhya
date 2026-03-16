@@ -73,7 +73,7 @@ export class NoticeAddComponent implements OnInit {
         { label: 'Attendance', value: 'ATTENDANCE', icon: 'pi pi-check-circle', colorClass: 'bg-orange-500' },
         { label: 'Exam Announcement', value: 'EXAM_ANNOUNCEMENT', icon: 'pi pi-file-edit', colorClass: 'bg-red-500' },
         { label: 'Exam Result', value: 'EXAM_RESULT', icon: 'pi pi-trophy', colorClass: 'bg-green-500' },
-        { label: 'Festival', value: 'FEST', icon: 'pi pi-heart', colorClass: 'bg-purple-500' },
+        // { label: 'Festival', value: 'FEST', icon: 'pi pi-heart', colorClass: 'bg-purple-500' },
         { label: 'Holiday', value: 'HOLIDAY', icon: 'pi pi-sun', colorClass: 'bg-amber-500' },
         { label: 'Appreciation', value: 'APPRECIATION', icon: 'pi pi-star', colorClass: 'bg-pink-500' },
         { label: 'School Achievement', value: 'SCHOOL_ACHIEVEMENT', icon: 'pi pi-trophy', colorClass: 'bg-teal-500' }
@@ -109,12 +109,12 @@ export class NoticeAddComponent implements OnInit {
         { label: 'Festival', value: 'Festival' }
     ];
 
-    festTypes = [
-        { label: 'Cultural', value: 'Cultural' },
-        { label: 'Sports', value: 'Sports' },
-        { label: 'Science', value: 'Science' },
-        { label: 'Literary', value: 'Literary' }
-    ];
+    // festTypes = [
+    //     { label: 'Cultural', value: 'Cultural' },
+    //     { label: 'Sports', value: 'Sports' },
+    //     { label: 'Science', value: 'Science' },
+    //     { label: 'Literary', value: 'Literary' }
+    // ];
 
     attendanceTypes = [
         { label: 'Low Attendance', value: 'Low' },
@@ -194,14 +194,12 @@ export class NoticeAddComponent implements OnInit {
         let filterParams = {};
 
         filterParams = {
-            // if the target is STUDENT
             'authorities.name.equals': 'STUDENT'
         };
-        // add seach the user by autocomplete for these by login or id ot name
         filterParams = {
             'branch_id.eq': this.commonService.branch?.id,
             'authorities.name.nin': ['IT_ADMINISTRATOR', 'STUDENT']
-        }; // if the target is STAFF
+        };
 
         this.userService.userSearch(this.page, this.itemsPerPage, this.sortField, this.sortOrder, filterParams).subscribe({
             next: (res: any) => {
