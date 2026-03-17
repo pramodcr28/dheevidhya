@@ -1,152 +1,70 @@
-<p-dialog header="Add New Task"
-          [(visible)]="visible"
-          [modal]="true"
-          (onHide)=" close()"
-          >
+<p-dialog header="Add New Task" [(visible)]="visible" [modal]="true" (onHide)="close()">
+    <div class="grid grid-cols-1 gap-4">
+        <div>
+            <input pInputText [(ngModel)]="newAssignment.title" placeholder="Enter task title here" class="w-full" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <p-datepicker [(ngModel)]="newAssignment.dueDate" showIcon="true" placeholder="Submition Date" [fluid]="true" [minDate]="today" dateFormat="yy-mm-dd"> </p-datepicker>
+            </div>
+            <div>
+                <p-select [options]="typeOptions" placeholder="Select task type" [(ngModel)]="newAssignment.type" class="w-full"> </p-select>
+            </div>
+        </div>
 
-  <div class="grid grid-cols-1 gap-4">
-    <!-- Title -->
-    <div>
-      <input pInputText
-             [(ngModel)]="newAssignment.title"
-             placeholder="Enter task title here"
-             class="w-full" />
+        <div>
+            <label class="block text-sm font-medium mb-1">Description</label>
+            <p-editor [(ngModel)]="newAssignment.description" [style]="{ height: '250px' }">
+                <ng-template #header>
+                    <span class="ql-formats">
+                        <select class="ql-size" aria-label="Font Size">
+                            <option value="small"></option>
+                            <option selected></option>
+                        </select>
+                    </span>
+
+                    <span class="ql-formats">
+                        <button type="button" class="ql-bold" aria-label="Bold"></button>
+                        <button type="button" class="ql-italic" aria-label="Italic"></button>
+                        <button type="button" class="ql-underline" aria-label="Underline"></button>
+                        <button type="button" class="ql-strike" aria-label="Strike"></button>
+                    </span>
+
+                    <span class="ql-formats">
+                        <select class="ql-color" aria-label="Text Color"></select>
+                        <select class="ql-background" aria-label="Background Color"></select>
+                    </span>
+
+                    <span class="ql-formats">
+                        <button class="ql-list" value="ordered" aria-label="Ordered List"></button>
+                        <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
+                        <select class="ql-align"></select>
+                    </span>
+
+                    <span class="ql-formats">
+                        <button class="ql-clean" aria-label="Clear Formatting"></button>
+                    </span>
+                </ng-template>
+            </p-editor>
+        </div>
     </div>
 
-    <!-- Department / Subject / DueDate / Type -->
-    <div class="grid grid-cols-2 gap-4">
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2">
+            <p-button label="Cancel" [text]="true" (onClick)="close()"></p-button>
+            <div class="flex gap-2">
+                @if (newAssignment.status === 'DRAFT' || !newAssignment.status) {
+                    <p-button label="Save as Draft" icon="pi pi-save" severity="secondary" size="small" (onClick)="onSaveClick('DRAFT')"> </p-button>
+                }
 
-      <!-- Department -->
-      <!-- <p-select
-        [options]="associatedDepartments"
-        [(ngModel)]="selectedDepartment"
-        (ngModelChange)="onSelectedDepartmentModelChange($event)"
-        [ngModelOptions]="{ standalone: true }"
-        (onChange)="departmentChange.emit()"
-        optionLabel="name"
-        placeholder="Select Department"
-        [style]="{ width: '100%' }">
-      </p-select> -->
+                @if (newAssignment.status === 'PUBLISHED' || newAssignment.status === 'DRAFT' || !newAssignment.status) {
+                    <p-button label="Publish" icon="pi pi-check" severity="primary" size="small" (onClick)="onSaveClick('PUBLISHED')"> </p-button>
+                }
 
-      <!-- Subject (Tree) -->
-      <!-- <p-treeSelect
-        [(ngModel)]="selectedSubject"
-        (ngModelChange)="onSelectedSubjectModelChange($event)"
-        [ngModelOptions]="{ standalone: true }"
-        [options]="treeNodes"
-        selectionMode="single"
-        [fluid]="true"
-        scrollHeight="200px"
-        placeholder="Select Subjects">
-      </p-treeSelect> -->
-
-      <!-- Due Date -->
-      <div>
-        <p-datepicker
-          [(ngModel)]="newAssignment.dueDate"
-          showIcon="true"
-          placeholder="Submition Date"
-          [fluid]="true"
-          [minDate]="today"
-          dateFormat="yy-mm-dd">
-        </p-datepicker>
-      </div>
-
-      <!-- Type -->
-      <div>
-        <p-select
-          [options]="typeOptions"
-          placeholder="Select task type"
-          [(ngModel)]="newAssignment.type"
-          class="w-full">
-        </p-select>
-      </div>
-
-    </div>
-
-    <!-- Description -->
-    <div>
-      <label class="block text-sm font-medium mb-1">Description</label>
-      <p-editor [(ngModel)]="newAssignment.description"
-                [style]="{'height':'250px'}">
-          <ng-template #header>
-
-    <!-- Font size -->
-    <span class="ql-formats">
-      <select class="ql-size" aria-label="Font Size">
-        <option value="small"></option>
-        <option selected></option>
-      </select>
-    </span>
-
-    <!-- Basic formatting -->
-    <span class="ql-formats">
-      <button type="button" class="ql-bold" aria-label="Bold"></button>
-      <button type="button" class="ql-italic" aria-label="Italic"></button>
-      <button type="button" class="ql-underline" aria-label="Underline"></button>
-      <button type="button" class="ql-strike" aria-label="Strike"></button>
-    </span>
-
-    <!-- Colors -->
-    <span class="ql-formats">
-      <select class="ql-color" aria-label="Text Color"></select>
-      <select class="ql-background" aria-label="Background Color"></select>
-    </span>
-
-    <!-- Lists & alignment -->
-    <span class="ql-formats">
-      <button class="ql-list" value="ordered" aria-label="Ordered List"></button>
-      <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
-      <select class="ql-align"></select>
-    </span>
-
-    <!-- Clear formatting -->
-    <span class="ql-formats">
-      <button class="ql-clean" aria-label="Clear Formatting"></button>
-    </span>
-
-          </ng-template>
-      </p-editor>
-    </div>
-  </div>
-
-  <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-2">
-      <p-button label="Cancel" [text]="true" (onClick)="close()"></p-button>
-      <!-- <p-button label="submit" severity="primary" (onClick)="save()"></p-button> -->
- <div class="flex gap-2">
-
-  @if (newAssignment.status === 'DRAFT' || !newAssignment.status) {
-    <p-button 
-      label="Save as Draft"
-      icon="pi pi-save"
-      severity="secondary"
-      size="small"
-      (onClick)="newAssignment.status = 'DRAFT'; save()">
-    </p-button>
-  }
-
-  @if (newAssignment.status === 'PUBLISHED' || newAssignment.status === 'DRAFT' || !newAssignment.status) {
-    <p-button 
-      label="Publish"
-      icon="pi pi-check"
-      severity="primary"
-      size="small"
-      (onClick)="newAssignment.status = 'PUBLISHED'; save()">
-    </p-button>
-  }
-
-  @if (newAssignment.status === 'ONGOING' || newAssignment.status === 'PUBLISHED') {
-    <p-button 
-      label="Mark as Completed"
-      icon="pi pi-check-circle"
-      severity="success"
-      size="small"
-      (onClick)="newAssignment.status = 'COMPLETED'; save()">
-    </p-button>
-  }
-
-</div>
-</div>
-  </ng-template>
+                @if (newAssignment.status === 'ONGOING' || newAssignment.status === 'PUBLISHED') {
+                    <p-button label="Mark as Completed" icon="pi pi-check-circle" severity="success" size="small" (onClick)="onSaveClick('COMPLETED')"> </p-button>
+                }
+            </div>
+        </div>
+    </ng-template>
 </p-dialog>

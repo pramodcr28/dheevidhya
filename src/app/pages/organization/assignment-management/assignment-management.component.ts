@@ -252,31 +252,84 @@ export class AssignmentManagementComponent implements OnInit {
     }
 
     addAssignment() {
-        this.loader.show('updating Assignment');
-
-        if (this.selectedAssignment && !this.selectedAssignment.id && this.subjectInfo) {
-            this.selectedAssignment = { ...this.selectedAssignment, ...this.subjectInfo, visibilityType: 'GROUP' };
-        }
-        this.selectedAssignment = { ...this.selectedAssignment, dueDate: this.commonService.formatDateForApi(new Date(this.selectedAssignment.dueDate!)) };
-        this.assignmentService.create(this.selectedAssignment).subscribe((result) => {
-            this.loader.hide();
+        if (!this.selectedAssignment?.title || this.selectedAssignment.title.trim().length < 3) {
             this.messageService.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Assignment Added Successfully!',
+                severity: 'error',
+                summary: 'Validation Error',
+                detail: 'Title must be at least 3 characters long.',
                 life: 3000
             });
-            this.getGroupedAssignments();
-            this.selectGroup(this.selectedGroup);
-            this.selectedAssignment = {};
-            this.showAddDialog = false;
+            return;
+        }
+
+        if (!this.selectedAssignment?.description || this.selectedAssignment.description.trim().length < 5) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Validation Error',
+                detail: 'Description must be at least 5 characters long.',
+                life: 3000
+            });
+            return;
+        }
+
+        if (!this.selectedAssignment?.dueDate) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Validation Error',
+                detail: 'Please select a due date.',
+                life: 3000
+            });
+            return;
+        }
+
+        // ---- API CALL ----
+        this.loader.show('Updating Assignment');
+
+        if (this.selectedAssignment && !this.selectedAssignment.id && this.subjectInfo) {
+            this.selectedAssignment = {
+                ...this.selectedAssignment,
+                ...this.subjectInfo,
+                visibilityType: 'GROUP'
+            };
+        }
+
+        this.selectedAssignment = {
+            ...this.selectedAssignment,
+            dueDate: this.commonService.formatDateForApi(new Date(this.selectedAssignment.dueDate!))
+        };
+
+        this.assignmentService.create(this.selectedAssignment).subscribe({
+            next: () => {
+                this.loader.hide();
+
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Assignment Added Successfully!',
+                    life: 3000
+                });
+
+                this.getGroupedAssignments();
+                this.selectGroup(this.selectedGroup);
+                this.selectedAssignment = {};
+                this.showAddDialog = false;
+            },
+            error: () => {
+                this.loader.hide();
+
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to add assignment.',
+                    life: 3000
+                });
+            }
         });
     }
 
     editAssignment(assignment: Assignment) {
         this.selectedAssignment = { ...assignment };
         this.showAddDialog = true;
-        // open dialog or navigate to edit page
     }
 
     deleteAssignment(assignment: Assignment) {
