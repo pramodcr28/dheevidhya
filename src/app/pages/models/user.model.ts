@@ -6,9 +6,7 @@ export interface ITenantAuthority {
 
 export enum ProfileType {
     STUDENT = 'STUDENT',
-
     GUARDIAN = 'GUARDIAN',
-
     STAFF = 'STAFF'
 }
 
@@ -50,7 +48,6 @@ export interface ITenantUser {
 
 export type NewTenantUser = Omit<ITenantUser, 'id'> & { id: null };
 
-//  Profile config related models
 export enum UserStatus {
     ACTIVE,
     EXITED,
@@ -96,6 +93,8 @@ export interface IStudentProfile {
     rollNumber?: string | null;
     classId?: number | null;
     sectionId?: number | null;
+    className: string | null;
+    sectionName: string | null;
     guardianId?: number | null;
 }
 

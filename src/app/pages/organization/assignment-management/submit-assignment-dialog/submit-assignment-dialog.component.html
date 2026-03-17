@@ -1,367 +1,262 @@
-<p-dialog 
-  [header]="commonService.isStudent ? 'Submit Assignment' : 'Review Submission'" 
-  [(visible)]="visible" 
-  [modal]="true" 
-  [draggable]="false"
-  [resizable]="false"
-  (onHide)="close()"
-  [style]="{width: '90vw', maxWidth: '1400px', maxHeight: '90vh'}"
-  styleClass="modern-dialog">
+<p-dialog
+    [header]="commonService.isStudent ? 'Submit Assignment' : 'Review Submission'"
+    [(visible)]="visible"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    (onHide)="close()"
+    [style]="{ width: '90vw', maxWidth: '1400px', maxHeight: '90vh' }"
+    styleClass="modern-dialog"
+>
+    <ng-container *ngIf="studentResponse && selectedAssignment; else noData">
+        <div class="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl shadow-sm">
+            <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
+                <div class="flex-1 p-4">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="pi pi-book text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 leading-tight">
+                                {{ selectedAssignment.title }}
+                            </h2>
+                            <p class="text-sm text-gray-600 mt-0.5">Complete and submit your work below</p>
+                        </div>
+                    </div>
 
-  <ng-container *ngIf="studentResponse && selectedAssignment; else noData">
-
-    <!-- Assignment Details Card (Horizontal Layout) -->
-    <div class="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl shadow-sm">
-      <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
-        
-        <!-- Left Section: Title & Badges -->
-        <div class="flex-1 p-4">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-              <i class="pi pi-book text-white text-lg"></i>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-full text-sm shadow-sm">
+                            <i class="pi pi-building mr-2 text-purple-500"></i>
+                            <span class="font-medium">{{ selectedAssignment.departmentName }}</span>
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-full text-sm shadow-sm">
+                            <i class="pi pi-calendar mr-2 text-orange-500"></i>
+                            <span class="font-medium">Due: {{ selectedAssignment.dueDate | date: 'MMM d, y' }}</span>
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-full text-sm shadow-sm">
+                            <i class="pi pi-tag mr-2 text-pink-500"></i>
+                            <span class="font-medium">{{ selectedAssignment.type }}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="xl:max-w-lg w-full">
+                    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+                        <h4 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide flex items-center">
+                            <div class="w-6 h-6 bg-indigo-100 rounded flex items-center justify-center mr-2">
+                                <i class="pi pi-file-text text-indigo-600 text-xs"></i>
+                            </div>
+                            Instructions
+                        </h4>
+                        <div class="prose prose-sm max-w-none text-gray-700 leading-relaxed" [innerHTML]="selectedAssignment.description"></div>
+                    </div>
+                </div>
             </div>
-            <div>
-              <h2 class="text-2xl font-bold text-gray-900 leading-tight">
-                {{ selectedAssignment.title }}
-              </h2>
-              <p class="text-sm text-gray-600 mt-0.5">Complete and submit your work below</p>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-full text-sm shadow-sm">
-              <i class="pi pi-building mr-2 text-purple-500"></i>
-              <span class="font-medium">{{ selectedAssignment.departmentName }}</span>
-            </span>
-            <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-full text-sm shadow-sm">
-              <i class="pi pi-calendar mr-2 text-orange-500"></i>
-              <span class="font-medium">Due: {{ selectedAssignment.dueDate | date:'MMM d, y' }}</span>
-            </span>
-            <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-full text-sm shadow-sm">
-              <i class="pi pi-tag mr-2 text-pink-500"></i>
-              <span class="font-medium">{{ selectedAssignment.type }}</span>
-            </span>
-          </div>
         </div>
 
-        <!-- Right Section: Assignment Description -->
-        <div class="xl:max-w-lg w-full">
-          <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
-            <h4 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide flex items-center">
-              <div class="w-6 h-6 bg-indigo-100 rounded flex items-center justify-center mr-2">
-                <i class="pi pi-file-text text-indigo-600 text-xs"></i>
-              </div>
-              Instructions
-            </h4>
-            <div class="prose prose-sm max-w-none text-gray-700 leading-relaxed"
-                 [innerHTML]="selectedAssignment.description">
-            </div>
-          </div>
+        <div class="space-y-6">
+            @if (commonService.isStudent) {
+                @if (!studentResponse.feedback || studentResponse.status == 'REOPENED') {
+                    @if (studentResponse.status == 'REOPENED') {
+                        <div class="bg-white border-2 border-green-200 rounded-xl p-6 shadow-sm">
+                            <div class="flex items-center mb-5">
+                                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+                                    <i class="pi pi-comments text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900">Teacher Feedback</h3>
+                                    <p class="text-sm text-gray-500 mt-0.5">Reviewed by your teacher</p>
+                                </div>
+                            </div>
+
+                            <div class="prose prose-sm max-w-none bg-green-50 border border-green-200 p-5 rounded-lg min-h-[280px] overflow-auto" [innerHTML]="studentResponse.feedback"></div>
+                        </div>
+                    }
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm hover:border-blue-300 transition-colors">
+                        <div class="flex items-center mb-5">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+                                <i class="pi pi-pencil text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">Your Response</h3>
+                                <p class="text-sm text-gray-500 mt-0.5">Write your detailed answer below</p>
+                            </div>
+                        </div>
+
+                        <div class="border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm focus-within:border-blue-400 transition-colors">
+                            <p-editor [(ngModel)]="studentResponse.response" (ngModelChange)="onResponseChange($event)" [style]="{ height: '320px' }" placeholder="Start typing your answer here... Be clear and detailed in your response.">
+                                <ng-template #header>
+                                    <span class="ql-formats">
+                                        <select class="ql-size" aria-label="Font Size">
+                                            <option value="small"></option>
+                                            <option selected></option>
+                                        </select>
+                                    </span>
+
+                                    <span class="ql-formats">
+                                        <button type="button" class="ql-bold" aria-label="Bold"></button>
+                                        <button type="button" class="ql-italic" aria-label="Italic"></button>
+                                        <button type="button" class="ql-underline" aria-label="Underline"></button>
+                                        <button type="button" class="ql-strike" aria-label="Strike"></button>
+                                    </span>
+
+                                    <span class="ql-formats">
+                                        <select class="ql-color" aria-label="Text Color"></select>
+                                        <select class="ql-background" aria-label="Background Color"></select>
+                                    </span>
+
+                                    <span class="ql-formats">
+                                        <button class="ql-list" value="ordered" aria-label="Ordered List"></button>
+                                        <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
+                                        <select class="ql-align"></select>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-clean" aria-label="Clear Formatting"></button>
+                                    </span>
+                                </ng-template>
+                            </p-editor>
+                        </div>
+                    </div>
+                } @else {
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm">
+                            <div class="flex items-center mb-5">
+                                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+                                    <i class="pi pi-user-edit text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900">Your Submitted Response</h3>
+                                    <p class="text-sm text-gray-500 mt-0.5">This is what you submitted</p>
+                                </div>
+                            </div>
+
+                            <div class="prose prose-sm max-w-none bg-gray-50 border border-gray-200 p-5 rounded-lg min-h-[280px] overflow-auto" [innerHTML]="studentResponse.response"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-green-200 rounded-xl p-6 shadow-sm">
+                            <div class="flex items-center mb-5">
+                                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+                                    <i class="pi pi-comments text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900">Teacher Feedback</h3>
+                                    <p class="text-sm text-gray-500 mt-0.5">Reviewed by your teacher</p>
+                                </div>
+                            </div>
+
+                            <div class="prose prose-sm max-w-none bg-green-50 border border-green-200 p-5 rounded-lg min-h-[280px] overflow-auto" [innerHTML]="studentResponse.feedback"></div>
+                        </div>
+                    </div>
+                }
+
+            } @else {
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center mb-5">
+                            <div class="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+                                <i class="pi pi-user text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">Student's Answer</h3>
+                                <p class="text-sm text-gray-500 mt-0.5">Submitted response for review</p>
+                            </div>
+                        </div>
+
+                        <div class="prose prose-sm max-w-none bg-gray-50 border border-gray-200 p-5 rounded-lg min-h-[280px] overflow-auto" [innerHTML]="studentResponse.response"></div>
+
+                        <div class="mt-4 flex items-center gap-2 text-xs text-gray-500">
+                            <i class="pi pi-clock"></i>
+                            <span>Submitted on: {{ studentResponse.submissionDate | date: 'MMM d, y - h:mm a' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border-2 border-green-200 rounded-xl p-6 shadow-sm hover:border-green-300 transition-colors">
+                        <div class="flex items-center mb-5">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+                                <i class="pi pi-comment text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">Your Feedback</h3>
+                                <p class="text-sm text-gray-500 mt-0.5">Provide constructive comments and evaluation</p>
+                            </div>
+                        </div>
+
+                        <div class="border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm focus-within:border-green-400 transition-colors">
+                            <p-editor [(ngModel)]="studentResponse.feedback" (ngModelChange)="onResponseChange($event)" [style]="{ height: '220px' }" placeholder="Write your feedback here... Be specific and constructive to help the student improve.">
+                                <ng-template #header>
+                                    <span class="ql-formats">
+                                        <select class="ql-size" aria-label="Font Size">
+                                            <option value="small"></option>
+                                            <option selected></option>
+                                        </select>
+                                    </span>
+
+                                    <span class="ql-formats">
+                                        <button type="button" class="ql-bold" aria-label="Bold"></button>
+                                        <button type="button" class="ql-italic" aria-label="Italic"></button>
+                                        <button type="button" class="ql-underline" aria-label="Underline"></button>
+                                        <button type="button" class="ql-strike" aria-label="Strike"></button>
+                                    </span>
+
+                                    <span class="ql-formats">
+                                        <select class="ql-color" aria-label="Text Color"></select>
+                                        <select class="ql-background" aria-label="Background Color"></select>
+                                    </span>
+
+                                    <span class="ql-formats">
+                                        <button class="ql-list" value="ordered" aria-label="Ordered List"></button>
+                                        <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
+                                        <select class="ql-align"></select>
+                                    </span>
+
+                                    <span class="ql-formats">
+                                        <button class="ql-clean" aria-label="Clear Formatting"></button>
+                                    </span>
+                                </ng-template>
+                            </p-editor>
+                        </div>
+
+                        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 flex gap-2">
+                            <i class="pi pi-info-circle text-blue-600 text-sm flex-shrink-0 mt-0.5"></i>
+                            <p class="text-xs text-blue-800"><strong>Tip:</strong> Highlight strengths, point out areas for improvement, and provide actionable suggestions.</p>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
-      </div>
-    </div>
+    </ng-container>
 
-    <div class="space-y-6">
-
-      @if (commonService.isStudent) {
-        @if (!studentResponse.feedback || studentResponse.status ==  "REOPENED") {
-              @if(studentResponse.status ==  "REOPENED"){
- 
-            <div class="bg-white border-2 border-green-200 rounded-xl p-6 shadow-sm">
-              <div class="flex items-center mb-5">
-                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-                  <i class="pi pi-comments text-white text-lg"></i>
-                </div>
-                <div>
-                  <h3 class="text-xl font-bold text-gray-900">Teacher Feedback</h3>
-                  <p class="text-sm text-gray-500 mt-0.5">Reviewed by your teacher</p>
-                </div>
-              </div>
-
-              <div class="prose prose-sm max-w-none bg-green-50 border border-green-200 p-5 rounded-lg min-h-[280px] overflow-auto"
-                   [innerHTML]="studentResponse.feedback">
-              </div>
+    <ng-template #noData>
+        <div class="flex flex-col items-center justify-center py-16 text-center">
+            <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-5 shadow-sm">
+                <i class="pi pi-inbox text-3xl text-gray-400"></i>
             </div>
-           }
-          <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm hover:border-blue-300 transition-colors">
-            <div class="flex items-center mb-5">
-              <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-                <i class="pi pi-pencil text-white text-lg"></i>
-              </div>
-              <div>
-                <h3 class="text-xl font-bold text-gray-900">Your Response</h3>
-                <p class="text-sm text-gray-500 mt-0.5">Write your detailed answer below</p>
-              </div>
-            </div>
-
-            <div class="border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm focus-within:border-blue-400 transition-colors">
-              <p-editor 
-                [(ngModel)]="studentResponse.response" 
-                (ngModelChange)="onResponseChange($event)" 
-                [style]="{'height':'320px'}"
-                placeholder="Start typing your answer here... Be clear and detailed in your response.">
-                  <ng-template #header>
-
-    <!-- Font size -->
-    <span class="ql-formats">
-      <select class="ql-size" aria-label="Font Size">
-        <option value="small"></option>
-        <option selected></option>
-      </select>
-    </span>
-
-    <!-- Basic formatting -->
-    <span class="ql-formats">
-      <button type="button" class="ql-bold" aria-label="Bold"></button>
-      <button type="button" class="ql-italic" aria-label="Italic"></button>
-      <button type="button" class="ql-underline" aria-label="Underline"></button>
-      <button type="button" class="ql-strike" aria-label="Strike"></button>
-    </span>
-
-    <!-- Colors -->
-    <span class="ql-formats">
-      <select class="ql-color" aria-label="Text Color"></select>
-      <select class="ql-background" aria-label="Background Color"></select>
-    </span>
-
-    <!-- Lists & alignment -->
-    <span class="ql-formats">
-      <button class="ql-list" value="ordered" aria-label="Ordered List"></button>
-      <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
-      <select class="ql-align"></select>
-    </span>
-
-    <!-- Clear formatting -->
-    <span class="ql-formats">
-      <button class="ql-clean" aria-label="Clear Formatting"></button>
-    </span>
-
-          </ng-template>
-              </p-editor>
-            </div>
-
-            <!-- <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex gap-2">
-              <i class="pi pi-exclamation-triangle text-amber-600 text-sm flex-shrink-0 mt-0.5"></i>
-              <p class="text-xs text-amber-800">
-                <strong>Remember:</strong> Review your work before submitting. Once submitted, you may not be able to edit your response.
-              </p>
-            </div> -->
-          </div>
-          
-        } @else {
-          <!-- ✅ Feedback exists → Show side-by-side -->
-          <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <!-- Student Response -->
-            <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm">
-              <div class="flex items-center mb-5">
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-                  <i class="pi pi-user-edit text-white text-lg"></i>
-                </div>
-                <div>
-                  <h3 class="text-xl font-bold text-gray-900">Your Submitted Response</h3>
-                  <p class="text-sm text-gray-500 mt-0.5">This is what you submitted</p>
-                </div>
-              </div>
-
-              <div class="prose prose-sm max-w-none bg-gray-50 border border-gray-200 p-5 rounded-lg min-h-[280px] overflow-auto"
-                   [innerHTML]="studentResponse.response">
-              </div>
-            </div>
-
-            <!-- Teacher Feedback -->
-            <div class="bg-white border-2 border-green-200 rounded-xl p-6 shadow-sm">
-              <div class="flex items-center mb-5">
-                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-                  <i class="pi pi-comments text-white text-lg"></i>
-                </div>
-                <div>
-                  <h3 class="text-xl font-bold text-gray-900">Teacher Feedback</h3>
-                  <p class="text-sm text-gray-500 mt-0.5">Reviewed by your teacher</p>
-                </div>
-              </div>
-
-              <div class="prose prose-sm max-w-none bg-green-50 border border-green-200 p-5 rounded-lg min-h-[280px] overflow-auto"
-                   [innerHTML]="studentResponse.feedback">
-              </div>
-            </div>
-          </div>
-        }
-      }
-
-      <!-- ✅ TEACHER VIEW -->
-      @else {
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-          <!-- Student Response Display -->
-          <div class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm">
-            <div class="flex items-center mb-5">
-              <div class="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-                <i class="pi pi-user text-white text-lg"></i>
-              </div>
-              <div>
-                <h3 class="text-xl font-bold text-gray-900">Student's Answer</h3>
-                <p class="text-sm text-gray-500 mt-0.5">Submitted response for review</p>
-              </div>
-            </div>
-
-            <div class="prose prose-sm max-w-none bg-gray-50 border border-gray-200 p-5 rounded-lg min-h-[280px] overflow-auto"
-                 [innerHTML]="studentResponse.response">
-            </div>
-
-            <div class="mt-4 flex items-center gap-2 text-xs text-gray-500">
-              <i class="pi pi-clock"></i>
-              <span>Submitted on: {{ studentResponse.submissionDate | date:'MMM d, y - h:mm a' }}</span>
-            </div>
-          </div>
-
-          <!-- Teacher Feedback Editor -->
-          <div class="bg-white border-2 border-green-200 rounded-xl p-6 shadow-sm hover:border-green-300 transition-colors">
-            <div class="flex items-center mb-5">
-              <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-                <i class="pi pi-comment text-white text-lg"></i>
-              </div>
-              <div>
-                <h3 class="text-xl font-bold text-gray-900">Your Feedback</h3>
-                <p class="text-sm text-gray-500 mt-0.5">Provide constructive comments and evaluation</p>
-              </div>
-            </div>
-
-            <div class="border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm focus-within:border-green-400 transition-colors">
-              <p-editor 
-                [(ngModel)]="studentResponse.feedback" 
-                (ngModelChange)="onResponseChange($event)" 
-                [style]="{'height':'220px'}"
-                placeholder="Write your feedback here... Be specific and constructive to help the student improve.">
-                  <ng-template #header>
-
-    <!-- Font size -->
-    <span class="ql-formats">
-      <select class="ql-size" aria-label="Font Size">
-        <option value="small"></option>
-        <option selected></option>
-      </select>
-    </span>
-
-    <!-- Basic formatting -->
-    <span class="ql-formats">
-      <button type="button" class="ql-bold" aria-label="Bold"></button>
-      <button type="button" class="ql-italic" aria-label="Italic"></button>
-      <button type="button" class="ql-underline" aria-label="Underline"></button>
-      <button type="button" class="ql-strike" aria-label="Strike"></button>
-    </span>
-
-    <!-- Colors -->
-    <span class="ql-formats">
-      <select class="ql-color" aria-label="Text Color"></select>
-      <select class="ql-background" aria-label="Background Color"></select>
-    </span>
-
-    <!-- Lists & alignment -->
-    <span class="ql-formats">
-      <button class="ql-list" value="ordered" aria-label="Ordered List"></button>
-      <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
-      <select class="ql-align"></select>
-    </span>
-
-    <!-- Clear formatting -->
-    <span class="ql-formats">
-      <button class="ql-clean" aria-label="Clear Formatting"></button>
-    </span>
-
-          </ng-template>
-              </p-editor>
-            </div>
-
-            <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 flex gap-2">
-              <i class="pi pi-info-circle text-blue-600 text-sm flex-shrink-0 mt-0.5"></i>
-              <p class="text-xs text-blue-800">
-                <strong>Tip:</strong> Highlight strengths, point out areas for improvement, and provide actionable suggestions.
-              </p>
-            </div>
-          </div>
-
+            <h3 class="text-xl font-bold text-gray-900 mb-2">No Assignment Selected</h3>
+            <p class="text-gray-500 max-w-md text-sm leading-relaxed">Please select an assignment from the list to view details and submit your response. If you're having trouble, try refreshing the page.</p>
         </div>
-      }
+    </ng-template>
 
-    </div>
-  </ng-container>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end items-center gap-4 pt-5 border-t-2 border-gray-200 w-full">
+            <p-button label="Cancel" icon="pi pi-times" [text]="true" severity="secondary" size="large" class="hover:bg-gray-100 transition-colors duration-200" (onClick)="close()"> </p-button>
+            @if (selectedAssignment.status !== 'COMPLETED') {
+                @if (commonService.isStudent) {
+                    <div class="flex gap-4">
+                        @if (studentResponse.status === SubmissionStatus.DRAFT) {
+                            <p-button label="Save as Draft" icon="pi pi-save" severity="secondary" size="large" (onClick)="onSaveClick(SubmissionStatus.DRAFT)"> </p-button>
+                        }
 
-  <ng-template #noData>
-    <div class="flex flex-col items-center justify-center py-16 text-center">
-      <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-5 shadow-sm">
-        <i class="pi pi-inbox text-3xl text-gray-400"></i>
-      </div>
-      <h3 class="text-xl font-bold text-gray-900 mb-2">No Assignment Selected</h3>
-      <p class="text-gray-500 max-w-md text-sm leading-relaxed">
-        Please select an assignment from the list to view details and submit your response. 
-        If you're having trouble, try refreshing the page.
-      </p>
-    </div>
-  </ng-template>
+                        <p-button label="Submit Assignment" icon="pi pi-send" severity="primary" size="large" (onClick)="onSaveClick(SubmissionStatus.SUBMITTED)"> </p-button>
+                    </div>
+                } @else {
+                    <div class="flex gap-4">
+                        <p-button label="Mark as Reviewed" icon="pi pi-check" severity="primary" size="large" class="hover:bg-blue-700 transition-colors duration-200 shadow-md" (onClick)="studentResponse.status = SubmissionStatus.REVIEWED; save()">
+                        </p-button>
 
-  <ng-template pTemplate="footer">
-<div class="flex justify-end items-center gap-4 pt-5 border-t-2 border-gray-200 w-full">
-  <p-button 
-    label="Cancel" 
-    icon="pi pi-times"
-    [text]="true" 
-    severity="secondary"
-    size="large"
-    class="hover:bg-gray-100 transition-colors duration-200"
-    (onClick)="close()">
-  </p-button>
-@if(selectedAssignment.status !== 'COMPLETED') {
-@if (commonService.isStudent ) {
-  <div class="flex gap-4">
-    
-    @if (studentResponse.status === SubmissionStatus.DRAFT) {
-      <p-button 
-        label="Save as Draft"
-        icon="pi pi-save"
-        severity="secondary"
-        size="large"
-        class="hover:bg-gray-200 transition-colors duration-200"
-        (onClick)="studentResponse.status = SubmissionStatus.DRAFT; save()">
-      </p-button>
-    }
-
-    <p-button 
-      label="Submit Assignment"
-      icon="pi pi-send"
-      severity="primary"
-      size="large"
-      class="hover:bg-blue-700 transition-colors duration-200 shadow-md"
-      (onClick)="studentResponse.status = SubmissionStatus.SUBMITTED; save()">
-    </p-button>
-
-  </div>
-} @else {
-  <div class="flex gap-4">
-
-    <p-button 
-      label="Mark as Reviewed"
-      icon="pi pi-check"
-      severity="primary"
-      size="large"
-      class="hover:bg-blue-700 transition-colors duration-200 shadow-md"
-      (onClick)="studentResponse.status = SubmissionStatus.REVIEWED; save()">
-    </p-button>
-
-    <p-button 
-      label="Reopen Submission"
-      icon="pi pi-refresh"
-      severity="secondary"
-      size="large"
-      class="hover:bg-gray-200 transition-colors duration-200"
-      (onClick)="studentResponse.status = SubmissionStatus.REOPENED; save()">
-    </p-button>
-
-  </div>
-}
-}
-
-
-</div>
-
-  </ng-template>
+                        <p-button label="Reopen Submission" icon="pi pi-refresh" severity="secondary" size="large" class="hover:bg-gray-200 transition-colors duration-200" (onClick)="studentResponse.status = SubmissionStatus.REOPENED; save()">
+                        </p-button>
+                    </div>
+                }
+            }
+        </div>
+    </ng-template>
 </p-dialog>

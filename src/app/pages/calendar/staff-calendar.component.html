@@ -165,11 +165,10 @@
         </ng-template>
     </p-dialog>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <!-- Main Calendar Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4"  [ngClass]="{'lg:grid-cols-1':commonService.isStudent}">
         <div class="lg:col-span-3 space-y-4 sm:space-y-6">
-            <!-- User Card -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+             @if(!commonService.isStudent){
+   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div class="p-4 sm:p-6">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
                         <div class="flex items-center gap-3 sm:gap-4">
@@ -217,6 +216,7 @@
                     </div>
                 </div>
             </div>
+             }
 
             <!-- Calendar View -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-6">
@@ -234,6 +234,7 @@
 
                 <!-- Legend -->
                 <div class="grid grid-cols-3 md:flex md:flex-wrap gap-2 sm:gap-4 text-xs mb-4 sm:mb-6 pb-4 border-b border-gray-200 dark:border-gray-700 col-span-3">
+                   @if(!commonService.isStudent){
                     <div class="flex items-center gap-1.5">
                         <i class="pi pi-check-circle text-green-600"></i>
                         <span class="text-gray-600 dark:text-gray-400">Present</span>
@@ -244,16 +245,12 @@
                         <span class="text-gray-600 dark:text-gray-400">Absent</span>
                     </div>
 
-                    <!-- <div class="flex items-center gap-1.5">
-                        <i class="pi pi-clock text-orange-600"></i>
-                        <span class="text-gray-600 dark:text-gray-400">On Duty</span>
-                    </div> -->
-
                     <div class="flex items-center gap-1.5">
                         <i class="pi pi-calendar-minus text-blue-600"></i>
                         <span class="text-gray-600 dark:text-gray-400">Leave</span>
                     </div>
 
+                   }             
                     <div class="flex items-center gap-1.5">
                         <i class="pi pi-star-fill text-[10px] sm:text-xs lg:text-sm text-purple-600"></i>
                         <span class="text-gray-600 dark:text-gray-400">Events</span>
@@ -265,16 +262,13 @@
                     </div>
                 </div>
 
-                <!-- Calendar Grid -->
                 <div class="calendar-container overflow-x-auto">
-                    <!-- Weekday Headers -->
                     <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2 min-w-[280px]">
                         <div *ngFor="let day of weekDays" class="text-center text-xs font-semibold text-gray-600 dark:text-gray-400 py-2">
                             {{ day }}
                         </div>
                     </div>
 
-                    <!-- Calendar Days -->
                     <div class="grid grid-cols-7 gap-1 sm:gap-2 min-w-[280px]">
                         <div *ngFor="let day of calendarDays" class="relative event-cell" (click)="onDayClick(day)">
                             <div
@@ -323,9 +317,8 @@
             </div>
         </div>
 
-        <!-- Right Section: Stats & Chart -->
+      @if(!commonService.isStudent){
         <div class="lg:col-span-1 space-y-3 sm:space-y-4">
-            <!-- Total Present -->
             <div
                 class="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/20 rounded-xl shadow-lg border border-emerald-200/50 dark:border-emerald-800/50 p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
             >
@@ -475,5 +468,6 @@
                 ></button>
             </div>
         </div>
+       }
     </div>
 </div>

@@ -139,7 +139,28 @@ export class StaffAttendanceComponent implements OnInit {
     notificationService = inject(NotificationService);
 
     ngOnInit() {
-        this.loadMonthlyAttendance();
+        if (!this.commonService.isStudent) {
+            this.loadMonthlyAttendance();
+        } else {
+            const request = {
+                page: 0,
+                size: 100,
+                sortBy: 'id',
+                sortDirection: 'desc',
+                filters: {
+                    categoryTypes: ['HOLIDAY']
+                }
+            };
+            this.notificationService.search(request).subscribe((result) => {
+                this.events = result.content;
+                this.generateCalendar();
+                this.calculateMonthStats();
+                this.updateChart();
+                this.loading = false;
+                this.checkTodayEvents();
+            });
+        }
+
         this.updateCurrentTime();
         setInterval(() => this.updateCurrentTime(), 1000);
         this.initializeChart();
@@ -416,7 +437,7 @@ export class StaffAttendanceComponent implements OnInit {
         const selectedDate = new Date(day.date);
         selectedDate.setHours(0, 0, 0, 0);
 
-        if (selectedDate > today) {
+        if (!this.commonService.isStudent && selectedDate > today) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Future Date',
@@ -429,11 +450,11 @@ export class StaffAttendanceComponent implements OnInit {
             this.selectedDayAttendance = { ...day.attendance };
         } else {
             this.selectedDayAttendance = {
-                staffId: this.commonService.getUserInfo.userId,
-                staffName: this.commonService.getUserInfo.fullName,
+                staffId: this.commonService.getUserInfo?.userId,
+                staffName: this.commonService.getUserInfo?.fullName,
                 branchId: this.commonService.branch?.id?.toString() || '',
-                departmentId: this.commonService.getUserInfo.departmentId,
-                departmentName: this.commonService.getUserInfo.departmentName,
+                departmentId: this.commonService.getUserInfo?.departmentId,
+                departmentName: this.commonService.getUserInfo?.departmentName,
                 branchName: this.commonService.branch?.name || '',
                 attendanceDate: this.datePipe.transform(day.date, 'yyyy-MM-dd') || '',
                 status: 'PRESENT',
@@ -443,7 +464,12 @@ export class StaffAttendanceComponent implements OnInit {
         }
 
         this.hasEvents = day.events.length > 0;
-        this.showDetailDialog = true;
+
+        if (this.commonService.isStudent) {
+            this.showDetailDialog = this.hasEvents;
+        } else {
+            this.showDetailDialog = true;
+        }
     }
 
     private normalizeTime(value: any): string | null {

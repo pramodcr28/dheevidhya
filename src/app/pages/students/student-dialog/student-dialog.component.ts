@@ -412,8 +412,8 @@ export class StudentDialogComponent {
             return;
         }
 
-        const startDate = new Date(startYear, 3, 1); // Apr 1
-        const endDate = new Date(endYear, 2, 31); // Mar 31
+        const startDate = new Date(startYear, 3, 1);
+        const endDate = new Date(endYear, 2, 31);
         const academicYear = this.formatAcademicYear(startDate, endDate);
 
         const isDuplicate = this.profilesList().some((p, i) => i !== profileIndex && p.profile.academicYear === academicYear);
@@ -600,6 +600,8 @@ export class StudentDialogComponent {
                 roleConfig.student = {
                     classId: profileData.selectedClass?.id ?? null,
                     sectionId: profileData.selectedSection?.id ?? null,
+                    sectionName: profileData.selectedSection?.name ?? null,
+                    className: profileData.selectedClass?.name ?? null,
                     guardianId: profileData.profile.roles?.student?.guardianId || null
                 } as IStudentProfile;
             }
@@ -634,10 +636,7 @@ export class StudentDialogComponent {
         if (match) {
             const startYear = parseInt(match[1]);
             const endYear = parseInt(match[2]);
-            return [
-                new Date(startYear, 3, 1), // Apr 1
-                new Date(endYear, 2, 31) // Mar 31
-            ];
+            return [new Date(startYear, 3, 1), new Date(endYear, 2, 31)];
         }
         return null;
     }
