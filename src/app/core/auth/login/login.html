@@ -9,7 +9,8 @@
     <div>
       <div class="flex items-center gap-3 mb-6">
         <div>
-            <img src="../../../../assets/images/logo.png" width="220" alt=""> 
+            <img src="../../../../assets/images/logo.png" class="dark:hidden" width="220" alt="Dheevidhya Logo" />
+            <img src="../../../../assets/images/logo-white.png" class="hidden dark:block" width="220" alt="Dheevidhya Logo" />
         </div>
       </div>
 
@@ -193,7 +194,7 @@
       </div>
 
       <div class="text-center mt-6 text-sm text-surface-600 dark:text-surface-400">
-        <p>© 2025 Dheevidhya. All rights reserved.</p>
+        <p>© {{today.getFullYear()}} Dheevidhya. All rights reserved.</p>
       </div>
     </div>
   </div>

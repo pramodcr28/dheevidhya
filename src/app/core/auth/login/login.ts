@@ -46,6 +46,7 @@ export class Login {
             validators: [Validators.required]
         })
     });
+    today: Date = new Date();
 
     private authServerProvider = inject(AuthServerProvider);
     private router = inject(Router);

@@ -24,8 +24,8 @@ import { AppConfigurator } from './app.configurator';
                 <i class="pi pi-bars"></i>
             </button>
             <a class="layout-topbar-logo" routerLink="/">
-                <img src="/assets/images/logo.png" height="160" width="200" alt="Dheevidhya Logo" />
-                <!-- <span class="logo-text whitespace-nowrap text-sm sm:text-base md:text-lg hidden xs:inline">Dheevidhya</span> -->
+                <img src="/assets/images/logo.png" class="dark:hidden" height="160" width="200" alt="Dheevidhya Logo" />
+                <img src="/assets/images/logo-white.png" height="160" class="hidden dark:block" width="200" alt="Dheevidhya Logo" />
             </a>
         </div>
 
