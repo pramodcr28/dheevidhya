@@ -17,23 +17,23 @@
                             <i class="pi pi-book text-white text-lg"></i>
                         </div>
                         <div>
-                            <h2 class="text-2xl font-bold text-gray-900 leading-tight">
+                            <h2 class="text-2xl font-bold  leading-tight">
                                 {{ selectedAssignment.title }}
                             </h2>
-                            <p class="text-sm text-gray-600 mt-0.5">Complete and submit your work below</p>
+                            <p class="text-sm  mt-0.5">Complete and submit your work below</p>
                         </div>
                     </div>
 
                     <div class="flex flex-wrap gap-2">
-                        <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-full text-sm shadow-sm">
+                        <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200  rounded-full text-sm shadow-sm">
                             <i class="pi pi-building mr-2 text-purple-500"></i>
                             <span class="font-medium">{{ selectedAssignment.departmentName }}</span>
                         </span>
-                        <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-full text-sm shadow-sm">
+                        <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200  rounded-full text-sm shadow-sm">
                             <i class="pi pi-calendar mr-2 text-orange-500"></i>
                             <span class="font-medium">Due: {{ selectedAssignment.dueDate | date: 'MMM d, y' }}</span>
                         </span>
-                        <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-full text-sm shadow-sm">
+                        <span class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200  rounded-full text-sm shadow-sm">
                             <i class="pi pi-tag mr-2 text-pink-500"></i>
                             <span class="font-medium">{{ selectedAssignment.type }}</span>
                         </span>
@@ -41,13 +41,13 @@
                 </div>
                 <div class="xl:max-w-lg w-full">
                     <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
-                        <h4 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide flex items-center">
+                        <h4 class="text-sm font-bold  mb-3 uppercase tracking-wide flex items-center">
                             <div class="w-6 h-6 bg-indigo-100 rounded flex items-center justify-center mr-2">
                                 <i class="pi pi-file-text text-indigo-600 text-xs"></i>
                             </div>
                             Instructions
                         </h4>
-                        <div class="prose prose-sm max-w-none text-gray-700 leading-relaxed" [innerHTML]="selectedAssignment.description"></div>
+                        <div class="prose prose-sm max-w-none  leading-relaxed" [innerHTML]="selectedAssignment.description"></div>
                     </div>
                 </div>
             </div>
@@ -63,8 +63,8 @@
                                     <i class="pi pi-comments text-white text-lg"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-bold text-gray-900">Teacher Feedback</h3>
-                                    <p class="text-sm text-gray-500 mt-0.5">Reviewed by your teacher</p>
+                                    <h3 class="text-xl font-bold ">Teacher Feedback</h3>
+                                    <p class="text-sm  mt-0.5">Reviewed by your teacher</p>
                                 </div>
                             </div>
 
@@ -77,8 +77,8 @@
                                 <i class="pi pi-pencil text-white text-lg"></i>
                             </div>
                             <div>
-                                <h3 class="text-xl font-bold text-gray-900">Your Response</h3>
-                                <p class="text-sm text-gray-500 mt-0.5">Write your detailed answer below</p>
+                                <h3 class="text-xl font-bold ">Your Response</h3>
+                                <p class="text-sm  mt-0.5">Write your detailed answer below</p>
                             </div>
                         </div>
 
@@ -124,8 +124,8 @@
                                     <i class="pi pi-user-edit text-white text-lg"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-bold text-gray-900">Your Submitted Response</h3>
-                                    <p class="text-sm text-gray-500 mt-0.5">This is what you submitted</p>
+                                    <h3 class="text-xl font-bold ">Your Submitted Response</h3>
+                                    <p class="text-sm  mt-0.5">This is what you submitted</p>
                                 </div>
                             </div>
 
@@ -138,8 +138,8 @@
                                     <i class="pi pi-comments text-white text-lg"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-bold text-gray-900">Teacher Feedback</h3>
-                                    <p class="text-sm text-gray-500 mt-0.5">Reviewed by your teacher</p>
+                                    <h3 class="text-xl font-bold ">Teacher Feedback</h3>
+                                    <p class="text-sm  mt-0.5">Reviewed by your teacher</p>
                                 </div>
                             </div>
 
@@ -156,14 +156,14 @@
                                 <i class="pi pi-user text-white text-lg"></i>
                             </div>
                             <div>
-                                <h3 class="text-xl font-bold text-gray-900">Student's Answer</h3>
-                                <p class="text-sm text-gray-500 mt-0.5">Submitted response for review</p>
+                                <h3 class="text-xl font-bold ">Student's Answer</h3>
+                                <p class="text-sm  mt-0.5">Submitted response for review</p>
                             </div>
                         </div>
 
                         <div class="prose prose-sm max-w-none bg-gray-50 border border-gray-200 p-5 rounded-lg min-h-[280px] overflow-auto" [innerHTML]="studentResponse.response"></div>
 
-                        <div class="mt-4 flex items-center gap-2 text-xs text-gray-500">
+                        <div class="mt-4 flex items-center gap-2 text-xs ">
                             <i class="pi pi-clock"></i>
                             <span>Submitted on: {{ studentResponse.submissionDate | date: 'MMM d, y - h:mm a' }}</span>
                         </div>
@@ -175,8 +175,8 @@
                                 <i class="pi pi-comment text-white text-lg"></i>
                             </div>
                             <div>
-                                <h3 class="text-xl font-bold text-gray-900">Your Feedback</h3>
-                                <p class="text-sm text-gray-500 mt-0.5">Provide constructive comments and evaluation</p>
+                                <h3 class="text-xl font-bold ">Your Feedback</h3>
+                                <p class="text-sm  mt-0.5">Provide constructive comments and evaluation</p>
                             </div>
                         </div>
 
@@ -230,8 +230,8 @@
             <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-5 shadow-sm">
                 <i class="pi pi-inbox text-3xl text-gray-400"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">No Assignment Selected</h3>
-            <p class="text-gray-500 max-w-md text-sm leading-relaxed">Please select an assignment from the list to view details and submit your response. If you're having trouble, try refreshing the page.</p>
+            <h3 class="text-xl font-bold  mb-2">No Assignment Selected</h3>
+            <p class=" max-w-md text-sm leading-relaxed">Please select an assignment from the list to view details and submit your response. If you're having trouble, try refreshing the page.</p>
         </div>
     </ng-template>
 

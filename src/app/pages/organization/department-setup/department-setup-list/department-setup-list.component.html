@@ -3,8 +3,8 @@
 <div class="space-y-6">
   <!-- Header -->
   <div>
-    <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Department Management</h1>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Select a department to configure</p>
+    <h1 class="text-2xl font-semibold  dark:text-white">Department Management</h1>
+    <p class="text-sm   mt-1">Select a department to configure</p>
   </div>
 
   <!-- Departments Grid -->
@@ -21,7 +21,7 @@
               <div class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600">
                 <i class="pi pi-building text-base text-primary-600 dark:text-primary-400"></i>
               </div>
-              <h5 class="text font-semibold text-gray-700 dark:text-white line-clamp-1">{{dept.name | lowercase}}</h5>
+              <h5 class="text font-semibold  dark:text-white line-clamp-1">{{dept.name | lowercase}}</h5>
             </div>
           </div>
 
@@ -33,17 +33,17 @@
             <!-- Name & Description -->
             <div class="space-y-1">
               
-              <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">{{dept.description || 'No description'}}</p>
+              <p class="text-xs   line-clamp-1">{{dept.description || 'No description'}}</p>
             </div>
 
             <!-- Info Row -->
             <div class="flex items-center justify-between text-xs pt-2 border-t border-gray-100 dark:border-gray-700">
-              <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+              <div class="flex items-center gap-1  ">
                 <i class="pi pi-tag text-gray-400"></i>
                 <span class="font-mono">{{dept.code}}</span>
               </div>
               <div class="flex items-center gap-1" 
-                   [ngClass]="dept.hod ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-400 dark:text-gray-500'">
+                   [ngClass]="dept.hod ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-400 '">
                 <i class="pi pi-crown text-xs"></i>
                 <span class="hidden sm:inline">{{dept.hod ? 'HOD' : '-'}}</span>
               </div>
@@ -52,12 +52,12 @@
             <!-- Classes & Button Row -->
             <div class="flex items-center justify-between gap-2 pt-2">
               @if(dept.classes && dept.classes.length > 0) {
-                <span class="text-xs text-gray-600 dark:text-gray-400">
+                <span class="text-xs  ">
                   {{dept.classes.length}} <span class="hidden sm:inline">Classes</span>
                 </span>
               }
               @if(!dept.classes || dept.classes.length === 0) {
-                <span class="text-xs text-gray-400 dark:text-gray-500">No classes</span>
+                <span class="text-xs text-gray-400 ">No classes</span>
               }
               <button 
                 pButton 
@@ -80,9 +80,9 @@
   @if(masterDepartments?.length === 0) {
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 py-12 px-6 text-center">
       <div class="mb-4">
-        <i class="pi pi-inbox text-4xl text-gray-300 dark:text-gray-600"></i>
+        <i class="pi pi-inbox text-4xl  "></i>
       </div>
-      <p class="text-gray-600 dark:text-gray-400 text-sm">No departments available</p>
+      <p class="  text-sm">No departments available</p>
     </div>
   }
 </div>

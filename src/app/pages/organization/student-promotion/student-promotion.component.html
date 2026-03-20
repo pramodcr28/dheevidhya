@@ -3,17 +3,17 @@
 <div>
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
         <div>
-            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Student Promotion</h2>
-            <p class="text-gray-600 mt-1">Promote students to next academic year</p>
+            <h2 class="text-2xl sm:text-3xl font-bold ">Student Promotion</h2>
+            <p class=" mt-1">Promote students to next academic year</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <p-card>
             <ng-template pTemplate="header">
-                <div class="p-4 border-b bg-gradient-to-r from-blue-50 to-cyan-50">
-                    <h3 class="text-lg font-bold text-gray-800">Current Student Selection</h3>
-                    <p class="text-sm text-gray-600 mt-1">Select the current section to view students who need promotion</p>
+                <div class="p-4 border-b bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-800 dark:to-cyan-700">
+                    <h3 class="text-lg font-bold ">Current Student Selection</h3>
+                    <p class="text-sm  mt-1">Select the current section to view students who need promotion</p>
                 </div>
             </ng-template>
 
@@ -30,7 +30,7 @@
                     placeholder="Select Department">
                 </dhee-select>
                 <div>
-                    <label class="block font-semibold mb-2 text-gray-700">Class <span class="text-red-500">*</span></label>
+                    <label class="block font-semibold mb-2 ">Class <span class="text-red-500">*</span></label>
                     <p-select 
                         [options]="selectedDepartment?.department.classes"
                         [(ngModel)]="selectedClass"
@@ -43,7 +43,7 @@
                 </div>
 
                 <div>
-                    <label class="block font-semibold mb-2 text-gray-700">Section <span class="text-red-500">*</span></label>
+                    <label class="block font-semibold mb-2 ">Section <span class="text-red-500">*</span></label>
                     <p-select 
                         [options]="selectedClass?.sections" 
                         [(ngModel)]="selectedSection"
@@ -136,7 +136,7 @@
                         </ng-template>
                         <ng-template pTemplate="emptymessage">
                             <tr>
-                                <td colspan="5" class="text-center py-8 text-gray-500">
+                                <td colspan="5" class="text-center py-8 ">
                                     <i class="pi pi-users text-3xl mb-2 opacity-50"></i>
                                     <p>No students need promotion in the selected section.</p>
                                 </td>
@@ -146,24 +146,24 @@
                 </div>
 
                 <div *ngIf="sourceStudents().length === 0 && (selectedSection || selectedClass)" class="text-center py-8">
-                    <i class="pi pi-users text-4xl text-gray-300 mb-4"></i>
-                    <h3 class="text-lg font-semibold text-gray-600 mb-2">No Students Found</h3>
-                    <p class="text-gray-500">No active students found in the selected section.</p>
+                    <i class="pi pi-users text-4xl  mb-4"></i>
+                    <h3 class="text-lg font-semibold  mb-2">No Students Found</h3>
+                    <p class="">No active students found in the selected section.</p>
                 </div>
 
                 <div *ngIf="!selectedSection && !selectedClass" class="text-center py-8">
-                    <i class="pi pi-filter text-4xl text-gray-300 mb-4"></i>
-                    <h3 class="text-lg font-semibold text-gray-600 mb-2">Select Department, Class & Section</h3>
-                    <p class="text-gray-500">Please select department, class, and section to view students.</p>
+                    <i class="pi pi-filter text-4xl  mb-4"></i>
+                    <h3 class="text-lg font-semibold  mb-2">Select Department, Class & Section</h3>
+                    <p class="">Please select department, class, and section to view students.</p>
                 </div>
             </div>
         </p-card>
 
         <p-card>
             <ng-template pTemplate="header">
-                <div class="p-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50">
-                    <h3 class="text-lg font-bold text-gray-800">Promotion Target</h3>
-                    <p class="text-sm text-gray-600 mt-1">Select where to promote the students</p>
+                <div class="p-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-800 dark:to-purple-700">
+                    <h3 class="text-lg font-bold ">Promotion Target</h3>
+                    <p class="text-sm  mt-1">Select where to promote the students</p>
                 </div>
             </ng-template>
 
@@ -181,7 +181,7 @@
                     placeholder="Select Department">
                 </dhee-select>
                 <div>
-                    <label class="block font-semibold mb-2 text-gray-700">Target Class <span class="text-red-500">*</span></label>
+                    <label class="block font-semibold mb-2 ">Target Class <span class="text-red-500">*</span></label>
                     <p-select 
                         [options]="targetDepartment?.department.classes"
                         [(ngModel)]="targetClass"
@@ -194,7 +194,7 @@
                 </div>
 
                 <div>
-                    <label class="block font-semibold mb-2 text-gray-700">Target Section <span class="text-red-500">*</span></label>
+                    <label class="block font-semibold mb-2 ">Target Section <span class="text-red-500">*</span></label>
                     <p-select 
                         [options]="targetClass?.sections" 
                         [(ngModel)]="targetSection"
@@ -248,7 +248,7 @@
                         </ng-template>
                         <ng-template pTemplate="emptymessage">
                             <tr>
-                                <td colspan="4" class="text-center py-8 text-gray-500">
+                                <td colspan="4" class="text-center py-8 ">
                                     <i class="pi pi-check-circle text-3xl mb-2 opacity-50"></i>
                                     <p>No students have been promoted to this target section yet.</p>
                                 </td>
@@ -258,15 +258,15 @@
                 </div>
 
                 <div *ngIf="targetStudents().length === 0 && (targetSection || targetClass)" class="text-center py-8">
-                    <i class="pi pi-arrow-right text-4xl text-gray-300 mb-4"></i>
-                    <h3 class="text-lg font-semibold text-gray-600 mb-2">Ready for Promotion</h3>
-                    <p class="text-gray-500">Select target section and use the promote button to move students.</p>
+                    <i class="pi pi-arrow-right text-4xl  mb-4"></i>
+                    <h3 class="text-lg font-semibold  mb-2">Ready for Promotion</h3>
+                    <p class="">Select target section and use the promote button to move students.</p>
                 </div>
 
                 <div *ngIf="!targetSection && !targetClass" class="text-center py-8">
-                    <i class="pi pi-target text-4xl text-gray-300 mb-4"></i>
-                    <h3 class="text-lg font-semibold text-gray-600 mb-2">Select Target Section</h3>
-                    <p class="text-gray-500">Please select target department, class, and section.</p>
+                    <i class="pi pi-target text-4xl  mb-4"></i>
+                    <h3 class="text-lg font-semibold  mb-2">Select Target Section</h3>
+                    <p class="">Please select target department, class, and section.</p>
                 </div>
             </div>
         </p-card>
@@ -293,10 +293,10 @@
                 <i class="pi pi-arrow-up text-2xl text-blue-600"></i>
             </div>
             <div>
-                <p class="font-semibold mb-2 text-gray-800">
+                <p class="font-semibold mb-2 ">
                     Are you sure you want to promote {{ selectedStudents.length }} student(s)?
                 </p>
-                <div class="text-sm text-gray-600 space-y-1">
+                <div class="text-sm  space-y-1">
                     <p><strong>From:</strong> {{ selectedClass?.name }} - {{ selectedSection?.name }}</p>
                     <p><strong>To:</strong> {{ targetClass?.name }} - {{ targetSection?.name }}</p>
                     <p><strong>Academic Year:</strong> {{ targetDepartment?.academicYear }}</p>
@@ -337,20 +337,20 @@
                     <i class="pi pi-exclamation-triangle text-2xl text-red-600"></i>
                 </div>
                 <div>
-                    <p class="font-semibold mb-2 text-gray-800">
+                    <p class="font-semibold mb-2 ">
                         Are you sure you want to mark this student as exited?
                     </p>
-                    <p class="text-sm text-gray-600 mb-2">
+                    <p class="text-sm  mb-2">
                         <strong>Student:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.fullName }}</span>
                     </p>
-                    <p class="text-sm text-gray-600">
+                    <p class="text-sm ">
                         <strong>Username:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.username }}</span>
                     </p>
                 </div>
             </div>
             
             <div class="mb-4">
-                <label class="block font-semibold mb-2 text-gray-700">Exit Reason <span class="text-red-500">*</span></label>
+                <label class="block font-semibold mb-2 ">Exit Reason <span class="text-red-500">*</span></label>
                 <textarea 
                     [(ngModel)]="exitReason"
                     rows="3" 
@@ -393,62 +393,62 @@
         [resizable]="false">
         <div *ngIf="selectedStudentDetails" class="p-4">
             <div class="mb-6">
-                <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Basic Information</h3>
+                <h3 class="text-lg font-bold  mb-3 border-b pb-2">Basic Information</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-sm font-semibold text-gray-600">Full Name</label>
-                        <p class="text-gray-800">{{ selectedStudentDetails.fullName }}</p>
+                        <label class="text-sm font-semibold ">Full Name</label>
+                        <p class="">{{ selectedStudentDetails.fullName }}</p>
                     </div>
                     <div>
-                        <label class="text-sm font-semibold text-gray-600">Username</label>
-                        <p class="text-gray-800">{{ selectedStudentDetails.username }}</p>
+                        <label class="text-sm font-semibold ">Username</label>
+                        <p class="">{{ selectedStudentDetails.username }}</p>
                     </div>
                     <div>
-                        <label class="text-sm font-semibold text-gray-600">Email</label>
-                        <p class="text-gray-800">{{ selectedStudentDetails.email }}</p>
+                        <label class="text-sm font-semibold ">Email</label>
+                        <p class="">{{ selectedStudentDetails.email }}</p>
                     </div>
                     <div>
-                        <label class="text-sm font-semibold text-gray-600">Phone</label>
-                        <p class="text-gray-800">{{ selectedStudentDetails.phone || 'N/A' }}</p>
+                        <label class="text-sm font-semibold ">Phone</label>
+                        <p class="">{{ selectedStudentDetails.phone || 'N/A' }}</p>
                     </div>
                     <div>
-                        <label class="text-sm font-semibold text-gray-600">Status</label>
+                        <label class="text-sm font-semibold ">Status</label>
                         <p-tag 
                             [value]="selectedStudentDetails.status || 'ACTIVE'" 
                             [severity]="getStatusSeverity(selectedStudentDetails.status)">
                         </p-tag>
                     </div>
                     <div>
-                        <label class="text-sm font-semibold text-gray-600">Academic Year</label>
-                        <p class="text-gray-800">{{ selectedStudentDetails.academicYear }}</p>
+                        <label class="text-sm font-semibold ">Academic Year</label>
+                        <p class="">{{ selectedStudentDetails.academicYear }}</p>
                     </div>
                 </div>
             </div>
 
             <div class="mb-6">
-                <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Current Class Information</h3>
+                <h3 class="text-lg font-bold  mb-3 border-b pb-2">Current Class Information</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-sm font-semibold text-gray-600">Class</label>
-                        <p class="text-gray-800">{{ selectedStudentDetails.roles?.student?.className }}</p>
+                        <label class="text-sm font-semibold ">Class</label>
+                        <p class="">{{ selectedStudentDetails.roles?.student?.className }}</p>
                     </div>
                     <div>
-                        <label class="text-sm font-semibold text-gray-600">Section</label>
-                        <p class="text-gray-800">{{ selectedStudentDetails.roles?.student?.sectionName }}</p>
+                        <label class="text-sm font-semibold ">Section</label>
+                        <p class="">{{ selectedStudentDetails.roles?.student?.sectionName }}</p>
                     </div>
                 </div>
             </div>
 
             <div *ngIf="selectedStudentDetails.status === 'EXITED'" class="mb-6">
-                <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Exit Information</h3>
+                <h3 class="text-lg font-bold  mb-3 border-b pb-2">Exit Information</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-sm font-semibold text-gray-600">Exit Date</label>
-                        <p class="text-gray-800">{{ selectedStudentDetails.exitDate | date:'mediumDate' }}</p>
+                        <label class="text-sm font-semibold ">Exit Date</label>
+                        <p class="">{{ selectedStudentDetails.exitDate | date:'mediumDate' }}</p>
                     </div>
                     <div class="col-span-2">
-                        <label class="text-sm font-semibold text-gray-600">Exit Reason</label>
-                        <p class="text-gray-800">{{ selectedStudentDetails.exitReason }}</p>
+                        <label class="text-sm font-semibold ">Exit Reason</label>
+                        <p class="">{{ selectedStudentDetails.exitReason }}</p>
                     </div>
                 </div>
             </div>

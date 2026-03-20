@@ -26,51 +26,7 @@ import { UserService } from '../../service/user.service';
     imports: [CommonModule, TextareaModule, DheeSelectComponent, FormsModule, ButtonModule, CardModule, DialogModule, SelectModule, TableModule, TagModule, ToastModule, TooltipModule],
     providers: [MessageService],
     templateUrl: './student-promotion.component.html',
-    styles: `
-        ::ng-deep {
-            .p-datatable {
-                .p-datatable-tbody > tr {
-                    transition: background-color 0.2s;
-
-                    &.bg-green-50:hover {
-                        background-color: #f0fdf4 !important;
-                    }
-
-                    &:hover {
-                        background-color: #fffbeb !important;
-                    }
-
-                    &.student-disabled {
-                        opacity: 0.6;
-                        background-color: #f3f4f6 !important;
-                        cursor: not-allowed;
-
-                        &:hover {
-                            background-color: #f3f4f6 !important;
-                        }
-                    }
-                }
-            }
-
-            p-card {
-                .p-card {
-                    box-shadow:
-                        0 1px 3px 0 rgba(0, 0, 0, 0.1),
-                        0 1px 2px 0 rgba(0, 0, 0, 0.06);
-                    border-radius: 0.5rem;
-                }
-
-                .p-card-header {
-                    border-radius: 0.5rem 0.5rem 0 0;
-                }
-            }
-
-            .p-tag {
-                font-size: 0.75rem;
-                padding: 0.25rem 0.5rem;
-            }
-        }
-    `
+    styles: ``
 })
 export class StudentPromotionComponent implements OnInit {
     private messageService = inject(MessageService);

@@ -109,7 +109,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             info: 'bg-blue-100  text-blue-600',
             danger: 'bg-red-100   text-red-600'
         };
-        return map[type] ?? 'bg-gray-100 text-gray-600';
+        return map[type] ?? 'bg-gray-100 ';
     }
 
     getNoticeDotClass(priority: string): string {

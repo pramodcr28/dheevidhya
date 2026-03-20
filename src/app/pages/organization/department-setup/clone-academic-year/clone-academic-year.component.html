@@ -4,12 +4,12 @@
         <div class="flex items-center gap-4">
             <button pButton icon="pi pi-arrow-left" (click)="goBack()" class="p-button-text p-button-rounded bg-white shadow-sm border border-gray-100"></button>
             <div>
-                <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Clone Academic Year</h2>
-                <p class="text-sm text-gray-500 font-semibold">Source: {{ sourceConfig?.academicYear }} ({{ masterDepartment?.name }})</p>
+                <h2 class="text-3xl font-extrabold  tracking-tight">Clone Academic Year</h2>
+                <p class="text-sm  font-semibold">Source: {{ sourceConfig?.academicYear }} ({{ masterDepartment?.name }})</p>
             </div>
         </div>
         <div class="flex gap-4">
-            <button pButton label="Cancel" class="p-button-text text-gray-500 font-bold" (click)="goBack()"></button>
+            <button pButton label="Cancel" class="p-button-text  font-bold" (click)="goBack()"></button>
             <button pButton label="Finalize Clone" icon="pi pi-copy" class="p-button-success shadow-xl shadow-green-200" (click)="saveClone()" [disabled]="!isValidRange || isOverlapping || isNotTwelveMonths" [loading]="isSaving"></button>
         </div>
     </div>
@@ -33,7 +33,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <div [formGroup]="cloneForm" class="space-y-4">
-                        <label class="text-sm font-bold text-gray-700 block">Select Start & End Month</label>
+                        <label class="text-sm font-bold  block">Select Start & End Month</label>
                         <p-datePicker formControlName="dateRange" selectionMode="range" [(ngModel)]="dateRange" dateFormat="mm/yy" view="month" [showIcon]="true" placeholder="MM/YYYY - MM/YYYY" styleClass="w-full" appendTo="body"> </p-datePicker>
 
                         <div class="mt-4 space-y-3 bg-white/50 p-4 rounded-xl border border-red-100" *ngIf="isNotTwelveMonths || isOverlapping">
@@ -73,9 +73,9 @@
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
                                     <i class="pi {{ option.icon }} text-primary-500"></i>
-                                    <span class="font-bold text-gray-900">{{ option.label }}</span>
+                                    <span class="font-bold ">{{ option.label }}</span>
                                 </div>
-                                <p class="text-xs text-gray-500">{{ option.description }}</p>
+                                <p class="text-xs ">{{ option.description }}</p>
                             </div>
                         </div>
                     }
@@ -107,11 +107,11 @@
                                 {{ s.firstName[0] }}{{ s.lastName[0] }}
                             </div>
                             <div>
-                                <p class="text-sm font-black text-gray-800">{{ s.firstName }} {{ s.lastName }}</p>
+                                <p class="text-sm font-black ">{{ s.firstName }} {{ s.lastName }}</p>
                                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Department Associate</p>
                             </div>
                         </div>
-                        <i class="pi" [ngClass]="isStaffSelected(s) ? 'pi-check-circle text-primary-600 scale-125' : 'pi-plus text-gray-200'" class="transition-transform"></i>
+                        <i class="pi" [ngClass]="isStaffSelected(s) ? 'pi-check-circle text-primary-600 scale-125' : 'pi-plus '" class="transition-transform"></i>
                     </div>
                 </div>
 
@@ -119,7 +119,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Selected Staff</p>
-                            <p class="text-xl font-black text-gray-900">{{ targetStaff.length }} Members</p>
+                            <p class="text-xl font-black ">{{ targetStaff.length }} Members</p>
                         </div>
                         <div class="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 font-black">
                             <i class="pi pi-users"></i>
@@ -135,8 +135,8 @@
                     <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-6 mx-auto">
                         <i class="pi pi-users text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">Staff Assignment Disabled</h3>
-                    <p class="text-sm text-gray-500 mb-4">
+                    <h3 class="text-lg font-bold  mb-2">Staff Assignment Disabled</h3>
+                    <p class="text-sm  mb-4">
                         <span class="font-bold">{{ cloneForm.get('cloneType')?.value === 'structure' ? 'Structure Only' : 'Minimal' }}</span>
                         cloning does not include staff assignments.
                     </p>

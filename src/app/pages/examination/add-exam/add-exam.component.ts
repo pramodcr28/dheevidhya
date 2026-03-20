@@ -617,7 +617,7 @@ export class AddExamComponent {
             [ExamStatus.ONGOING]: 'text-green-500',
             [ExamStatus.RESULT_DECLARED]: 'text-teal-500'
         };
-        return colors[status] || 'text-gray-500';
+        return colors[status] || '';
     }
 
     getAvailableActions(exam: any): any[] {
@@ -775,7 +775,7 @@ export class AddExamComponent {
             [ExamStatus.ONGOING]: 'text-green-500',
             [ExamStatus.RESULT_DECLARED]: 'text-teal-500'
         };
-        return colors[status] || 'text-gray-500';
+        return colors[status] || '';
     }
 
     getButtonClassForStatus(status: ExamStatus): string {

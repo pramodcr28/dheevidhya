@@ -7,7 +7,7 @@
     </h3>
     <div class="grid grid-cols-2 gap-4 items-center">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+        <label class="block text-sm font-medium  mb-2">Start Date</label>
         <p-date-picker 
           [(ngModel)]="es.timeTable.settings.startDate" 
           [showIcon]="true"
@@ -17,7 +17,7 @@
         </p-date-picker>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+        <label class="block text-sm font-medium  mb-2">End Date</label>
         <p-date-picker 
           [(ngModel)]="es.timeTable.settings.endDate" 
           [showIcon]="true"
@@ -28,7 +28,7 @@
         </p-date-picker>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Day Start Time</label>
+        <label class="block text-sm font-medium  mb-2">Day Start Time</label>
         <p-date-picker 
           [(ngModel)]="es.timeTable.settings.dayStartTime" 
           [timeOnly]="true"
@@ -39,7 +39,7 @@
         </p-date-picker>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Day End Time</label>
+        <label class="block text-sm font-medium  mb-2">Day End Time</label>
         <p-date-picker 
           appendTo="body"
           [(ngModel)]="es.timeTable.settings.dayEndTime" 
@@ -50,7 +50,7 @@
         </p-date-picker>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Slots Per Day</label>
+        <label class="block text-sm font-medium  mb-2">Slots Per Day</label>
         <p-select 
           appendTo="body"
           [(ngModel)]="es.timeTable.settings.slotsPerDay" 
@@ -62,7 +62,7 @@
         </p-select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Slot Duration</label>
+        <label class="block text-sm font-medium  mb-2">Slot Duration</label>
         <p-select 
           appendTo="body"
           [(ngModel)]="es.timeTable.settings.slotDuration" 
@@ -112,8 +112,8 @@
   <div class="space-y-6">
  
           <div class="flex justify-between items-center mb-2">
-            <label class="text-sm font-medium text-gray-700">Set Common Break for All</label>
-            <span class="text-sm text-gray-600">{{ es.timeTable.settings.breakDuration }} min</span>
+            <label class="text-sm font-medium ">Set Common Break for All</label>
+            <span class="text-sm ">{{ es.timeTable.settings.breakDuration }} min</span>
           </div>
           <p-slider
             [(ngModel)]="es.timeTable.settings.breakDuration"
@@ -143,7 +143,7 @@
   </div>
 }
 
-  <div *ngIf="es.timeTable.settings.slotsPerDay <= 1" class="text-gray-500 text-sm italic">
+  <div *ngIf="es.timeTable.settings.slotsPerDay <= 1" class=" text-sm italic">
     No breaks needed for a single slot.
   </div>
 </div>
@@ -176,12 +176,12 @@
           <table class="w-full">
             <thead>
               <tr>
-                <th class="p-3 text-left font-medium bg-gray-100 text-gray-700 border-r">Date</th>
+                <th class="p-3 text-left font-medium bg-gray-100  border-r">Date</th>
                 <th 
                 *ngFor="let slot of es.timeSlots; let i = index"
-                class="p-3 bg-gray-100 text-center font-medium text-gray-700 border-r min-w-48">
+                class="p-3 bg-gray-100 text-center font-medium  border-r min-w-48">
                 Slot {{ i + 1 }}
-                <div class="text-xs text-gray-500 mt-1">{{ slot }}</div>
+                <div class="text-xs  mt-1">{{ slot }}</div>
               </th>
               </tr>
             </thead>
@@ -221,9 +221,9 @@
       
       <!-- Placeholder when no schedule -->
       <div *ngIf="es.timeTable.schedules.length === 0" class="bg-white p-12 rounded-lg shadow-md text-center">
-        <i class="pi pi-calendar text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-xl font-semibold text-gray-600 mb-2">No Schedule Generated</h3>
-        <p class="text-gray-500">Configure the dates and slots, then click "Add Template" to create your schedule.</p>
+        <i class="pi pi-calendar text-6xl  mb-4"></i>
+        <h3 class="text-xl font-semibold  mb-2">No Schedule Generated</h3>
+        <p class="">Configure the dates and slots, then click "Add Template" to create your schedule.</p>
       </div>
     </div>
   </div>

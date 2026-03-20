@@ -1,11 +1,11 @@
 <div class="space-y-6">
     <div class="bg-white p-6 rounded-lg shadow-sm border">
-        <h4 class="font-medium text-gray-900 mb-4 flex items-center">
+        <h4 class="font-medium  mb-4 flex items-center">
             <i class="pi pi-calendar mr-2"></i>
             Days Configuration
         </h4>
         <div class="flex justify-between items-center mb-4">
-            <span class="text-sm text-gray-700"> Select which days are school days. Others will be considered off. </span>
+            <span class="text-sm "> Select which days are school days. Others will be considered off. </span>
         </div>
 
         <div class="grid grid-cols-7 gap-2 mb-6">
@@ -18,7 +18,7 @@
                 [class.border-red-500]="!day.selected"
                 [class.bg-red-50]="!day.selected"
             >
-                <div class="font-medium text-sm text-gray-700">{{ day.name }}</div>
+                <div class="font-medium text-sm ">{{ day.name }}</div>
                 <div class="mt-1">
                     <i class="pi pi-check-circle text-green-500" *ngIf="day.selected"></i>
                     <i class="pi pi-times-circle text-red-500" *ngIf="!day.selected"></i>
@@ -28,7 +28,7 @@
     </div>
 
     <div class="bg-white p-6 rounded-lg shadow-sm border">
-        <h4 class="font-medium text-gray-900 mb-4 flex items-center">
+        <h4 class="font-medium  mb-4 flex items-center">
             <i class="pi pi-cog mr-2"></i>
             Timetable Settings
         </h4>
@@ -63,7 +63,7 @@
                 </div>
             } @else if (associatedDepartments) {
                 <div>
-                    <label class="block font-semibold mb-2 text-gray-700"> Department <span class="text-red-500">*</span> </label>
+                    <label class="block font-semibold mb-2 "> Department <span class="text-red-500">*</span> </label>
 
                     <p-select
                         [options]="associatedDepartments"
@@ -110,24 +110,24 @@
               </div>
               } -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Periods Per Day</label>
+                <label class="block text-sm font-medium  mb-2">Periods Per Day</label>
                 <p-inputNumber [(ngModel)]="timeTableService.timeTable.settings.periodsPerDay" [min]="1" [max]="12" styleClass="w-full"> </p-inputNumber>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Default Period Duration (min)</label>
+                <label class="block text-sm font-medium  mb-2">Default Period Duration (min)</label>
                 <p-inputNumber [(ngModel)]="timeTableService.timeTable.settings.periodDuration" [min]="10" [max]="90" styleClass="w-full" />
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium  mb-2">
                     Default Break Duration (min)
-                    <span class="text-xs text-gray-500 ml-1">(Legacy - use break config below)</span>
+                    <span class="text-xs  ml-1">(Legacy - use break config below)</span>
                 </label>
                 <p-inputNumber [(ngModel)]="timeTableService.timeTable.settings.breakDuration" [min]="0" [max]="60" styleClass="w-full" />
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                <label class="block text-sm font-medium  mb-2">Start Time</label>
   <input
   #timeInput
   type="time"
@@ -138,7 +138,7 @@
 />
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                <label class="block text-sm font-medium  mb-2">End Time</label>
 <input
   #endTimeInput
   type="time"
@@ -153,7 +153,7 @@
 
     <div class="bg-white p-6 rounded-lg shadow-sm border">
         <div class="flex justify-between items-center mb-4">
-            <h4 class="font-medium text-gray-900 flex items-center">
+            <h4 class="font-medium  flex items-center">
                 <i class="pi pi-coffee mr-2"></i>
                 Break Configuration
             </h4>
@@ -163,7 +163,7 @@
             </button>
         </div>
 
-        <div class="text-sm text-gray-600 mb-4">Configure breaks to be inserted between periods (e.g., tea break after 2nd period, lunch after 4th period)</div>
+        <div class="text-sm  mb-4">Configure breaks to be inserted between periods (e.g., tea break after 2nd period, lunch after 4th period)</div>
 
         <div class="space-y-3">
             <div *ngFor="let break of timeTableService.timeTable.settings.breaks; let i = index" class="p-4 border rounded-lg" [class.bg-gray-50]="!break.enabled" [class.bg-blue-50]="break.enabled">
@@ -172,15 +172,15 @@
                         <p-checkbox [(ngModel)]="break.enabled" [binary]="true" [ngModelOptions]="{ standalone: true }"> </p-checkbox>
                     </div>
                     <div class="md:col-span-3">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Break Name</label>
+                        <label class="block text-xs font-medium  mb-1">Break Name</label>
                         <input type="text" [(ngModel)]="break.name" [ngModelOptions]="{ standalone: true }" placeholder="e.g., Lunch Break" class="w-full border border-gray-300 rounded-lg p-2 text-sm" [disabled]="!break.enabled" />
                     </div>
                     <div class="md:col-span-3">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">After Period</label>
+                        <label class="block text-xs font-medium  mb-1">After Period</label>
                         <p-inputNumber [(ngModel)]="break.afterPeriod" [ngModelOptions]="{ standalone: true }" [min]="1" [max]="getMaxPeriodForBreak()" placeholder="Period #" styleClass="w-full" [disabled]="!break.enabled"> </p-inputNumber>
                     </div>
                     <div class="md:col-span-3">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Duration (min)</label>
+                        <label class="block text-xs font-medium  mb-1">Duration (min)</label>
                         <p-inputNumber [(ngModel)]="break.duration" [ngModelOptions]="{ standalone: true }" [min]="5" [max]="60" placeholder="Minutes" styleClass="w-full" [disabled]="!break.enabled"> </p-inputNumber>
                     </div>
 
@@ -191,13 +191,13 @@
                         </button>
                     </div>
                 </div>
-                <div *ngIf="break.enabled" class="mt-2 text-xs text-gray-600 flex items-center gap-1">
+                <div *ngIf="break.enabled" class="mt-2 text-xs  flex items-center gap-1">
                     <i class="pi pi-info-circle"></i>
                     This break will be inserted after period {{ break.afterPeriod }}
                 </div>
             </div>
 
-            <div *ngIf="!timeTableService.timeTable.settings.breaks || timeTableService.timeTable.settings.breaks.length === 0" class="text-center py-8 text-gray-500">
+            <div *ngIf="!timeTableService.timeTable.settings.breaks || timeTableService.timeTable.settings.breaks.length === 0" class="text-center py-8 ">
                 <i class="pi pi-coffee text-4xl mb-2"></i>
                 <p>No breaks configured. Click "Add Break" to add breaks like tea break or lunch break.</p>
             </div>

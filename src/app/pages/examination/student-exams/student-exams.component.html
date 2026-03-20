@@ -7,7 +7,7 @@
                     (click)="setFilter('all')"
                     [class]="selectedFilter === 'all' 
                         ? 'bg-primary-500 text-white' 
-                        : 'bg-white text-gray-700 hover:bg-gray-50'"
+                        : 'bg-white  hover:bg-gray-50'"
                     class="px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm border border-gray-200">
                     <i class="pi pi-list mr-2"></i>All
                 </button>
@@ -15,7 +15,7 @@
                     (click)="setFilter('upcoming')"
                     [class]="selectedFilter === 'upcoming' 
                         ? 'bg-primary-500 text-white' 
-                        : 'bg-white text-gray-700 hover:bg-gray-50'"
+                        : 'bg-white  hover:bg-gray-50'"
                     class="px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm border border-gray-200">
                     <i class="pi pi-clock mr-2"></i>Upcoming
                 </button>
@@ -23,7 +23,7 @@
                     (click)="setFilter('ongoing')"
                     [class]="selectedFilter === 'ongoing' 
                         ? 'bg-primary-500 text-white' 
-                        : 'bg-white text-gray-700 hover:bg-gray-50'"
+                        : 'bg-white  hover:bg-gray-50'"
                     class="px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm border border-gray-200">
                     <i class="pi pi-play-circle mr-2"></i>Ongoing
                 </button>
@@ -31,7 +31,7 @@
                     (click)="setFilter('completed')"
                     [class]="selectedFilter === 'completed' 
                         ? 'bg-primary-500 text-white' 
-                        : 'bg-white text-gray-700 hover:bg-gray-50'"
+                        : 'bg-white  hover:bg-gray-50'"
                     class="px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm border border-gray-200">
                     <i class="pi pi-check-circle mr-2"></i>Completed
                 </button>
@@ -46,8 +46,8 @@
                 <div class="inline-block p-6 bg-white rounded-full shadow-lg mb-4">
                     <i class="pi pi-inbox text-6xl text-gray-400"></i>
                 </div>
-                <h3 class="text-2xl font-semibold text-gray-700 mb-2">No Exams Found</h3>
-                <p class="text-gray-500">There are no {{ selectedFilter === 'all' ? '' : selectedFilter }} exams at the moment.</p>
+                <h3 class="text-2xl font-semibold  mb-2">No Exams Found</h3>
+                <p class="">There are no {{ selectedFilter === 'all' ? '' : selectedFilter }} exams at the moment.</p>
             </div>
         } @else {
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -104,8 +104,8 @@
                                         <i class="pi pi-book text-blue-600 text-lg"></i>
                                     </div>
                                     <!-- <div>
-                                        <p class="text-xs text-gray-500 mb-1">Subjects</p>
-                                        <p class="font-bold text-gray-800">{{ exam.subjects?.length }}</p>
+                                        <p class="text-xs  mb-1">Subjects</p>
+                                        <p class="font-bold ">{{ exam.subjects?.length }}</p>
                                     </div> -->
                                 </div>
                                 <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
@@ -113,15 +113,15 @@
                                         <i class="pi pi-star text-purple-600 text-lg"></i>
                                     </div>
                                     <div>
-                                        <p class="text-xs text-gray-500 mb-1">Total Marks</p>
-                                        <p class="font-bold text-gray-800">{{ exam.totalMarks }}</p>
+                                        <p class="text-xs  mb-1">Total Marks</p>
+                                        <p class="font-bold ">{{ exam.totalMarks }}</p>
                                     </div>
                                 </div>
                             </div>
 
                             @if (getScheduledSubjects(exam).length > 0) {
                                 <div class="border-t pt-4">
-                                    <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                    <h4 class="text-sm font-semibold  mb-3 flex items-center gap-2">
                                         <i class="pi pi-calendar-plus"></i>
                                         Exam Schedule
                                     </h4>
@@ -131,21 +131,21 @@
                                                  [style.background]="schedule.color || 'linear-gradient(135deg, #f3f4f6, #e5e7eb)'">
                                                 <div class="flex items-center gap-3 flex-1">
                                                     <div class="bg-white/80 backdrop-blur-sm p-2 rounded-lg">
-                                                        <i class="pi pi-book text-gray-700"></i>
+                                                        <i class="pi pi-book "></i>
                                                     </div>
                                                     <div class="flex-1">
-                                                        <p class="font-semibold text-gray-800 text-sm">{{ schedule.subjectName }}</p>
-                                                        <p class="text-xs text-gray-600 mt-0.5">
+                                                        <p class="font-semibold  text-sm">{{ schedule.subjectName }}</p>
+                                                        <p class="text-xs  mt-0.5">
                                                             {{ formatDate(schedule.day) }}
                                                         </p>
                                                     </div>
                                                 </div>
                                                 <div class="text-right bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg">
-                                                    <p class="text-xs text-gray-500 mb-0.5">Time</p>
-                                                    <p class="font-semibold text-gray-800 text-sm">
+                                                    <p class="text-xs  mb-0.5">Time</p>
+                                                    <p class="font-semibold  text-sm">
                                                         {{ formatTime(schedule.startTime) }}
                                                     </p>
-                                                    <p class="text-xs text-gray-600">
+                                                    <p class="text-xs ">
                                                         {{ exam.timeTable.settings.slotDuration }} mins
                                                     </p>
                                                 </div>
@@ -159,12 +159,12 @@
                         <!-- Card Footer -->
                         <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
                             <div class="flex items-center justify-between text-sm">
-                                <div class="flex items-center gap-2 text-gray-600">
+                                <div class="flex items-center gap-2 ">
                                     <i class="pi pi-info-circle"></i>
                                     <span>Duration: {{ exam.timeTable.settings.slotDuration }} mins per subject</span>
                                 </div>
                                 @if (exam.timeTable.settings.breakDuration > 0) {
-                                    <div class="flex items-center gap-2 text-gray-600">
+                                    <div class="flex items-center gap-2 ">
                                         <i class="pi pi-pause-circle"></i>
                                         <span>Break: {{ exam.timeTable.settings.breakDuration }} mins</span>
                                     </div>

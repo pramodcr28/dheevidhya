@@ -11,11 +11,11 @@
             >
               <div class="flex items-center gap-4 text-left">
                 <i 
-                  class="pi text-gray-600 transition-transform"
+                  class="pi  transition-transform"
                   [ngClass]="isSectionExpanded(section.id) ? 'pi-chevron-down' : 'pi-chevron-right'"
                 ></i>
                 <div>
-                  <p class="font-semibold text-gray-900">{{ section.name }}</p>
+                  <p class="font-semibold ">{{ section.name }}</p>
                 </div>
               </div>
               
@@ -32,9 +32,9 @@
                 <table class="w-full">
                   <thead>
                     <tr class="border-b bg-gray-50">
-                      <th class="text-left py-3 px-4 font-medium text-gray-700 text-sm">NAME</th>
-                      <th class="text-left py-3 px-4 font-medium text-gray-700 text-sm">PERIOD/WEEK</th>
-                      <th class="text-left py-3 px-4 font-medium text-gray-700 text-sm">ACTIONS</th>
+                      <th class="text-left py-3 px-4 font-medium  text-sm">NAME</th>
+                      <th class="text-left py-3 px-4 font-medium  text-sm">PERIOD/WEEK</th>
+                      <th class="text-left py-3 px-4 font-medium  text-sm">ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -43,7 +43,7 @@
                       class="border-b hover:bg-gray-50 transition-colors"
                     >
                       <td class="py-3 px-4">
-                        <span class="font-medium text-gray-900">{{ subject.name }}</span>
+                        <span class="font-medium ">{{ subject.name }}</span>
                       </td>
                       <td class="py-3 px-4">
                         <p-inputNumber
@@ -75,7 +75,7 @@
 
               <!-- Empty State -->
               <div *ngIf="section.subjects.length === 0" class="text-center py-8">
-                <p class="text-gray-500 text-sm">No subjects assigned to this section</p>
+                <p class=" text-sm">No subjects assigned to this section</p>
               </div>
             </div>
           </div>

@@ -20,7 +20,7 @@
           <div class="space-y-4">
             <!-- Title -->
             <div>
-              <label for="title" class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+              <label for="title" class="block text-sm font-semibold mb-2  ">
                 Title <span class="text-red-500">*</span>
               </label>
               <input 
@@ -36,7 +36,7 @@
 
             <!-- Priority -->
             <div>
-              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+              <label class="block text-sm font-semibold mb-2  ">
                 Priority <span class="text-red-500">*</span>
               </label>
               <p-selectButton 
@@ -56,7 +56,7 @@
         <p-panel header="Category Details" [toggleable]="false" styleClass="rounded-xl">
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+              <label class="block text-sm font-semibold mb-2  ">
                 Category <span class="text-red-500">*</span>
               </label>
               <p-select 
@@ -83,7 +83,7 @@
               
               <!-- Timetable -->
               <div *ngSwitchCase="'TIMETABLE'" formGroupName="timetable">
-                <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Effective Date</label>
+                <label class="block text-sm font-semibold mb-2  ">Effective Date</label>
                 <p-datepicker 
                   formControlName="effectiveDate" 
                   dateFormat="yy-mm-dd" 
@@ -98,7 +98,7 @@
               <div *ngSwitchCase="'ATTENDANCE'" formGroupName="attendance" class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Attendance %</label>
+                    <label class="block text-sm font-semibold mb-2  ">Attendance %</label>
                     <p-inputNumber 
                       formControlName="attendancePercentage" 
                       [min]="0" 
@@ -108,7 +108,7 @@
                     </p-inputNumber>
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Type</label>
+                    <label class="block text-sm font-semibold mb-2  ">Type</label>
                     <p-select 
                       [options]="attendanceTypes" 
                       formControlName="attendanceType" 
@@ -125,7 +125,7 @@
                     formControlName="parentMeetingRequired" 
                     [binary]="true" 
                     inputId="parentMeetingRequired" />
-                  <label for="parentMeetingRequired" class="text-sm text-gray-700 dark:text-gray-300">
+                  <label for="parentMeetingRequired" class="text-sm  ">
                     Parent meeting required
                   </label>
                 </div>
@@ -134,11 +134,11 @@
               <!-- Exam Announcement -->
               <div *ngSwitchCase="'EXAM_ANNOUNCEMENT'" formGroupName="examAnnouncement" class="space-y-3">
                 <div>
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Exam Title</label>
+                  <label class="block text-sm font-semibold mb-2  ">Exam Title</label>
                   <input pInputText formControlName="examTitle" placeholder="Enter exam title" class="w-full" />
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Exam Type</label>
+                  <label class="block text-sm font-semibold mb-2  ">Exam Type</label>
                   <p-select 
                     [options]="examTypes" 
                     formControlName="examType" 
@@ -149,7 +149,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Start Date</label>
+                    <label class="block text-sm font-semibold mb-2  ">Start Date</label>
                     <p-datepicker 
                       formControlName="examStartDate" 
                       dateFormat="yy-mm-dd" 
@@ -160,7 +160,7 @@
                     </p-datepicker>
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">End Date</label>
+                    <label class="block text-sm font-semibold mb-2  ">End Date</label>
                     <p-datepicker 
                       formControlName="examEndDate" 
                       dateFormat="yy-mm-dd" 
@@ -177,11 +177,11 @@
               <!-- Exam Result -->
               <div *ngSwitchCase="'EXAM_RESULT'" formGroupName="examResult" class="space-y-3">
                 <div>
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Exam Title</label>
+                  <label class="block text-sm font-semibold mb-2  ">Exam Title</label>
                   <input pInputText formControlName="examTitle" placeholder="Enter exam title" class="w-full" />
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Exam Type</label>
+                  <label class="block text-sm font-semibold mb-2  ">Exam Type</label>
                   <p-select 
                     [options]="examTypes" 
                     formControlName="examType" 
@@ -191,7 +191,7 @@
                   </p-select>
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Result Declaration Date</label>
+                  <label class="block text-sm font-semibold mb-2  ">Result Declaration Date</label>
                   <p-datepicker 
                     formControlName="resultDeclarationDate" 
                     dateFormat="yy-mm-dd"
@@ -205,7 +205,7 @@
 
               <div *ngSwitchCase="'HOLIDAY'" formGroupName="holiday" class="space-y-3">
                 <div>
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Holiday Type</label>
+                  <label class="block text-sm font-semibold mb-2  ">Holiday Type</label>
                   <p-select 
                     [options]="holidayTypes" 
                     formControlName="holidayType" 
@@ -219,7 +219,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3" *ngIf="noticeForm.get('holiday.holidayType')?.value !== 'Week_off'">
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Start Date</label>
+                    <label class="block text-sm font-semibold mb-2  ">Start Date</label>
                     <p-datepicker 
                       formControlName="holidayStartDate" 
                       dateFormat="yy-mm-dd" 
@@ -230,7 +230,7 @@
                     </p-datepicker>
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">End Date</label>
+                    <label class="block text-sm font-semibold mb-2  ">End Date</label>
                     <p-datepicker 
                       formControlName="holidayEndDate" 
                       dateFormat="yy-mm-dd"
@@ -243,7 +243,7 @@
                   </div>
                 </div>
                 <div *ngIf="noticeForm.get('holiday.holidayType')?.value === 'Week_off'">
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Week Off Day</label>
+                  <label class="block text-sm font-semibold mb-2  ">Week Off Day</label>
                   <p-select 
                     [options]="weekDays" 
                     formControlName="weekOffDay" 
@@ -259,7 +259,7 @@
               <!-- Meeting -->
               <div *ngSwitchCase="'MEETING'" formGroupName="meeting" class="space-y-3">
                 <div>
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Meeting Type</label>
+                  <label class="block text-sm font-semibold mb-2  ">Meeting Type</label>
                   <p-select 
                     [options]="meetingTypes" 
                     formControlName="meetingType" 
@@ -272,7 +272,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Meeting Date</label>
+                    <label class="block text-sm font-semibold mb-2  ">Meeting Date</label>
                     <p-datepicker 
                       formControlName="meetingDate" 
                       dateFormat="yy-mm-dd" 
@@ -283,7 +283,7 @@
                     </p-datepicker>
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Meeting Time</label>
+                    <label class="block text-sm font-semibold mb-2  ">Meeting Time</label>
               <p-date-picker
                   timeOnly
                   hourFormat="12"
@@ -294,7 +294,7 @@
                   </div>
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Venue</label>
+                  <label class="block text-sm font-semibold mb-2  ">Venue</label>
                   <input pInputText formControlName="venue" placeholder="Enter venue" class="w-full" />
                 </div>
               </div>
@@ -302,7 +302,7 @@
               <!-- Appreciation -->
               <div *ngSwitchCase="'APPRECIATION'" formGroupName="appreciation" class="space-y-3">
                 <div>
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Recipient IDs</label>
+                  <label class="block text-sm font-semibold mb-2  ">Recipient IDs</label>
                   <input 
                     pInputText 
                     formControlName="recipientIds" 
@@ -311,7 +311,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Achievement Category</label>
+                    <label class="block text-sm font-semibold mb-2  ">Achievement Category</label>
                     <p-select 
                       [options]="appreciationCategories" 
                       formControlName="achievementCategory" 
@@ -323,7 +323,7 @@
                     </p-select>
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Recognition Level</label>
+                    <label class="block text-sm font-semibold mb-2  ">Recognition Level</label>
                     <p-select 
                       [options]="recognitionLevels" 
                       formControlName="recognitionLevel" 
@@ -341,7 +341,7 @@
               <div *ngSwitchCase="'SCHOOL_ACHIEVEMENT'" formGroupName="schoolAchievement" class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Achievement Category</label>
+                    <label class="block text-sm font-semibold mb-2  ">Achievement Category</label>
                     <p-select 
                       [options]="schoolAchievementCategories" 
                       formControlName="achievementCategory" 
@@ -353,7 +353,7 @@
                     </p-select>
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Achievement Date</label>
+                    <label class="block text-sm font-semibold mb-2  ">Achievement Date</label>
                     <p-datepicker 
                       formControlName="achievementDate" 
                       dateFormat="yy-mm-dd"
@@ -365,7 +365,7 @@
                   </div>
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Recipient IDs</label>
+                  <label class="block text-sm font-semibold mb-2  ">Recipient IDs</label>
                   <input 
                     pInputText 
                     formControlName="recipientIds" 
@@ -378,11 +378,11 @@
               <!-- <div *ngSwitchCase="'FEST'" formGroupName="fest" class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Fest Name</label>
+                    <label class="block text-sm font-semibold mb-2  ">Fest Name</label>
                     <input pInputText formControlName="festName" placeholder="Fest name" class="w-full" />
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Fest Type</label>
+                    <label class="block text-sm font-semibold mb-2  ">Fest Type</label>
                     <p-select 
                       [options]="festTypes" 
                       formControlName="festType" 
@@ -396,7 +396,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Start Date</label>
+                    <label class="block text-sm font-semibold mb-2  ">Start Date</label>
                     <p-datepicker 
                       formControlName="eventStartDate" 
                       dateFormat="yy-mm-dd" 
@@ -407,7 +407,7 @@
                     </p-datepicker>
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">End Date</label>
+                    <label class="block text-sm font-semibold mb-2  ">End Date</label>
                     <p-datepicker 
                       formControlName="eventEndDate" 
                       dateFormat="yy-mm-dd" 
@@ -420,7 +420,7 @@
                   </div>
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Venue</label>
+                  <label class="block text-sm font-semibold mb-2  ">Venue</label>
                   <input pInputText formControlName="venue" placeholder="Enter venue" class="w-full" />
                 </div>
               </div> -->
@@ -432,7 +432,7 @@
         <p-panel header="Target Audience" [toggleable]="false" styleClass="rounded-xl">
           <div formGroupName="targetAudience" class="space-y-3">
             <div>
-              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+              <label class="block text-sm font-semibold mb-2  ">
                 Audience Type <span class="text-red-500">*</span>
               </label>
               <p-select 
@@ -447,7 +447,7 @@
             </div>
 
             <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'ACADEMIC_UNIT'">
-              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+              <label class="block text-sm font-semibold mb-2  ">
                 Select Academic Units <span class="text-red-500">*</span>
               </label>
               <p-treeSelect
@@ -467,7 +467,7 @@
             </div>
 
             <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'STUDENT'">
-              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+              <label class="block text-sm font-semibold mb-2  ">
                 Select Students <span class="text-red-500">*</span>
               </label>
               <p-multiSelect
@@ -485,7 +485,7 @@
             </div>
 
             <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'STAFF'">
-              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+              <label class="block text-sm font-semibold mb-2  ">
                 Select Staff <span class="text-red-500">*</span>
               </label>
               <p-multiSelect
@@ -503,7 +503,7 @@
             </div>
 
             <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'ROLE'">
-              <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+              <label class="block text-sm font-semibold mb-2  ">
                 Select Roles <span class="text-red-500">*</span>
               </label>
               <p-multiSelect

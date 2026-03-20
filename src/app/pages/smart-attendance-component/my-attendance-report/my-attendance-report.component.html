@@ -111,8 +111,8 @@
                     <i class="pi pi-calendar text-blue-600 dark:text-blue-400"></i>
                 </div>
                 <div>
-                    <div class="text-2xl font-black text-gray-900 dark:text-white leading-none">{{ report()!.totalSessions }}</div>
-                    <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">Total Sessions</div>
+                    <div class="text-2xl font-black  dark:text-white leading-none">{{ report()!.totalSessions }}</div>
+                    <div class="text-xs font-medium   mt-0.5">Total Sessions</div>
                 </div>
             </div>
 
@@ -122,7 +122,7 @@
                 </div>
                 <div>
                     <div class="text-2xl font-black text-emerald-700 dark:text-emerald-400 leading-none">{{ report()!.totalPresent }}</div>
-                    <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">Present</div>
+                    <div class="text-xs font-medium   mt-0.5">Present</div>
                 </div>
             </div>
 
@@ -132,7 +132,7 @@
                 </div>
                 <div>
                     <div class="text-2xl font-black text-red-600 dark:text-red-400 leading-none">{{ report()!.totalAbsent }}</div>
-                    <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">Absent</div>
+                    <div class="text-xs font-medium   mt-0.5">Absent</div>
                 </div>
             </div>
 
@@ -142,7 +142,7 @@
                 </div>
                 <div>
                     <div class="text-2xl font-black text-amber-600 dark:text-amber-400 leading-none">{{ report()!.totalLate }}</div>
-                    <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">Late</div>
+                    <div class="text-xs font-medium   mt-0.5">Late</div>
                 </div>
             </div>
         </div>
@@ -150,8 +150,8 @@
         <!-- Subject cards -->
         @if (report()!.subjects?.length === 0) {
             <div class="text-center py-20">
-                <i class="pi pi-inbox text-5xl text-gray-300 dark:text-gray-600 mb-4 block"></i>
-                <p class="text-gray-500 dark:text-gray-400 font-medium">No attendance data found.</p>
+                <i class="pi pi-inbox text-5xl   mb-4 block"></i>
+                <p class="  font-medium">No attendance data found.</p>
             </div>
         } @else {
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -175,7 +175,7 @@
                                    }">
                                     {{ sub.subjectCode }}
                                 </p>
-                                <h3 class="font-bold text-gray-900 dark:text-white text-sm leading-tight truncate">
+                                <h3 class="font-bold  dark:text-white text-sm leading-tight truncate">
                                     {{ sub.subjectName }}
                                 </h3>
                             </div>
@@ -189,21 +189,21 @@
                             <div class="flex items-center gap-4 mb-4">
                                 <div class="relative w-16 h-16 flex-shrink-0">
                                     <svg class="w-16 h-16 -rotate-90" viewBox="0 0 56 56">
-                                        <circle cx="28" cy="28" r="22" fill="none" stroke="currentColor" stroke-width="5" class="text-gray-100 dark:text-gray-700" />
+                                        <circle cx="28" cy="28" r="22" fill="none" stroke="currentColor" stroke-width="5" class=" " />
                                         <circle cx="28" cy="28" r="22" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"
                                                 [class]="pctStroke(sub.attendanceStatus)"
                                                 [attr.stroke-dasharray]="'138.2'"
                                                 [attr.stroke-dashoffset]="138.2 - (138.2 * sub.attendancePercentage) / 100" />
                                     </svg>
                                     <div class="absolute inset-0 flex items-center justify-center">
-                                        <span class="text-xs font-black text-gray-800 dark:text-white">
+                                        <span class="text-xs font-black  dark:text-white">
                                             {{ sub.attendancePercentage | number: '1.0-0' }}%
                                         </span>
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="text-2xl font-black text-gray-900 dark:text-white leading-none">{{ sub.totalSessions }}</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Sessions</div>
+                                    <div class="text-2xl font-black  dark:text-white leading-none">{{ sub.totalSessions }}</div>
+                                    <div class="text-xs   font-medium">Total Sessions</div>
                                 </div>
                             </div>
 
@@ -227,7 +227,7 @@
                             </div>
 
                             <div class="mt-3">
-                                <div class="flex justify-between text-xs text-gray-400 dark:text-gray-500 mb-1">
+                                <div class="flex justify-between text-xs text-gray-400  mb-1">
                                     <span>Attendance</span>
                                     <span>Min 75%</span>
                                 </div>
@@ -258,8 +258,8 @@
     @if (!loading() && !report()) {
         <div class="text-center py-24 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
             <i class="pi pi-chart-pie text-5xl text-indigo-300 dark:text-indigo-700 mb-4 block"></i>
-            <h3 class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-1">Select filters and load your report</h3>
-            <p class="text-gray-400 dark:text-gray-500 text-sm">Choose an academic year and click "Load Report"</p>
+            <h3 class="text-lg font-bold   mb-1">Select filters and load your report</h3>
+            <p class="text-gray-400  text-sm">Choose an academic year and click "Load Report"</p>
         </div>
     }
 

@@ -49,7 +49,7 @@
                         } @else {
                             <div class="flex flex-col">
                                 <span class="font-medium">{{ exam.timeTable?.settings?.startDate | date: commonService.dateFormate }}</span>
-                                <span class="text-xs text-gray-500">to</span>
+                                <span class="text-xs ">to</span>
                                 <span class="font-medium">{{ exam.timeTable?.settings?.endDate | date: commonService.dateFormate }}</span>
                             </div>
                         }
@@ -93,7 +93,7 @@
                                         <i [class]="item.icon + ' text-lg'" [ngClass]="getStatusColorClass(item.value)"></i>
                                         <div class="flex flex-col">
                                             <span class="font-medium text-sm">{{ item.label }}</span>
-                                            <span class="text-xs text-gray-500">{{ getStatusDescription(item.value) }}</span>
+                                            <span class="text-xs ">{{ getStatusDescription(item.value) }}</span>
                                         </div>
                                     </div>
                                 </ng-template>
@@ -159,7 +159,7 @@
 
                         <p-inputNumber inputId="totalMarks" formControlName="totalMarks" [min]="1" [max]="1000" [showButtons]="true" class="w-full"> </p-inputNumber>
 
-                        <small class="text-gray-500"> Enter the maximum marks for this question paper (usually 20, 50, or 100). </small>
+                        <small class=""> Enter the maximum marks for this question paper (usually 20, 50, or 100). </small>
 
                         <small class="text-red-500" *ngIf="examForm.get('totalMarks')?.touched && examForm.get('totalMarks')?.invalid">
                             <span *ngIf="examForm.get('totalMarks')?.errors?.['required']"> Total marks is required. </span>
@@ -212,7 +212,7 @@
 
                                 <div class="flex flex-wrap gap-2">
                                     <ng-container *ngFor="let subject of classGroup.subjects">
-                                        <p-chip [label]="subject.label" class="bg-white text-gray-800" [removable]="this.es.selectedExam?.examId != null ? false : true" (onRemove)="removeSubject(subject)"> </p-chip>
+                                        <p-chip [label]="subject.label" class="bg-white " [removable]="this.es.selectedExam?.examId != null ? false : true" (onRemove)="removeSubject(subject)"> </p-chip>
                                     </ng-container>
                                 </div>
                             </div>

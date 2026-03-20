@@ -26,7 +26,7 @@
                         <div class="flex items-center">
                             <i class="pi pi-book mr-2 text-blue-600"></i>
                             <span class="font-medium">{{ exam.examType }}</span>
-                            <span class="text-sm text-gray-500 dark:text-white ml-2">({{ exam.timeTable.settings.startDate | date: 'shortDate' }})</span>
+                            <span class="text-sm  dark:text-white ml-2">({{ exam.timeTable.settings.startDate | date: 'shortDate' }})</span>
                         </div>
                     </ng-template>
                     <ng-template let-exam pTemplate="item">
@@ -35,7 +35,7 @@
                                 <i class="pi pi-book mr-2 text-blue-600"></i>
                                 <div>
                                     <div class="font-medium">{{ exam.examType }}</div>
-                                    <div class="text-sm text-gray-500 dark:text-white">{{ exam.timeTable.settings.startDate | date: 'shortDate' }}</div>
+                                    <div class="text-sm  dark:text-white">{{ exam.timeTable.settings.startDate | date: 'shortDate' }}</div>
                                 </div>
                             </div>
                             <p-tag [value]="exam.status" [severity]="exam.status === 'RESULT_DECLARED' ? 'success' : 'info'"></p-tag>
@@ -48,7 +48,7 @@
                         <div class="flex items-center">
                             <i class="pi pi-users mr-2 text-green-600"></i>
                             <span class="font-medium">{{ section.className }}</span>
-                            <span class="text-sm text-gray-500 dark:text-white ml-2">({{ section.sectionName }})</span>
+                            <span class="text-sm  dark:text-white ml-2">({{ section.sectionName }})</span>
                         </div>
                     </ng-template>
                     <ng-template let-section pTemplate="item">
@@ -56,7 +56,7 @@
                             <i class="pi pi-users mr-2 text-green-600"></i>
                             <div>
                                 <div class="font-medium">{{ section.className }}</div>
-                                <div class="text-sm text-gray-500 dark:text-white">{{ section.sectionName }} - {{ section.departmentName }}</div>
+                                <div class="text-sm  dark:text-white">{{ section.sectionName }} - {{ section.departmentName }}</div>
                             </div>
                         </div>
                     </ng-template>
@@ -142,7 +142,7 @@
             (onClick)="publishResults()">
           </p-button>
           <div class="flex items-center gap-2">
-            <span class="text-sm text-gray-600">Status:</span>
+            <span class="text-sm ">Status:</span>
             <p-tag [value]="selectedExam?.status" 
                    [severity]="getStatusSeverity(selectedExam?.status)">
             </p-tag>
@@ -227,10 +227,10 @@
         [modal]="true" 
         [style]="{ width: '50vw' }">
         <div class="space-y-4">
-          <p class="text-gray-600">Upload a CSV file with student results.</p>
+          <p class="">Upload a CSV file with student results.</p>
           <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
             <i class="pi pi-cloud-upload text-4xl text-gray-400 mb-4"></i>
-            <p class="text-gray-500 mb-4">Drag and drop your CSV file here or click to browse</p>
+            <p class=" mb-4">Drag and drop your CSV file here or click to browse</p>
             <p-button label="Browse Files" styleClass="p-button-outlined"></p-button>
           </div>
         </div>
@@ -257,11 +257,11 @@
         <div *ngIf="selectedStudentResult" class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <p class="text-sm text-gray-600">Student Name</p>
+              <p class="text-sm ">Student Name</p>
               <p class="font-medium">{{ selectedStudentResult.studentName }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-600">Class & Section</p>
+              <p class="text-sm ">Class & Section</p>
               <p class="font-medium">{{ selectedStudentResult.className }} - {{ selectedStudentResult.section }}</p>
             </div>
           </div>

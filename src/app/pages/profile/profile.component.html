@@ -53,36 +53,36 @@
           <p-tabPanel header="Personal" leftIcon="pi pi-user">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
-                <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Full Name</div>
-                <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.fullName}}</div>
+                <div class="text-sm   mb-1">Full Name</div>
+                <div class="font-semibold  dark:text-white">{{userProfile.fullName}}</div>
               </div>
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
-                <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Email Address</div>
-                <div class="font-semibold text-gray-800 dark:text-white break-all">{{userProfile.email}}</div>
+                <div class="text-sm   mb-1">Email Address</div>
+                <div class="font-semibold  dark:text-white break-all">{{userProfile.email}}</div>
               </div>
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
-                <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Contact Number</div>
-                <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.contactNumber}}</div>
+                <div class="text-sm   mb-1">Contact Number</div>
+                <div class="font-semibold  dark:text-white">{{userProfile.contactNumber}}</div>
               </div>
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
-                <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Username</div>
-                <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.username}}</div>
+                <div class="text-sm   mb-1">Username</div>
+                <div class="font-semibold  dark:text-white">{{userProfile.username}}</div>
               </div>
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
-                <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Gender</div>
-                <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.gender}}</div>
+                <div class="text-sm   mb-1">Gender</div>
+                <div class="font-semibold  dark:text-white">{{userProfile.gender}}</div>
               </div>
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
-                <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">User ID</div>
-                <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.userId}}</div>
+                <div class="text-sm   mb-1">User ID</div>
+                <div class="font-semibold  dark:text-white">{{userProfile.userId}}</div>
               </div>
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
-                <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Reports To</div>
-                <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.reportsTo || 'No direct supervisor'}}</div>
+                <div class="text-sm   mb-1">Reports To</div>
+                <div class="font-semibold  dark:text-white">{{userProfile.reportsTo || 'No direct supervisor'}}</div>
               </div>
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
-                <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Academic Year</div>
-                <div class="font-semibold text-gray-800 dark:text-white">{{userProfile.academicYear}}</div>
+                <div class="text-sm   mb-1">Academic Year</div>
+                <div class="font-semibold  dark:text-white">{{userProfile.academicYear}}</div>
               </div>
             </div>
           </p-tabPanel>
@@ -93,8 +93,8 @@
               <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 md:p-6 shadow-md border border-gray-200 dark:border-gray-700">
                 <div class="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
                   <div>
-                    <h3 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">{{ formatDepartmentName(deptAssignment.department.name) }}</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Code: {{ deptAssignment.department.code }}</p>
+                    <h3 class="text-xl md:text-2xl font-bold  dark:text-white">{{ formatDepartmentName(deptAssignment.department.name) }}</h3>
+                    <p class="text-sm  ">Code: {{ deptAssignment.department.code }}</p>
                   </div>
                   <div class="text-left md:text-right">
                     <p-tag [value]="deptAssignment.status ? 'Active' : 'Inactive'" [severity]="deptAssignment.status ? 'success' : 'danger'"></p-tag>
@@ -103,19 +103,19 @@
                 <div class="grid grid-cols-3 gap-3 md:gap-4 text-center mb-6">
                   <div class="bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-900 dark:to-primary-800 rounded-xl p-3 md:p-4 shadow-sm">
                     <p class="text-2xl md:text-3xl font-extrabold text-primary-600 dark:text-primary-300">{{ deptAssignment.department.classes.length }}</p>
-                    <p class="text-xs md:text-sm text-gray-600 dark:text-gray-300">Classes</p>
+                    <p class="text-xs md:text-sm  ">Classes</p>
                   </div>
                   <div class="bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900 dark:to-green-800 rounded-xl p-3 md:p-4 shadow-sm">
                     <p class="text-2xl md:text-3xl font-extrabold text-green-600 dark:text-green-300">{{ getTotalSections() }}</p>
-                    <p class="text-xs md:text-sm text-gray-600 dark:text-gray-300">Sections</p>
+                    <p class="text-xs md:text-sm  ">Sections</p>
                   </div>
                   <div class="bg-gradient-to-br from-indigo-100 to-indigo-50 dark:from-indigo-900 dark:to-indigo-800 rounded-xl p-3 md:p-4 shadow-sm">
                     <p class="text-2xl md:text-3xl font-extrabold text-indigo-600 dark:text-indigo-300">{{ getTotalSubjects() }}</p>
-                    <p class="text-xs md:text-sm text-gray-600 dark:text-gray-300">Subjects</p>
+                    <p class="text-xs md:text-sm  ">Subjects</p>
                   </div>
                 </div>
                 <div class="bg-blue-50 dark:bg-blue-900/40 rounded-xl p-4 border border-blue-200 dark:border-blue-700">
-                  <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Academic Period</p>
+                  <p class="text-sm   mb-1">Academic Period</p>
                   <p class="text-base md:text-lg font-semibold text-blue-800 dark:text-blue-200">
                     {{ deptAssignment.academicStart | date:'dd MMM yyyy' }} – {{ deptAssignment.academicEnd | date:'dd MMM yyyy' }}
                   </p>
@@ -129,24 +129,24 @@
             <div class="mt-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
-                  <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">Active Role</div>
+                  <div class="text-sm   mb-1">Active Role</div>
                   <div><p-tag [value]="getActiveRole()" [severity]="getRoleSeverity(getActiveRole())" class="text-sm"></p-tag></div>
                 </div>
                 <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-l-4 border-primary-500">
-                  <div class="text-sm text-gray-500 dark:text-gray-300 mb-1">System Access Level</div>
-                  <div class="font-semibold text-gray-800 dark:text-white">
+                  <div class="text-sm   mb-1">System Access Level</div>
+                  <div class="font-semibold  dark:text-white">
                     {{ (hasRole('IT_ADMINISTRATOR') || hasRole('SUPER_ADMIN')) ? 'Administrator' : 'Standard User' }}
                   </div>
                 </div>
               </div>
 
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 md:p-6 mb-6">
-                <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Available System Roles</h4>
+                <h4 class="text-lg font-semibold  dark:text-white mb-4">Available System Roles</h4>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   @for (auth of tenantAuthorities(); track auth.id) {
                     <div class="flex items-center gap-2">
                       <i [class]="hasRole(auth.name) ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-gray-400'"></i>
-                      <span class="text-sm" [class]="hasRole(auth.name) ? 'text-gray-800 dark:text-white font-medium' : 'text-gray-400 dark:text-gray-500'">
+                      <span class="text-sm" [class]="hasRole(auth.name) ? ' dark:text-white font-medium' : 'text-gray-400 '">
                         {{ formatRoleName(auth.name) }}
                       </span>
                     </div>
@@ -178,17 +178,17 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                   <!-- Password Change Form -->
                   <div>
-                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                    <h3 class="text-xl font-semibold  dark:text-white mb-6 flex items-center gap-2">
                       <i class="pi pi-lock text-primary-500"></i> Change Password
                     </h3>
                     <form [formGroup]="passwordForm" (ngSubmit)="onSubmit()">
                       <div class="mb-6">
-                        <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300">Current Password <span class="text-red-500">*</span></label>
+                        <label class="block mb-2 font-medium  ">Current Password <span class="text-red-500">*</span></label>
                         <p-password formControlName="currentPassword" [toggleMask]="true" styleClass="w-full" placeholder="Enter current password" inputStyleClass="w-full"></p-password>
                         <small class="text-red-500 text-sm mt-1 block" *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched">Current password is required</small>
                       </div>
                       <div class="mb-6">
-                        <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300">New Password <span class="text-red-500">*</span></label>
+                        <label class="block mb-2 font-medium  ">New Password <span class="text-red-500">*</span></label>
                         <p-password formControlName="newPassword" [toggleMask]="true" styleClass="w-full" [feedback]="true" placeholder="Enter new password" inputStyleClass="w-full"></p-password>
                         <small class="text-red-500 text-sm mt-1 block" *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched">New password must be at least 8 characters</small>
                       </div>

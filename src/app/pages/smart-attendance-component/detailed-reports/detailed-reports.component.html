@@ -1,5 +1,5 @@
      <div class="rounded-lg shadow-sm p-4">
-<h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
+<h2 class="text-lg sm:text-xl font-semibold  mb-4 sm:mb-6">
   Detailed Attendance Reports
 </h2>
 
@@ -82,21 +82,21 @@
           
           <!-- Report Summary -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 sm:mb-6">
-            <div class="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-100">
-              <div class="text-xs sm:text-sm font-medium text-blue-600 mb-1">Total Students</div>
-              <div class="text-xl sm:text-2xl font-bold">{{ classAttendanceReport.length }}</div>
+            <div class="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-100 dark:bg-blue-900 dark:border-blue-500">
+              <div class="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-200 mb-1">Total Students</div>
+              <div class="text-xl sm:text-2xl font-bold dark:text-blue-100">{{ classAttendanceReport.length }}</div>
             </div>
-            <div class="bg-green-50 rounded-lg p-3 sm:p-4 border border-green-100">
-              <div class="text-xs sm:text-sm font-medium text-green-600 mb-1">Average Attendance</div>
-              <div class="text-xl sm:text-2xl font-bold">{{ getAverageAttendance() }}%</div>
+            <div class="bg-green-50 rounded-lg p-3 sm:p-4 border border-green-100 dark:bg-green-900 dark:border-green-500">
+              <div class="text-xs sm:text-sm font-medium text-green-600 dark:text-green-200 mb-1">Average Attendance</div>
+              <div class="text-xl sm:text-2xl font-bold dark:text-green-100">{{ getAverageAttendance() }}%</div>
             </div>
-            <div class="bg-yellow-50 rounded-lg p-3 sm:p-4 border border-yellow-100">
-              <div class="text-xs sm:text-sm font-medium text-yellow-600 mb-1">Best Attendance</div>
-              <div class="text-xl sm:text-2xl font-bold">{{ getBestAttendance() }}%</div>
+            <div class="bg-yellow-50 rounded-lg p-3 sm:p-4 border border-yellow-100 dark:bg-yellow-900 dark:border-yellow-500">
+              <div class="text-xs sm:text-sm font-medium text-yellow-600 dark:text-yellow-200 mb-1">Best Attendance</div>
+              <div class="text-xl sm:text-2xl font-bold dark:text-yellow-100">{{ getBestAttendance() }}%</div>
             </div>
-            <div class="bg-red-50 rounded-lg p-3 sm:p-4 border border-red-100">
-              <div class="text-xs sm:text-sm font-medium text-red-600 mb-1">Worst Attendance</div>
-              <div class="text-xl sm:text-2xl font-bold">{{ getWorstAttendance() }}%</div>
+            <div class="bg-red-50 rounded-lg p-3 sm:p-4 border border-red-100 dark:bg-red-900 dark:border-red-500">
+              <div class="text-xs sm:text-sm font-medium text-red-600 dark:text-red-200 mb-1">Worst Attendance</div>
+              <div class="text-xl sm:text-2xl font-bold dark:text-red-100">{{ getWorstAttendance() }}%</div>
             </div>
           </div>
           

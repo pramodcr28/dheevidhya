@@ -83,7 +83,7 @@ export class NoticeViewComponent {
                         value: m.meetingType,
                         icon: 'pi pi-users',
                         iconBg: 'bg-gray-100 dark:bg-gray-700',
-                        iconColor: 'text-gray-500 dark:text-gray-400',
+                        iconColor: ' ',
                         badge: m.meetingType,
                         badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
                     });
@@ -127,7 +127,7 @@ export class NoticeViewComponent {
                         value: String(e.examType),
                         icon: 'pi pi-tag',
                         iconBg: 'bg-gray-100 dark:bg-gray-700',
-                        iconColor: 'text-gray-500 dark:text-gray-400',
+                        iconColor: ' ',
                         badge: String(e.examType),
                         badgeClass: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300'
                     });
@@ -162,7 +162,7 @@ export class NoticeViewComponent {
                         value: r.examType,
                         icon: 'pi pi-tag',
                         iconBg: 'bg-gray-100 dark:bg-gray-700',
-                        iconColor: 'text-gray-500 dark:text-gray-400',
+                        iconColor: ' ',
                         badge: r.examType,
                         badgeClass: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'
                     });
@@ -197,7 +197,7 @@ export class NoticeViewComponent {
                         value: h.holidayType,
                         icon: 'pi pi-sun',
                         iconBg: 'bg-gray-100 dark:bg-gray-700',
-                        iconColor: 'text-gray-500 dark:text-gray-400',
+                        iconColor: ' ',
                         badge: h.holidayType,
                         badgeClass: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
                     });
@@ -259,7 +259,7 @@ export class NoticeViewComponent {
                         value: f.festType,
                         icon: 'pi pi-tag',
                         iconBg: 'bg-gray-100 dark:bg-gray-700',
-                        iconColor: 'text-gray-500 dark:text-gray-400',
+                        iconColor: ' ',
                         badge: f.festType,
                         badgeClass: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300'
                     });
@@ -313,7 +313,7 @@ export class NoticeViewComponent {
                         value: a.parentMeetingRequired ? 'Required' : 'Not Required',
                         icon: 'pi pi-users',
                         iconBg: a.parentMeetingRequired ? 'bg-red-50 dark:bg-red-500/10' : 'bg-gray-100 dark:bg-gray-700',
-                        iconColor: a.parentMeetingRequired ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-400',
+                        iconColor: a.parentMeetingRequired ? 'text-red-500 dark:text-red-400' : ' ',
                         badge: a.parentMeetingRequired ? 'Required' : undefined,
                         badgeClass: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300'
                     });
@@ -409,7 +409,7 @@ export class NoticeViewComponent {
         return this.cat(type)?.bg ?? 'bg-gray-100 dark:bg-gray-700';
     }
     getCategoryIconColor(type: string) {
-        return this.cat(type)?.color ?? 'text-gray-500';
+        return this.cat(type)?.color ?? '';
     }
     getCategoryGradient(type: string) {
         return this.cat(type)?.gradient ?? 'bg-gradient-to-br from-indigo-500 to-indigo-700';
@@ -450,7 +450,7 @@ export class NoticeViewComponent {
             case 'LOW':
                 return 'text-green-500 dark:text-green-400';
             default:
-                return 'text-gray-500';
+                return '';
         }
     }
 

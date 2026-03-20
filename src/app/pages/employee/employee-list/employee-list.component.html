@@ -17,14 +17,14 @@
     [responsiveLayout]="'scroll'">
 
     <ng-template pTemplate="caption">
-        <div class="flex flex-col gap-2 px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+        <div class="flex flex-col gap-2 px-4 py-3 rounded-t-lg">
 
             <!-- 3-column grid: [Title] [Search] [Button] -->
             <div class="grid items-center" style="grid-template-columns: 1fr auto 1fr;">
 
                 <!-- Col 1: Title — anchored left -->
                 <div class="flex items-center justify-start">
-                    <h5 class="m-0 text-base sm:text-lg font-bold text-gray-800 whitespace-nowrap">All Staff List</h5>
+                    <h5 class="m-0 text-base sm:text-lg font-bold  whitespace-nowrap">All Staff List</h5>
                 </div>
 
                 <!-- Col 2: Search bar — perfectly centered -->
@@ -67,7 +67,7 @@
             <!-- Chips row -->
             @if (searchChips().length > 0) {
                 <div class="flex flex-wrap !items-center !justify-center gap-2 px-1 w-full">
-                    <span class="text-xs text-gray-500 font-medium shrink-0">Active filters:</span>
+                    <span class="text-xs  font-medium shrink-0">Active filters:</span>
                     @for (chip of searchChips(); track chip; let i = $index) {
                         <span class="search-chip inline-flex items-center gap-1.5 bg-indigo-600 text-white px-2.5 py-1 rounded-full text-xs font-medium shadow-sm animate-chip-in">
                             <i class="pi pi-filter text-indigo-200" style="font-size: 0.6rem;"></i>
@@ -81,7 +81,7 @@
                             </button>
                         </span>
                     }
-                    <span class="ml-5 text-xs text-gray-500 bg-white px-2 py-0.5 rounded-full border border-gray-200 shrink-0">
+                    <span class="ml-5 text-xs  bg-white px-2 py-0.5 rounded-full border border-gray-200 shrink-0">
                         {{ filteredEmployees().length }} result{{ filteredEmployees().length !== 1 ? 's' : '' }}
                     </span>
                 </div>
@@ -91,7 +91,7 @@
             @if (searchChips().length === 0 && !currentSearchText) {
                 <p class="text-xs text-center text-gray-400 m-0 px-1">
                     <i class="pi pi-info-circle mr-1"></i>
-                    Type and press <kbd class="bg-gray-100 border border-gray-300 rounded px-1 py-0.5 text-gray-600 font-mono text-xs">Enter</kbd> to add a filter chip. Multiple chips narrow results further.
+                    Type and press <kbd class="bg-gray-100 border border-gray-300 rounded px-1 py-0.5  font-mono text-xs">Enter</kbd> to add a filter chip. Multiple chips narrow results further.
                 </p>
             }
         </div>
@@ -165,7 +165,7 @@
                 <div class="flex flex-col items-center gap-2 sm:gap-3">
                     @if (searchChips().length > 0 || currentSearchText) {
                         <i class="pi pi-search text-gray-400 text-4xl sm:text-5xl"></i>
-                        <p class="text-gray-600 text-base sm:text-lg">No staff match your filters</p>
+                        <p class=" text-base sm:text-lg">No staff match your filters</p>
                         <p-button
                             label="Clear Filters"
                             icon="pi pi-times"
@@ -175,7 +175,7 @@
                         </p-button>
                     } @else {
                         <i class="pi pi-users text-gray-400 text-4xl sm:text-5xl"></i>
-                        <p class="text-gray-600 text-base sm:text-lg">No staff members found</p>
+                        <p class=" text-base sm:text-lg">No staff members found</p>
                         <p-button
                             label="Add First Staff Member"
                             icon="pi pi-plus"

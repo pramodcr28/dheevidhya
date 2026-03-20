@@ -131,7 +131,7 @@ export class ExamStatusService {
 
     getStatusBadgeClass(status: ExamStatus): string {
         const classes = {
-            [ExamStatus.DRAFT]: 'bg-gray-100 text-gray-800',
+            [ExamStatus.DRAFT]: 'bg-gray-100 ',
             [ExamStatus.SCHEDULED]: 'bg-blue-100 text-blue-800',
             [ExamStatus.RE_SCHEDULED]: 'bg-orange-100 text-orange-800',
             [ExamStatus.ONGOING]: 'bg-green-100 text-green-800',
@@ -139,7 +139,7 @@ export class ExamStatusService {
             [ExamStatus.CANCELLED]: 'bg-red-100 text-red-800'
         };
 
-        return classes[status] || 'bg-gray-100 text-gray-800';
+        return classes[status] || 'bg-gray-100 ';
     }
 
     getStatusIcon(status: ExamStatus): string {

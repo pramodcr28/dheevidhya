@@ -71,13 +71,13 @@
                             class="text-[10px] font-bold uppercase tracking-wider"
                             [ngClass]="day.date.toDateString() === today.toDateString()
                                 ? 'text-white'
-                                : 'text-gray-600 dark:text-gray-300'"
+                                : ' '"
                         >{{ day.dayName }}</div>
                         <div
                             class="text-[10px] mt-0.5"
                             [ngClass]="day.date.toDateString() === today.toDateString()
                                 ? 'text-white/80'
-                                : 'text-gray-400 dark:text-gray-500'"
+                                : 'text-gray-400 '"
                         >{{ day.date | date:'MMM dd' }}</div>
                     </div>
 
@@ -86,7 +86,7 @@
                         @if (day.slots.length === 0) {
                             <div class="flex flex-col items-center justify-center h-20 gap-1
                                         bg-gray-50 dark:bg-gray-800/60 rounded-xl
-                                        text-gray-300 dark:text-gray-600 text-[11px]">
+                                          text-[11px]">
                                 <i class="pi pi-calendar-times text-lg"></i>
                                 <span>No lectures</span>
                             </div>
@@ -109,7 +109,7 @@
                                         [ngClass]="{
                                             'bg-primary-500 text-white': slot.isToday && canSelectSlot(slot),
                                             'bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300': canSelectSlot(slot) && !slot.isToday,
-                                            'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500': !canSelectSlot(slot)
+                                            'bg-gray-200 dark:bg-gray-700 text-gray-400 ': !canSelectSlot(slot)
                                         }"
                                     >{{ slot.startTime }}-{{ slot.endTime }}</span>
 
@@ -124,9 +124,9 @@
                                     }
                                 </div>
 
-                                <div class="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate mb-0.5"
+                                <div class="text-[11px] font-bold   truncate mb-0.5"
                                      [pTooltip]="slot.subjectName">{{ slot.subjectName }}</div>
-                                <div class="text-[10px] text-gray-500 dark:text-gray-400 truncate"
+                                <div class="text-[10px]   truncate"
                                      [pTooltip]="slot.className + ' - ' + slot.sectionName">
                                     {{ slot.className }} · {{ slot.sectionName }}
                                 </div>
@@ -158,8 +158,8 @@
                         <i class="pi pi-calendar-plus text-white text-2xl"></i>
                     </div>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">Take Attendance</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
+                <h2 class="text-2xl font-bold   mb-2">Take Attendance</h2>
+                <p class="text-sm   mb-8 leading-relaxed">
                     Select your period from the timetable to start recording student attendance
                 </p>
                 <button
@@ -214,7 +214,7 @@
                             <span class="relative w-2 h-2 rounded-full bg-green-500 block"></span>
                         </span>
                         <div>
-                            <div class="text-[9px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 leading-none">
+                            <div class="text-[9px] font-semibold uppercase tracking-widest text-gray-400  leading-none">
                                 Last saved
                             </div>
                             <div class="text-xs font-bold text-green-700 dark:text-green-400 mt-0.5 tabular-nums">
@@ -252,10 +252,10 @@
                     </div>
                     <div class="min-w-0">
                         <div class="text-[10px] font-semibold uppercase tracking-widest
-                                    text-gray-400 dark:text-gray-500 mb-0.5">
+                                    text-gray-400  mb-0.5">
                             Selected Lecture Slot
                         </div>
-                        <div class="text-base font-bold text-gray-900 dark:text-gray-100 truncate">
+                        <div class="text-base font-bold   truncate">
                             {{ selectedSlot.subjectName }}
                         </div>
                     </div>
@@ -283,12 +283,12 @@
                     </div>
                     <div>
                         <div class="text-[10px] font-semibold uppercase tracking-widest
-                                    text-gray-400 dark:text-gray-500 mb-1">Date &amp; Time</div>
-                        <div class="text-sm font-bold text-gray-800 dark:text-gray-200">
+                                    text-gray-400  mb-1">Date &amp; Time</div>
+                        <div class="text-sm font-bold  ">
                             {{ dayNames[(+selectedSlot.dayIndex)? + +selectedSlot.dayIndex : selectedSlot.dayIndex] }},
                             {{ selectedSlot.displayDate | date:'MMM dd' }}
                         </div>
-                        <div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        <div class="flex items-center gap-1 text-xs   mt-0.5">
                             <i class="pi pi-clock text-[10px]"></i>
                             {{ selectedSlot.startTime }} – {{ selectedSlot.endTime }}
                         </div>
@@ -303,11 +303,11 @@
                     </div>
                     <div>
                         <div class="text-[10px] font-semibold uppercase tracking-widest
-                                    text-gray-400 dark:text-gray-500 mb-1">Class &amp; Section</div>
-                        <div class="text-sm font-bold text-gray-800 dark:text-gray-200">
+                                    text-gray-400  mb-1">Class &amp; Section</div>
+                        <div class="text-sm font-bold  ">
                             {{ selectedSlot.className }}
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        <div class="text-xs   mt-0.5">
                             {{ selectedSlot.sectionName }}
                         </div>
                     </div>
@@ -366,10 +366,10 @@
                             >{{ student.studentName.charAt(0) }}</div>
 
                             <div class="flex-1 min-w-0">
-                                <div class="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
+                                <div class="text-sm font-bold   truncate">
                                     {{ student.studentName }}
                                 </div>
-                                <div class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                                <div class="text-xs text-gray-400  mt-0.5">
                                     {{ student.studentId }}
                                 </div>
                             </div>
@@ -423,14 +423,14 @@
                             bg-blue-50 dark:bg-blue-900/30 shadow-lg shadow-blue-100 dark:shadow-blue-900/30">
                     <i class="pi pi-calendar text-blue-500 dark:text-blue-400 text-4xl"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">Future Lecture</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <h3 class="text-lg font-bold   mb-2">Future Lecture</h3>
+                <p class="text-sm   mb-1">
                     Scheduled for
-                    <strong class="text-gray-800 dark:text-gray-200 font-semibold">
+                    <strong class="  font-semibold">
                         {{ selectedSlot.displayDate | date:'EEEE, MMMM dd, yyyy' }}
                     </strong>
                 </p>
-                <p class="text-sm text-gray-400 dark:text-gray-500">
+                <p class="text-sm text-gray-400 ">
                     Attendance can be recorded on or after the lecture date.
                 </p>
             </div>
@@ -452,16 +452,16 @@
                             : 'text-primary-500 dark:text-primary-400'"
                     ></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">
+                <h3 class="text-lg font-bold   mb-2">
                     {{ selectedSlot.isPast ? 'Past Lecture Session' : 'Ready to Take Attendance' }}
                 </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <p class="text-sm   mb-1">
                     {{ selectedSlot.displayDate | date:'EEEE, MMMM dd, yyyy' }}
                 </p>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <p class="text-sm   mb-1">
                     {{ selectedSlot.startTime }} – {{ selectedSlot.endTime }}
                 </p>
-                <p class="text-sm text-gray-400 dark:text-gray-500 mb-7">
+                <p class="text-sm text-gray-400  mb-7">
                     {{ selectedSlot.isPast
                         ? 'Record attendance for this past session.'
                         : 'Start recording attendance for this session.' }}

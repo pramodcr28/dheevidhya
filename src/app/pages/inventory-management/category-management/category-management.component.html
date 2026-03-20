@@ -5,8 +5,8 @@
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Categories</p>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ categories.length }}</p>
+            <p class="text-sm font-medium  ">Total Categories</p>
+            <p class="text-3xl font-bold  dark:text-white">{{ categories.length }}</p>
           </div>
           <div class="ms-[4rem] bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
             <i class="pi pi-folder text-2xl text-blue-600 dark:text-blue-400"></i>
@@ -47,7 +47,7 @@
                 </i>
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate m-0">
+                <h3 class="text-lg font-semibold  dark:text-white truncate m-0">
                   {{ category.name }}
                 </h3>
               </div>
@@ -57,7 +57,7 @@
           <!-- Category Stats -->
           <div class="space-y-3 mb-6">
             <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Properties</span>
+              <span class="text-sm  ">Properties</span>
               <span class="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
                 {{ category.propertyDefinitions?.length || 0 }}
               </span>
@@ -67,15 +67,15 @@
           <!-- Property Types Preview -->
           @if (category.propertyDefinitions && category.propertyDefinitions.length > 0) {
             <div class="mb-6">
-              <p class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Property Types:</p>
+              <p class="text-xs font-medium   mb-2">Property Types:</p>
               <div class="flex flex-wrap gap-1">
                 @for (propDef of category.propertyDefinitions.slice(0, 4); track propDef.fieldName) {
-                  <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-md text-xs">
+                  <span class="bg-gray-100 dark:bg-gray-700   px-2 py-1 rounded-md text-xs">
                     {{ getFieldTypeLabel(propDef.fieldType!) }}
                   </span>
                 }
                 @if (category.propertyDefinitions.length > 4) {
-                  <span class="text-gray-500 dark:text-gray-400 text-xs px-2 py-1">
+                  <span class="  text-xs px-2 py-1">
                     +{{ category.propertyDefinitions.length - 4 }} more
                   </span>
                 }
@@ -109,10 +109,10 @@
     @if (categories.length === 0) {
       <div class="text-center py-16">
         <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-          <i class="pi pi-folder text-4xl text-gray-400 dark:text-gray-600"></i>
+          <i class="pi pi-folder text-4xl text-gray-400 "></i>
         </div>
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Categories Found</h3>
-        <p class="text-gray-600 dark:text-gray-400 mb-6">Get started by creating your first inventory category</p>
+        <h3 class="text-xl font-semibold  dark:text-white mb-2">No Categories Found</h3>
+        <p class="  mb-6">Get started by creating your first inventory category</p>
         <p-button 
           label="Add Your First Category" 
           icon="pi pi-plus" 
@@ -137,7 +137,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Category Name -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category Name *</label>
+          <label class="block text-sm font-medium   mb-2">Category Name *</label>
           <input 
             type="text" 
              [disabled]="categoryForm.id !== null"
@@ -148,10 +148,10 @@
 
         <!-- Academic Year Dependent -->
         <div class="flex flex-col">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Academic Year Dependent</label>
+          <label class="block text-sm font-medium   mb-2">Academic Year Dependent</label>
           <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
             <div>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Items tied to academic years</p>
+              <p class="text-sm  ">Items tied to academic years</p>
             </div>
             <p-inputSwitch [(ngModel)]="categoryForm.academicYearDependent"></p-inputSwitch>
           </div>
@@ -161,7 +161,7 @@
       <!-- Properties Section -->
       <div class="border-t pt-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Category Properties</h3>
+          <h3 class="text-lg font-semibold  dark:text-white">Category Properties</h3>
           <p-button 
             label="Add Property" 
             icon="pi pi-plus" 
@@ -178,7 +178,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <!-- Field Name -->
                 <div>
-                  <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                  <label class="block text-xs font-medium   mb-1">
                     Field Name *
                   </label>
 
@@ -198,7 +198,7 @@
                 </div>
                   <!-- Label -->
                   <div>
-                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Label *</label>
+                    <label class="block text-xs font-medium   mb-1">Label *</label>
                     <input 
                       type="text" 
                       [(ngModel)]="property.label"
@@ -208,7 +208,7 @@
 
                   <!-- Field Type -->
                   <div>
-                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Type *</label>
+                    <label class="block text-xs font-medium   mb-1">Type *</label>
                     <p-select 
                       [(ngModel)]="property.fieldType"
                       [options]="fieldTypeOptions"
@@ -247,7 +247,7 @@
                 @if (property.fieldType === 'DROPDOWN' || property.fieldType === 'RADIO') {
                   <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                     <div class="flex items-center justify-between mb-3">
-                      <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Options</label>
+                      <label class="text-xs font-medium  ">Options</label>
                       <p-button 
                         label="Add Option" 
                         icon="pi pi-plus" 
@@ -261,7 +261,7 @@
                           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <!-- Field Name -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">title *</label>
+                        <label class="block text-xs font-medium   mb-1">title *</label>
                         <input 
                             type="text" 
                             [(ngModel)]="option.title"
@@ -271,7 +271,7 @@
 
                   <!-- Label -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">value *</label>
+                        <label class="block text-xs font-medium   mb-1">value *</label>
                         <input 
                             type="text" 
                             [(ngModel)]="option.value"
@@ -298,9 +298,9 @@
           </div>
         } @else {
           <div class="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-            <i class="pi pi-plus text-2xl text-gray-400 dark:text-gray-500 mb-2"></i>
-            <p class="text-sm text-gray-500 dark:text-gray-400">No properties defined yet</p>
-            <p class="text-xs text-gray-400 dark:text-gray-500">Click "Add Property" to get started</p>
+            <i class="pi pi-plus text-2xl text-gray-400  mb-2"></i>
+            <p class="text-sm  ">No properties defined yet</p>
+            <p class="text-xs text-gray-400 ">Click "Add Property" to get started</p>
           </div>
         }
       </div>

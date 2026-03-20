@@ -4,9 +4,9 @@
     <!-- Header -->
     <div class="flex items-center mb-4">
       <i class="pi pi-users mr-2 text-blue-600"></i>
-      <h4 class="font-medium text-gray-900">Teacher Availability</h4>
+      <h4 class="font-medium ">Teacher Availability</h4>
     </div>
-    <p class="text-sm text-gray-600 mb-6">
+    <p class="text-sm  mb-6">
       Manage teacher availability preferences for scheduling.
     </p>
 
@@ -15,9 +15,9 @@
       <table class="w-full">
         <thead>
           <tr class="border-b bg-gray-50">
-            <th class="text-left py-3 px-4 font-medium text-gray-700">Teacher</th>
-            <th class="text-left py-3 px-4 font-medium text-gray-700">Availability</th>
-            <th class="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
+            <th class="text-left py-3 px-4 font-medium ">Teacher</th>
+            <th class="text-left py-3 px-4 font-medium ">Availability</th>
+            <th class="text-left py-3 px-4 font-medium ">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -37,7 +37,7 @@
                 <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                   {{ getSummary(teacher).unavailable }} Unavailable
                 </span>
-                <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 ">
                   {{ getSummary(teacher).neutral }} Neutral
                 </span>
               </div>
@@ -82,7 +82,7 @@
           </button>
           <button 
             (click)="setBulkStatus('neutral')"
-            class="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 border">
+            class="flex items-center gap-2 px-4 py-2 bg-gray-50  rounded-lg hover:bg-gray-100 border">
             <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
             Reset All
           </button>
@@ -95,9 +95,9 @@
           <table class="w-full border-collapse">
             <thead class="sticky top-0 bg-white z-10">
               <tr class="bg-gray-50">
-                <th class="p-3 text-left font-medium text-gray-700 border-b w-24">Period</th>
+                <th class="p-3 text-left font-medium  border-b w-24">Period</th>
                 <th *ngFor="let day of getWorkingDays()" 
-                    class="p-3 text-center font-medium text-gray-700 border-b w-20">
+                    class="p-3 text-center font-medium  border-b w-20">
                   {{ day.name }}
                 </th>
               </tr>
@@ -105,7 +105,7 @@
             <tbody>
               <tr *ngFor="let period of getPeriods(); let periodIndex = index" 
                   class="hover:bg-gray-25">
-                <td class="p-3 font-medium text-gray-700 border-b bg-gray-50">
+                <td class="p-3 font-medium  border-b bg-gray-50">
                   {{ period }}
                 </td>
                 <td *ngFor="let day of getWorkingDays(); let dayIndex = index"
@@ -127,7 +127,7 @@
       <!-- Fixed Footer -->
       <div class="mt-6 pt-4 border-t bg-white">
         <div class="flex justify-between items-center">
-          <div class="text-sm text-gray-600">
+          <div class="text-sm ">
             <i class="pi pi-info-circle mr-1"></i>
             Click cells to cycle: Available → Unavailable → Neutral
           </div>

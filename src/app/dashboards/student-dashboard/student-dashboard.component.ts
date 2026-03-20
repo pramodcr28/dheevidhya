@@ -58,7 +58,7 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
             MEDIUM: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
             LOW: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
         };
-        return map[priority] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400';
+        return map[priority] ?? 'bg-gray-100  dark:bg-gray-800 ';
     }
 
     ngOnInit(): void {
@@ -172,6 +172,6 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
             ONGOING: 'bg-green-50 text-green-700 border-green-200',
             CANCELLED: 'bg-red-50 text-red-700 border-red-200'
         };
-        return m[s] ?? 'bg-gray-50 text-gray-500 border-gray-200';
+        return m[s] ?? 'bg-gray-50  border-gray-200';
     }
 }

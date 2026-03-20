@@ -2,8 +2,8 @@
    <p-toast />
    
   <!-- <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-    <h4 class="font-medium text-gray-900 mb-2">Ready to Generate Your Timetable?</h4>
-    <p class="text-sm text-gray-600 mb-4">All your data is ready. Click the button to create your timetable.</p>
+    <h4 class="font-medium  mb-2">Ready to Generate Your Timetable?</h4>
+    <p class="text-sm  mb-4">All your data is ready. Click the button to create your timetable.</p>
     <div class="flex justify-end">
       <button (click)="generateTimetable()" 
             class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium ms-auto">
@@ -13,8 +13,8 @@
     </div>
   </div> -->
   <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-  <h4 class="font-medium text-gray-900 mb-2">Ready to Generate Your Timetable?</h4>
-  <p class="text-sm text-gray-600 mb-4">All your data is ready. Click the button to create your timetable.</p>
+  <h4 class="font-medium  mb-2">Ready to Generate Your Timetable?</h4>
+  <p class="text-sm  mb-4">All your data is ready. Click the button to create your timetable.</p>
 
   <div *ngIf="validationErrors?.length" class="mb-4">
     <div *ngFor="let error of validationErrors"
@@ -36,37 +36,37 @@
   
 <div class="bg-white p-4 rounded-lg shadow-sm border">
   <div class="flex items-center mb-3">
-    <h4 class="font-medium text-gray-900 text-base">Timetable Configuration Overview</h4>
+    <h4 class="font-medium  text-base">Timetable Configuration Overview</h4>
   </div>
 
   <div class="grid grid-cols-3 gap-4 mb-4">
     <div>
-      <label class="block text-xs font-medium text-gray-600 mb-0.5">School Hours</label>
-      <p class="text-sm text-gray-900">
+      <label class="block text-xs font-medium  mb-0.5">School Hours</label>
+      <p class="text-sm ">
         {{ timeTableService.timeTable.settings.startTime }} - {{ timeTableService.timeTable.settings.endTime }}
       </p>
     </div>
     <div>
-      <label class="block text-xs font-medium text-gray-600 mb-0.5">Department</label>
-      <p class="text-sm text-gray-900">{{ timeTableService.timeTable.department?.department?.name }}</p>
+      <label class="block text-xs font-medium  mb-0.5">Department</label>
+      <p class="text-sm ">{{ timeTableService.timeTable.department?.department?.name }}</p>
     </div>
     <div>
-      <label class="block text-xs font-medium text-gray-600 mb-0.5">Periods Per Day</label>
-      <p class="text-sm text-gray-900">{{ timeTableService.timeTable.settings.periodsPerDay }}</p>
+      <label class="block text-xs font-medium  mb-0.5">Periods Per Day</label>
+      <p class="text-sm ">{{ timeTableService.timeTable.settings.periodsPerDay }}</p>
     </div>
     <div>
-      <label class="block text-xs font-medium text-gray-600 mb-0.5">Working Days</label>
-      <p class="text-sm text-gray-900">{{ getWorkingDays() }}</p>
+      <label class="block text-xs font-medium  mb-0.5">Working Days</label>
+      <p class="text-sm ">{{ getWorkingDays() }}</p>
     </div>
     <!-- <div>
-      <div class="text-xs text-gray-600">Subjects</div>
+      <div class="text-xs ">Subjects</div>
       <div class="text-lg font-bold text-blue-600">
         {{ timeTableService.timeTable.subjects.length }}
       </div>
     </div> -->
 
     <div>
-      <div class="text-xs text-gray-600">Teachers</div>
+      <div class="text-xs ">Teachers</div>
       <div class="text-lg font-bold text-purple-600">
         {{ timeTableService.getTeachersList().length || 0 }}
       </div>

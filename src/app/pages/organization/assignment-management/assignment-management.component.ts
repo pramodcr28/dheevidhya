@@ -40,14 +40,14 @@ export class AssignmentManagementComponent implements OnInit {
 
     studentColors = {
         PUBLISHED: { bg: 'bg-yellow-400', text: 'text-yellow-800' },
-        DRAFT: { bg: 'bg-gray-400', text: 'text-gray-800' },
+        DRAFT: { bg: 'bg-gray-400', text: '' },
         SUBMITTED: { bg: 'bg-purple-400', text: 'text-purple-800' },
         REOPENED: { bg: 'bg-orange-500', text: 'text-orange-800' },
         REVIEWED: { bg: 'bg-green-800', text: 'text-white' } // dark bg, light text
     };
 
     staffColors = {
-        DRAFT: { bg: 'bg-gray-400', text: 'text-gray-800' },
+        DRAFT: { bg: 'bg-gray-400', text: '' },
         PUBLISHED: { bg: 'bg-yellow-400', text: 'text-yellow-800' },
         ONGOING: { bg: 'bg-blue-700', text: 'text-blue-100' },
         COMPLETED: { bg: 'bg-green-400', text: 'text-green-800' }
@@ -172,7 +172,7 @@ export class AssignmentManagementComponent implements OnInit {
             status = assignment.submission.status;
         }
         const colorMap = { ...this.studentColors, ...this.staffColors };
-        const colors = colorMap[status] || { bg: 'bg-gray-400', text: 'text-gray-800' };
+        const colors = colorMap[status] || { bg: 'bg-gray-400', text: '' };
 
         return `${colors.bg} ${colors.text} p-1 rounded-md text-xs`;
     }
@@ -180,7 +180,7 @@ export class AssignmentManagementComponent implements OnInit {
     getSubmissionStatusClass(submission: AssignmentSubmission): string {
         const status = submission?.status;
         const colorMap = { ...this.studentColors, ...this.staffColors };
-        const colors = colorMap[status] || { bg: 'bg-gray-400', text: 'text-gray-800' };
+        const colors = colorMap[status] || { bg: 'bg-gray-400', text: '' };
         return `${colors.bg} ${colors.text} px-2 py-1 rounded-md text-xs`;
     }
 

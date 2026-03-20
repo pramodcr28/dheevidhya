@@ -14,7 +14,7 @@ import { DepartmentConfigService } from '../../core/services/department-config.s
                 <div class="flex flex-col gap-2 w-full">
                     <div class="w-full">
                         @if (displayLabel) {
-                            <label class="block font-semibold mb-2 text-gray-700">
+                            <label class="block font-semibold mb-2 ">
                                 {{ displayLabel }}
                             </label>
                         }
@@ -62,7 +62,7 @@ import { DepartmentConfigService } from '../../core/services/department-config.s
                 <div class="flex flex-col gap-2 w-full">
                     <div class="w-full">
                         @if (displayLabel) {
-                            <label class="block font-semibold mb-2 text-gray-700">
+                            <label class="block font-semibold mb-2 ">
                                 {{ displayLabel }}
                             </label>
                         }
@@ -120,7 +120,7 @@ import { DepartmentConfigService } from '../../core/services/department-config.s
                 </small>
             }
         } @else if (loading) {
-            <div class="w-full border border-gray-300 rounded-lg p-3 text-center text-gray-500"><i class="pi pi-spin pi-spinner"></i> Loading...</div>
+            <div class="w-full border border-gray-300 rounded-lg p-3 text-center "><i class="pi pi-spin pi-spinner"></i> Loading...</div>
         }
     `,
     imports: [SelectModule, MultiSelectModule, CommonModule, FormsModule],

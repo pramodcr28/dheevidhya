@@ -9,8 +9,8 @@
           <i class="pi pi-bell text-xl text-white"></i>
         </div>
         <div>
-          <h1 class="text-xl font-bold text-gray-900 dark:text-white">Notice Management</h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400">{{ totalRecords }} notices</p>
+          <h1 class="text-xl font-bold  dark:text-white">Notice Management</h1>
+          <p class="text-sm  ">{{ totalRecords }} notices</p>
         </div>
       </div>
       @if(!isStudent) {
@@ -126,19 +126,19 @@
                 [ngClass]="getCategoryColorClass(notice.categoryType)">
                 <i [class]="getCategoryIcon(notice.categoryType)" class="text-xs"></i>
               </div>
-              <span class="text-xs font-medium text-gray-700 dark:text-gray-300">
+              <span class="text-xs font-medium  ">
                 {{ getCategoryLabel(notice.categoryType) }}
               </span>
             </div>
           </td>
 
           <td (click)="viewNotice(notice)" class="cursor-pointer">
-            <div class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{{ notice.title }}</div>
+            <div class="font-semibold text-sm  dark:text-white line-clamp-2">{{ notice.title }}</div>
           </td>
 
           <td>
             <div
-              class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2"
+              class="text-xs   line-clamp-2"
               [innerHTML]="notice.content || 'No content'">
             </div>
           </td>
@@ -148,7 +148,7 @@
           </td>
 
           <td>
-            <div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <div class="flex items-center gap-1 text-xs  ">
               <i class="pi pi-users text-blue-500"></i>
               <span>{{ notice.targetAudience.type }}</span>
             </div>
@@ -156,11 +156,11 @@
 
           <td>
             <div class="text-xs">
-              <div class="flex items-center gap-1 font-medium text-gray-700 dark:text-gray-300">
+              <div class="flex items-center gap-1 font-medium  ">
                 <i class="pi pi-calendar text-blue-500"></i>
                 <span>{{ formatDate(notice.publishedAt) }}</span>
               </div>
-              <div class="text-gray-400 dark:text-gray-500 mt-0.5">{{ formatTime(notice.publishedAt) }}</div>
+              <div class="text-gray-400  mt-0.5">{{ formatTime(notice.publishedAt) }}</div>
             </div>
           </td>
 
@@ -187,9 +187,9 @@
         <tr>
           <td [attr.colspan]="isStudent ? 7 : 8" class="text-center py-16">
             <div class="flex flex-col items-center justify-center gap-2">
-              <i class="pi pi-inbox text-6xl text-gray-300 dark:text-gray-600"></i>
-              <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-400">No notices found</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-500">Try adjusting your filters or add a new notice.</p>
+              <i class="pi pi-inbox text-6xl  "></i>
+              <h3 class="text-lg font-semibold  ">No notices found</h3>
+              <p class="text-sm  ">Try adjusting your filters or add a new notice.</p>
               @if(!isStudent) {
                 <p-button label="Add Notice" icon="pi pi-plus" (click)="showAddDialog()" size="small"></p-button>
               }

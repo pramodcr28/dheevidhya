@@ -718,7 +718,7 @@ export class StaffAttendanceComponent implements OnInit {
             Emergency: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
             Weather: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
         };
-        return colorMap[eventType] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+        return colorMap[eventType] || 'bg-gray-100  dark:bg-gray-900 ';
     }
 
     getEventIcon(eventType: string): string {

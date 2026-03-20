@@ -115,14 +115,14 @@ export class StudentExamsComponent implements OnInit {
 
     getStatusBadgeClass(status: string): string {
         const classes: { [key: string]: string } = {
-            DRAFT: 'bg-gray-100 text-gray-700',
+            DRAFT: 'bg-gray-100 ',
             SCHEDULED: 'bg-blue-100 text-blue-700',
             RE_SCHEDULED: 'bg-yellow-100 text-yellow-700',
             ONGOING: 'bg-green-100 text-green-700',
             COMPLETED: 'bg-purple-100 text-purple-700',
             CANCELLED: 'bg-red-100 text-red-700'
         };
-        return classes[status] || 'bg-gray-100 text-gray-700';
+        return classes[status] || 'bg-gray-100 ';
     }
 
     getStatusIcon(status: string): string {

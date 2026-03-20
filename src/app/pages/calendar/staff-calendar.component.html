@@ -8,10 +8,10 @@
             <div class="flex items-center gap-3">
                 <i class="pi pi-calendar text-blue-600 text-xl"></i>
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white m-0">
+                    <h3 class="text-lg font-semibold  dark:text-white m-0">
                         {{ hasEvents ? 'Event Day - Read Only' : 'Attendance Details' }}
                     </h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 m-0">
+                    <p class="text-sm   m-0">
                         {{ selectedDayAttendance?.attendanceDate }}
                     </p>
                 </div>
@@ -47,19 +47,19 @@
             </div>
 
             <div>
-                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Status</label>
+                <label class="text-sm font-medium   block mb-2">Status</label>
                 <p-select [(ngModel)]="selectedDayAttendance.status" [options]="statusOptions" optionLabel="label" optionValue="value" placeholder="Select Status" styleClass="w-full" [disabled]="hasEvents" />
             </div>
 
             @if (selectedDayAttendance.status === 'PRESENT' && !hasEvents) {
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2"> <i class="pi pi-sign-in mr-1"></i> Check-In </label>
+                        <label class="text-sm font-medium   block mb-2"> <i class="pi pi-sign-in mr-1"></i> Check-In </label>
                         <p-datepicker [(ngModel)]="selectedDayAttendance.checkInTime" [timeOnly]="true" [showSeconds]="true" hourFormat="24" [iconDisplay]="'input'" styleClass="w-full" />
                     </div>
 
                     <div>
-                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2"> <i class="pi pi-sign-out mr-1"></i> Check-Out </label>
+                        <label class="text-sm font-medium   block mb-2"> <i class="pi pi-sign-out mr-1"></i> Check-Out </label>
                         <p-datepicker [(ngModel)]="selectedDayAttendance.checkOutTime" [timeOnly]="true" [showSeconds]="true" hourFormat="24" [iconDisplay]="'input'" styleClass="w-full" />
                     </div>
                 </div>
@@ -85,8 +85,8 @@
             <div class="flex items-center gap-3">
                 <i class="pi pi-calendar text-purple-600 text-xl"></i>
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white m-0">Events Details</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 m-0">
+                    <h3 class="text-lg font-semibold  dark:text-white m-0">Events Details</h3>
+                    <p class="text-sm   m-0">
                         {{ selectedDayDate | date: 'fullDate' }}
                     </p>
                 </div>
@@ -174,10 +174,10 @@
                         <div class="flex items-center gap-3 sm:gap-4">
                             <p-avatar [label]="getAvatarInitials(commonService.getUserInfo?.fullName)" size="large" shape="circle" styleClass="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" />
                             <div>
-                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                                <h3 class="text-base sm:text-lg font-semibold  dark:text-white mb-1">
                                     {{ commonService.getUserInfo?.fullName || 'User' }}
                                 </h3>
-                                <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                                <div class="flex items-center gap-2 text-xs sm:text-sm  ">
                                     <i class="pi pi-clock"></i>
                                     <span>{{ currentTime }}</span>
                                 </div>
@@ -201,14 +201,14 @@
                     <div *ngIf="todayAttendance" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 sm:p-4">
                         <div class="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-4 text-center">
                             <div>
-                                <span class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Check-In</span>
-                                <span class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                                <span class="text-xs   block mb-1">Check-In</span>
+                                <span class="text-sm sm:text-base font-semibold  dark:text-white">
                                     {{ todayAttendance.checkInTime || '--:--' }}
                                 </span>
                             </div>
                             <div>
-                                <span class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Check-Out</span>
-                                <span class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                                <span class="text-xs   block mb-1">Check-Out</span>
+                                <span class="text-sm sm:text-base font-semibold  dark:text-white">
                                     {{ todayAttendance.checkOutTime || '--:--' }}
                                 </span>
                             </div>
@@ -221,11 +221,11 @@
             <!-- Calendar View -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-6">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
-                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-0">Calendar</h2>
+                    <h2 class="text-lg sm:text-xl font-semibold  dark:text-white mb-0">Calendar</h2>
 
                     <div class="flex items-center gap-1 w-full sm:w-auto justify-between sm:justify-start">
                         <button pButton icon="pi pi-chevron-left" class="p-button-text p-button-sm" (click)="previousMonth()"></button>
-                        <span class="text-sm sm:text-base font-medium text-gray-900 dark:text-white min-w-[120px] sm:min-w-[140px] text-center">
+                        <span class="text-sm sm:text-base font-medium  dark:text-white min-w-[120px] sm:min-w-[140px] text-center">
                             {{ currentViewDate | date: 'MMMM yyyy' }}
                         </span>
                         <button pButton icon="pi pi-chevron-right" class="p-button-text p-button-sm" (click)="nextMonth()"></button>
@@ -237,34 +237,34 @@
                    @if(!commonService.isStudent){
                     <div class="flex items-center gap-1.5">
                         <i class="pi pi-check-circle text-green-600"></i>
-                        <span class="text-gray-600 dark:text-gray-400">Present</span>
+                        <span class=" ">Present</span>
                     </div>
 
                     <div class="flex items-center gap-1.5">
                         <i class="pi pi-times-circle text-red-600"></i>
-                        <span class="text-gray-600 dark:text-gray-400">Absent</span>
+                        <span class=" ">Absent</span>
                     </div>
 
                     <div class="flex items-center gap-1.5">
                         <i class="pi pi-calendar-minus text-blue-600"></i>
-                        <span class="text-gray-600 dark:text-gray-400">Leave</span>
+                        <span class=" ">Leave</span>
                     </div>
 
                    }             
                     <div class="flex items-center gap-1.5">
                         <i class="pi pi-star-fill text-[10px] sm:text-xs lg:text-sm text-purple-600"></i>
-                        <span class="text-gray-600 dark:text-gray-400">Events</span>
+                        <span class=" ">Events</span>
                     </div>
 
                     <div class="flex items-center gap-1.5">
                         <i class="pi pi-calendar-clock text-amber-600"></i>
-                        <span class="text-gray-600 dark:text-gray-400">Week Off</span>
+                        <span class=" ">Week Off</span>
                     </div>
                 </div>
 
                 <div class="calendar-container overflow-x-auto">
                     <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2 min-w-[280px]">
-                        <div *ngFor="let day of weekDays" class="text-center text-xs font-semibold text-gray-600 dark:text-gray-400 py-2">
+                        <div *ngFor="let day of weekDays" class="text-center text-xs font-semibold   py-2">
                             {{ day }}
                         </div>
                     </div>
@@ -297,8 +297,8 @@
                                 <span
                                     class="text-xs sm:text-sm font-medium mb-0.5"
                                     [ngClass]="{
-                                        'text-gray-400 dark:text-gray-600': !day.isCurrentMonth,
-                                        'text-gray-900 dark:text-white': day.isCurrentMonth && !day.isToday && !hasWeekOffEvent(day.events),
+                                        'text-gray-400 ': !day.isCurrentMonth,
+                                        ' dark:text-white': day.isCurrentMonth && !day.isToday && !hasWeekOffEvent(day.events),
                                         'text-blue-600 dark:text-blue-400 font-bold': day.isToday,
                                         'text-amber-700 dark:text-amber-300 font-semibold': hasWeekOffEvent(day.events) && day.isCurrentMonth
                                     }"
@@ -414,15 +414,15 @@
 
             <!-- Monthly Distribution Chart -->
             <div class="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
-                <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">Monthly Distribution</h3>
+                <h3 class="text-sm sm:text-base font-semibold  dark:text-white mb-4 sm:mb-6">Monthly Distribution</h3>
 
                 <div class="flex justify-center mb-4 sm:mb-6">
                     <div class="relative w-36 h-36 sm:w-48 sm:h-48">
                         <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" class="w-full h-full"></p-chart>
                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div class="text-center">
-                                <div class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ monthStats.total }}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">Days</div>
+                                <div class="text-xl sm:text-2xl font-bold  dark:text-white">{{ monthStats.total }}</div>
+                                <div class="text-xs  ">Days</div>
                             </div>
                         </div>
                     </div>
@@ -432,30 +432,30 @@
                     <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
                         <div class="flex items-center gap-2">
                             <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500 shadow-lg shadow-green-500/50"></div>
-                            <span class="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Present</span>
+                            <span class="text-xs sm:text-sm  ">Present</span>
                         </div>
-                        <span class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{{ monthStats.present }}</span>
+                        <span class="text-xs sm:text-sm font-semibold  dark:text-white">{{ monthStats.present }}</span>
                     </div>
                     <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
                         <div class="flex items-center gap-2">
                             <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500 shadow-lg shadow-red-500/50"></div>
-                            <span class="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Absent</span>
+                            <span class="text-xs sm:text-sm  ">Absent</span>
                         </div>
-                        <span class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{{ monthStats.absent }}</span>
+                        <span class="text-xs sm:text-sm font-semibold  dark:text-white">{{ monthStats.absent }}</span>
                     </div>
                     <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
                         <div class="flex items-center gap-2">
                             <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50"></div>
-                            <span class="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Leave</span>
+                            <span class="text-xs sm:text-sm  ">Leave</span>
                         </div>
-                        <span class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{{ monthStats.leave }}</span>
+                        <span class="text-xs sm:text-sm font-semibold  dark:text-white">{{ monthStats.leave }}</span>
                     </div>
                     <!-- <div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors">
                         <div class="flex items-center gap-2">
                             <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-orange-500 shadow-lg shadow-orange-500/50"></div>
-                            <span class="text-xs sm:text-sm text-gray-700 dark:text-gray-300">On Duty</span>
+                            <span class="text-xs sm:text-sm  ">On Duty</span>
                         </div>
-                        <span class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{{ monthStats.onDuty }}</span>
+                        <span class="text-xs sm:text-sm font-semibold  dark:text-white">{{ monthStats.onDuty }}</span>
                     </div> -->
                 </div>
 
