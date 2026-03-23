@@ -3,12 +3,17 @@
     @if(this.timeTableService.classes){
     <ng-container *ngFor="let section of this.timeTableService.classes">
 
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden dark:bg-slate-800 dark:border-slate-600">
             
-            <button
-              (click)="toggleSection(section.id)"
-              class="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-colors border-b border-gray-200"
-            >
+       <button
+  (click)="toggleSection(section.id)"
+  class="w-full px-6 py-4 flex items-center justify-between 
+         bg-gradient-to-r from-blue-50 to-indigo-50 
+         hover:from-blue-100 hover:to-indigo-100
+         dark:from-blue-900 dark:to-indigo-900 
+         dark:hover:from-blue-800 dark:hover:to-indigo-800
+         transition-colors 
+         border-b border-gray-200 dark:border-slate-600">
               <div class="flex items-center gap-4 text-left">
                 <i 
                   class="pi  transition-transform"
@@ -20,7 +25,7 @@
               </div>
               
               <div class="flex items-center gap-3">
-                <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100  text-blue-700 text-xs font-medium dark:bg-blue-900 dark:text-blue-300">
                   {{ section.subjects.length }} Subjects
                 </span>
   
@@ -31,7 +36,7 @@
               <div class="overflow-x-auto">
                 <table class="w-full">
                   <thead>
-                    <tr class="border-b bg-gray-50">
+                    <tr class="border-b bg-gray-50 dark:bg-slate-700">
                       <th class="text-left py-3 px-4 font-medium  text-sm">NAME</th>
                       <th class="text-left py-3 px-4 font-medium  text-sm">PERIOD/WEEK</th>
                       <th class="text-left py-3 px-4 font-medium  text-sm">ACTIONS</th>
@@ -40,7 +45,7 @@
                   <tbody>
                     <tr 
                       *ngFor="let subject of section.subjects; let i = index"
-                      class="border-b hover:bg-gray-50 transition-colors"
+                      class="border-b hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
                     >
                       <td class="py-3 px-4">
                         <span class="font-medium ">{{ subject.name }}</span>

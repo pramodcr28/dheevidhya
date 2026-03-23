@@ -12,13 +12,13 @@
     </button>
     </div>
   </div> -->
-  <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+  <div class="bg-blue-50 p-6 rounded-lg border border-blue-200 dark:bg-slate-800 dark:border-slate-600">
   <h4 class="font-medium  mb-2">Ready to Generate Your Timetable?</h4>
   <p class="text-sm  mb-4">All your data is ready. Click the button to create your timetable.</p>
 
   <div *ngIf="validationErrors?.length" class="mb-4">
     <div *ngFor="let error of validationErrors"
-         class="flex items-start text-md font-bold text-red-600 mb-1">
+         class="flex items-start text-md font-bold text-red-600 mb-1 dark:text-red-400">
       <i class="pi pi-exclamation-circle mr-2 mt-0.5"></i>
       <span>{{ error }}</span>
     </div>
@@ -26,7 +26,7 @@
 
   <div class="flex justify-end">
     <button (click)="generateTimetable()" 
-      class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium ms-auto">
+      class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium ms-auto dark:bg-blue-500 dark:hover:bg-blue-600 dark:disabled:bg-blue-400">
       <i class="pi pi-plus mr-2"></i>
       Generate Timetable
     </button>
@@ -34,7 +34,7 @@
 </div>
 
   
-<div class="bg-white p-4 rounded-lg shadow-sm border">
+<div class="bg-white p-4 rounded-lg shadow-sm border dark:bg-slate-800 dark:border-slate-600">
   <div class="flex items-center mb-3">
     <h4 class="font-medium  text-base">Timetable Configuration Overview</h4>
   </div>
@@ -67,7 +67,7 @@
 
     <div>
       <div class="text-xs ">Teachers</div>
-      <div class="text-lg font-bold text-purple-600">
+      <div class="text-lg font-bold text-purple-600 dark:text-purple-400">
         {{ timeTableService.getTeachersList().length || 0 }}
       </div>
       

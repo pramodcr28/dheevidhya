@@ -1,7 +1,7 @@
 <!-- timetable-generator.component.html -->
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100">
   <!-- Header -->
-  <div class="bg-white shadow-sm border-b">
+  <div class="bg-white shadow-sm border-b dark:bg-slate-800 dark:border-slate-600">
     <div class="px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center py-4">
         <div class="flex items-center">
@@ -53,7 +53,7 @@
   </div>
 
   <!-- Navigation Footer -->
-  <div class="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
+  <div class="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg dark:bg-slate-800 dark:border-slate-600">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center py-4">
         <button (click)="previousTab()" 
@@ -65,7 +65,7 @@
         <span class="text-sm ">Step {{activeIndex + 1}} of 4</span>
         <button (click)="nextTab()" 
                 [disabled]="activeIndex === 3 || !timeTableService.timeTable?.department"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50">
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600 dark:disabled:bg-blue-400">
           Next
           <i class="pi pi-arrow-right ml-2"></i>
         </button>

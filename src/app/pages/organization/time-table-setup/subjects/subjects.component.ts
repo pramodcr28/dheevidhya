@@ -36,7 +36,7 @@ export class SubjectsComponent implements OnInit {
     removeSubject(classId: number, sectionId: number, subjectIndex: number, calsses: any[]) {
         const classItem = calsses.find((c) => c.id === classId);
         if (classItem) {
-            const section = classItem.sections.find((s) => s.id === sectionId);
+            const section = classItem.sections?.find((s) => s.id === sectionId);
             if (section) {
                 section.subjects.splice(subjectIndex, 1);
             }
