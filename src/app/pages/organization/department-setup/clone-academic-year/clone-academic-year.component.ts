@@ -180,6 +180,10 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
             });
     }
 
+    getAuthorities(staff) {
+        return staff?.authorities?.map((a) => a.name)?.join(', ') || '';
+    }
+
     validateAndCalculateDates(): void {
         this.isNotTwelveMonths = false;
         this.isOverlapping = false;

@@ -78,6 +78,10 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
         });
     }
 
+    getAuthorities(staff) {
+        return staff?.authorities?.map((a) => a.name)?.join(', ') || '';
+    }
+
     private loadConfigForEdit(configId: string): void {
         this.departmentConfigService.find(configId).subscribe((res) => {
             if (res.body) {
