@@ -309,12 +309,12 @@ export class AddExamComponent {
 
     getColorClass(className: string): string {
         const colors = {
-            PRE_KG: 'bg-amber-100',
-            LKG: 'bg-lime-100',
-            UKG: 'bg-blue-100',
-            '1st Grade': 'bg-pink-100',
-            '2nd Grade': 'bg-purple-100',
-            default: 'bg-gray-100'
+            PRE_KG: 'bg-amber-100 dark:bg-amber-800',
+            LKG: 'bg-lime-100 dark:bg-lime-800',
+            UKG: 'bg-blue-100 dark:bg-blue-800',
+            '1st Grade': 'bg-pink-100 dark:bg-pink-800',
+            '2nd Grade': 'bg-purple-100 dark:bg-purple-800',
+            default: 'bg-gray-100 dark:bg-gray-800'
         };
 
         return colors[className] || colors['default'];

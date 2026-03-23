@@ -1,179 +1,181 @@
-<div class="min-h-screen">
-    <!-- Header Section -->
-    <div class="mb-8">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div class="flex flex-wrap gap-2 ms-auto py-4">
-                <button 
-                    (click)="setFilter('all')"
-                    [class]="selectedFilter === 'all' 
-                        ? 'bg-primary-500 text-white' 
-                        : 'bg-white  hover:bg-gray-50'"
-                    class="px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm border border-gray-200">
-                    <i class="pi pi-list mr-2"></i>All
-                </button>
-                <button 
-                    (click)="setFilter('upcoming')"
-                    [class]="selectedFilter === 'upcoming' 
-                        ? 'bg-primary-500 text-white' 
-                        : 'bg-white  hover:bg-gray-50'"
-                    class="px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm border border-gray-200">
-                    <i class="pi pi-clock mr-2"></i>Upcoming
-                </button>
-                <button 
-                    (click)="setFilter('ongoing')"
-                    [class]="selectedFilter === 'ongoing' 
-                        ? 'bg-primary-500 text-white' 
-                        : 'bg-white  hover:bg-gray-50'"
-                    class="px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm border border-gray-200">
-                    <i class="pi pi-play-circle mr-2"></i>Ongoing
-                </button>
-                <button 
-                    (click)="setFilter('completed')"
-                    [class]="selectedFilter === 'completed' 
-                        ? 'bg-primary-500 text-white' 
-                        : 'bg-white  hover:bg-gray-50'"
-                    class="px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm border border-gray-200">
-                    <i class="pi pi-check-circle mr-2"></i>Completed
-                </button>
-            </div>
-        </div>
+<div class="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+
+  <!-- Filter Bar -->
+  <div class="mb-6 flex flex-wrap gap-2">
+    @for (tab of filterTabs; track tab.value) {
+      <button
+        (click)="setFilter(tab.value)"
+        [ngClass]="selectedFilter === tab.value
+          ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-200 dark:shadow-indigo-900'
+          : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400'"
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200">
+        <i [class]="tab.icon" class="text-xs"></i>
+        {{ tab.label }}
+        <span
+          [ngClass]="selectedFilter === tab.value
+            ? 'bg-white/25 text-white'
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'"
+          class="text-[11px] px-1.5 py-0.5 rounded-full font-semibold min-w-[18px] text-center">
+          {{ getFilterCount(tab.value) }}
+        </span>
+      </button>
+    }
+  </div>
+
+  <!-- Empty State -->
+  @if (filteredExams.length === 0) {
+    <div class="flex flex-col items-center justify-center py-24 text-center">
+      <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+        <i class="pi pi-inbox text-2xl text-gray-400 dark:text-gray-500"></i>
+      </div>
+      <p class="text-base font-semibold text-gray-700 dark:text-gray-300">No exams found</p>
+      <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
+        No {{ selectedFilter === 'all' ? '' : selectedFilter }} exams at the moment.
+      </p>
     </div>
 
+  } @else {
     <!-- Exams Grid -->
-    <div class="max-w-7xl mx-auto">
-        @if (filteredExams.length === 0) {
-            <div class="text-center py-16">
-                <div class="inline-block p-6 bg-white rounded-full shadow-lg mb-4">
-                    <i class="pi pi-inbox text-6xl text-gray-400"></i>
-                </div>
-                <h3 class="text-2xl font-semibold  mb-2">No Exams Found</h3>
-                <p class="">There are no {{ selectedFilter === 'all' ? '' : selectedFilter }} exams at the moment.</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+      @for (exam of filteredExams; track exam.examId) {
+
+        <div class="group flex flex-col rounded-2xl border border-gray-100 dark:border-gray-800
+                    bg-white dark:bg-gray-900 overflow-hidden
+                    transition-all duration-300
+                    hover:shadow-lg hover:shadow-gray-100/80 dark:hover:shadow-gray-950
+                    hover:-translate-y-0.5">
+
+          <!-- Status accent bar -->
+          <div class="h-1 w-full flex-shrink-0" [ngClass]="getAccentBar(exam.status)"></div>
+
+          <!-- Header -->
+          <div class="px-5 pt-4 pb-3 flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <p class="text-[15px] font-semibold text-gray-900 dark:text-gray-100 truncate leading-snug">
+                {{ getExamTypeLabel(exam.examType) }}
+              </p>
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">
+                {{ exam.departmentName }}
+              </p>
             </div>
-        } @else {
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                @for (exam of filteredExams; track exam.examId) {
-                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
-                        <!-- Card Header -->
-                        <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="flex-1">
-                                    <h3 class="text-2xl font-bold mb-1">{{ examTypes[exam.examType] || exam.examType }}</h3>
-                                    <p class="text-blue-100 text-sm">{{ exam.departmentName }} • {{ exam.academicYear }}</p>
-                                </div>
-                                <div [class]="getStatusBadgeClass(exam.status)" class="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                                    <i [class]="getStatusIcon(exam.status)"></i>
-                                    {{ examStatuses[exam.status] || exam.status }}
-                                </div>
-                            </div>
-                            
-                            <!-- Date Display -->
-                            <div class="flex items-center gap-3 text-white">
-                                <div class="flex items-center gap-2">
-                                    <i class="pi pi-calendar text-xl"></i>
-                                    @if (isSingleDayExam(exam)) {
-                                        <span class="font-semibold">{{ formatDate(exam.timeTable.settings.startDate) }}</span>
-                                    } @else {
-                                        <div class="flex items-center gap-2">
-                                            <span class="font-semibold">{{ formatDate(exam.timeTable.settings.startDate) }}</span>
-                                            <i class="pi pi-arrow-right text-sm"></i>
-                                            <span class="font-semibold">{{ formatDate(exam.timeTable.settings.endDate) }}</span>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
 
-                            <!-- Countdown Badge -->
-                            @if (shouldShowCountdown(exam)) {
-                                <div class="mt-4 inline-block">
-                                    <div class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
-                                        <div class="flex items-center gap-2">
-                                            <i class="pi pi-stopwatch text-lg"></i>
-                                            <span class="font-bold">{{ getCountdownMessage(exam) }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
+            <span class="flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+                  [ngClass]="getStatusChipClass(exam.status)">
+              <i [class]="getStatusIcon(exam.status)" style="font-size:9px"></i>
+              {{ getExamStatusLabel(exam.status) }}
+            </span>
+          </div>
 
-                        <!-- Card Body -->
-                        <div class="p-6">
-                            <!-- Exam Info -->
-                            <div class="grid grid-cols-2 gap-4 mb-6">
-                                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                                    <div class="bg-blue-100 p-2 rounded-lg">
-                                        <i class="pi pi-book text-blue-600 text-lg"></i>
-                                    </div>
-                                    <!-- <div>
-                                        <p class="text-xs  mb-1">Subjects</p>
-                                        <p class="font-bold ">{{ exam.subjects?.length }}</p>
-                                    </div> -->
-                                </div>
-                                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                                    <div class="bg-purple-100 p-2 rounded-lg">
-                                        <i class="pi pi-star text-purple-600 text-lg"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs  mb-1">Total Marks</p>
-                                        <p class="font-bold ">{{ exam.totalMarks }}</p>
-                                    </div>
-                                </div>
-                            </div>
+          <!-- Date row -->
+          <div class="px-5 pb-3 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <i class="pi pi-calendar text-indigo-400 dark:text-indigo-500" style="font-size:11px"></i>
+            @if (isSingleDayExam(exam)) {
+              <span class="font-medium text-gray-700 dark:text-gray-300">
+                {{ formatDate(exam.timeTable.settings.startDate) }}
+              </span>
+            } @else {
+              <span class="font-medium text-gray-700 dark:text-gray-300">
+                {{ formatDate(exam.timeTable.settings.startDate) }}
+              </span>
+              <i class="pi pi-arrow-right" style="font-size:9px"></i>
+              <span class="font-medium text-gray-700 dark:text-gray-300">
+                {{ formatDate(exam.timeTable.settings.endDate) }}
+              </span>
+            }
+          </div>
 
-                            @if (getScheduledSubjects(exam).length > 0) {
-                                <div class="border-t pt-4">
-                                    <h4 class="text-sm font-semibold  mb-3 flex items-center gap-2">
-                                        <i class="pi pi-calendar-plus"></i>
-                                        Exam Schedule
-                                    </h4>
-                                    <div class="space-y-2 max-h-64 overflow-y-auto">
-                                        @for (schedule of getScheduledSubjects(exam); track $index) {
-                                            <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-blue-200 transition-colors"
-                                                 [style.background]="schedule.color || 'linear-gradient(135deg, #f3f4f6, #e5e7eb)'">
-                                                <div class="flex items-center gap-3 flex-1">
-                                                    <div class="bg-white/80 backdrop-blur-sm p-2 rounded-lg">
-                                                        <i class="pi pi-book "></i>
-                                                    </div>
-                                                    <div class="flex-1">
-                                                        <p class="font-semibold  text-sm">{{ schedule.subjectName }}</p>
-                                                        <p class="text-xs  mt-0.5">
-                                                            {{ formatDate(schedule.day) }}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="text-right bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg">
-                                                    <p class="text-xs  mb-0.5">Time</p>
-                                                    <p class="font-semibold  text-sm">
-                                                        {{ formatTime(schedule.startTime) }}
-                                                    </p>
-                                                    <p class="text-xs ">
-                                                        {{ exam.timeTable.settings.slotDuration }} mins
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            }
-                        </div>
+          <!-- Countdown pill -->
+          @if (shouldShowCountdown(exam)) {
+            <div class="px-5 pb-3">
+              <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full"
+                    [ngClass]="getCountdownClass(exam)">
+                <i class="pi pi-stopwatch" style="font-size:10px"></i>
+                {{ getCountdownMessage(exam) }}
+              </span>
+            </div>
+          }
 
-                        <!-- Card Footer -->
-                        <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
-                            <div class="flex items-center justify-between text-sm">
-                                <div class="flex items-center gap-2 ">
-                                    <i class="pi pi-info-circle"></i>
-                                    <span>Duration: {{ exam.timeTable.settings.slotDuration }} mins per subject</span>
-                                </div>
-                                @if (exam.timeTable.settings.breakDuration > 0) {
-                                    <div class="flex items-center gap-2 ">
-                                        <i class="pi pi-pause-circle"></i>
-                                        <span>Break: {{ exam.timeTable.settings.breakDuration }} mins</span>
-                                    </div>
-                                }
-                            </div>
-                        </div>
+          <!-- Divider -->
+          <div class="mx-5 border-t border-gray-100 dark:border-gray-800"></div>
+
+          <!-- Stats row -->
+          <div class="px-5 py-3 grid grid-cols-2 gap-3">
+            <div class="flex items-center gap-2.5 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/60">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 flex-shrink-0">
+                <i class="pi pi-star-fill text-indigo-500 dark:text-indigo-400" style="font-size:11px"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] text-gray-400 dark:text-gray-500 leading-none mb-0.5">Total Marks</p>
+                <p class="text-sm font-bold text-gray-800 dark:text-gray-200 leading-tight">{{ exam.totalMarks }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2.5 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/60">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-violet-100 dark:bg-violet-900/50 flex-shrink-0">
+                <i class="pi pi-clock text-violet-500 dark:text-violet-400" style="font-size:11px"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] text-gray-400 dark:text-gray-500 leading-none mb-0.5">Duration</p>
+                <p class="text-sm font-bold text-gray-800 dark:text-gray-200 leading-tight">
+                  {{ exam.timeTable.settings.slotDuration }}<span class="text-[10px] font-normal text-gray-400 dark:text-gray-500 ml-0.5">min</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Schedule section -->
+          @if (getScheduledSubjects(exam).length > 0) {
+            <div class="px-5 pb-4">
+              <p class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
+                Schedule
+              </p>
+              <div class="flex flex-col gap-1.5 max-h-48 overflow-y-auto">
+                @for (schedule of getScheduledSubjects(exam); track $index) {
+                  <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl
+                              border border-gray-100 dark:border-gray-800
+                              hover:border-indigo-200 dark:hover:border-indigo-800
+                              hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20
+                              transition-colors duration-150">
+                    <div class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                         [ngClass]="getSubjectDotColor($index)"></div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">
+                        {{ schedule.subjectName }}
+                      </p>
+                      <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                        {{ formatDate(schedule.day) }}
+                      </p>
                     </div>
+                    <div class="text-right flex-shrink-0">
+                      <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                        {{ formatTime(schedule.startTime) }}
+                      </p>
+                      <p class="text-[10px] text-gray-400 dark:text-gray-500">
+                        {{ exam.timeTable.settings.slotDuration }}m
+                      </p>
+                    </div>
+                  </div>
                 }
+              </div>
             </div>
-        }
+          }
+
+          <!-- Footer -->
+          <div class="mt-auto px-5 py-3 border-t border-gray-100 dark:border-gray-800
+                      flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/30">
+            <div class="flex items-center gap-1.5 text-[11px] text-gray-400 dark:text-gray-500">
+              <i class="pi pi-info-circle" style="font-size:11px"></i>
+              <span>{{ exam.timeTable.settings.slotDuration }} min/subject</span>
+            </div>
+            @if (exam.timeTable.settings.breakDuration > 0) {
+              <div class="flex items-center gap-1.5 text-[11px] text-gray-400 dark:text-gray-500">
+                <i class="pi pi-pause-circle" style="font-size:11px"></i>
+                <span>{{ exam.timeTable.settings.breakDuration }}m break</span>
+              </div>
+            }
+          </div>
+
+        </div>
+      }
     </div>
+  }
 </div>

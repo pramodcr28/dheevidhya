@@ -89,7 +89,7 @@
                             ></button>
                             <p-menu #menu [model]="getStatusMenuItems(exam)" [popup]="true" appendTo="body">
                                 <ng-template pTemplate="item" let-item>
-                                    <div class="flex items-center gap-3 p-2 cursor-pointer hover:bg-gray-50 rounded">
+                                    <div class="flex items-center gap-3 p-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 rounded">
                                         <i [class]="item.icon + ' text-lg'" [ngClass]="getStatusColorClass(item.value)"></i>
                                         <div class="flex flex-col">
                                             <span class="font-medium text-sm">{{ item.label }}</span>
