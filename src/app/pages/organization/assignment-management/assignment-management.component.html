@@ -1,15 +1,11 @@
 <div class="min-h-screen">
     <div class="mx-auto">
-        <!-- Dynamic Grid: 3 columns for students, full width for others -->
          @if(commonService.currentUser){
  <div [ngClass]="commonService.currentUser?.roles?.student ? 'grid grid-cols-1 xl:grid-cols-4 gap-6' : ''">
-            <!-- Main Content Area -->
             <div [ngClass]="commonService.currentUser?.roles?.student ? 'xl:col-span-3' : 'w-full'">
                 @if (currentView !== 'group' ) {
                     <div class="flex flex-col gap-4 mb-6 p-5">
-                        <!-- Header Row -->
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <!-- Title Section -->
                             <div class="flex items-center gap-3">
                                 <button pButton icon="pi pi-arrow-left" class="p-button-text p-button-rounded hover:bg-gray-100" pTooltip="Back" (click)="currentView === 'submissions' ? backtoAssignmentList() : (currentView = 'group')"></button>
 
@@ -24,7 +20,6 @@
                                 }
                             </div>
 
-                            <!-- Add Task Button -->
                             @if (!commonService.currentUser?.roles?.student && currentView === 'cards') {
                                 <p-button label="Add Task" icon="pi pi-plus" severity="primary" size="small" class="w-full sm:w-auto" (onClick)="selectedAssignment = {}; showAddDialog = true"> </p-button>
                             }
@@ -39,12 +34,9 @@
                         }
                     </div>
                 }
-
-                <!-- Cards View (Individual Assignments) -->
                 <div *ngIf="currentView === 'cards'">
                     <div *ngIf="filteredAssignments?.length > 0; else noAssignments" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div *ngFor="let assignment of filteredAssignments" class="bg-white dark:bg-gray-900 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
-                            <!-- Card Header -->
                             <div class="p-4 border-b border-gray-100 dark:border-gray-700">
                                 <div class="flex items-start justify-between mb-3">
                                     <div class="flex items-center gap-2 flex-1">
@@ -55,7 +47,6 @@
                                 </div>
                             </div>
 
-                            <!-- Card Body -->
                             <div class="p-4">
                                 <div class="flex items-center gap-2 text-sm  mb-4">
                                     <i class="pi pi-calendar text-gray-400"></i>
@@ -68,13 +59,11 @@
                                @if (!commonService.currentUser?.roles?.student) {
   <div class="flex items-center gap-3">
 
-    <!-- ✅ Edit Icon -->
     <i class="pi pi-pencil text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
        (click)="editAssignment(assignment)"
        pTooltip="Edit">
     </i>
 
-    <!-- ✅ Delete Icon -->
     <i class="pi pi-trash text-red-400 hover:text-red-600 cursor-pointer transition-colors"
        (click)="deleteAssignment(assignment)"
        pTooltip="Delete">
@@ -88,7 +77,6 @@
                         </div>
                     </div>
 
-                    <!-- Empty State -->
                     <ng-template #noAssignments>
                         <div class="bg-white dark:bg-gray-900 rounded-xl flex flex-col items-center justify-center text-center  shadow-sm border border-gray-100 dark:border-gray-700 min-h-[400px] gap-4 p-8">
                             <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
@@ -105,10 +93,8 @@
                     </ng-template>
                 </div>
 
-                <!-- Group/Subject View -->
                 <div *ngIf="currentView === 'group'">
                     <div *ngIf="groupedAssignments?.length > 0; else noSubjects" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Student View -->
                         @if (commonService.currentUser?.roles?.student) {
                             <div *ngFor="let group of groupedAssignments" class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group">
                                 <div class="bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 p-3 text-white relative overflow-hidden">
@@ -156,7 +142,6 @@
                                 </div>
                             </div>
                         } @else {
-                            <!-- Teacher/Admin View -->
                             <div *ngFor="let group of groupedAssignments" class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group">
                                 <div class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-6 text-white relative overflow-hidden">
                                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gray/20 rounded-full -mr-16 -mt-16"></div>
@@ -206,7 +191,6 @@
                         }
                     </div>
 
-                    <!-- No Subjects State -->
                     <ng-template #noSubjects>
                         <div class="bg-white dark:bg-gray-900 rounded-2xl flex flex-col items-center justify-center text-center  shadow-sm border border-gray-100 min-h-[500px] gap-4 p-8">
                             <div class="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-800 dark:to-purple-800 rounded-full flex items-center justify-center">
@@ -220,7 +204,6 @@
                     </ng-template>
                 </div>
 
-                <!-- Submissions View -->
                 <div *ngIf="currentView === 'submissions'" class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <p-table [value]="assignmentSubmissions" responsiveLayout="scroll" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '50rem' }">
                         <ng-template pTemplate="header">
@@ -273,7 +256,6 @@
                 </div>
             </div>
 
-            <!-- Sidebar (Only for Students) -->
             @if (commonService.currentUser?.roles?.student) {
                 <div class="xl:col-span-1">
                     <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
@@ -323,7 +305,6 @@
          }
        
 
-        <!-- Dialogs -->
         <app-add-assignment-dialog
             [visible]="showAddDialog"
             (visibleChange)="showAddDialog = $event"

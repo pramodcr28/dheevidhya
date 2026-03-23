@@ -394,7 +394,7 @@ export class StudentPromotionComponent implements OnInit {
         this.showPromotionDialog = false;
         this.loader.show('Promoting students...');
 
-        const eligibleStudents = this.selectedStudents.filter((student) => student.status.toString() != 'EXITED' && student.status.toString() != 'PROMOTED');
+        const eligibleStudents = this.selectedStudents.filter((student) => student.status?.toString() != 'EXITED' && student.status?.toString() != 'PROMOTED');
         if (eligibleStudents.length === 0) {
             this.loader.hide();
             this.messageService.add({
