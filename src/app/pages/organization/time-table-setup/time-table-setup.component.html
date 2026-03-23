@@ -24,10 +24,8 @@
     </div>
   </div>
 
-  <!-- Main Content -->
   <div>
     <div class="flex gap-8">
-      <!-- Left Panel -->
       <div class="flex-1">
         <p-tabView [(activeIndex)]="activeIndex" styleClass="custom-tabview">
           <p-tabPanel header="General Settings">
@@ -45,14 +43,12 @@
         </p-tabView>
       </div>
 
-      <!-- Right Panel -->
-      <div class="w-80">
+      <div class="w-80 hidden xl:block">
         <app-side-panel [activeIndex]="activeIndex"></app-side-panel>
       </div>
     </div>
   </div>
 
-  <!-- Navigation Footer -->
   <div class="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg dark:bg-slate-800 dark:border-slate-600">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center py-4">
