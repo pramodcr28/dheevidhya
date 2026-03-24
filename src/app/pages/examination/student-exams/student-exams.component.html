@@ -1,36 +1,50 @@
 <div class="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
 
-  <!-- Filter Bar -->
-  <div class="mb-6 flex flex-wrap gap-2">
-    @for (tab of filterTabs; track tab.value) {
-      <button
-        (click)="setFilter(tab.value)"
-        [ngClass]="selectedFilter === tab.value
-          ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-200 dark:shadow-indigo-900'
-          : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400'"
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200">
-        <i [class]="tab.icon" class="text-xs"></i>
+<!-- Filter Bar -->
+<div class="mb-4 flex flex-wrap gap-1.5 sm:gap-2 flex items-center justify-end pb-4">
+
+  @for (tab of filterTabs; track tab.value) {
+    <button
+      (click)="setFilter(tab.value)"
+      [ngClass]="selectedFilter === tab.value
+        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-200 dark:shadow-indigo-900'
+        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400'"
+      class="inline-flex items-center gap-1 sm:gap-2
+             px-2.5 sm:px-4 py-1.5 sm:py-2
+             rounded-full text-xs sm:text-sm font-medium
+             border transition-all duration-200">
+
+      <i [class]="tab.icon" class="text-[10px] sm:text-xs"></i>
+
+      <span class="hidden xs:inline sm:inline">
         {{ tab.label }}
-        <span
-          [ngClass]="selectedFilter === tab.value
-            ? 'bg-white/25 text-white'
-            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'"
-          class="text-[11px] px-1.5 py-0.5 rounded-full font-semibold min-w-[18px] text-center">
-          {{ getFilterCount(tab.value) }}
-        </span>
-      </button>
-    }
-  </div>
+      </span>
+
+      <span
+        [ngClass]="selectedFilter === tab.value
+          ? 'bg-white/25 text-white'
+          : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'"
+        class="text-[10px] sm:text-[11px]
+               px-1 sm:px-1.5 py-0.5
+               rounded-full font-semibold
+               min-w-[16px] sm:min-w-[18px]
+               text-center">
+        {{ getFilterCount(tab.value) }}
+      </span>
+
+    </button>
+  }
+</div>
 
   <!-- Empty State -->
   @if (filteredExams.length === 0) {
     <div class="flex flex-col items-center justify-center py-24 text-center">
-      <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+      <div class="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center mb-4">
         <i class="pi pi-inbox text-2xl text-gray-400 dark:text-gray-500"></i>
       </div>
       <p class="text-base font-semibold text-gray-700 dark:text-gray-300">No exams found</p>
       <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
-        No {{ selectedFilter === 'all' ? '' : selectedFilter }} exams at the moment.
+        No {{ selectedFilter }} exams at the moment.
       </p>
     </div>
 
@@ -39,8 +53,8 @@
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
       @for (exam of filteredExams; track exam.examId) {
 
-        <div class="group flex flex-col rounded-2xl border border-gray-100 dark:border-gray-800
-                    bg-white dark:bg-gray-900 overflow-hidden
+        <div class="group flex flex-col rounded-2xl border border-gray-200 dark:border-gray-800
+                    bg-white dark:bg-gray-950 overflow-hidden shadow-md
                     transition-all duration-300
                     hover:shadow-lg hover:shadow-gray-100/80 dark:hover:shadow-gray-950
                     hover:-translate-y-0.5">

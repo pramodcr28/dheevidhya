@@ -11,7 +11,7 @@ import { ExaminationService } from '../../service/examination.service';
 
 interface FilterTab {
     label: string;
-    value: 'all' | 'upcoming' | 'ongoing' | 'completed';
+    value: 'Scheduled' | 'Ongoing' | 'Completed';
     icon: string;
 }
 
@@ -24,13 +24,12 @@ interface FilterTab {
 export class StudentExamsComponent implements OnInit {
     exams: any[] = [];
     filteredExams: any[] = [];
-    selectedFilter: 'all' | 'upcoming' | 'ongoing' | 'completed' = 'all';
+    selectedFilter: 'Scheduled' | 'Ongoing' | 'Completed' = 'Scheduled';
 
     filterTabs: FilterTab[] = [
-        { label: 'All', value: 'all', icon: 'pi pi-list' },
-        { label: 'Upcoming', value: 'upcoming', icon: 'pi pi-clock' },
-        { label: 'Ongoing', value: 'ongoing', icon: 'pi pi-play-circle' },
-        { label: 'Completed', value: 'completed', icon: 'pi pi-check-circle' }
+        { label: 'Scheduled', value: 'Scheduled', icon: 'pi pi-clock' },
+        { label: 'Ongoing', value: 'Ongoing', icon: 'pi pi-play-circle' },
+        { label: 'Completed', value: 'Completed', icon: 'pi pi-check-circle' }
     ];
 
     private examTypeLabels: { [key: string]: string } = ExamTypeLabels as any;
@@ -79,48 +78,49 @@ export class StudentExamsComponent implements OnInit {
     filterExams(): void {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-
+        // DRAFT = 'DRAFT',
+        // SCHEDULED = 'SCHEDULED',
+        // RESCHEDULED = 'RESCHEDULED',
+        // ONGOING = 'ONGOING',
+        // RESULT_DECLARED = 'RESULT_DECLARED',
+        // CANCELLED = 'CANCELLED',
+        // RE_SCHEDULED = 'RE_SCHEDULED'
         switch (this.selectedFilter) {
-            case 'upcoming':
+            case 'Scheduled':
                 this.filteredExams = this.exams.filter((exam) => {
-                    const startDate = new Date(exam.timeTable.settings.startDate);
-                    return startDate > today && exam.status !== 'COMPLETED' && exam.status !== 'CANCELLED';
+                    return exam.status.toUpperCase() === 'SCHEDULED' || exam.status.toUpperCase() === 'RE_SCHEDULED';
                 });
                 break;
-            case 'ongoing':
+            case 'Ongoing':
                 this.filteredExams = this.exams.filter((exam) => {
-                    const startDate = new Date(exam.timeTable.settings.startDate);
-                    const endDate = new Date(exam.timeTable.settings.endDate);
-                    return startDate <= today && endDate >= today && exam.status !== 'COMPLETED' && exam.status !== 'CANCELLED';
+                    return exam.status.toUpperCase() === 'ONGOING';
                 });
                 break;
-            case 'completed':
-                this.filteredExams = this.exams.filter((exam) => exam.status === 'COMPLETED' || new Date(exam.timeTable.settings.endDate) < today);
+            case 'Completed':
+                this.filteredExams = this.exams.filter((exam) => {
+                    return exam.status.toUpperCase() === 'COMPLETED' || exam.status.toUpperCase() === 'CANCELLED' || exam.status.toUpperCase() === 'RESULT_DECLARED';
+                });
                 break;
             default:
                 this.filteredExams = [...this.exams];
         }
     }
 
-    setFilter(filter: 'all' | 'upcoming' | 'ongoing' | 'completed'): void {
+    setFilter(filter: 'Scheduled' | 'Ongoing' | 'Completed'): void {
         this.selectedFilter = filter;
         this.filterExams();
     }
 
-    getFilterCount(filter: 'all' | 'upcoming' | 'ongoing' | 'completed'): number {
+    getFilterCount(filter: 'Scheduled' | 'Ongoing' | 'Completed'): number {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         switch (filter) {
-            case 'upcoming':
-                return this.exams.filter((e) => new Date(e.timeTable.settings.startDate) > today && e.status !== 'COMPLETED' && e.status !== 'CANCELLED').length;
-            case 'ongoing':
-                return this.exams.filter((e) => {
-                    const s = new Date(e.timeTable.settings.startDate);
-                    const d = new Date(e.timeTable.settings.endDate);
-                    return s <= today && d >= today && e.status !== 'COMPLETED' && e.status !== 'CANCELLED';
-                }).length;
-            case 'completed':
-                return this.exams.filter((e) => e.status === 'COMPLETED' || new Date(e.timeTable.settings.endDate) < today).length;
+            case 'Scheduled':
+                return this.exams.filter((e) => e.status === 'SCHEDULED' || e.status === 'RE_SCHEDULED').length;
+            case 'Ongoing':
+                return this.exams.filter((e) => e.status === 'ONGOING').length;
+            case 'Completed':
+                return this.exams.filter((e) => e.status === 'COMPLETED' || e.status === 'CANCELLED' || e.status === 'RESULT_DECLARED').length;
             default:
                 return this.exams.length;
         }
