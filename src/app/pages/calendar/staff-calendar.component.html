@@ -55,12 +55,14 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="text-sm font-medium   block mb-2"> <i class="pi pi-sign-in mr-1"></i> Check-In </label>
-                        <p-datepicker [(ngModel)]="selectedDayAttendance.checkInTime" [timeOnly]="true" [showSeconds]="true" hourFormat="24" [iconDisplay]="'input'" styleClass="w-full" />
+                        <p-datepicker [(ngModel)]="selectedDayAttendance.checkInTime" [timeOnly]="true" [showSeconds]="true" hourFormat="24" [iconDisplay]="'input'" styleClass="w-full" (ngModelChange)="timeErrors.checkIn = ''" />
+                        <small *ngIf="timeErrors.checkIn" class="text-red-500 text-xs mt-1 block"><i class="pi pi-exclamation-circle mr-1"></i>{{ timeErrors.checkIn }}</small>
                     </div>
 
                     <div>
                         <label class="text-sm font-medium   block mb-2"> <i class="pi pi-sign-out mr-1"></i> Check-Out </label>
-                        <p-datepicker [(ngModel)]="selectedDayAttendance.checkOutTime" [timeOnly]="true" [showSeconds]="true" hourFormat="24" [iconDisplay]="'input'" styleClass="w-full" />
+                        <p-datepicker [(ngModel)]="selectedDayAttendance.checkOutTime" [timeOnly]="true" [showSeconds]="true" hourFormat="24" [iconDisplay]="'input'" styleClass="w-full" (ngModelChange)="timeErrors.checkOut = ''" />
+                        <small *ngIf="timeErrors.checkOut" class="text-red-500 text-xs mt-1 block"><i class="pi pi-exclamation-circle mr-1"></i>{{ timeErrors.checkOut }}</small>
                     </div>
                 </div>
             }

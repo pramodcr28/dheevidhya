@@ -7,8 +7,8 @@ export interface StaffAttendance {
     branchId?: string;
     branchName?: string;
     attendanceDate?: string;
-    checkInTime?: string;
-    checkOutTime?: string;
+    checkInTime?: any | Date;
+    checkOutTime?: any | Date;
     status?: AttendanceStatus | any;
     remarks?: string;
 }
@@ -16,8 +16,7 @@ export interface StaffAttendance {
 export enum AttendanceStatus {
     PRESENT = 'PRESENT',
     ABSENT = 'ABSENT',
-    LEAVE = 'LEAVE',
-    ON_DUTY = 'ON_DUTY'
+    LEAVE = 'LEAVE'
 }
 export interface StaffAttendanceReport {
     staffId: string;

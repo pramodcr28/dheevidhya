@@ -124,6 +124,8 @@ export class StaffAttendanceComponent implements OnInit {
         // { label: 'On Duty', value: 'ON_DUTY' }
     ];
 
+    timeErrors: { checkIn: string; checkOut: string } = { checkIn: '', checkOut: '' };
+
     monthStats = {
         present: 0,
         absent: 0,
@@ -447,8 +449,25 @@ export class StaffAttendanceComponent implements OnInit {
         }
 
         if (day.attendance) {
-            this.selectedDayAttendance = { ...day.attendance };
+            const attendance = day.attendance;
+
+            const checkIn = this.combineDateAndTime(attendance.attendanceDate, attendance.checkInTime);
+            const checkOut = this.combineDateAndTime(attendance.attendanceDate, attendance.checkOutTime);
+            if (checkOut < checkIn) {
+                checkOut.setDate(checkOut.getDate() + 1);
+            }
+
+            this.selectedDayAttendance = {
+                ...attendance,
+                checkInTime: checkIn,
+                checkOutTime: checkOut
+            };
         } else {
+            const baseDate = new Date(day.date);
+            const checkIn = new Date(baseDate);
+            checkIn.setHours(9, 0, 0, 0);
+            const checkOut = new Date(baseDate);
+            checkOut.setHours(18, 0, 0, 0);
             this.selectedDayAttendance = {
                 staffId: this.commonService.getUserInfo?.userId,
                 staffName: this.commonService.getUserInfo?.fullName,
@@ -458,12 +477,13 @@ export class StaffAttendanceComponent implements OnInit {
                 branchName: this.commonService.branch?.name || '',
                 attendanceDate: this.datePipe.transform(day.date, 'yyyy-MM-dd') || '',
                 status: 'PRESENT',
-                checkInTime: undefined,
-                checkOutTime: undefined
+                checkInTime: checkIn,
+                checkOutTime: checkOut
             };
         }
 
         this.hasEvents = day.events.length > 0;
+        this.timeErrors = { checkIn: '', checkOut: '' };
 
         if (this.commonService.isStudent) {
             this.showDetailDialog = this.hasEvents;
@@ -488,39 +508,127 @@ export class StaffAttendanceComponent implements OnInit {
         return null;
     }
 
+    combineDateAndTime(dateStr: string, time: string | Date): Date {
+        if (!time) return null;
+
+        if (time instanceof Date) {
+            const result = new Date(dateStr);
+            result.setHours(time.getHours(), time.getMinutes(), time.getSeconds());
+            return result;
+        }
+
+        return new Date(`${dateStr}T${time}`);
+    }
+
     saveAttendanceChanges() {
         if (!this.selectedDayAttendance) return;
 
-        const { checkInTime, checkOutTime, status } = this.selectedDayAttendance;
-        const normalizedCheckIn = new Date(checkInTime);
-        const normalizedCheckOut = new Date(checkOutTime);
-        const now = new Date();
-        if (status != AttendanceStatus.ABSENT && status != AttendanceStatus.LEAVE) {
-            if (!checkInTime || !checkOutTime) {
+        this.timeErrors = { checkIn: '', checkOut: '' };
+        if (status !== AttendanceStatus.ABSENT && status !== AttendanceStatus.LEAVE) {
+            if (!this.selectedDayAttendance.checkInTime) {
+                this.timeErrors.checkIn = 'Check-in time is required.';
                 this.messageService.add({
                     severity: 'error',
-                    summary: 'Validation Error',
-                    detail: 'Check-in time and Check-out time are required.'
+                    summary: 'Check-In Required',
+                    detail: 'Please enter a check-in time for Present status.'
                 });
                 return;
             }
 
-            if (normalizedCheckIn > now) {
+            if (!this.selectedDayAttendance.checkOutTime) {
+                this.timeErrors.checkOut = 'Check-out time is required.';
                 this.messageService.add({
                     severity: 'error',
-                    summary: 'Invalid Check-in Time',
-                    detail: 'Check-in time cannot be in the future.'
+                    summary: 'Check-Out Required',
+                    detail: 'Please enter a check-out time for Present status.'
+                });
+                return;
+            }
+            const attendanceDate = this.selectedDayAttendance.attendanceDate;
+
+            const baseDate = new Date(attendanceDate);
+
+            const checkIn = new Date(baseDate);
+            checkIn.setHours(this.selectedDayAttendance.checkInTime.getHours(), this.selectedDayAttendance.checkInTime.getMinutes(), this.selectedDayAttendance.checkInTime.getSeconds(), 0);
+
+            const checkOut = new Date(baseDate);
+            checkOut.setHours(this.selectedDayAttendance.checkOutTime.getHours(), this.selectedDayAttendance.checkOutTime.getMinutes(), this.selectedDayAttendance.checkOutTime.getSeconds(), 0);
+
+            if (isNaN(checkIn.getTime())) {
+                this.timeErrors.checkIn = 'Invalid check-in time.';
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Invalid Time',
+                    detail: 'Please enter a valid check-in time.'
                 });
                 return;
             }
 
-            if (normalizedCheckOut > now) {
+            if (isNaN(checkOut.getTime())) {
+                this.timeErrors.checkOut = 'Invalid check-out time.';
                 this.messageService.add({
                     severity: 'error',
-                    summary: 'Invalid Check-out Time',
-                    detail: 'Check-out time cannot be in the future.'
+                    summary: 'Invalid Time',
+                    detail: 'Please enter a valid check-out time.'
                 });
                 return;
+            }
+
+            if (checkOut <= checkIn) {
+                this.timeErrors.checkOut = 'Check-out must be later than check-in.';
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Invalid Time Range',
+                    detail: 'Check-out time must be after check-in time.'
+                });
+                return;
+            }
+
+            const durationMs = checkOut.getTime() - checkIn.getTime();
+            const durationHours = durationMs / (1000 * 60 * 60);
+            const durationMins = Math.round(durationMs / (1000 * 60));
+
+            if (durationHours < 1) {
+                this.timeErrors.checkOut = `Only ${durationMins} min logged — minimum is 1 hour.`;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Duration Too Short',
+                    detail: `Working duration is ${durationMins} min. Minimum allowed is 1 hour.`
+                });
+                return;
+            }
+
+            if (durationHours > 16) {
+                this.timeErrors.checkOut = `${durationHours.toFixed(1)} hrs exceeds the 16-hour limit.`;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Duration Too Long',
+                    detail: 'Working hours cannot exceed 16 hours in a single day.'
+                });
+                return;
+            }
+
+            const todayStr = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+            if (this.selectedDayAttendance.attendanceDate === todayStr) {
+                const now = new Date();
+                if (checkIn > now) {
+                    this.timeErrors.checkIn = 'Check-in time cannot be in the future.';
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Future Time',
+                        detail: 'Check-in time cannot be set in the future.'
+                    });
+                    return;
+                }
+                if (checkOut > now) {
+                    this.timeErrors.checkOut = 'Check-out time cannot be in the future.';
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Future Time',
+                        detail: 'Check-out time cannot be set in the future.'
+                    });
+                    return;
+                }
             }
         }
 
