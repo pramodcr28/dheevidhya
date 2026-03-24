@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
@@ -18,6 +18,7 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 
 import { CommonService } from '../../../core/services/common.service';
+import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getDepartmentById } from '../../../core/store/user-profile/user-profile.selectors';
@@ -47,7 +48,7 @@ import { ExaminationService } from '../../service/examination.service';
         SelectModule
     ],
     templateUrl: './reports.component.html',
-    providers: [MessageService, ConfirmationService],
+    providers: [MessageService, DheeConfirmationService],
     styles: ``
 })
 export class ReportsComponent {

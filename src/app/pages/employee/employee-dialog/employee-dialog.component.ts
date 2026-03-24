@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -21,6 +21,7 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 import { Gender } from '../../../core/model/auth';
 import { BranchService } from '../../../core/services/branch.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
+import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { IBranch } from '../../models/tenant.model';
 import { IProfileConfig, IRoleConfigs, ITenantAuthority, ITenantUser, NewTenantUser, UserStatus } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -59,7 +60,7 @@ interface ProfileUIData {
     ],
     templateUrl: './employee-dialog.component.html',
     styles: ``,
-    providers: [ConfirmationService, MessageService]
+    providers: [DheeConfirmationService, MessageService]
 })
 export class EmployeeDialogComponent {
     studentService = inject(UserService);
@@ -67,7 +68,7 @@ export class EmployeeDialogComponent {
     commonService = inject(CommonService);
     employeeProfileService = inject(ProfileConfigService);
     branchService = inject(BranchService);
-    confirmationService = inject(ConfirmationService);
+    confirmationService = inject(DheeConfirmationService);
     messageService = inject(MessageService);
     departmentConfigService = inject(DepartmentConfigService);
     @Input() visible: boolean = false;

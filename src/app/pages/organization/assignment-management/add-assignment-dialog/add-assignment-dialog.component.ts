@@ -11,6 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { CommonService } from '../../../../core/services/common.service';
+import { DheeConfirmationService } from '../../../../core/services/dhee-confirmation.service';
 
 @Component({
     selector: 'app-add-assignment-dialog',
@@ -39,6 +40,7 @@ export class AddAssignmentDialogComponent {
     @Output() cancel = new EventEmitter<void>();
     commonService = inject(CommonService);
     messageService = inject(MessageService);
+    confirmationService = inject(DheeConfirmationService);
     onSelectedDepartmentModelChange(val: any) {
         this.selectedDepartmentChange.emit(val);
     }
@@ -55,8 +57,20 @@ export class AddAssignmentDialogComponent {
         if (!this.validateAssignment(status)) {
             return;
         }
-        this.newAssignment.status = status;
-        this.save();
+        if (status === 'PUBLISHED' || status === 'COMPLETED') {
+            this.confirmationService.confirm({
+                message: 'Are you sure you want to ' + (status === 'PUBLISHED' ? 'publish' : 'mark as completed') + ' this assignment?',
+                header: 'Confirm Action',
+                icon: 'pi pi-exclamation-triangle',
+                accept: () => {
+                    this.newAssignment.status = status;
+                    this.save();
+                }
+            });
+        } else {
+            this.newAssignment.status = status;
+            this.save();
+        }
     }
 
     private validateAssignment(status: string): boolean {

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, NgZone, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
@@ -21,6 +21,7 @@ import { Subscription } from 'rxjs';
 import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
 import { Column, ExportColumn } from '../../../core/model/table.model';
 import { CommonService } from '../../../core/services/common.service';
+import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { MasterClassService } from '../../../core/services/master-class.service';
 import { MasterSectionService } from '../../../core/services/master-section.service';
@@ -64,7 +65,7 @@ interface FilterConfig {
         StudentDialogComponent
     ],
     templateUrl: './student-list.component.html',
-    providers: [MessageService, ConfirmationService],
+    providers: [MessageService, DheeConfirmationService],
     styles: [``]
 })
 export class StudentListComponent {
@@ -109,7 +110,7 @@ export class StudentListComponent {
     sortService = inject(SortService);
     ngZone = inject(NgZone);
     messageService = inject(MessageService);
-    confirmationService = inject(ConfirmationService);
+    confirmationService = inject(DheeConfirmationService);
     loader = inject(ApiLoaderService);
     commonService = inject(CommonService);
 

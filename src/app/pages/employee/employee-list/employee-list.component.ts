@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, NgZone, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
@@ -18,6 +18,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { Subscription } from 'rxjs';
 import { Column, ExportColumn } from '../../../core/model/table.model';
 import { CommonService } from '../../../core/services/common.service';
+import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { SortService } from '../../../shared/sort';
 import { IProfileConfig, ITenantAuthority, ITenantUser, NewTenantUser } from '../../models/user.model';
@@ -31,7 +32,7 @@ import { EmployeeDialogComponent } from './../employee-dialog/employee-dialog.co
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, RatingModule, InputTextModule, DialogModule, TagModule, InputIconModule, IconFieldModule, ConfirmDialogModule, EmployeeDialogComponent],
     templateUrl: './employee-list.component.html',
     styles: ``,
-    providers: [MessageService, ConfirmationService]
+    providers: [MessageService, DheeConfirmationService]
 })
 export class EmployeeListComponent {
     studentDialog: boolean = false;
@@ -52,7 +53,7 @@ export class EmployeeListComponent {
     sortService = inject(SortService);
     ngZone = inject(NgZone);
     messageService = inject(MessageService);
-    confirmationService = inject(ConfirmationService);
+    confirmationService = inject(DheeConfirmationService);
     loader = inject(ApiLoaderService);
     commonService = inject(CommonService);
 

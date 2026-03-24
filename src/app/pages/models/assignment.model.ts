@@ -7,7 +7,7 @@ export interface Assignment {
     title: string;
     description: string;
     assignedDate: string;
-    dueDate: string;
+    dueDate: string | Date;
     type: 'HOMEWORK' | 'PROJECT' | 'EXAM' | 'QUIZ';
     visibilityType: 'GROUP' | 'INDIVIDUAL';
     assignedStudentIds: string[];

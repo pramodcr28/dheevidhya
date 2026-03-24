@@ -5,7 +5,7 @@
         </div>
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <p-datepicker [(ngModel)]="newAssignment.dueDate" showIcon="true" placeholder="Submition Date" [fluid]="true" [minDate]="today" dateFormat="yy-mm-dd"> </p-datepicker>
+                <p-datepicker [(ngModel)]="newAssignment.dueDate" showIcon="true" placeholder="Submition Date" [fluid]="true"   dateFormat="yy-mm-dd"> </p-datepicker>
             </div>
             <div>
                 <p-select [options]="typeOptions" placeholder="Select task type" [(ngModel)]="newAssignment.type" class="w-full"> </p-select>

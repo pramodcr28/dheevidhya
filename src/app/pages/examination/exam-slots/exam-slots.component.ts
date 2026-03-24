@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -13,6 +13,7 @@ import { SliderModule } from 'primeng/slider';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
+import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { ExaminationTimeSlot } from '../../models/examination.model';
 import { ExamStatusService } from '../../service/exam-status.service';
@@ -23,7 +24,7 @@ import { ExamStatusService } from '../../service/exam-status.service';
     imports: [CommonModule, FormsModule, DatePickerModule, SelectModule, ButtonModule, TableModule, DragDropModule, CardModule, ToastModule, InputNumberModule, SliderModule, KnobModule],
     templateUrl: './exam-slots.component.html',
     styles: [],
-    providers: [MessageService, ConfirmationService]
+    providers: [MessageService, DheeConfirmationService]
 })
 export class ExamSlotsComponent {
     draggedSubject: any;

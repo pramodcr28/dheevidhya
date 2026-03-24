@@ -3,7 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -19,6 +19,7 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { AuthServerProvider } from '../../core/services/auth-jwt.service';
 import { CommonService } from '../../core/services/common.service';
+import { DheeConfirmationService } from '../../core/services/dhee-confirmation.service';
 import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
 import { selectUserConfig } from '../../core/store/user-profile/user-profile.selectors';
 import { TenantAuthorityService } from '../service/tenant-authority.service';
@@ -138,7 +139,7 @@ interface UserRoles {
     ],
     templateUrl: './profile.component.html',
     styles: ``,
-    providers: [MessageService, ConfirmationService]
+    providers: [MessageService, DheeConfirmationService]
 })
 export class ProfileComponent {
     passwordForm!: FormGroup;

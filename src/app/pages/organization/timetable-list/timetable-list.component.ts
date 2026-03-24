@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
@@ -14,6 +14,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
+import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { DheeSelectComponent } from '../../../shared/dhee-select/dhee-select.component';
 import { StaffTimetableComponent } from '../../../shared/staff-timetable/staff-timetable.component';
@@ -49,7 +50,7 @@ interface StatusTransitionOption {
         SelectButtonModule,
         StaffTimetableComponent
     ],
-    providers: [MessageService, ConfirmationService],
+    providers: [MessageService, DheeConfirmationService],
     templateUrl: './timetable-list.component.html'
 })
 export class TimetableListComponent implements OnInit {
@@ -61,7 +62,7 @@ export class TimetableListComponent implements OnInit {
     ];
     statusFilter: string = '';
     timeTableService = inject(TimeTableService);
-    confirmationService = inject(ConfirmationService);
+    confirmationService = inject(DheeConfirmationService);
     selectedDepartment: any;
     timetables: DepartmentTimetable[] = [];
     seletedTimeTable: DepartmentTimetable;
@@ -240,7 +241,7 @@ export class TimetableListComponent implements OnInit {
             message: `Are you sure you want to delete <strong>${timetable.departmentName}</strong>?`,
             header: 'Confirm Delete',
             icon: 'pi pi-exclamation-triangle',
-            acceptButtonStyleClass: 'p-button-danger',
+            acceptButtonClass: 'p-button-danger',
             accept: () => {
                 this.timeTableService.deleteTimeTable(timetable.id).subscribe(() => {
                     this.messageService.add({

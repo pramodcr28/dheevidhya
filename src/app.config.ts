@@ -9,6 +9,7 @@ import { providePrimeNG } from 'primeng/config';
 import { catchError, Observable, throwError } from 'rxjs';
 import { appRoutes } from './app.routes';
 import { authInterceptor } from './app/core/interceptor/auth-cookie-interceptor.interceptor';
+import { DheeConfirmationService } from './app/core/services/dhee-confirmation.service';
 import { ApiLoaderService } from './app/core/services/loaderService';
 import { provideAppStore } from './app/core/store/user-profile/store.providers';
 export const appConfig: ApplicationConfig = {
@@ -21,7 +22,8 @@ export const appConfig: ApplicationConfig = {
         ...provideAppStore,
         FormsModule,
         MessageService,
-        ConfirmationService
+        ConfirmationService,
+        DheeConfirmationService
     ]
 };
 function errorHandlerInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar'; // Added
 import { BadgeModule } from 'primeng/badge'; // Added
 import { ButtonModule } from 'primeng/button';
@@ -15,6 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { UserFilterPipePipe } from '../../../core/pipe/user-filter-pipe.pipe';
 import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
+import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { IDepartmentAcademicYear, IMasterClass, IMasterDepartment } from '../../models/org.model'; // Import IMasterClass
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -46,7 +47,7 @@ export class DepartmentSetupComponent implements OnInit {
     selectedDepartmentId = null;
     activeTabIndex = null;
     activeClass: IMasterClass | null = null;
-    confirmationService = inject(ConfirmationService);
+    confirmationService = inject(DheeConfirmationService);
     ngOnInit() {
         this.activatedRoute.params.subscribe((params) => {
             const deptId = params['id'];
@@ -176,7 +177,7 @@ export class DepartmentSetupComponent implements OnInit {
             header: 'Confirm Deletion',
             message: 'Are you sure you want to delete this academic year?',
             icon: 'pi pi-exclamation-triangle',
-            acceptButtonStyleClass: 'p-button-danger',
+            acceptButtonClass: 'p-button-danger',
             accept: () => this.deleteAcademicYear(id)
         });
     }

@@ -96,7 +96,7 @@
                 <div *ngIf="currentView === 'group'">
                     <div *ngIf="groupedAssignments?.length > 0; else noSubjects" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @if (commonService.currentUser?.roles?.student) {
-                            <div *ngFor="let group of groupedAssignments" class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group">
+                            <div *ngFor="let group of groupedAssignments" class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
                                 <div class="bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 p-3 text-white relative overflow-hidden">
                                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gray/20 rounded-full -mr-16 -mt-16"></div>
                                     <div class="relative z-10">
@@ -117,16 +117,16 @@
 
                                 <div class="p-6">
                                     <div class="grid grid-cols-3 gap-3 mb-5">
-                                        <div class="text-center p-3 bg-blue-50 dark:bg-blue-900 rounded-xl border border-blue-100 dark:border-blue-600 hover:bg-blue-100 dark:hover:bg-blue-600 transition-colors">
-                                            <div class="text-2xl font-bold text-blue-600">{{ group.ongoingCount }}</div>
+                                        <div class="text-center group p-3 bg-blue-50 dark:bg-blue-900 rounded-xl border border-blue-100 dark:border-blue-600 hover:bg-blue-100 dark:hover:bg-blue-600  transition-colors">
+                                            <div class="text-2xl font-bold text-blue-600 dark:group-hover:text-white">{{ group.ongoingCount }}</div>
                                             <div class="text-xs  mt-1 font-medium">Ongoing</div>
                                         </div>
-                                        <div class="text-center p-3 bg-amber-50 dark:bg-amber-900 rounded-xl border border-amber-100 dark:border-amber-600 hover:bg-amber-100 dark:hover:bg-amber-600 transition-colors">
-                                            <div class="text-2xl font-bold text-amber-600">{{ group.pendingCount }}</div>
+                                        <div class="text-center group p-3 bg-amber-50 dark:bg-amber-900 rounded-xl border border-amber-100 dark:border-amber-600 hover:bg-amber-100 dark:hover:bg-amber-600 transition-colors">
+                                            <div class="text-2xl font-bold text-amber-600 dark:group-hover:text-white ">{{ group.pendingCount }}</div>
                                             <div class="text-xs  mt-1 font-medium">Pending</div>
                                         </div>
-                                        <div class="text-center p-3 bg-green-50 dark:bg-green-900 rounded-xl border border-green-100 dark:border-green-600 hover:bg-green-100 dark:hover:bg-green-600 transition-colors">
-                                            <div class="text-2xl font-bold text-green-600">{{ group.completedCount }}</div>
+                                        <div class="text-center group p-3 bg-green-50 dark:bg-green-900 rounded-xl border border-green-100 dark:border-green-600 hover:bg-green-100 dark:hover:bg-green-600 transition-colors">
+                                            <div class="text-2xl font-bold text-green-600 dark:group-hover:text-white">{{ group.completedCount }}</div>
                                             <div class="text-xs  mt-1 font-medium">Done</div>
                                         </div>
                                     </div>
@@ -142,7 +142,7 @@
                                 </div>
                             </div>
                         } @else {
-                            <div *ngFor="let group of groupedAssignments" class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group">
+                            <div *ngFor="let group of groupedAssignments" class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
                                 <div class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-6 text-white relative overflow-hidden">
                                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gray/20 rounded-full -mr-16 -mt-16"></div>
                                     <div class="relative z-10">
@@ -160,20 +160,20 @@
 
                                 <div class="p-6">
                                     <div class="grid grid-cols-4 gap-3 mb-5">
-                                        <div class="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                                            <div class="text-2xl font-bold ">{{ group.totalAssignments }}</div>
+                                        <div class="text-center group p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                            <div class="text-2xl font-bold   ">{{ group.totalAssignments }}</div>
                                             <div class="text-xs  mt-1 font-medium">Total</div>
                                         </div>
-                                        <div class="text-center p-3 bg-amber-50 dark:bg-amber-900 rounded-xl border border-amber-100 dark:border-amber-600 hover:bg-amber-100 dark:hover:bg-amber-600 transition-colors">
-                                            <div class="text-2xl font-bold text-amber-600">{{ group.draftCount }}</div>
+                                        <div class="text-center group p-3 bg-amber-50 dark:bg-amber-900 rounded-xl border border-amber-100 dark:border-amber-600 hover:bg-amber-100 dark:hover:bg-amber-600 transition-colors">
+                                            <div class="text-2xl font-bold text-amber-600 dark:group-hover:text-white">{{ group.draftCount }}</div>
                                             <div class="text-xs  mt-1 font-medium">Draft</div>
                                         </div>
-                                        <div class="text-center p-3 bg-green-50 dark:bg-green-900 rounded-xl border border-green-100 dark:border-green-600 hover:bg-green-100 dark:hover:bg-green-600 transition-colors">
-                                            <div class="text-2xl font-bold text-green-600">{{ group.ongoingCount }}</div>
+                                        <div class="text-center group p-3 bg-green-50 dark:bg-green-900 rounded-xl border border-green-100 dark:border-green-600 hover:bg-green-100 dark:hover:bg-green-600 transition-colors">
+                                            <div class="text-2xl font-bold text-green-600 dark:group-hover:text-white">{{ group.ongoingCount }}</div>
                                             <div class="text-xs  mt-1 font-medium">On Going</div>
                                         </div>
-                                        <div class="text-center p-3 bg-red-50 dark:bg-red-900 rounded-xl border border-red-100 dark:border-red-600 hover:bg-red-100 dark:hover:bg-red-600 transition-colors">
-                                            <div class="text-2xl font-bold text-red-600">{{ group.completedCount }}</div>
+                                        <div class="text-center group p-3 bg-red-50 dark:bg-red-900 rounded-xl border border-red-100 dark:border-red-600 hover:bg-red-100 dark:hover:bg-red-600 transition-colors">
+                                            <div class="text-2xl font-bold text-red-600 dark:group-hover:text-white">{{ group.completedCount }}</div>
                                             <div class="text-xs  mt-1 font-medium">Completed</div>
                                         </div>
                                     </div>

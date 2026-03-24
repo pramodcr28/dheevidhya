@@ -8,6 +8,7 @@ import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
@@ -73,6 +74,7 @@ export class AssignmentManagementComponent implements OnInit {
     currentView: 'cards' | 'submissions' | 'group' = 'group';
     selectedGroup = null;
     messageService = inject(MessageService);
+    dheeConfirmationService = inject(DheeConfirmationService);
     objectKeys = Object.keys;
 
     ngOnInit(): void {
@@ -328,23 +330,39 @@ export class AssignmentManagementComponent implements OnInit {
     }
 
     editAssignment(assignment: Assignment) {
-        this.selectedAssignment = { ...assignment };
+        this.selectedAssignment = { ...assignment, dueDate: new Date(assignment.dueDate) };
         this.showAddDialog = true;
     }
 
     deleteAssignment(assignment: Assignment) {
         if (assignment && assignment.id) {
-            this.assignmentService.delete(assignment.id).subscribe((result) => {
-                this.getGroupedAssignments();
-                this.selectGroup(this.selectedGroup);
-                this.showAddDialog = false;
-                this.selectedAssignment = {};
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Assignment Deleted Successfully!',
-                    life: 3000
-                });
+            this.dheeConfirmationService.confirm({
+                header: 'Confirm Deletion',
+                message: 'Are you sure you want to delete this assignment?',
+                icon: 'pi pi-exclamation-triangle',
+                acceptButtonClass: 'p-button-danger',
+                accept: () => {
+                    this.assignmentService.delete(assignment.id).subscribe((result) => {
+                        this.getGroupedAssignments();
+                        this.selectGroup(this.selectedGroup);
+                        this.showAddDialog = false;
+                        this.selectedAssignment = {};
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Assignment Deleted Successfully!',
+                            life: 3000
+                        });
+                    });
+                },
+                reject: () => {
+                    this.messageService.add({
+                        severity: 'info',
+                        summary: 'Cancelled',
+                        detail: 'Assignment deletion cancelled.',
+                        life: 3000
+                    });
+                }
             });
         }
     }

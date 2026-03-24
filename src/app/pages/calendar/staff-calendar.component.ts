@@ -3,7 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 // PrimeNG Imports
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -19,6 +19,7 @@ import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../core/services/common.service';
+import { DheeConfirmationService } from '../../core/services/dhee-confirmation.service';
 import { Notice } from '../models/notification.model';
 import { AttendanceStatus, StaffAttendance } from '../models/staff-attendence.mdel';
 import { NotificationService } from '../service/notification.service';
@@ -41,7 +42,7 @@ interface EventIndicator {
     selector: 'app-staff-attendance-calendar',
     standalone: true,
     imports: [DatePickerModule, CommonModule, FormsModule, SelectModule, CardModule, ButtonModule, TagModule, ToastModule, ConfirmDialogModule, AvatarModule, ChartModule, DialogModule, TextareaModule, FloatLabelModule, InputTextModule, ChipModule],
-    providers: [MessageService, ConfirmationService, DatePipe],
+    providers: [MessageService, DheeConfirmationService, DatePipe],
     templateUrl: './staff-calendar.component.html',
     styles: `
         @keyframes bounce-subtle {

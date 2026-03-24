@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -14,6 +14,7 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { CommonService } from '../../core/services/common.service';
+import { DheeConfirmationService } from '../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../core/services/loaderService';
 import { Notice } from '../models/notification.model';
 import { NotificationService } from '../service/notification.service';
@@ -41,7 +42,7 @@ import { NoticeViewComponent } from './notice-view/notice-view.component';
         NoticeViewComponent,
         MultiSelect
     ],
-    providers: [MessageService, ConfirmationService],
+    providers: [MessageService, DheeConfirmationService],
     templateUrl: './school-notice-board.component.html',
     styles: []
 })

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -29,7 +29,7 @@ import { UserService } from '../../service/user.service';
     standalone: true,
     imports: [SelectModule, FormsModule, CommonModule, ButtonModule, InputTextModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TagModule, InputNumberModule, DialogModule, CheckboxModule],
     templateUrl: './upload-result.component.html',
-    providers: [ConfirmationService, MessageService]
+    providers: [DheeConfirmationService, MessageService]
 })
 export class UploadResultComponent implements OnInit {
     commonService: CommonService = inject(CommonService);
