@@ -66,6 +66,11 @@ export class StaffTimetableComponent implements OnInit {
     weekSchedule: { dayName: string; periods: PeriodSlot[] }[] = [];
     timeSlots: TimeSlot[] = [];
     days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    readonly todayName = this.days[new Date().getDay()];
+
+    isToday(dayName: string): boolean {
+        return dayName === this.todayName;
+    }
 
     ngOnInit() {
         this.fetchStaffTimetable();
@@ -179,15 +184,13 @@ export class StaffTimetableComponent implements OnInit {
         return hours * 60 + minutes;
     }
 
+    /** Matches timetable-view's auto column sizing */
     getGridCols(): string {
-        const dayColWidth = '80px';
-        const slotColWidth = '110px';
-        return `${dayColWidth} repeat(${this.timeSlots.length}, minmax(${slotColWidth}, 1fr))`;
+        return `repeat(${this.timeSlots.length + 1}, auto)`;
     }
 
     formatTime(time: string | undefined): string {
         if (!time) return '';
-
         return time.split(':').slice(0, 2).join(':');
     }
 
@@ -199,18 +202,13 @@ export class StaffTimetableComponent implements OnInit {
         return day.periods.find((p: PeriodSlot) => p.startTime === slot.startTime && p.endTime === slot.endTime) || null;
     }
 
-    // isBreakTime(slot: TimeSlot): boolean {
-    //     return this.commonBreakTimes.some((breakTime) => breakTime.startTime === slot.startTime && breakTime.endTime === slot.endTime);
-    // }
-
     getCellClasses(day: any, slot: TimeSlot): string {
         const isScheduled = this.isPeriodScheduled(day, slot);
-        // const isBreak = this.isBreakTime(slot);
 
         if (isScheduled) {
-            return 'bg-gradient-to-br from-white to-primary-50/30 dark:from-gray-700 dark:to-gray-800 border-primary-300 dark:border-primary-600 hover:shadow-lg hover:border-primary-500 dark:hover:border-primary-400 min-h-[85px]';
+            return 'bg-gradient-to-br from-white to-primary-50/30 dark:from-gray-700 dark:to-gray-800 border-primary-300 dark:border-primary-600 hover:border-primary-500 dark:hover:border-primary-400';
         } else {
-            return 'bg-gradient-to-br from-slate-50/50 to-slate-100/50 dark:from-surface-800/30 dark:to-surface-900/30 border-dashed border-slate-300 dark:border-surface-600 hover:border-slate-400 min-h-[85px]';
+            return 'bg-surface-50/50 dark:bg-surface-800/30 border-dashed border-surface-300 dark:border-surface-600 hover:border-surface-400';
         }
     }
 
