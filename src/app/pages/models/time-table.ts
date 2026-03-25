@@ -49,6 +49,9 @@ export interface DepartmentTimetable {
     status?: string;
     departmentId?: string;
     departmentName?: string;
+    academicYear?: string;
+    branch?: Number;
+    branchName?: string;
     classSections?: ClassSection[];
     settings?: TimeTableSettings;
 }

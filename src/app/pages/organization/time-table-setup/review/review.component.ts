@@ -145,7 +145,10 @@ export class ReviewComponent {
                 id: null,
                 status: 'draft',
                 departmentId: this.timeTableService.timeTable.department.id,
-                departmentName: this.timeTableService.timeTable.department.department.name,
+                academicYear: this.timeTableService.timeTable.settings.academicYear,
+                branch: this.timeTableService.timeTable?.department?.branch?.id,
+                branchName: this.timeTableService.timeTable?.department?.branch?.name,
+                departmentName: this.timeTableService.timeTable?.department?.department?.name,
                 settings: { ...this.timeTableService.timeTable.settings },
                 classSections
             };
@@ -169,6 +172,7 @@ export class ReviewComponent {
 
     saveTimetable(status) {
         this.timetableJson['status'] = status;
+        debugger;
         this.timeTableService.create(this.timetableJson).subscribe((result: any) => {
             if (result.status != 200) {
                 this.messageService.add({

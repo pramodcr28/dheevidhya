@@ -96,18 +96,12 @@ export class StaffAttendanceComponent implements OnInit {
     loading = false;
     currentTime = '';
     currentViewDate = new Date();
-
     private datePipe = inject(DatePipe);
-
     todayAttendance: StaffAttendance | null = null;
-
     chartData: any;
     chartOptions: any;
-
     calendarDays: CalendarDay[] = [];
     weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-    // Separate data sources
     attendanceHistory: StaffAttendance[] = [];
     events: Notice[] | any = [];
     showDetailDialog = false;
@@ -117,12 +111,10 @@ export class StaffAttendanceComponent implements OnInit {
     selectedDayDate: Date | null = null;
     hasEvents = false;
     hasEventsToday = false;
-
     statusOptions = [
         { label: 'Present', value: 'PRESENT' },
         { label: 'Absent', value: 'ABSENT' },
         { label: 'Leave', value: 'LEAVE' }
-        // { label: 'On Duty', value: 'ON_DUTY' }
     ];
 
     timeErrors: { checkIn: string; checkOut: string } = { checkIn: '', checkOut: '' };
@@ -525,7 +517,7 @@ export class StaffAttendanceComponent implements OnInit {
         if (!this.selectedDayAttendance) return;
 
         this.timeErrors = { checkIn: '', checkOut: '' };
-        if (status !== AttendanceStatus.ABSENT && status !== AttendanceStatus.LEAVE) {
+        if (this.selectedDayAttendance.status !== AttendanceStatus.ABSENT && this.selectedDayAttendance.status !== AttendanceStatus.LEAVE) {
             if (!this.selectedDayAttendance.checkInTime) {
                 this.timeErrors.checkIn = 'Check-in time is required.';
                 this.messageService.add({
@@ -545,6 +537,7 @@ export class StaffAttendanceComponent implements OnInit {
                 });
                 return;
             }
+
             const attendanceDate = this.selectedDayAttendance.attendanceDate;
 
             const baseDate = new Date(attendanceDate);
@@ -613,20 +606,20 @@ export class StaffAttendanceComponent implements OnInit {
             if (this.selectedDayAttendance.attendanceDate === todayStr) {
                 const now = new Date();
                 if (checkIn > now) {
-                    this.timeErrors.checkIn = 'Check-in time cannot be in the future.';
+                    this.timeErrors.checkIn = 'Check-in time cannot be later than the current time.';
                     this.messageService.add({
                         severity: 'error',
                         summary: 'Future Time',
-                        detail: 'Check-in time cannot be set in the future.'
+                        detail: 'Check-in time cannot be later than the current time.'
                     });
                     return;
                 }
                 if (checkOut > now) {
-                    this.timeErrors.checkOut = 'Check-out time cannot be in the future.';
+                    this.timeErrors.checkOut = 'Check-out time cannot be later than the current time.';
                     this.messageService.add({
                         severity: 'error',
                         summary: 'Future Time',
-                        detail: 'Check-out time cannot be set in the future.'
+                        detail: 'Check-out time cannot be later than the current time.'
                     });
                     return;
                 }
@@ -695,10 +688,34 @@ export class StaffAttendanceComponent implements OnInit {
     checkOut() {
         if (!this.todayAttendance) return;
 
-        const now = new Date();
+        let checkIn = this.combineDateAndTime(this.todayAttendance.attendanceDate, this.todayAttendance.checkInTime);
+        const checkOut = new Date();
+        const durationMs = checkOut.getTime() - checkIn.getTime();
+        const durationHours = durationMs / (1000 * 60 * 60);
+        const durationMins = Math.round(durationMs / (1000 * 60));
+        if (durationHours < 1) {
+            this.timeErrors.checkOut = `Only ${durationMins} min logged — minimum is 1 hour.`;
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Duration Too Short',
+                detail: `Working duration is ${durationMins} min. Minimum allowed is 1 hour.`
+            });
+            return;
+        }
+
+        if (durationHours > 16) {
+            this.timeErrors.checkOut = `${durationHours.toFixed(1)} hrs exceeds the 16-hour limit.`;
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Duration Too Long',
+                detail: 'Working hours cannot exceed 16 hours in a single day.'
+            });
+            return;
+        }
+
         const updatedAttendance = {
             ...this.todayAttendance,
-            checkOutTime: this.datePipe.transform(now, 'HH:mm:ss')
+            checkOutTime: this.datePipe.transform(checkOut, 'HH:mm:ss')
         };
 
         this.staffAttendanceService.addAttendance(updatedAttendance).subscribe({

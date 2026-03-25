@@ -202,6 +202,12 @@ export class StaffTimetableComponent implements OnInit {
         return day.periods.find((p: PeriodSlot) => p.startTime === slot.startTime && p.endTime === slot.endTime) || null;
     }
 
+    getFormatedText(title) {
+        if (title) {
+            return title.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+        }
+    }
+
     getCellClasses(day: any, slot: TimeSlot): string {
         const isScheduled = this.isPeriodScheduled(day, slot);
 
