@@ -7,9 +7,10 @@ export interface IDepartmentConfig {
     academicStart?: dayjs.Dayjs | null;
     academicEnd?: dayjs.Dayjs | null;
     status?: boolean | null;
-    branch?: IBranch | null;
+    branch?: IBranch | null | number;
     department?: IMasterDepartment | null;
     associatedStaffs?: String[];
+    name?: string | null;
 }
 
 export type NewDepartmentConfig = Omit<IDepartmentConfig, 'id'> & { id: null };

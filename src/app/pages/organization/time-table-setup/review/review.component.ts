@@ -140,15 +140,14 @@ export class ReviewComponent {
                     schedules
                 });
             }
-
             this.timetableJson = {
                 id: null,
                 status: 'draft',
                 departmentId: this.timeTableService.timeTable.department.id,
                 academicYear: this.timeTableService.timeTable.settings.academicYear,
-                branch: this.timeTableService.timeTable?.department?.branch?.id,
-                branchName: this.timeTableService.timeTable?.department?.branch?.name,
-                departmentName: this.timeTableService.timeTable?.department?.department?.name,
+                branch: this.timeTableService.timeTable?.department.branch,
+                branchName: this.commonService.branch?.name || '',
+                departmentName: this.timeTableService.timeTable?.department?.name,
                 settings: { ...this.timeTableService.timeTable.settings },
                 classSections
             };
@@ -157,7 +156,6 @@ export class ReviewComponent {
         });
     }
 
-    // Helper methods
     private toMinutes(timeStr: string): number {
         if (!timeStr) return 0;
         const [hours, minutes] = timeStr.split(':').map(Number);
@@ -172,7 +170,6 @@ export class ReviewComponent {
 
     saveTimetable(status) {
         this.timetableJson['status'] = status;
-        debugger;
         this.timeTableService.create(this.timetableJson).subscribe((result: any) => {
             if (result.status != 200) {
                 this.messageService.add({
@@ -223,7 +220,6 @@ export class ReviewComponent {
         }
 
         let totalBreakInMinutes = 0;
-        // break validation
         settings.breaks.forEach((brk) => {
             if (brk.enabled) {
                 totalBreakInMinutes += brk.duration;
@@ -233,7 +229,6 @@ export class ReviewComponent {
             }
         });
 
-        // per day duration validation
         const totalPeriodDuration = settings.periodsPerDay * settings.periodDuration + totalBreakInMinutes;
         const perDayDurationInMinutes = this.toMinutes(settings.endTime) - this.toMinutes(settings.startTime);
 
@@ -242,13 +237,13 @@ export class ReviewComponent {
         }
 
         this.timeTableService.classes.forEach((cls) => {
-            console.log('Validating class:', cls);
             let totalPeriods = cls.subjects.reduce((sum, subj) => sum + subj.hours_per_week, 0);
             const totalAvailablePeriods = workingDays.length * settings.periodsPerDay;
             if (totalPeriods > totalAvailablePeriods) {
                 errors.push(` ${totalAvailablePeriods} periods are available per week, while Class ${cls.name} requests ${totalPeriods} periods.`);
             }
         });
+
         let teacherMap = new Map<string, any>();
         this.timeTableService.classes.forEach((cls) => {
             cls.subjects.forEach((subj) => {
@@ -272,7 +267,6 @@ export class ReviewComponent {
                 }
             }
         });
-
         return errors;
     }
 }

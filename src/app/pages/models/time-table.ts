@@ -50,7 +50,7 @@ export interface DepartmentTimetable {
     departmentId?: string;
     departmentName?: string;
     academicYear?: string;
-    branch?: Number;
+    branch?: number | any;
     branchName?: string;
     classSections?: ClassSection[];
     settings?: TimeTableSettings;
