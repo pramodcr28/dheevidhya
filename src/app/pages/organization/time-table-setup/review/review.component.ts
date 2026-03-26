@@ -49,111 +49,118 @@ export class ReviewComponent {
 
         this.validationErrors = [];
 
-        this.showTimetableDialog = true;
-        this.timeTableService.generateTimeTable(exportData).subscribe((response: any) => {
-            const rawTimetable = response.timetable;
-            const classSections: any[] = [];
+        this.timeTableService.generateTimeTable(exportData).subscribe(
+            (response: any) => {
+                const rawTimetable = response.timetable;
+                const classSections: any[] = [];
+                if (rawTimetable) {
+                    for (const key of Object.keys(rawTimetable)) {
+                        const [classId, sectionId] = key.split('-');
+                        const classEntry = this.timeTableService.classes.find((cls) => cls.id === key);
 
-            for (const key of Object.keys(rawTimetable)) {
-                const [classId, sectionId] = key.split('-');
-                const classEntry = this.timeTableService.classes.find((cls) => cls.id === key);
+                        let className = '';
+                        let sectionName = '';
 
-                let className = '';
-                let sectionName = '';
-
-                if (classEntry) {
-                    [className, sectionName] = classEntry.name.split('-');
-                }
-
-                const dayEntries = rawTimetable[key];
-                const schedules: any[] = [];
-                const settings = this.timeTableService.timeTable.settings;
-
-                // Get enabled breaks, sorted by afterPeriod
-                const enabledBreaks = (settings.breaks || []).filter((b) => b.enabled).sort((a, b) => a.afterPeriod - b.afterPeriod);
-
-                let dayStartMinutes = this.toMinutes(settings.startTime);
-
-                for (const dayIndex of Object.keys(dayEntries)) {
-                    const periods: any[] = [];
-                    const periodEntries = dayEntries[dayIndex];
-                    let currentStart = dayStartMinutes;
-                    let lecturePeriodCount = 0; // Track actual lecture periods
-
-                    for (const periodIndex of Object.keys(periodEntries)) {
-                        const period = periodEntries[periodIndex];
-                        lecturePeriodCount++;
-
-                        const startTimeStr = this.toHHmm(currentStart);
-                        const endTimeStr = this.toHHmm(currentStart + settings.periodDuration);
-
-                        // Add lecture period
-                        periods.push({
-                            startTime: startTimeStr,
-                            endTime: endTimeStr,
-                            type: 'lecture',
-                            name: period.subject_name,
-                            subject: {
-                                id: period.subject_id,
-                                name: period.subject_name
-                            },
-                            instructor: {
-                                id: period.teacher_id,
-                                name: period.teacher_name
-                            }
-                        });
-
-                        currentStart += settings.periodDuration;
-
-                        // Check if we need to insert a break after this lecture period
-                        const breakToInsert = enabledBreaks.find((b) => b.afterPeriod === lecturePeriodCount);
-
-                        if (breakToInsert) {
-                            const breakStartTime = this.toHHmm(currentStart);
-                            const breakEndTime = this.toHHmm(currentStart + breakToInsert.duration);
-
-                            // Insert break period
-                            periods.push({
-                                startTime: breakStartTime,
-                                endTime: breakEndTime,
-                                type: 'break',
-                                name: breakToInsert.name,
-                                subject: null,
-                                instructor: null
-                            });
-
-                            currentStart += breakToInsert.duration;
+                        if (classEntry) {
+                            [className, sectionName] = classEntry.name.split('-');
                         }
+
+                        const dayEntries = rawTimetable[key];
+                        const schedules: any[] = [];
+                        const settings = this.timeTableService.timeTable.settings;
+
+                        // Get enabled breaks, sorted by afterPeriod
+                        const enabledBreaks = (settings.breaks || []).filter((b) => b.enabled).sort((a, b) => a.afterPeriod - b.afterPeriod);
+
+                        let dayStartMinutes = this.toMinutes(settings.startTime);
+
+                        for (const dayIndex of Object.keys(dayEntries)) {
+                            const periods: any[] = [];
+                            const periodEntries = dayEntries[dayIndex];
+                            let currentStart = dayStartMinutes;
+                            let lecturePeriodCount = 0; // Track actual lecture periods
+
+                            for (const periodIndex of Object.keys(periodEntries)) {
+                                const period = periodEntries[periodIndex];
+                                lecturePeriodCount++;
+
+                                const startTimeStr = this.toHHmm(currentStart);
+                                const endTimeStr = this.toHHmm(currentStart + settings.periodDuration);
+
+                                // Add lecture period
+                                periods.push({
+                                    startTime: startTimeStr,
+                                    endTime: endTimeStr,
+                                    type: 'lecture',
+                                    name: period.subject_name,
+                                    subject: {
+                                        id: period.subject_id,
+                                        name: period.subject_name
+                                    },
+                                    instructor: {
+                                        id: period.teacher_id,
+                                        name: period.teacher_name
+                                    }
+                                });
+
+                                currentStart += settings.periodDuration;
+
+                                // Check if we need to insert a break after this lecture period
+                                const breakToInsert = enabledBreaks.find((b) => b.afterPeriod === lecturePeriodCount);
+
+                                if (breakToInsert) {
+                                    const breakStartTime = this.toHHmm(currentStart);
+                                    const breakEndTime = this.toHHmm(currentStart + breakToInsert.duration);
+
+                                    // Insert break period
+                                    periods.push({
+                                        startTime: breakStartTime,
+                                        endTime: breakEndTime,
+                                        type: 'break',
+                                        name: breakToInsert.name,
+                                        subject: null,
+                                        instructor: null
+                                    });
+
+                                    currentStart += breakToInsert.duration;
+                                }
+                            }
+
+                            schedules.push({
+                                day: dayIndex,
+                                periods
+                            });
+                        }
+
+                        classSections.push({
+                            classId,
+                            className,
+                            sectionId,
+                            sectionName,
+                            schedules
+                        });
                     }
+                    this.timetableJson = {
+                        id: null,
+                        status: 'draft',
+                        departmentId: this.timeTableService.timeTable.department.id,
+                        academicYear: this.timeTableService.timeTable.settings.academicYear,
+                        branch: this.timeTableService.timeTable?.department.branch,
+                        branchName: this.commonService.branch?.name || '',
+                        departmentName: this.timeTableService.timeTable?.department?.name,
+                        settings: { ...this.timeTableService.timeTable.settings },
+                        classSections
+                    };
 
-                    schedules.push({
-                        day: dayIndex,
-                        periods
-                    });
+                    this.showTimetableDialog = true;
+                } else {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to generate timetable. Please Contact IT Admin.' });
                 }
-
-                classSections.push({
-                    classId,
-                    className,
-                    sectionId,
-                    sectionName,
-                    schedules
-                });
+            },
+            (errors) => {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to generate timetable. Please Contact IT Admin.' });
             }
-            this.timetableJson = {
-                id: null,
-                status: 'draft',
-                departmentId: this.timeTableService.timeTable.department.id,
-                academicYear: this.timeTableService.timeTable.settings.academicYear,
-                branch: this.timeTableService.timeTable?.department.branch,
-                branchName: this.commonService.branch?.name || '',
-                departmentName: this.timeTableService.timeTable?.department?.name,
-                settings: { ...this.timeTableService.timeTable.settings },
-                classSections
-            };
-
-            this.showTimetableDialog = true;
-        });
+        );
     }
 
     private toMinutes(timeStr: string): number {
