@@ -1,0 +1,90 @@
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Device } from '@capacitor/device'; // npm install @capacitor/device
+import { ActionPerformed, PushNotifications, PushNotificationSchema, Token } from '@capacitor/push-notifications';
+import { environment } from '../../../environments/environment.prod';
+import { ApplicationConfigService } from './application-config.service';
+import { CommonService } from './common.service';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class PushNotificationService {
+    // your backend URL
+    protected readonly http = inject(HttpClient);
+    protected readonly applicationConfigService = inject(ApplicationConfigService);
+    protected commonService = inject(CommonService);
+    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.NOTIFICATION_BASE_URL + 'api/notices');
+
+    async initPush() {
+        // Request permission
+        const result = await PushNotifications.requestPermissions();
+
+        if (result.receive === 'granted') {
+            // Register with FCM
+            await PushNotifications.register();
+        } else {
+            console.warn('Push notification permission denied');
+        }
+
+        this.registerListeners();
+    }
+
+    private registerListeners() {
+        // ✅ Token received — send to backend
+        PushNotifications.addListener('registration', (token: Token) => {
+            console.log('FCM Token:', token.value);
+            localStorage.setItem('fcm_token', token.value);
+            this.sendTokenToBackend(token.value);
+        });
+
+        // ❌ Registration error
+        PushNotifications.addListener('registrationError', (error: any) => {
+            console.error('FCM Registration error:', error);
+        });
+
+        // 📩 Notification received while app is OPEN
+        PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
+            console.log('Notification received:', notification);
+            // Show in-app alert or toast
+        });
+
+        // 👆 User tapped on notification
+        PushNotifications.addListener('pushNotificationActionPerformed', (action: ActionPerformed) => {
+            console.log('Notification tapped:', action.notification);
+            // Navigate to specific page if needed
+            const data = action.notification.data;
+            if (data?.route) {
+                // this.router.navigate([data.route]);
+            }
+        });
+    }
+
+    private async sendTokenToBackend(fcmToken: string) {
+        const info = await Device.getId(); // unique device ID
+
+        this.http
+            .put(`${this.resourceUrl}/fcm-token`, {
+                user_id: this.commonService.currentUser?.id,
+                fcm_token: fcmToken,
+                device_id: info.identifier, // ✅ unique per device
+                device_type: 'ANDROID'
+            })
+            .subscribe({
+                next: (res) => console.log('FCM token saved:', res),
+                error: (err) => console.error('FCM token failed:', err)
+            });
+    }
+
+    // private sendTokenToBackend(fcmToken: string) {
+    //     this.http
+    //         .put(`${this.resourceUrl}/fcm-token`, {
+    //             user_id: this.commonService.currentUser?.id,
+    //             fcm_token: fcmToken
+    //         })
+    //         .subscribe({
+    //             next: (res) => console.log('FCM token sent to server:', res),
+    //             error: (err) => console.error('Failed to send FCM token:', err)
+    //         });
+    // }
+}

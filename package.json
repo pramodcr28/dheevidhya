@@ -26,6 +26,8 @@
         "@capacitor/android": "^8.3.0",
         "@capacitor/cli": "^8.3.0",
         "@capacitor/core": "^8.3.0",
+        "@capacitor/device": "^8.0.2",
+        "@capacitor/push-notifications": "^8.0.3",
         "@ngrx/effects": "^19.0.1",
         "@ngrx/store": "^19.0.1",
         "@ngrx/store-devtools": "^19.0.1",
