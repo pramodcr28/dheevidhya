@@ -1,4 +1,4 @@
-package com.v3tech.dheevidhya;
+package com.v3tech.dev_dheevidhya;
 
 import com.getcapacitor.BridgeActivity;
 
