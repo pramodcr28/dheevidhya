@@ -1,6 +1,7 @@
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
 import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -13,6 +14,7 @@ import { AppFloatingConfigurator } from '../../layout/app.floatingconfigurator';
 import { AccountService } from '../../services/account.service';
 import { AuthServerProvider } from '../../services/auth-jwt.service';
 import { CommonService } from '../../services/common.service';
+import { PushNotificationService } from '../../services/push-notification.service';
 import { clearUserProfile } from '../../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../../store/user-profile/user-profile.reducer';
 
@@ -27,7 +29,7 @@ export class Login {
     private readonly accountService = inject(AccountService);
     authenticationError = signal(false);
     isLoading = signal(false);
-
+    pushService: PushNotificationService = inject(PushNotificationService);
     // Forgot password related
     forgotPasswordVisible = false;
     forgotPasswordSuccess = signal(false);
@@ -72,11 +74,15 @@ export class Login {
             .login(this.loginForm.getRawValue())
             .pipe(mergeMap(() => this.accountService.identity()))
             .subscribe({
-                next: () => {
+                next: async () => {
                     this.isLoading.set(false);
                     this.authenticationError.set(false);
                     if (!this.router.getCurrentNavigation()) {
                         this.router.navigate(['']);
+
+                        if (Capacitor.isNativePlatform()) {
+                            await this.pushService.initPush();
+                        }
                     }
                 },
                 error: () => {

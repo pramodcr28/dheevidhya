@@ -1,4 +1,5 @@
 <!-- <p-dialog [(visible)]="visible" [style]="{ width: '95vw', maxWidth: '1400px' }" [header]="employee && employee.id ? 'Edit Staff' : 'Add Staff'" [modal]="true" [maximizable]="true" (onHide)="onCancel()" [closable]="!hasUnsavedChanges()"> -->
+  <app-confirmation-dialog></app-confirmation-dialog>
     <p-dialog
   [(visible)]="visible"
   [style]="{ width: '95vw', maxWidth: '1400px' }"

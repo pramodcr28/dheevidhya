@@ -20,6 +20,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../core/services/common.service';
 import { DheeConfirmationService } from '../../core/services/dhee-confirmation.service';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Notice } from '../models/notification.model';
 import { AttendanceStatus, StaffAttendance } from '../models/staff-attendence.mdel';
 import { NotificationService } from '../service/notification.service';
@@ -41,7 +42,25 @@ interface EventIndicator {
 @Component({
     selector: 'app-staff-attendance-calendar',
     standalone: true,
-    imports: [DatePickerModule, CommonModule, FormsModule, SelectModule, CardModule, ButtonModule, TagModule, ToastModule, ConfirmDialogModule, AvatarModule, ChartModule, DialogModule, TextareaModule, FloatLabelModule, InputTextModule, ChipModule],
+    imports: [
+        DatePickerModule,
+        CommonModule,
+        FormsModule,
+        SelectModule,
+        CardModule,
+        ButtonModule,
+        TagModule,
+        ToastModule,
+        ConfirmDialogModule,
+        AvatarModule,
+        ChartModule,
+        DialogModule,
+        TextareaModule,
+        FloatLabelModule,
+        InputTextModule,
+        ChipModule,
+        ConfirmationDialogComponent
+    ],
     providers: [MessageService, DheeConfirmationService, DatePipe],
     templateUrl: './staff-calendar.component.html',
     styles: `

@@ -8,6 +8,7 @@ import { DheeConfirmationService } from '../../core/services/dhee-confirmation.s
 import { ApiLoaderService } from '../../core/services/loaderService';
 import { BreakConfig, DepartmentTimetable } from '../../pages/models/time-table';
 import { TimeTableService } from '../../pages/service/time-table.service';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 interface SelectedPeriod {
     classSec: any;
@@ -21,7 +22,7 @@ interface SelectedPeriod {
 @Component({
     selector: 'app-timetable-view',
     standalone: true,
-    imports: [CommonModule, ToastModule, TooltipModule, DragDropModule],
+    imports: [CommonModule, ToastModule, TooltipModule, DragDropModule, ConfirmationDialogComponent],
     providers: [MessageService],
     templateUrl: './timetable-view.component.html',
     styles: [

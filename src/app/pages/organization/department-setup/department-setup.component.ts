@@ -17,6 +17,7 @@ import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { IDepartmentAcademicYear, IMasterClass, IMasterDepartment } from '../../models/org.model'; // Import IMasterClass
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { UserService } from '../../service/user.service';
@@ -24,7 +25,7 @@ import { UserService } from '../../service/user.service';
 @Component({
     selector: 'app-department-setup',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TabsModule, SelectModule, ToastModule, TooltipModule, UserFilterPipePipe, AvatarModule, TagModule, BadgeModule],
+    imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TabsModule, SelectModule, ToastModule, TooltipModule, UserFilterPipePipe, AvatarModule, TagModule, BadgeModule, ConfirmationDialogComponent],
     templateUrl: './department-setup.component.html',
     styles: [],
     providers: [MessageService]

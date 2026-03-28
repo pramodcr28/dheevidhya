@@ -16,6 +16,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CommonService } from '../../core/services/common.service';
 import { DheeConfirmationService } from '../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../core/services/loaderService';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Notice } from '../models/notification.model';
 import { NotificationService } from '../service/notification.service';
 import { NoticeAddComponent } from './notice-add/notice-add.component';
@@ -40,7 +41,8 @@ import { NoticeViewComponent } from './notice-view/notice-view.component';
         TooltipModule,
         NoticeAddComponent,
         NoticeViewComponent,
-        MultiSelect
+        MultiSelect,
+        ConfirmationDialogComponent
     ],
     providers: [MessageService, DheeConfirmationService],
     templateUrl: './school-notice-board.component.html',

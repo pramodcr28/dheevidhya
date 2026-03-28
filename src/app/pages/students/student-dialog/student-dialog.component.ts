@@ -21,6 +21,7 @@ import { Gender } from '../../../core/model/auth';
 import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { IProfileConfig, IRoleConfigs, IStudentProfile, ITenantUser, NewTenantUser, UserStatus } from '../../models/user.model';
 import { ProfileConfigFormService } from '../../service/profile-config-form.service';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -55,7 +56,8 @@ interface ProfileUIData {
         FormsModule,
         TabsModule,
         DatePickerModule,
-        ToastModule
+        ToastModule,
+        ConfirmationDialogComponent
     ],
     templateUrl: './student-dialog.component.html',
     providers: [DheeConfirmationService, MessageService]

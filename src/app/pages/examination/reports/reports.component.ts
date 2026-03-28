@@ -22,6 +22,7 @@ import { DheeConfirmationService } from '../../../core/services/dhee-confirmatio
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getDepartmentById } from '../../../core/store/user-profile/user-profile.selectors';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { ExaminationDTO, ExamReport, ExamStatusLabels, ExamTypeLabels, ResultData } from '../../models/examination.model';
 import { IDepartmentConfig, Section } from '../../models/org.model';
 import { ExaminationService } from '../../service/examination.service';
@@ -45,7 +46,8 @@ import { ExaminationService } from '../../service/examination.service';
         ConfirmDialogModule,
         ProgressBarModule,
         TabViewModule,
-        SelectModule
+        SelectModule,
+        ConfirmationDialogComponent
     ],
     templateUrl: './reports.component.html',
     providers: [MessageService, DheeConfirmationService],

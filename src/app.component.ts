@@ -20,6 +20,7 @@ import { ConfirmationDialogComponent } from './app/shared/confirmation-dialog/co
         <!-- API Loader Component -->
         <p-confirmDialog> </p-confirmDialog>
         <app-confirmation-dialog></app-confirmation-dialog>
+        <app-confirmation-dialog></app-confirmation-dialog>
         <app-api-loader></app-api-loader>
         <router-outlet></router-outlet>`
 })

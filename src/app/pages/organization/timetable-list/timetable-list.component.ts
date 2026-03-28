@@ -16,6 +16,7 @@ import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
 import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { DheeSelectComponent } from '../../../shared/dhee-select/dhee-select.component';
 import { StaffTimetableComponent } from '../../../shared/staff-timetable/staff-timetable.component';
 import { DepartmentTimetable } from '../../models/time-table';
@@ -48,7 +49,8 @@ interface StatusTransitionOption {
         RadioButtonModule,
         DheeSelectComponent,
         SelectButtonModule,
-        StaffTimetableComponent
+        StaffTimetableComponent,
+        ConfirmationDialogComponent
     ],
     providers: [MessageService, DheeConfirmationService],
     templateUrl: './timetable-list.component.html'

@@ -18,6 +18,7 @@ import { DheeConfirmationService } from '../../../core/services/dhee-confirmatio
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getDepartmentById } from '../../../core/store/user-profile/user-profile.selectors';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { ExaminationDTO, ExamResult, ExamResultDTO, ExamStatus, StudentResult } from '../../models/examination.model';
 import { IDepartmentConfig } from '../../models/org.model';
 import { ExaminationService } from '../../service/examination.service';
@@ -27,7 +28,7 @@ import { UserService } from '../../service/user.service';
 @Component({
     selector: 'app-upload-result',
     standalone: true,
-    imports: [SelectModule, FormsModule, CommonModule, ButtonModule, InputTextModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TagModule, InputNumberModule, DialogModule, CheckboxModule],
+    imports: [SelectModule, FormsModule, CommonModule, ButtonModule, InputTextModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TagModule, InputNumberModule, DialogModule, CheckboxModule, ConfirmationDialogComponent],
     templateUrl: './upload-result.component.html',
     providers: [DheeConfirmationService, MessageService]
 })
