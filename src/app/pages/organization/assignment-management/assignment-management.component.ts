@@ -12,6 +12,7 @@ import { DheeConfirmationService } from '../../../core/services/dhee-confirmatio
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { getAssociatedDepartments } from '../../../core/store/user-profile/user-profile.selectors';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Assignment, AssignmentSubmission, SubmissionStatus } from '../../models/assignment.model';
 import { IExaminationSubject } from '../../models/examination.model';
 import { IDepartmentConfig } from '../../models/org.model';
@@ -23,7 +24,7 @@ import { SubmitAssignmentDialogComponent } from './submit-assignment-dialog/subm
 @Component({
     selector: 'app-assignment-management',
     standalone: true,
-    imports: [CommonModule, ButtonModule, TableModule, CardModule, TagModule, AddAssignmentDialogComponent, SubmitAssignmentDialogComponent, TooltipModule, BadgeModule],
+    imports: [CommonModule, ButtonModule, TableModule, CardModule, TagModule, AddAssignmentDialogComponent, SubmitAssignmentDialogComponent, TooltipModule, BadgeModule, ConfirmationDialogComponent],
     templateUrl: './assignment-management.component.html'
 })
 export class AssignmentManagementComponent implements OnInit {

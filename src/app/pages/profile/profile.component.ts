@@ -22,6 +22,7 @@ import { CommonService } from '../../core/services/common.service';
 import { DheeConfirmationService } from '../../core/services/dhee-confirmation.service';
 import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
 import { selectUserConfig } from '../../core/store/user-profile/user-profile.selectors';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { TenantAuthorityService } from '../service/tenant-authority.service';
 
 interface UserProfile {
@@ -135,7 +136,8 @@ interface UserRoles {
         DropdownModule,
         ChipModule,
         ConfirmDialogModule,
-        RouterLink
+        RouterLink,
+        ConfirmationDialogComponent
     ],
     templateUrl: './profile.component.html',
     styles: ``,

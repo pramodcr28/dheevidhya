@@ -22,6 +22,7 @@ import { Gender } from '../../../core/model/auth';
 import { BranchService } from '../../../core/services/branch.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { IBranch } from '../../models/tenant.model';
 import { IProfileConfig, IRoleConfigs, ITenantAuthority, ITenantUser, NewTenantUser, UserStatus } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -56,7 +57,8 @@ interface ProfileUIData {
         MultiSelect,
         TabsModule,
         DatePickerModule,
-        ToastModule
+        ToastModule,
+        ConfirmationDialogComponent
     ],
     templateUrl: './employee-dialog.component.html',
     styles: ``,

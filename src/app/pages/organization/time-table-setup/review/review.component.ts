@@ -145,7 +145,7 @@ export class ReviewComponent {
                         status: 'draft',
                         departmentId: this.timeTableService.timeTable.department.id,
                         academicYear: this.timeTableService.timeTable.settings.academicYear,
-                        branch: this.timeTableService.timeTable?.department.branch,
+                        branch: this.commonService.branch?.id || null,
                         branchName: this.commonService.branch?.name || '',
                         departmentName: this.timeTableService.timeTable?.department?.name,
                         settings: { ...this.timeTableService.timeTable.settings },

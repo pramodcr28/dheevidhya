@@ -15,13 +15,14 @@ import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../../core/services/common.service';
 import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { ExaminationTimeSlot } from '../../models/examination.model';
 import { ExamStatusService } from '../../service/exam-status.service';
 
 @Component({
     selector: 'app-exam-slots',
     standalone: true,
-    imports: [CommonModule, FormsModule, DatePickerModule, SelectModule, ButtonModule, TableModule, DragDropModule, CardModule, ToastModule, InputNumberModule, SliderModule, KnobModule],
+    imports: [CommonModule, FormsModule, DatePickerModule, SelectModule, ButtonModule, TableModule, DragDropModule, CardModule, ToastModule, InputNumberModule, SliderModule, KnobModule, ConfirmationDialogComponent],
     templateUrl: './exam-slots.component.html',
     styles: [],
     providers: [MessageService, DheeConfirmationService]

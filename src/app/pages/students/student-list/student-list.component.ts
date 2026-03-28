@@ -25,6 +25,7 @@ import { DheeConfirmationService } from '../../../core/services/dhee-confirmatio
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { MasterClassService } from '../../../core/services/master-class.service';
 import { MasterSectionService } from '../../../core/services/master-section.service';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { SortService } from '../../../shared/sort';
 import { IProfileConfig, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -62,7 +63,8 @@ interface FilterConfig {
         DropdownModule,
         MultiSelectModule,
         GuardianDialogComponent,
-        StudentDialogComponent
+        StudentDialogComponent,
+        ConfirmationDialogComponent
     ],
     templateUrl: './student-list.component.html',
     providers: [MessageService, DheeConfirmationService],

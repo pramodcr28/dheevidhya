@@ -12,11 +12,12 @@ import { SelectModule } from 'primeng/select';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { CommonService } from '../../../../core/services/common.service';
 import { DheeConfirmationService } from '../../../../core/services/dhee-confirmation.service';
+import { ConfirmationDialogComponent } from '../../../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
     selector: 'app-add-assignment-dialog',
     standalone: true,
-    imports: [CommonModule, FormsModule, DialogModule, ButtonModule, InputTextModule, EditorModule, SelectModule, DatePickerModule, TreeSelectModule, SelectModule],
+    imports: [CommonModule, FormsModule, DialogModule, ButtonModule, InputTextModule, EditorModule, SelectModule, DatePickerModule, TreeSelectModule, SelectModule, ConfirmationDialogComponent],
     templateUrl: './add-assignment-dialog.component.html'
 })
 export class AddAssignmentDialogComponent {

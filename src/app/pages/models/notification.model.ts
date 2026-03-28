@@ -41,6 +41,8 @@ export interface Notice {
     targetAudience: Target; // You’ll define Target separately
     attachments?: Array<Record<string, any>>; // JSON style
 
+    notificationChannels?: string[]; // e.g., ["Email", "SMS", "InApp"]
+
     // Type-specific details
     timetable?: TimetableDetails;
     attendance?: AttendanceDetails;
