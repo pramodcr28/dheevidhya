@@ -147,20 +147,15 @@ export class EmployeeListComponent {
         });
     }
 
-    // ── Search helpers ───────────────────────────────────────────────────────
-
-    /** Build a single lowercase string from all searchable fields of an employee. */
     private buildSearchableString(emp: ITenantUser): string {
         const authorityNames = emp.authorities?.map((a: any) => a.name).join(' ') ?? '';
         return [emp.firstName, emp.lastName, `${emp.firstName} ${emp.lastName}`, emp.email, emp.login, authorityNames].filter(Boolean).join(' ').toLowerCase();
     }
 
-    /** Commit the current input as a chip when Enter is pressed. */
     addSearchChip(): void {
         const text = this.currentSearchText.trim();
         if (!text) return;
 
-        // Avoid duplicate chips
         if (this.searchChips().some((c) => c.toLowerCase() === text.toLowerCase())) {
             this.currentSearchText = '';
             return;
@@ -170,28 +165,21 @@ export class EmployeeListComponent {
         this.currentSearchText = '';
     }
 
-    /** Remove a chip by index. */
     removeChip(index: number): void {
         this.searchChips.update((chips) => chips.filter((_, i) => i !== index));
     }
 
-    /** On Backspace with empty input, remove the last chip. */
     onBackspaceKey(): void {
         if (this.currentSearchText === '' && this.searchChips().length > 0) {
             this.searchChips.update((chips) => chips.slice(0, -1));
         }
     }
 
-    /** Clear all chips and live text. */
     clearAllSearch(): void {
         this.searchChips.set([]);
         this.currentSearchText = '';
     }
 
-    /**
-     * Returns an HTML string with all chip terms (and live text) highlighted.
-     * Used with [innerHTML] in the template.
-     */
     highlight(value: string): string {
         if (!value) return '';
 
@@ -201,7 +189,6 @@ export class EmployeeListComponent {
 
         if (chips.length === 0) return this.escapeHtml(value);
 
-        // Escape the original value for safe HTML rendering
         let result = this.escapeHtml(value);
 
         chips.forEach((chip) => {
@@ -278,10 +265,10 @@ export class EmployeeListComponent {
             if (res && res.body.status === 200) {
                 this.hideDialog();
                 this.load();
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Student profile saved successfully' });
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Employee profile saved successfully' });
             } else {
                 this.loader.hide();
-                this.messageService.add({ severity: 'error', summary: res.body.error || 'Error', detail: res.body.message || 'Failed to save student data' });
+                this.messageService.add({ severity: 'error', summary: res.body.error || 'Error', detail: res.body.message || 'Failed to save employee data' });
             }
         });
     }
