@@ -110,7 +110,7 @@ export class StudentDialogComponent {
     ];
 
     ngOnInit(): void {
-        // this.initializeStudentForm();
+        this.initializeStudentForm();
     }
 
     getAssociatedDepartmentsOnAcademicyear(academicYear: string) {
@@ -149,15 +149,15 @@ export class StudentDialogComponent {
     initializeStudentForm(): void {
         if (!this.student.id) {
             this.student = {
-                // houseNumber: '',
-                // street: '',
-                // locality: '',
-                // landmark: '',
-                // taluk: '',
-                // district: '',
-                // state: '',
-                // country: 'India',
-                // postalCode: '',
+                houseNumber: '',
+                street: '',
+                locality: '',
+                landmark: '',
+                taluk: '',
+                district: '',
+                state: '',
+                country: 'India',
+                postalCode: '',
                 ...this.student
             };
         }

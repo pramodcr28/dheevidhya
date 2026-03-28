@@ -72,9 +72,7 @@ export class TenantUserFormService {
                 validators: [Validators.required]
             }),
             lastName: new FormControl(tenantUserRawValue.lastName),
-            email: new FormControl(tenantUserRawValue.email, {
-                validators: [Validators.required]
-            }),
+            email: new FormControl(tenantUserRawValue.email),
             imageUrl: new FormControl(tenantUserRawValue.imageUrl),
             sectionName: new FormControl(tenantUserRawValue.sectionName),
             className: new FormControl(tenantUserRawValue.className),
