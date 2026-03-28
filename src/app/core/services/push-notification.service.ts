@@ -14,42 +14,43 @@ export class PushNotificationService {
     protected readonly http = inject(HttpClient);
     protected readonly applicationConfigService = inject(ApplicationConfigService);
     protected commonService = inject(CommonService);
-    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.NOTIFICATION_BASE_URL + 'api/notices');
+    protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.NOTIFICATION_BASE_URL + 'fcm');
 
     async initPush() {
-        // Request permission
-        const result = await PushNotifications.requestPermissions();
+        const permission = await PushNotifications.checkPermissions();
 
-        if (result.receive === 'granted') {
-            // Register with FCM
+        if (permission.receive === 'granted') {
             await PushNotifications.register();
         } else {
-            console.warn('Push notification permission denied');
+            const result = await PushNotifications.requestPermissions();
+
+            if (result.receive === 'granted') {
+                await PushNotifications.register();
+            } else {
+                console.warn('Push notification permission denied');
+                return;
+            }
         }
 
         this.registerListeners();
     }
 
     private registerListeners() {
-        // ✅ Token received — send to backend
         PushNotifications.addListener('registration', (token: Token) => {
             console.log('FCM Token:', token.value);
             localStorage.setItem('fcm_token', token.value);
             this.sendTokenToBackend(token.value);
         });
 
-        // ❌ Registration error
         PushNotifications.addListener('registrationError', (error: any) => {
             console.error('FCM Registration error:', error);
         });
 
-        // 📩 Notification received while app is OPEN
         PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
             console.log('Notification received:', notification);
             // Show in-app alert or toast
         });
 
-        // 👆 User tapped on notification
         PushNotifications.addListener('pushNotificationActionPerformed', (action: ActionPerformed) => {
             console.log('Notification tapped:', action.notification);
             // Navigate to specific page if needed
@@ -64,10 +65,10 @@ export class PushNotificationService {
         const info = await Device.getId(); // unique device ID
 
         this.http
-            .put(`${this.resourceUrl}/fcm-token`, {
-                user_id: this.commonService.currentUser?.id,
+            .put(`${this.resourceUrl}/token`, {
+                user_id: this.commonService.currentUser?.userId,
                 fcm_token: fcmToken,
-                device_id: info.identifier, // ✅ unique per device
+                device_id: info.identifier,
                 device_type: 'ANDROID'
             })
             .subscribe({

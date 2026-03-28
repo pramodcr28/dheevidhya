@@ -1,59 +1,92 @@
-# Sakai19
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.6.
 
-## Development server
 
-To start a local development server, run:
+## 📱 Build Android App using Capacitor
 
-```bash
-ng serve
-```
+---
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### 🚀 Steps to Build
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+#### 1. Build Angular Project
 
 ```bash
-ng generate component component-name
+
+ng build --configuration dev
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+---
+
+#### 2. Sync with Capacitor
 
 ```bash
-ng generate --help
+npx cap copy android
+npx cap sync android
 ```
 
-## Building
+---
 
-To build the project run:
+#### 3. Run in Android Emulator / Device
 
 ```bash
-ng build
+npx cap run android
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+---
 
-## Running unit tests
+### 🔄 Development Workflow
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Whenever you make changes in Angular:
 
 ```bash
-ng test
+ng build --configuration prod
+npx cap copy
+npx cap run android
 ```
 
-## Running end-to-end tests
+---
 
-For end-to-end (e2e) testing, run:
+### 📦 Generate APK (Manual Build)
 
 ```bash
-ng e2e
+cd android
+.\gradlew assembleDebug  // this will generate test apk , to upload to play store fallow separate process 
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Output APK location:
 
-## Additional Resources
+```text
+android/app/build/outputs/apk/debug/app-debug.apk
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
+
+### ⚠️ Important Notes
+
+* Always run Capacitor commands from the **project root**, not the `android/` folder
+* For emulator, use backend URL:
+
+```text
+http://10.0.2.2:<port>
+```
+
+* For real device, use your system IP:
+
+```text
+http://192.168.x.x:<port>
+```
+
+---
+
+### 🛠️ Troubleshooting
+
+* If build fails, run:
+
+```bash
+cd android
+.\gradlew clean
+```
+
+* Ensure `JAVA_HOME` is set correctly
+* Ensure Android SDK is properly configured
+
+---
