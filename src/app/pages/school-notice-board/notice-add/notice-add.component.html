@@ -395,14 +395,14 @@
           </p>
           <div class="grid grid-cols-2 gap-3">
             <div
-              *ngFor="let channel of notificationChannelOptions"
-              class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 select-none"
-              [ngClass]="{
-                'border-primary-500 bg-primary-50 dark:bg-primary-950': isChannelSelected(channel.id),
-                'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500': !isChannelSelected(channel.id),
-                'opacity-50 cursor-not-allowed': channel.id === 'PUSH'
-              }"
-              (click)="toggleChannel(channel.id)">
+  *ngFor="let channel of notificationChannelOptions"
+  class="flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 select-none"
+  [ngClass]="{
+    'border-primary-500 bg-primary-50 dark:bg-primary-950': isChannelSelected(channel.id),
+    'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500': !isChannelSelected(channel.id) && !channel.disabled,
+    'opacity-50 cursor-not-allowed': channel.disabled
+  }"
+  (click)="!channel.disabled && toggleChannel(channel.id)">
               <div
                 class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200"
                 [ngClass]="isChannelSelected(channel.id) ? channel.activeClass : 'bg-gray-100 dark:bg-gray-800'">

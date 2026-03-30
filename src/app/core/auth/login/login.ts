@@ -1,7 +1,6 @@
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { Capacitor } from '@capacitor/core';
 import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -79,10 +78,6 @@ export class Login {
                     this.authenticationError.set(false);
                     if (!this.router.getCurrentNavigation()) {
                         this.router.navigate(['']);
-
-                        if (Capacitor.isNativePlatform()) {
-                            await this.pushService.initPush();
-                        }
                     }
                 },
                 error: () => {
