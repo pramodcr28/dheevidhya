@@ -32,6 +32,7 @@ export interface NotificationChannelOption {
     icon: string;
     activeClass: string;
     alwaysOn?: boolean; // Cannot be deselected (e.g. PUSH)
+    disabled?: boolean; // Cannot be selected at all (e.g. if backend doesn't support it yet)
 }
 
 @Component({
@@ -86,47 +87,51 @@ export class NoticeAddComponent implements OnInit {
             description: 'In-app & mobile alerts',
             icon: 'pi pi-bell',
             activeClass: 'bg-blue-500',
-            alwaysOn: true
+            alwaysOn: true,
+            disabled: false
         },
         {
             id: 'EMAIL',
             label: 'Email',
             description: 'Delivered to inbox',
             icon: 'pi pi-envelope',
-            activeClass: 'bg-emerald-500'
+            activeClass: 'bg-emerald-500',
+            disabled: true
         },
         {
             id: 'SMS',
             label: 'SMS',
             description: 'Text to phone',
             icon: 'pi pi-mobile',
-            activeClass: 'bg-amber-500'
+            activeClass: 'bg-amber-500',
+            disabled: true
         },
         {
             id: 'WHATSAPP',
             label: 'WhatsApp',
             description: 'Instant message',
             icon: 'pi pi-comment',
-            activeClass: 'bg-green-600'
+            activeClass: 'bg-green-600',
+            disabled: true
         }
     ];
 
     // Always starts with PUSH selected (it's always-on)
     selectedChannels: Set<string> = new Set(['PUSH']);
 
-    toggleChannel(channelId: string): void {
-        const option = this.notificationChannelOptions.find((c) => c.id === channelId);
-        if (option?.alwaysOn) return; // PUSH can't be toggled off
+    toggleChannel(channelId: string) {
+        const channel = this.notificationChannelOptions.find((c) => c.id === channelId);
 
-        if (this.selectedChannels.has(channelId)) {
-            this.selectedChannels.delete(channelId);
-        } else {
-            this.selectedChannels.add(channelId);
+        if (!channel || channel.disabled) {
+            return;
         }
+
+        // toggle logic (if needed later)
     }
 
     isChannelSelected(channelId: string): boolean {
-        return this.selectedChannels.has(channelId);
+        const channel = this.notificationChannelOptions.find((c) => c.id === channelId);
+        return !!channel?.alwaysOn;
     }
 
     // ── Existing options ──────────────────────────────────────────────────────

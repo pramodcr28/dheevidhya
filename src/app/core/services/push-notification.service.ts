@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { Device } from '@capacitor/device'; // npm install @capacitor/device
 import { ActionPerformed, PushNotifications, PushNotificationSchema, Token } from '@capacitor/push-notifications';
+import { MessageService } from 'primeng/api';
 import { environment } from '../../../environments/environment.prod';
 import { ApplicationConfigService } from './application-config.service';
 import { CommonService } from './common.service';
@@ -15,7 +17,8 @@ export class PushNotificationService {
     protected readonly applicationConfigService = inject(ApplicationConfigService);
     protected commonService = inject(CommonService);
     protected resourceUrl = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.NOTIFICATION_BASE_URL + 'fcm');
-
+    protected messageService = inject(MessageService);
+    protected router = inject(Router);
     async initPush() {
         const permission = await PushNotifications.checkPermissions();
 
@@ -48,21 +51,45 @@ export class PushNotificationService {
 
         PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
             console.log('Notification received:', notification);
-            // Show in-app alert or toast
+
+            // ✅ Fix: Use add() with sticky:true so it stays visible
+            this.messageService.add({
+                severity: 'info',
+                summary: notification.title ?? 'Notification',
+                detail: notification.body ?? '',
+                sticky: false,
+                life: 4000
+            });
         });
 
         PushNotifications.addListener('pushNotificationActionPerformed', (action: ActionPerformed) => {
             console.log('Notification tapped:', action.notification);
-            // Navigate to specific page if needed
+
             const data = action.notification.data;
-            if (data?.route) {
-                // this.router.navigate([data.route]);
-            }
+
+            // ✅ Fix: Use absolute path and dynamic route from data
+            const targetRoute = data?.route ?? '/notice-board';
+            this.router.navigate([targetRoute]);
         });
+
+        // PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
+        //     console.log('Notification received:', notification);
+        //     this.messageService.add({ severity: 'info', summary: notification.title, detail: notification.body });
+        //     // Show in-app alert or toast
+        // });
+
+        // PushNotifications.addListener('pushNotificationActionPerformed', (action: ActionPerformed) => {
+        //     console.log('Notification tapped:', action.notification);
+        //     // Navigate to specific page if needed
+        //     const data = action.notification.data;
+        //     if (data?.route) {
+        //         this.router.navigate(['./notice-board']); // https://dheevidhya.in/notice-board
+        //     }
+        // });
     }
 
     private async sendTokenToBackend(fcmToken: string) {
-        const info = await Device.getId(); // unique device ID
+        const info = await Device.getId();
 
         this.http
             .put(`${this.resourceUrl}/token`, {
@@ -76,16 +103,4 @@ export class PushNotificationService {
                 error: (err) => console.error('FCM token failed:', err)
             });
     }
-
-    // private sendTokenToBackend(fcmToken: string) {
-    //     this.http
-    //         .put(`${this.resourceUrl}/fcm-token`, {
-    //             user_id: this.commonService.currentUser?.id,
-    //             fcm_token: fcmToken
-    //         })
-    //         .subscribe({
-    //             next: (res) => console.log('FCM token sent to server:', res),
-    //             error: (err) => console.error('Failed to send FCM token:', err)
-    //         });
-    // }
 }

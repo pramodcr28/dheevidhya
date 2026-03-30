@@ -1,9 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
+import { ToastModule } from 'primeng/toast';
 import { filter, Subscription } from 'rxjs';
 import { CommonService } from '../services/common.service';
 import { LayoutService } from '../services/layout.service';
+import { PushNotificationService } from '../services/push-notification.service';
 import { AppFooter } from './app.footer';
 import { AppSidebar } from './app.sidebar';
 import { AppTopbar } from './app.topbar';
@@ -11,8 +14,9 @@ import { AppTopbar } from './app.topbar';
 @Component({
     selector: 'app-layout',
     standalone: true,
-    imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter],
+    imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter, ToastModule],
     template: `<div class="layout-wrapper" [ngClass]="containerClass">
+        <p-toast />
         <app-topbar></app-topbar>
         <app-sidebar></app-sidebar>
         <div class="layout-main-container">
@@ -29,7 +33,7 @@ export class AppLayout implements OnInit {
 
     menuOutsideClickListener: any;
     commonService = inject(CommonService);
-
+    pushService = inject(PushNotificationService);
     @ViewChild(AppSidebar) appSidebar!: AppSidebar;
 
     @ViewChild(AppTopbar) appTopBar!: AppTopbar;
@@ -57,7 +61,12 @@ export class AppLayout implements OnInit {
             this.hideMenu();
         });
     }
-    ngOnInit(): void {}
+
+    async ngOnInit(): Promise<void> {
+        if (Capacitor.isNativePlatform()) {
+            await this.pushService.initPush();
+        }
+    }
 
     isOutsideClicked(event: MouseEvent) {
         const sidebarEl = document.querySelector('.layout-sidebar');
