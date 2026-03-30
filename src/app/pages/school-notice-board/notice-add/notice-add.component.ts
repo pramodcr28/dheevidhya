@@ -24,15 +24,14 @@ import { CategoryType, Notice, Priority, Status, TargetType } from '../../models
 import { ITenantUser } from '../../models/user.model';
 import { UserService } from '../../service/user.service';
 
-// ── Channel option shape ──────────────────────────────────────────────────────
 export interface NotificationChannelOption {
     id: string;
     label: string;
     description: string;
     icon: string;
     activeClass: string;
-    alwaysOn?: boolean; // Cannot be deselected (e.g. PUSH)
-    disabled?: boolean; // Cannot be selected at all (e.g. if backend doesn't support it yet)
+    alwaysOn?: boolean;
+    disabled?: boolean;
 }
 
 @Component({
@@ -77,9 +76,6 @@ export class NoticeAddComponent implements OnInit {
 
     private _noticeData: Notice | null = null;
 
-    // ── Notification channel configuration ───────────────────────────────────
-    // Add/remove entries here to dynamically show/hide channel options in the UI.
-    // The `id` must match the getChannelId() of the corresponding backend channel class.
     notificationChannelOptions: NotificationChannelOption[] = [
         {
             id: 'PUSH',
@@ -116,7 +112,6 @@ export class NoticeAddComponent implements OnInit {
         }
     ];
 
-    // Always starts with PUSH selected (it's always-on)
     selectedChannels: Set<string> = new Set(['PUSH']);
 
     toggleChannel(channelId: string) {
@@ -125,8 +120,6 @@ export class NoticeAddComponent implements OnInit {
         if (!channel || channel.disabled) {
             return;
         }
-
-        // toggle logic (if needed later)
     }
 
     isChannelSelected(channelId: string): boolean {
@@ -134,7 +127,6 @@ export class NoticeAddComponent implements OnInit {
         return !!channel?.alwaysOn;
     }
 
-    // ── Existing options ──────────────────────────────────────────────────────
     categoryOptions: any[] = [
         { label: 'General', value: 'GENERAL', icon: 'pi pi-bell', colorClass: 'bg-yellow-500' },
         { label: 'Time Table', value: 'TIMETABLE', icon: 'pi pi-calendar', colorClass: 'bg-blue-500' },

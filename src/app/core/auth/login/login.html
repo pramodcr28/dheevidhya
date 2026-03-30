@@ -112,6 +112,9 @@
               <input 
                 pInputText 
                 id="username" 
+                autocomplete="username"
+                appAutofill 
+                autofillHints="username"
                 #username 
                 formControlName="username" 
                 type="text" 
@@ -137,6 +140,8 @@
                 formControlName="password" 
                 placeholder="Enter your password" 
                 inputId="password" 
+                autocomplete="password"
+                appAutofill 
                 [toggleMask]="true" 
                 [fluid]="true" 
                 [feedback]="false"
