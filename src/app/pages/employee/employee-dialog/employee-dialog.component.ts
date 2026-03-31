@@ -503,6 +503,7 @@ export class EmployeeDialogComponent {
             academicYear: profileData.profile.academicYear,
             username: updatedEmployee.login,
             email: updatedEmployee.email,
+            status: updatedEmployee.status,
             fullName: `${updatedEmployee.firstName} ${updatedEmployee.lastName}`,
             departments: profileData.selectedDepartments.map((d) => d.id),
             subjectIds: profileData.profile.subjectIds || [],

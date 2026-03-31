@@ -26,7 +26,6 @@ import { UserProfileState } from '../../store/user-profile/user-profile.reducer'
 export class Login {
     username = viewChild.required<ElementRef>('username');
     private readonly accountService = inject(AccountService);
-    authenticationError = signal(false);
     isLoading = signal(false);
     pushService: PushNotificationService = inject(PushNotificationService);
     // Forgot password related
@@ -49,7 +48,7 @@ export class Login {
     });
     today: Date = new Date();
 
-    private authServerProvider = inject(AuthServerProvider);
+    authServerProvider = inject(AuthServerProvider);
     private router = inject(Router);
     private store = inject(Store<{ userProfile: UserProfileState }>);
 
@@ -67,22 +66,26 @@ export class Login {
         }
 
         this.isLoading.set(true);
-        this.authenticationError.set(false);
+        this.authServerProvider.authenticationError = null;
 
         this.authServerProvider
             .login(this.loginForm.getRawValue())
             .pipe(mergeMap(() => this.accountService.identity()))
             .subscribe({
                 next: async () => {
-                    this.isLoading.set(false);
-                    this.authenticationError.set(false);
-                    if (!this.router.getCurrentNavigation()) {
-                        this.router.navigate(['']);
+                    if (!this.authServerProvider.authenticationError) {
+                        this.isLoading.set(false);
+                        this.authServerProvider.authenticationError = null;
+                        if (!this.router.getCurrentNavigation()) {
+                            this.router.navigate(['']);
+                        }
+                    } else {
+                        this.isLoading.set(false);
                     }
                 },
                 error: () => {
                     this.isLoading.set(false);
-                    this.authenticationError.set(true);
+                    this.authServerProvider.authenticationError = 'Invalid username or password';
                 }
             });
     }

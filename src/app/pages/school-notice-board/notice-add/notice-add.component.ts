@@ -303,7 +303,8 @@ export class NoticeAddComponent implements OnInit {
     loadStudents(): void {
         const filterParams = {
             'branch_id.eq': this.commonService.branch?.id,
-            'authorities.name.equals': 'STUDENT'
+            'authorities.name.equals': 'STUDENT',
+            'status.equals': 'ACTIVE'
         };
         this.userService.userSearch(0, 1000, 'id', 'ASC', filterParams).subscribe({
             next: (res: any) => {
@@ -320,6 +321,7 @@ export class NoticeAddComponent implements OnInit {
         const filterParams = {
             'branch_id.eq': this.commonService.branch?.id,
             'authorities.name.nin': ['IT_ADMINISTRATOR', 'STUDENT'],
+            'status.equals': 'ACTIVE',
             'id.nin': [+this.commonService.currentUser.userId]
         };
         this.userService.userSearch(0, 1000, 'id', 'ASC', filterParams).subscribe({

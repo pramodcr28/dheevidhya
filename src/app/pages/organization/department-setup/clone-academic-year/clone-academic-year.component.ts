@@ -228,10 +228,9 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
     }
 
     private loadStaffData(): void {
-        const params = { 'branch_id.eq': this.commonService.branch?.id, 'authorities.name.ne': 'STUDENT' };
+        const params = { 'branch_id.eq': this.commonService.branch?.id, 'authorities.name.ne': 'STUDENT', 'status.equals': 'ACTIVE' };
         this.userService.userSearch(0, 100, 'id', 'ASC', params).subscribe((r) => {
             this.allStaff = r.content ?? [];
-            // Initial target staff will be set based on clone type
             this.updateStaffBasedOnCloneType(this.cloneForm.get('cloneType')?.value || 'full');
         });
     }

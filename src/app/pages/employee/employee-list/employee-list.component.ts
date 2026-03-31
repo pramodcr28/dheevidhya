@@ -79,8 +79,8 @@ export class EmployeeListComponent {
     itemsPerPage = 1000;
     totalItems = 0;
     page = 0;
-    sortField = 'id';
-    sortOrder: 'ASC' | 'DESC' = 'ASC';
+    sortField = 'lastModifiedDate';
+    sortOrder: 'ASC' | 'DESC' = 'DESC';
 
     // ── Local search state ───────────────────────────────────────────────────
     /** Text currently typed in the input (not yet committed as a chip). */
@@ -297,19 +297,19 @@ export class EmployeeListComponent {
 
     deleteEmployee(employee: ITenantUser) {
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete ${employee.firstName} ${employee.lastName}?`,
-            header: 'Delete Confirmation',
+            message: `Are you sure you want to Exit the ${employee.firstName} ${employee.lastName}?`,
+            header: 'Exit Confirmation',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.loader.show('Deleting Staff');
+                this.loader.show('Exiting Staff');
                 this.employeeService.delete(+employee.id!, null).subscribe({
                     next: () => {
                         this.load();
-                        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Staff deleted successfully' });
+                        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Staff exited successfully' });
                     },
                     error: () => {
                         this.loader.hide();
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete staff' });
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to exit staff' });
                     }
                 });
             }

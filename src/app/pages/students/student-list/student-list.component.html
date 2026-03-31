@@ -19,7 +19,7 @@
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Students"
     [showCurrentPageReport]="true"
     [rowsPerPageOptions]="[10, 20, 30, 50]"
-    styleClass="p-datatable-striped"
+    styleClass="p-datatable-striped rounded-2xl overflow-hidden shadow-sm"
     [responsiveLayout]="'scroll'">
     
     <ng-template pTemplate="caption">
@@ -202,40 +202,46 @@
             <td class="min-w-[10rem] text-xs sm:text-sm">{{ student.contactNumber || 'N/A' }}</td>
             
             <td class="min-w-[4rem]">
-                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs dark:bg-blue-800 dark:text-blue-100">
                     {{ student.login }}
                 </span>
             </td>
             <td class="min-w-[3rem] text-xs sm:text-sm break-all">{{ student.status }}</td>
                  <td class="min-w-[8rem]">
                 @if(student.deptName) {
-                    <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium">
+                    <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium dark:bg-indigo-800 dark:text-indigo-100">
                         {{ student.deptName }}
                     </span>
                 } @else {
-                    <span class="text-gray-400 text-xs">N/A</span>
+                    <span class="text-gray-400 text-xs dark:text-gray-500">
+                        N/A
+                    </span>
                 }
             </td>
             <td class="min-w-[8rem]">
                 @if(student.className) {
-                    <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium">
+                    <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium dark:bg-indigo-900 dark:text-indigo-100">
                         {{ student.className }}
                     </span>
                 } @else {
-                    <span class="text-gray-400 text-xs">N/A</span>
+                    <span class="text-gray-400 text-xs dark:text-gray-500">
+                        N/A
+                    </span>
                 }
             </td>
             <td class="min-w-[8rem]">
                 @if(student.sectionName) {
-                    <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">
+                    <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium dark:bg-purple-900 dark:text-purple-100">
                         {{ student.sectionName }}
                     </span>
                 } @else {
-                    <span class="text-gray-400 text-xs">N/A</span>
+                    <span class="text-gray-400 text-xs dark:text-gray-500">
+                        N/A
+                    </span>
                 }
             </td>
             <td class="text-center">
-                <div class="flex justify-center gap-1 sm:gap-2">
+                <div class="flex justify-start gap-1 sm:gap-2">
                     <button 
                         type="button"
                         class="p-1.5 sm:p-2 hover:bg-blue-100 rounded-full transition-colors"
@@ -243,13 +249,16 @@
                         title="Edit Student">
                         <i class="pi pi-user-edit text-blue-600 text-base sm:text-lg"></i>
                     </button>
-                    <button 
-                        type="button"
-                        class="p-1.5 sm:p-2 hover:bg-red-100 rounded-full transition-colors"
-                        (click)="deleteStudent(student)"
-                        title="Delete Student">
-                        <i class="pi pi-trash text-red-600 text-base sm:text-lg"></i>
-                    </button>
+                      @if(student.status !== 'EXITED'){
+                       <button 
+                            type="button"
+                            class="p-1.5 sm:p-2 hover:bg-red-100 rounded-full transition-colors"
+                            (click)="deleteStudent(student)"
+                            title="Delete Student">
+                            <i class="pi pi-trash text-red-600 text-base sm:text-lg"></i>
+                       </button>
+                      }
+                   
                 </div>
             </td>
         </tr>

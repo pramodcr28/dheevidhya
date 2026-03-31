@@ -120,8 +120,8 @@ export class StudentListComponent {
     itemsPerPage = ITEMS_PER_PAGE;
     totalItems = 0;
     page = 0;
-    sortField = 'id';
-    sortOrder: 'ASC' | 'DESC' = 'ASC';
+    sortField = 'lastModifiedDate';
+    sortOrder: 'ASC' | 'DESC' = 'DESC';
 
     masterClassService = inject(MasterClassService);
     masterSectionService = inject(MasterSectionService);
@@ -362,11 +362,11 @@ export class StudentListComponent {
 
     deleteStudent(student: NewTenantUser) {
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete ${student.firstName} ${student.lastName}?`,
-            header: 'Delete Confirmation',
+            message: `Are you sure you want to exit ${student.firstName} ${student.lastName}?`,
+            header: 'Exit Confirmation',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.loader.show('Deleting Student');
+                this.loader.show('Exiting Student');
 
                 this.studentService.delete(student.id, null).subscribe({
                     next: (res) => {
@@ -374,7 +374,7 @@ export class StudentListComponent {
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Success',
-                            detail: 'Student deleted successfully'
+                            detail: 'Student exited successfully'
                         });
                     },
                     error: (error) => {
@@ -382,7 +382,7 @@ export class StudentListComponent {
                         this.messageService.add({
                             severity: 'error',
                             summary: 'Error',
-                            detail: 'Failed to delete student'
+                            detail: 'Failed to exit student'
                         });
                     }
                 });

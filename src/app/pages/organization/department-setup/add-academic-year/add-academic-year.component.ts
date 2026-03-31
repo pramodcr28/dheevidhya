@@ -306,7 +306,8 @@ export class AddAcademicYearComponent implements OnInit, OnDestroy {
     protected loadStaffData(): void {
         const params = {
             'branch_id.eq': this.commonService.branch?.id,
-            'authorities.name.ne': 'STUDENT'
+            'authorities.name.ne': 'STUDENT',
+            'status.equals': 'ACTIVE'
         };
         this.userService.userSearch(0, 100, 'id', 'ASC', params).subscribe((r) => {
             this.allStaff = r.content ?? [];

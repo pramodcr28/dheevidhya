@@ -171,15 +171,15 @@
               Forgot password?
             </button>
           </div>
-
+{{authServerProvider.authenticationError  }}
           <!-- Error Message -->
-          @if (authenticationError()) {
+          @if (authServerProvider.authenticationError) {
             <div class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
               <i class="pi pi-times-circle text-red-500 text-xl"></i>
               <span class="text-red-700 dark:text-red-400 text-sm font-medium">
-                Invalid username or password. Please try again.
+                {{authServerProvider.authenticationError}}
               </span>
-            </div>
+            </div>    
           }
 
           <!-- Login Button -->

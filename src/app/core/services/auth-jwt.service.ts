@@ -5,19 +5,17 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Login, PasswordChangeDTO } from '../model/auth';
+import { ApiResponse } from '../model/common.model';
 import { addBranch, addToken } from '../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
 import { BranchService } from './branch.service';
-
-type JwtToken = {
-    token: string;
-};
 
 @Injectable({ providedIn: 'root' })
 export class AuthServerProvider {
     private readonly http = inject(HttpClient);
     private store = inject(Store<{ userProfile: UserProfileState }>);
     branchService = inject(BranchService);
+    authenticationError: string;
     getAccountClaims(token: string | null): any {
         if (!token) return null;
         const payload = token.split('.')[1];
@@ -25,8 +23,8 @@ export class AuthServerProvider {
         return JSON.parse(decoded);
     }
 
-    login(credentials: Login): Observable<void> {
-        return this.http.post<JwtToken>(environment.ServerUrl + environment.UAA_BASE_URL + 'login', credentials).pipe(map((response) => this.authenticateSuccess(response, credentials.rememberMe)));
+    login(credentials: Login): Observable<ApiResponse<string>> {
+        return this.http.post<ApiResponse<string>>(environment.ServerUrl + environment.UAA_BASE_URL + 'login', credentials).pipe(map((response) => this.authenticateSuccess(response, credentials.rememberMe)));
     }
 
     logout(): Observable<void> {
@@ -35,14 +33,19 @@ export class AuthServerProvider {
         });
     }
 
-    private authenticateSuccess(response: JwtToken, rememberMe: boolean): void {
-        this.store.dispatch(addToken({ token: response.token }));
+    private authenticateSuccess(response: ApiResponse<string>, rememberMe: boolean): ApiResponse<string> {
+        this.store.dispatch(addToken({ token: response.data }));
+        if (response.data) {
+            const claims = this.getAccountClaims(response.data);
 
-        const claims = this.getAccountClaims(response.token);
+            this.branchService.find(+claims.branchId).subscribe((res) => {
+                this.store.dispatch(addBranch({ branch: res.body }));
+            });
+        } else {
+            this.authenticationError = response?.error;
+        }
 
-        this.branchService.find(+claims.branchId).subscribe((res) => {
-            this.store.dispatch(addBranch({ branch: res.body }));
-        });
+        return response;
     }
 
     changePassword(passwordChangeDTO: PasswordChangeDTO): Observable<any> {
