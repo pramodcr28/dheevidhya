@@ -9,9 +9,9 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { AccountService } from '../services/account.service';
 import { CommonService } from '../services/common.service';
 import { LayoutService } from '../services/layout.service';
-import { addToken, loadUserProfile } from '../store/user-profile/user-profile.actions';
+import { addToken, loadUserProfile, setTheme } from '../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
-import { selectUserConfig } from '../store/user-profile/user-profile.selectors';
+import { selectUserTheme } from '../store/user-profile/user-profile.selectors';
 import { AppConfigurator } from './app.configurator';
 
 @Component({
@@ -102,12 +102,35 @@ export class AppTopbar {
     commonService = inject(CommonService);
 
     toggleDarkMode() {
-        this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
+        // this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
+        const isDark = !this.layoutService.layoutConfig().darkTheme;
+        // Update UI
+        this.layoutService.layoutConfig.update((state) => ({
+            ...state,
+            darkTheme: isDark
+        }));
+
+        // Save in store
+        this.store.dispatch(
+            setTheme({
+                theme: isDark ? 'dark' : 'light'
+            })
+        );
     }
 
     ngOnInit(): void {
         this.loadAcademicYears();
-        this.store.select(selectUserConfig).subscribe((res) => {
+
+        this.store.select(selectUserTheme).subscribe((res) => {
+            if (res) {
+                const isDark = res === 'dark';
+
+                this.layoutService.layoutConfig.update((state) => ({
+                    ...state,
+                    darkTheme: isDark
+                }));
+            }
+
             this.selectedAcademicYear = this.commonService.currentUser?.academicYear;
         });
     }

@@ -58,7 +58,7 @@
                 <form [formGroup]="employeeForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div class="flex flex-col">
                         <label for="login" class="block font-semibold mb-1 text-sm ">Registration ID *</label>
-                        <input type="text" pInputText id="login" formControlName="login" class="w-full" />
+                        <input type="text" pInputText id="login" formControlName="login" class="w-full" [disabled]="employee.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')" />
                         <small class="text-red-500" *ngIf="employeeForm.get('login')?.invalid && (submitted || employeeForm.get('login')?.touched)"> Registration ID is required. </small>
                     </div>
 

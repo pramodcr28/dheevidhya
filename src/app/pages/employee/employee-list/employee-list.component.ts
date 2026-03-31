@@ -76,7 +76,7 @@ export class EmployeeListComponent {
     commonService = inject(CommonService);
 
     // Pagination — kept for server load, but table is now client-side filtered
-    itemsPerPage = 1000;
+    itemsPerPage = 10;
     totalItems = 0;
     page = 0;
     sortField = 'lastModifiedDate';

@@ -162,7 +162,9 @@ export class StudentDialogComponent {
             };
         }
         this.studentForm = this.tenantUserFormService.createTenantUserFormGroup(this.student);
-
+        if (this.student.id != null && !this.commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
+            this.studentForm.get('login')?.disable();
+        }
         this.studentForm.valueChanges.subscribe(() => {
             this.hasUnsavedUserChanges.set(true);
         });

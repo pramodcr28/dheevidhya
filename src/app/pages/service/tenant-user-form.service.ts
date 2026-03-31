@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { ITenantUser, NewTenantUser } from '../models/user.model';
+import { ITenantUser, NewTenantUser, UserStatus } from '../models/user.model';
 
 type PartialWithRequiredKeyOf<T extends { id: unknown }> = Partial<Omit<T, 'id'>> & { id: T['id'] };
 
@@ -107,7 +107,7 @@ export class TenantUserFormService {
             isTenantUser: new FormControl(tenantUserRawValue.isTenantUser),
             authorities: new FormControl(tenantUserRawValue.authorities ?? []),
             branchId: new FormControl(tenantUserRawValue.branchId),
-            status: new FormControl(tenantUserRawValue.status)
+            status: new FormControl(tenantUserRawValue.status ?? UserStatus.ACTIVE)
         });
     }
 

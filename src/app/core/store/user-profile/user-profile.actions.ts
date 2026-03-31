@@ -6,3 +6,4 @@ export const addBranch = createAction('Branch Added', props<{ branch: IBranch }>
 export const loadUserProfile = createAction('[UserProfile] Load', props<{ userConfig: any }>());
 export const loadUserProfileSuccess = createAction('[UserProfile] Load Success', props<{ userConfig: any }>());
 export const clearUserProfile = createAction('[UserProfile] Clear');
+export const setTheme = createAction('[User] Set Theme', props<{ theme: 'light' | 'dark' }>());

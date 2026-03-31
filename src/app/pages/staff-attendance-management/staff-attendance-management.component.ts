@@ -96,7 +96,6 @@ export class StaffAttendanceManagementComponent implements OnInit {
     reportRows: StaffAttendanceReport[] = [];
     reportTotalRecords = 0;
     reportPage = 0;
-    reportSize = 10;
 
     constructor(private messageService: MessageService) {
         this.initChartOptions();
@@ -112,6 +111,29 @@ export class StaffAttendanceManagementComponent implements OnInit {
         // });
         this.loadAttendanceLogs();
         this.loadStaff();
+    }
+
+    clearFilters() {
+        this.analyticsFilters = {
+            startDate: null,
+            endDate: null,
+            departments: []
+        };
+
+        // Optional: auto refresh after clear
+        this.applyAnalyticsFilters();
+    }
+
+    clearLogFilters() {
+        this.logFilters = {
+            startDate: null,
+            endDate: null,
+            departments: [],
+            staffIds: []
+        };
+
+        // Optional: reload data after clearing
+        this.applyFilters();
     }
 
     // ── Tab switch ─────────────────────────────────────────────
@@ -217,7 +239,7 @@ export class StaffAttendanceManagementComponent implements OnInit {
         if (this.analyticsFilters.departments?.length) filters.departmentIds = this.analyticsFilters.departments;
         if (this.analyticsFilters.startDate && this.analyticsFilters.endDate) filters.attendanceDateRange = [this.commonService.formatDateForApi(this.analyticsFilters.startDate), this.commonService.formatDateForApi(this.analyticsFilters.endDate)];
 
-        this.staffAttendanceService.generateReport({ filters, page, size: this.reportSize }).subscribe({
+        this.staffAttendanceService.generateReport({ filters, page, size: 15 }).subscribe({
             next: (res) => {
                 this.reportRows = res.content as any;
                 this.reportTotalRecords = res.totalElements;

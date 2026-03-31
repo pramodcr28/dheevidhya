@@ -27,11 +27,11 @@ export class AuthServerProvider {
         return this.http.post<ApiResponse<string>>(environment.ServerUrl + environment.UAA_BASE_URL + 'login', credentials).pipe(map((response) => this.authenticateSuccess(response, credentials.rememberMe)));
     }
 
-    logout(): Observable<void> {
-        return new Observable((observer) => {
-            observer.complete();
-        });
-    }
+    // logout(): Observable<void> {
+    //     return new Observable((observer) => {
+    //         observer.complete();
+    //     });
+    // }
 
     private authenticateSuccess(response: ApiResponse<string>, rememberMe: boolean): ApiResponse<string> {
         this.store.dispatch(addToken({ token: response.data }));

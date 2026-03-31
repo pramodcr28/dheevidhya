@@ -5,6 +5,7 @@ export const selectUserProfileState = createFeatureSelector<UserProfileState>('u
 
 export const selectUserConfig = createSelector(selectUserProfileState, (state) => state.userConfig);
 export const selectUserLoading = createSelector(selectUserProfileState, (state) => state.loading);
+export const selectUserTheme = createSelector(selectUserProfileState, (state) => state.selectedTheme);
 export const selectUserRole = createSelector(selectUserProfileState, (state) => state.userConfig?.role);
 // export const getAssociatedBaranch = createSelector(selectUserProfileState, (state) => state.userConfig?.branch);
 export const getToken = createSelector(selectUserProfileState, (state) => state.token);

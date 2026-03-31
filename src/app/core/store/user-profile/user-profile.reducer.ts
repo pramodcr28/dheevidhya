@@ -1,6 +1,7 @@
 import { Action, createReducer, MetaReducer, on } from '@ngrx/store';
 import { IBranch } from '../../../pages/models/tenant.model';
 import * as UserProfileActions from './user-profile.actions';
+import { setTheme } from './user-profile.actions';
 
 export interface UserProfileState {
     userConfig: any;
@@ -9,6 +10,7 @@ export interface UserProfileState {
     token: string | null;
     authorities?: string[];
     branch: IBranch | null;
+    selectedTheme?: 'light' | 'dark';
 }
 
 export const localStorageKey = 'userProfileState';
@@ -23,7 +25,8 @@ export const initialState: UserProfileState = (() => {
               isAuthenticated: false,
               token: null,
               authorities: [],
-              branch: null
+              branch: null,
+              selectedTheme: 'dark' as const
           };
 })();
 
@@ -45,7 +48,8 @@ export const userProfileReducer = createReducer(
         loading: false,
         isAuthenticated: false,
         token: null,
-        branch: null
+        branch: null,
+        selectedTheme: 'dark' as const
     })),
     on(UserProfileActions.addToken, (state, { token }) => ({
         ...state,
@@ -64,6 +68,10 @@ export const userProfileReducer = createReducer(
         branch,
         loading: false,
         isAuthenticated: true
+    })),
+    on(setTheme, (state, { theme }) => ({
+        ...state,
+        selectedTheme: theme
     }))
 );
 

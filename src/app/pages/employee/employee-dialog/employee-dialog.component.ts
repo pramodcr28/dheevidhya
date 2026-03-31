@@ -58,7 +58,8 @@ interface ProfileUIData {
         TabsModule,
         DatePickerModule,
         ToastModule,
-        ConfirmationDialogComponent
+        ConfirmationDialogComponent,
+        InputTextModule
     ],
     templateUrl: './employee-dialog.component.html',
     styles: ``,
@@ -127,12 +128,17 @@ export class EmployeeDialogComponent {
                 taluk: '',
                 district: '',
                 state: '',
+                status: UserStatus.ACTIVE,
                 country: 'India',
                 postalCode: '',
                 ...this.employee
             };
         }
         this.employeeForm = this.tenantUserFormService.createTenantUserFormGroup(this.employee);
+
+        if (this.employee.id != null && !this.commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
+            this.employeeForm.get('login')?.disable();
+        }
 
         // Track user form changes
         this.employeeForm.valueChanges.subscribe(() => {
