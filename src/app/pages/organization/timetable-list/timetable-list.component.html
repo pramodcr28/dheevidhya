@@ -69,7 +69,7 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-        <div *ngFor="let timetable of timetables" class="bg-white dark:bg-gray-900 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border relative">
+        <div *ngFor="let timetable of timetables" class="bg-white dark:bg-gray-900 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border dark:border-slate-600 relative">
             <div
                 [ngClass]="{
                     'bg-gradient-to-r from-green-500 to-green-300 dark:from-green-600 dark:to-green-700': timetable.status === 'published',

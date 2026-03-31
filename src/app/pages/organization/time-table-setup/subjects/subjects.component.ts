@@ -33,13 +33,10 @@ export class SubjectsComponent implements OnInit {
         return !this.expandedSections.has(sectionId);
     }
 
-    removeSubject(classId: number, sectionId: number, subjectIndex: number, calsses: any[]) {
-        const classItem = calsses.find((c) => c.id === classId);
-        if (classItem) {
-            const section = classItem.sections?.find((s) => s.id === sectionId);
-            if (section) {
-                section.subjects.splice(subjectIndex, 1);
-            }
+    removeSubject(id: string, subjectIndex: number, calsses: any[]) {
+        const section = calsses?.find((s) => s.id == id);
+        if (section) {
+            section.subjects.splice(subjectIndex, 1);
         }
     }
 
