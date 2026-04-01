@@ -161,9 +161,7 @@ export class StaffAttendanceComponent implements OnInit {
                 size: 100,
                 sortBy: 'id',
                 sortDirection: 'desc',
-                filters: {
-                    categoryTypes: ['HOLIDAY']
-                }
+                filters: this.generateFilterParams()
             };
             this.notificationService.search(request).subscribe((result) => {
                 this.events = result.content;
@@ -249,6 +247,45 @@ export class StaffAttendanceComponent implements OnInit {
         this.loading = false;
     }
 
+    generateFilterParams() {
+        const filters: any = {};
+        // if (this.selectedCategories.length) {
+        //     filters['categoryTypes'] = [...this.selectedCategories];
+        // }
+        // if (this.selectedPriorities.length) {
+        //     filters['priorities'] = this.selectedPriorities;
+        // }
+
+        filters['targetAudience'] = {};
+        this.commonService.getUserAuthorities.forEach((authority) => {
+            if (authority == 'STUDENT' && this.commonService.getStudentInfo) {
+                const studentInfo = this.commonService.getStudentInfo;
+                filters['targetAudience'] = {
+                    ACADEMIC_UNIT: [studentInfo.academicYear + ':' + studentInfo.departmentId + ':' + studentInfo.classId + ':' + studentInfo.sectionId],
+                    STUDENT: [studentInfo.userId]
+                };
+            }
+            if (authority != 'STUDENT' && this.commonService.currentUser) {
+                const userInfo = this.commonService.currentUser;
+                let targetIds = [];
+                this.commonService.currentUser.departments.forEach((d) => {
+                    targetIds.push(userInfo.academicYear + ':' + d.id);
+                });
+
+                filters['targetAudience'] = {
+                    ACADEMIC_UNIT: targetIds,
+                    STAFF: [this.commonService.currentUser.userId]
+                };
+            }
+            filters['targetAudience']['ROLE'] = [authority];
+            filters['targetAudience']['ALL'] = [];
+            filters['createdBy'] = this.commonService.currentUser.userId;
+            filters['categoryTypes'] = ['HOLIDAY'];
+        });
+
+        return filters;
+    }
+
     loadMonthlyAttendance() {
         this.loading = true;
         const startOfMonth = new Date(this.currentViewDate.getFullYear(), this.currentViewDate.getMonth(), 1);
@@ -275,9 +312,7 @@ export class StaffAttendanceComponent implements OnInit {
                         size: 100,
                         sortBy: 'id',
                         sortDirection: 'desc',
-                        filters: {
-                            categoryTypes: ['HOLIDAY']
-                        }
+                        filters: this.generateFilterParams()
                     };
                     this.notificationService.search(request).subscribe((result) => {
                         this.events = result.content;
@@ -302,7 +337,7 @@ export class StaffAttendanceComponent implements OnInit {
     getEventsForDate(date: Date): Notice[] {
         const dayOfWeek = date.getDay();
         return this.events.filter((event) => {
-            if (event.holiday.holidayType === 'Week_off') {
+            if (event.holiday?.holidayType === 'Week_off') {
                 const dayMap: { [key: string]: number } = {
                     SUNDAY: 0,
                     MONDAY: 1,
@@ -313,14 +348,14 @@ export class StaffAttendanceComponent implements OnInit {
                     SATURDAY: 6
                 };
 
-                const weekOffDay = event.holiday.weekOffDay || 'SUNDAY';
+                const weekOffDay = event.holiday?.weekOffDay || 'SUNDAY';
                 return dayOfWeek === dayMap[weekOffDay.toUpperCase()];
             }
 
-            if (!event.holiday.holidayStartDate) return false;
+            if (!event.holiday?.holidayStartDate) return false;
 
-            const startDate = new Date(event.holiday.holidayStartDate);
-            const endDate = event.holiday.holidayEndDate ? new Date(event.holiday.holidayEndDate) : new Date(event.holiday.holidayStartDate);
+            const startDate = new Date(event.holiday?.holidayStartDate);
+            const endDate = event.holiday?.holidayEndDate ? new Date(event.holiday?.holidayEndDate) : new Date(event.holiday?.holidayStartDate);
 
             const checkDate = new Date(date);
             checkDate.setHours(0, 0, 0, 0);
@@ -428,12 +463,20 @@ export class StaffAttendanceComponent implements OnInit {
 
     previousMonth() {
         this.currentViewDate = new Date(this.currentViewDate.getFullYear(), this.currentViewDate.getMonth() - 1, 1);
-        this.loadMonthlyData();
+        if (!this.commonService.isStudent) {
+            this.loadMonthlyAttendance();
+        } else {
+            this.loadMonthlyData();
+        }
     }
 
     nextMonth() {
         this.currentViewDate = new Date(this.currentViewDate.getFullYear(), this.currentViewDate.getMonth() + 1, 1);
-        this.loadMonthlyData();
+        if (!this.commonService.isStudent) {
+            this.loadMonthlyAttendance();
+        } else {
+            this.loadMonthlyData();
+        }
     }
 
     onDayClick(day: CalendarDay) {
@@ -803,21 +846,21 @@ export class StaffAttendanceComponent implements OnInit {
     }
 
     isSingleDayEvent(event: Notice): boolean {
-        if (event.holiday.holidayType === 'Week_off') return true;
+        if (event.holiday?.holidayType === 'Week_off') return true;
 
-        if (!event.holiday.holidayEndDate) return true;
+        if (!event.holiday?.holidayEndDate) return true;
 
-        const startDate = new Date(event.holiday.holidayStartDate);
-        const endDate = new Date(event.holiday.holidayEndDate);
+        const startDate = new Date(event.holiday?.holidayStartDate);
+        const endDate = new Date(event.holiday?.holidayEndDate);
 
         return startDate.getTime() === endDate.getTime();
     }
 
     getEventDuration(event: Notice): number {
-        if (event.holiday.holidayType === 'Week_off') return 1;
+        if (event.holiday?.holidayType === 'Week_off') return 1;
 
-        const startDate = new Date(event.holiday.holidayStartDate);
-        const endDate = event.holiday.holidayEndDate ? new Date(event.holiday.holidayEndDate) : new Date(event.holiday.holidayStartDate);
+        const startDate = new Date(event.holiday?.holidayStartDate);
+        const endDate = event.holiday?.holidayEndDate ? new Date(event.holiday?.holidayEndDate) : new Date(event.holiday?.holidayStartDate);
 
         const timeDiff = endDate.getTime() - startDate.getTime();
         const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
@@ -826,7 +869,7 @@ export class StaffAttendanceComponent implements OnInit {
     }
 
     getWeekOffDayName(event: Notice): string {
-        if (event.holiday.holidayType !== 'Week_off') return '';
+        if (event.holiday?.holidayType !== 'Week_off') return '';
 
         const dayMap: { [key: string]: string } = {
             SUNDAY: 'Sunday',
@@ -838,7 +881,7 @@ export class StaffAttendanceComponent implements OnInit {
             SATURDAY: 'Saturday'
         };
 
-        const weekOffDay = event.holiday.weekOffDay || 'SUNDAY';
+        const weekOffDay = event.holiday?.weekOffDay || 'SUNDAY';
         return dayMap[weekOffDay.toUpperCase()] || 'Sunday';
     }
 
@@ -884,9 +927,9 @@ export class StaffAttendanceComponent implements OnInit {
         const currentDate = this.datePipe.transform(day.date, 'yyyy-MM-dd');
 
         return day.events.some((event) => {
-            if (event.holiday.holidayType === 'Week_off') return false;
+            if (event.holiday?.holidayType === 'Week_off') return false;
 
-            const eventStart = this.datePipe.transform(new Date(event.holiday.holidayStartDate), 'yyyy-MM-dd');
+            const eventStart = this.datePipe.transform(new Date(event.holiday?.holidayStartDate), 'yyyy-MM-dd');
             return currentDate === eventStart;
         });
     }
@@ -897,27 +940,27 @@ export class StaffAttendanceComponent implements OnInit {
         const currentDate = this.datePipe.transform(day.date, 'yyyy-MM-dd');
 
         return day.events.some((event) => {
-            if (event.holiday.holidayType === 'Week_off') return true;
+            if (event.holiday?.holidayType === 'Week_off') return true;
 
-            if (!event.holiday.holidayEndDate) return false;
+            if (!event.holiday?.holidayEndDate) return false;
 
-            const eventEnd = this.datePipe.transform(new Date(event.holiday.holidayEndDate), 'yyyy-MM-dd');
+            const eventEnd = this.datePipe.transform(new Date(event.holiday?.holidayEndDate), 'yyyy-MM-dd');
             return currentDate === eventEnd;
         });
     }
 
     hasWeekOffEvent(events: Notice[]): boolean {
-        return events.some((event) => event.holiday.holidayType === 'Week_off');
+        return events.some((event) => event.holiday?.holidayType === 'Week_off');
     }
 
     hasRegularEvents(events: Notice[]): boolean {
-        return events.some((event) => event.holiday.holidayType !== 'Week_off');
+        return events.some((event) => event.holiday?.holidayType !== 'Week_off');
     }
 
     getEventIndicators(events: Notice[]): EventIndicator[] {
         const indicators: EventIndicator[] = [];
 
-        const weekOffEvents = events.filter((event) => event.holiday.holidayType === 'Week_off');
+        const weekOffEvents = events.filter((event) => event.holiday?.holidayType === 'Week_off');
         if (weekOffEvents.length > 0) {
             indicators.push({
                 icon: 'pi pi-calendar-clock',
@@ -925,7 +968,7 @@ export class StaffAttendanceComponent implements OnInit {
             });
         }
 
-        const regularEvents = events.filter((event) => event.holiday.holidayType !== 'Week_off');
+        const regularEvents = events.filter((event) => event.holiday?.holidayType !== 'Week_off');
         for (let i = 0; i < Math.min(regularEvents.length, 2 - indicators.length); i++) {
             indicators.push({
                 icon: 'pi pi-star-fill',

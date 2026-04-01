@@ -176,27 +176,6 @@ export class SchoolNoticeBoardComponent implements OnInit {
     loadNotices() {
         this.loading = true;
         this.loader.show('Fetching notices...');
-        // const filters: any = {};
-
-        // if (this.selectedCategories.length) {
-        //     filters['categoryTypes'] = [...this.selectedCategories];
-        // }
-
-        // if (this.selectedPriorities.length) {
-        //     filters['priorities'] = this.selectedPriorities;
-        // }
-        // "targetAudience": {
-        //   "ACADEMIC_UNIT": ["2026-2027:696b6ecd98a76aa52bd90e9e:682b560a77794f7170f3d73f:68282c6489869816a4108492"]
-        // }
-        // if (this.searchText.trim()) {
-        //     filters['title.contains'] = this.searchText.trim();
-        // }
-
-        // // Date range filter
-        // if (this.dateRange && this.dateRange.length === 2 && this.dateRange[0] && this.dateRange[1]) {
-        //     filters['publishedAt.greaterThanOrEqual'] = this.formatDateForApi(this.dateRange[0]);
-        //     filters['publishedAt.lessThanOrEqual'] = this.formatDateForApi(this.dateRange[1]);
-        // }
 
         const request = {
             page: this.pageNumber,
