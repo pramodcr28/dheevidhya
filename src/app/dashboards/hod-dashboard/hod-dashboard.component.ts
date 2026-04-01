@@ -92,18 +92,19 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
             LEAVE: 'bg-blue-50 text-blue-700 border-blue-200',
             ON_DUTY: 'bg-teal-50 text-teal-700 border-teal-200'
         };
-        return m[s] ?? 'bg-gray-50  border-gray-200';
+        return m[s] ?? 'bg-gray-50  border-gray-200 dark:bg-gray-950 dark:text-gray-300 darK:border-gray-900';
     }
 
     getInvStatusClass(s: string) {
         const m: Record<string, string> = {
-            ASSIGNED: 'bg-green-50 text-green-700 border-green-200',
-            IN_USE: 'bg-blue-50 text-blue-700 border-blue-200',
-            AVAILABLE: 'bg-gray-50  border-gray-200',
-            UNDER_MAINTENANCE: 'bg-amber-50 text-amber-700 border-amber-200',
-            DAMAGED: 'bg-red-50 text-red-700 border-red-200'
+            ASSIGNED: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300',
+            IN_USE: 'bg-blue-50 text-blue-700 border-blue-200   dark:bg-blue-950 dark:text-blue-300',
+            AVAILABLE: 'bg-gray-50  border-gray-200 dark:bg-gray-950 dark:text-gray-300 darK:border-gray-900',
+            UNDER_MAINTENANCE: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300',
+            DAMAGED: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300',
+            RETURNED: 'bg-gray-50  border-gray-200 dark:bg-gray-950 dark:text-gray-300'
         };
-        return m[s] ?? 'bg-gray-50  border-gray-200';
+        return m[s] ?? '';
     }
 
     getInvStatusLabel(s: string) {
@@ -113,7 +114,7 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
 
     getExamStatusClass(s: string) {
         const m: Record<string, string> = { SCHEDULED: 'bg-green-50 text-green-700 border-green-200', DRAFT: 'bg-amber-50 text-amber-700 border-amber-200', ONGOING: 'bg-blue-50 text-blue-700 border-blue-200' };
-        return m[s] ?? 'bg-gray-50  border-gray-200';
+        return m[s] ?? 'bg-gray-50  border-gray-200 dark:bg-gray-950 dark:text-gray-300 darK:border-gray-900';
     }
 
     getNoticeDotClass(p: string) {
