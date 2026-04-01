@@ -2,7 +2,7 @@
   <div class="scale-[0.9] md:scale-100 origin-top">
 
     
-    <p-organizationChart [value]="data"  class="min-w-[800px] w-fit mx-auto" >
+    <p-organizationChart [value]="data"  class=" w-fit mx-auto" >
       
       <!-- Default template -->
       <ng-template let-node pTemplate="default">
@@ -75,12 +75,11 @@
       <div class="text-xs  space-y-1">
        
         
-        <div class="flex items-center justify-between" *ngIf="node.value?.capacity !== undefined">
+        <!-- <div class="flex items-center justify-between" *ngIf="node.value?.capacity !== undefined">
           <div class="flex items-center gap-1">
             <i class="pi pi-users text-gray-400"></i>
             <span>{{ node.value.capacity }}/{{ node.value.capacity }}</span>
           </div>
-          <!-- Mini progress bar -->
           <div class="flex-1 mx-2 bg-gray-200 rounded-full h-1">
             <div class="h-1 rounded-full transition-all duration-300"
                  [style.width.%]="(node.value?.capacity / node.value?.capacity) * 100"
@@ -92,9 +91,7 @@
             </div>
           </div>
           <span class="text-xs font-medium">{{ ((node.value?.capacity / node.value?.capacity) * 100) | number:'1.0-0' }}%</span>
-        </div>
-        
-      
+        </div> -->
       </div>
       
       <!-- Status badge -->

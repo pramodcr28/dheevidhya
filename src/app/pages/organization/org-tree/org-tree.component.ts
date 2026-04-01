@@ -95,7 +95,7 @@ export class OrgTreeComponent {
                 label: cls.name,
                 value: cls,
                 type: 'class',
-                expanded: true,
+                expanded: false,
                 children: this.generateSectionData(cls.sections)
             };
         });
@@ -108,7 +108,7 @@ export class OrgTreeComponent {
                 value: section,
                 styleClass: 'no-padding',
                 type: 'section',
-                expanded: true,
+                expanded: false,
                 children: this.generateSubjectsData(section.subjects)
             };
         });
