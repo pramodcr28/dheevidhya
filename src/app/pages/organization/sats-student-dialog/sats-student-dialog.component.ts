@@ -168,7 +168,7 @@ export class SatsStudentDialogComponent implements OnInit {
             affiliation: [ps?.affiliation ?? null],
             tcNo: [ps?.transferCertificateNo ?? null],
             tcDate: [ps?.transferCertificateDate ? new Date(ps.transferCertificateDate) : null],
-            prevSchoolName: [ps?.schoolName ?? null],
+            prevSchoolName: [this.commonService.branch.name ?? null],
             prevSchoolType: [ps?.schoolType ?? null],
             prevSchoolAddress: [ps?.schoolAddress ?? null],
             prevPinCode: [ps?.pinCode ?? null],

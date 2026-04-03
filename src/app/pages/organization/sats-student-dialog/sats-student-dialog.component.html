@@ -115,7 +115,6 @@
                 </div>
             </p-tabpanel>
 
-            <!-- ===================== TAB 2: PREVIOUS SCHOOL ===================== -->
             <p-tabpanel>
                 <ng-template pTemplate="header">
                     <span class="flex items-center gap-1.5 text-sm font-medium">
@@ -123,10 +122,10 @@
                     </span>
                 </ng-template>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                    <div class="flex flex-col gap-1">
+                    <!-- <div class="flex flex-col gap-1">
                         <label class="form-label">School Name</label>
                         <input pInputText formControlName="prevSchoolName" placeholder="Enter school name" class="w-full" />
-                    </div>
+                    </div> -->
                     <div class="flex flex-col gap-1">
                         <label class="form-label">School Type</label>
                         <p-select formControlName="prevSchoolType" [options]="schoolTypeOptions" placeholder="Select Type" styleClass="w-full" [showClear]="true" />
@@ -197,7 +196,6 @@
 
                     <p-divider></p-divider>
 
-                    <!-- Father / Mother Name -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div>
                             <p class="section-heading">Father's Name</p>
@@ -504,16 +502,3 @@
         </div>
     </ng-template>
 </p-dialog>
-
-<style>
-  .form-label {
-    @apply block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-0.5;
-  }
-  .form-label.required::after {
-    content: ' *';
-    @apply text-red-500;
-  }
-  .section-heading {
-    @apply text-sm font-bold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-1.5;
-  }
-</style>
