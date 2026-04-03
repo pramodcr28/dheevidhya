@@ -95,6 +95,8 @@ export interface IStudentProfile {
     sectionId?: number | null;
     className: string | null;
     sectionName: string | null;
+    deptId?: number | null;
+    deptName: string | null;
     guardianId?: number | null;
 }
 

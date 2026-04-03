@@ -8,7 +8,6 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
-import { environment } from '../../../../../environments/environment';
 import { ApplicationConfigService } from '../../../../core/services/application-config.service';
 import { ApiLoaderService } from '../../../../core/services/loaderService';
 import { MasterDepartmentService } from '../../../../core/services/master-department.service';
@@ -33,7 +32,7 @@ export class DepartmentListComponent implements OnInit {
 
     masterDepartments: IMasterDepartment[] = [];
     ngOnInit() {
-        this.fetchMasterDepartments();
+        // this.fetchMasterDepartments();
         this.departmentService.query().subscribe(
             (data) => {
                 this.masterDepartments = data.body || [];
@@ -48,11 +47,11 @@ export class DepartmentListComponent implements OnInit {
         );
     }
 
-    fetchMasterDepartments() {
-        const endpoint = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ADMIN_BASE_URL + 'api/master-departments');
+    // fetchMasterDepartments() {
+    //     const endpoint = this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.ADMIN_BASE_URL + 'api/master-departments');
 
-        this.http.get<IMasterDepartment[]>(endpoint);
-    }
+    //     this.http.get<IMasterDepartment[]>(endpoint);
+    // }
 
     selectDepartment(dept: IMasterDepartment) {
         this.router.navigate(['/department-setup', dept.id]);

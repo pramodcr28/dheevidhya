@@ -482,6 +482,7 @@ export class StaffAttendanceComponent implements OnInit {
     onDayClick(day: CalendarDay) {
         if (!day.isCurrentMonth) return;
 
+        // 👉 If events exist → show events dialog
         if (day.events.length > 0) {
             this.selectedDayEvents = day.events;
             this.selectedDayDate = day.date;
@@ -491,9 +492,11 @@ export class StaffAttendanceComponent implements OnInit {
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+
         const selectedDate = new Date(day.date);
         selectedDate.setHours(0, 0, 0, 0);
 
+        // 👉 Prevent future attendance entry (except student)
         if (!this.commonService.isStudent && selectedDate > today) {
             this.messageService.add({
                 severity: 'warn',
@@ -503,13 +506,45 @@ export class StaffAttendanceComponent implements OnInit {
             return;
         }
 
+        // =========================================================
+        // ✅ EXISTING ATTENDANCE
+        // =========================================================
         if (day.attendance) {
             const attendance = day.attendance;
 
-            const checkIn = this.combineDateAndTime(attendance.attendanceDate, attendance.checkInTime);
-            const checkOut = this.combineDateAndTime(attendance.attendanceDate, attendance.checkOutTime);
-            if (checkOut < checkIn) {
+            let checkIn: Date | null = null;
+            let checkOut: Date | null = null;
+
+            // ✅ Safe check-in handling
+            if (attendance.checkInTime) {
+                checkIn = this.combineDateAndTime(attendance.attendanceDate, attendance.checkInTime);
+            }
+
+            // ✅ Safe check-out handling
+            if (attendance.checkOutTime) {
+                checkOut = this.combineDateAndTime(attendance.attendanceDate, attendance.checkOutTime);
+            }
+
+            // ✅ Handle overnight shift
+            if (checkIn && checkOut && checkOut < checkIn) {
                 checkOut.setDate(checkOut.getDate() + 1);
+            }
+
+            // ✅ Optional: Warn if missing values
+            if (!checkIn) {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Missing Check-In',
+                    detail: 'Check-in time not available'
+                });
+            }
+
+            if (!checkOut) {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Missing Check-Out',
+                    detail: 'Check-out time not available'
+                });
             }
 
             this.selectedDayAttendance = {
@@ -517,12 +552,20 @@ export class StaffAttendanceComponent implements OnInit {
                 checkInTime: checkIn,
                 checkOutTime: checkOut
             };
-        } else {
+        }
+
+        // =========================================================
+        // ✅ NEW ATTENDANCE (DEFAULT VALUES)
+        // =========================================================
+        else {
             const baseDate = new Date(day.date);
+
             const checkIn = new Date(baseDate);
             checkIn.setHours(9, 0, 0, 0);
+
             const checkOut = new Date(baseDate);
             checkOut.setHours(18, 0, 0, 0);
+
             this.selectedDayAttendance = {
                 staffId: this.commonService.getUserInfo?.userId,
                 staffName: this.commonService.getUserInfo?.fullName,
@@ -546,6 +589,74 @@ export class StaffAttendanceComponent implements OnInit {
             this.showDetailDialog = true;
         }
     }
+
+    // onDayClick(day: CalendarDay) {
+    //     if (!day.isCurrentMonth) return;
+
+    //     if (day.events.length > 0) {
+    //         this.selectedDayEvents = day.events;
+    //         this.selectedDayDate = day.date;
+    //         this.showEventsDialog = true;
+    //         return;
+    //     }
+
+    //     const today = new Date();
+    //     today.setHours(0, 0, 0, 0);
+    //     const selectedDate = new Date(day.date);
+    //     selectedDate.setHours(0, 0, 0, 0);
+
+    //     if (!this.commonService.isStudent && selectedDate > today) {
+    //         this.messageService.add({
+    //             severity: 'warn',
+    //             summary: 'Future Date',
+    //             detail: 'Cannot add attendance for future dates'
+    //         });
+    //         return;
+    //     }
+
+    //     if (day.attendance) {
+    //         const attendance = day.attendance;
+
+    //         const checkIn = this.combineDateAndTime(attendance.attendanceDate, attendance.checkInTime);
+    //         const checkOut = this.combineDateAndTime(attendance.attendanceDate, attendance.checkOutTime);
+    //         if (checkOut < checkIn) {
+    //             checkOut.setDate(checkOut.getDate() + 1);
+    //         }
+
+    //         this.selectedDayAttendance = {
+    //             ...attendance,
+    //             checkInTime: checkIn,
+    //             checkOutTime: checkOut
+    //         };
+    //     } else {
+    //         const baseDate = new Date(day.date);
+    //         const checkIn = new Date(baseDate);
+    //         checkIn.setHours(9, 0, 0, 0);
+    //         const checkOut = new Date(baseDate);
+    //         checkOut.setHours(18, 0, 0, 0);
+    //         this.selectedDayAttendance = {
+    //             staffId: this.commonService.getUserInfo?.userId,
+    //             staffName: this.commonService.getUserInfo?.fullName,
+    //             branchId: this.commonService.branch?.id?.toString() || '',
+    //             departmentId: this.commonService.getUserInfo?.departmentId,
+    //             departmentName: this.commonService.getUserInfo?.departmentName,
+    //             branchName: this.commonService.branch?.name || '',
+    //             attendanceDate: this.datePipe.transform(day.date, 'yyyy-MM-dd') || '',
+    //             status: 'PRESENT',
+    //             checkInTime: checkIn,
+    //             checkOutTime: checkOut
+    //         };
+    //     }
+
+    //     this.hasEvents = day.events.length > 0;
+    //     this.timeErrors = { checkIn: '', checkOut: '' };
+
+    //     if (this.commonService.isStudent) {
+    //         this.showDetailDialog = this.hasEvents;
+    //     } else {
+    //         this.showDetailDialog = true;
+    //     }
+    // }
 
     private normalizeTime(value: any): string | null {
         if (!value) return null;

@@ -41,7 +41,7 @@
                    dateFormat="dd/mm/yy"
                    class="w-full" />
 
-    <div class="flex-1 min-w-0">
+    <!-- <div class="flex-1 min-w-0">
         <dhee-select [(ngModel)]="logFilters.departments"
                      optionValue="id"
                      dataSource="departments"
@@ -51,7 +51,7 @@
                      filterBy="department.name,academicYear"
                      placeholder="Select Department">
         </dhee-select>
-    </div>
+    </div> -->
 
     <p-multiSelect
         [options]="staffOptions"
@@ -92,6 +92,7 @@
                             [rows]="15"
                             [rowsPerPageOptions]="[15, 30, 50]"
                             [showCurrentPageReport]="true"
+                            [paginatorDropdownAppendTo]="'body'"
                             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                             styleClass="p-datatable-sm"
                         >
@@ -170,7 +171,7 @@
                            class="w-full" />
         </div>
 
-        <div class="flex-1 min-w-0">
+        <!-- <div class="flex-1 min-w-0">
             <label class="text-xs font-medium mb-1 block">Departments</label>
             <dhee-select [(ngModel)]="analyticsFilters.departments"
                          optionValue="id"
@@ -181,7 +182,7 @@
                          filterBy="department.name,academicYear"
                          placeholder="Select Department">
             </dhee-select>
-        </div>
+        </div> -->
 
         <!-- Generate Button -->
         <button pButton
@@ -224,6 +225,7 @@
                         [paginator]="true"
                         [rows]="15"
                         [rowsPerPageOptions]="[15, 30, 50]"
+                         [paginatorDropdownAppendTo]="'body'"
                         [totalRecords]="reportTotalRecords"
                         (onPage)="onReportPage($event)"
                         [showCurrentPageReport]="true"

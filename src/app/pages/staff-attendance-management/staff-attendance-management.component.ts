@@ -17,7 +17,6 @@ import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../core/services/common.service';
-import { DheeSelectComponent } from '../../shared/dhee-select/dhee-select.component';
 import { StaffAttendance, StaffAttendanceReport } from '../models/staff-attendence.mdel';
 import { ITenantUser } from '../models/user.model';
 import { StaffAttendanceService } from '../service/staff-attendance.service';
@@ -26,25 +25,7 @@ import { UserService } from '../service/user.service';
 @Component({
     selector: 'app-staff-attendance-management',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        CardModule,
-        ButtonModule,
-        DatePickerModule,
-        TableModule,
-        TagModule,
-        ToastModule,
-        TabsModule,
-        ChartModule,
-        MultiSelectModule,
-        ProgressBarModule,
-        InputTextModule,
-        AvatarModule,
-        IconFieldModule,
-        InputIconModule,
-        DheeSelectComponent
-    ],
+    imports: [CommonModule, FormsModule, CardModule, ButtonModule, DatePickerModule, TableModule, TagModule, ToastModule, TabsModule, ChartModule, MultiSelectModule, ProgressBarModule, InputTextModule, AvatarModule, IconFieldModule, InputIconModule],
     providers: [MessageService],
     templateUrl: './staff-attendance-management.component.html',
     styles: []

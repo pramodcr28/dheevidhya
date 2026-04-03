@@ -14,6 +14,7 @@ import { CloneAcademicYearComponent } from './app/pages/organization/department-
 import { DepartmentListComponent } from './app/pages/organization/department-setup/department-setup-list/department-setup-list.component';
 import { DepartmentSetupComponent } from './app/pages/organization/department-setup/department-setup.component';
 import { OrgTreeComponent } from './app/pages/organization/org-tree/org-tree.component';
+import { SatsStudentListComponent } from './app/pages/organization/sats-student-list/sats-student-list.component';
 import { StudentAttendenceComponent } from './app/pages/organization/student-attendence/student-attendence.component';
 import { StudentPromotionComponent } from './app/pages/organization/student-promotion/student-promotion.component';
 import { TimetableGeneratorComponent } from './app/pages/organization/time-table-setup/time-table-setup.component';
@@ -55,7 +56,7 @@ export const appRoutes: Routes = [
                     { path: 'employees', component: EmployeeListComponent }
                 ]
             },
-
+            { path: 'stats-student-list', component: SatsStudentListComponent },
             { path: 'students', component: StudentListComponent },
             { path: 'bulk-student-upload', component: BulkStudentUploadComponent },
             { path: 'employees', component: EmployeeListComponent },

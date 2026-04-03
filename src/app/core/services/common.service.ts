@@ -109,6 +109,13 @@ export class CommonService {
                         routerLink: ['/'],
                         visible: true
                     },
+
+                    {
+                        label: 'Stats Students',
+                        icon: 'pi pi-fw pi-users',
+                        routerLink: ['/stats-student-list'],
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
+                    },
                     {
                         label: 'Students',
                         icon: 'pi pi-fw pi-users',
