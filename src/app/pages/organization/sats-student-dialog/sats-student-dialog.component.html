@@ -71,8 +71,9 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div class="flex flex-col gap-1">
                                 <label class="form-label required">SATS Number</label>
-                                <input pInputText formControlName="satsNumber" placeholder="SATS Number" class="w-full" />
+                                <input pInputText formControlName="satsNumber" placeholder="SATS Number" class="w-full" [readonly]="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')"  />
                                 <small class="text-red-500" *ngIf="fieldError('satsNumber')">Required</small>
+                                <small class="text-red-500 !text-xs" *ngIf="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')">SATS Number is read-only.Please contact your administrator.</small>
                             </div>
                             <div class="flex flex-col gap-1">
                                 <label class="form-label required">Department</label>

@@ -164,10 +164,9 @@ export class SatsStudentDialogComponent implements OnInit {
 
         // Extract the plain academic year string from IProfileConfig
         const academicYearStr = s?.latestAcademicYear?.academicYear ?? null;
-
         this.form = this.fb.group({
             academicYear: [academicYearStr],
-            satsNumber: [s?.satsNumber ?? null, Validators.required],
+            satsNumber: [s?.satsNumber, Validators.required],
             typeOfStudent: [ad?.typeOfStudent ?? null],
             detailDescription: [ad?.detailDescription ?? null],
             mediumOfInstruction: [ad?.mediumOfInstruction ?? null],
@@ -284,7 +283,6 @@ export class SatsStudentDialogComponent implements OnInit {
         });
     }
 
-    /** Resets class and section when department changes. */
     onDepartmentChange(): void {
         this.selectedClass = null;
         this.selectedSection = null;
@@ -302,15 +300,13 @@ export class SatsStudentDialogComponent implements OnInit {
         return {
             id: existing?.id ?? null,
 
-            // backend will set this correctly, no need to send wrong value
             userId: existing?.userId ?? null,
 
             academicYear: v.academicYear ?? null,
 
-            username: existing?.username ?? null,
+            username: v.satsNumber ?? null,
             email: existing?.email ?? null,
 
-            // Build full name properly from form
             fullName: [v.stdFirstName, v.stdMiddleName, v.stdLastName].filter((x: string) => x && x.trim()).join(' '),
 
             contactNumber: existing?.contactNumber ?? null,
@@ -320,7 +316,6 @@ export class SatsStudentDialogComponent implements OnInit {
 
             profileType: existing?.profileType ?? 'STUDENT',
 
-            // Department from selection
             departments: this.selectedDepartment ? [this.selectedDepartment.id] : (existing?.departments ?? []),
 
             subjectIds: existing?.subjectIds ?? null,
@@ -363,15 +358,13 @@ export class SatsStudentDialogComponent implements OnInit {
             });
             return;
         }
-
         const v = this.form.value;
         const student: IStudent | NewStudent = {
             ...(this._student?.id ? { id: (this._student as IStudent).id } : { id: null }),
             branchId: this.commonService.branch?.id ?? null,
-            satsNumber: v.satsNumber ?? null,
+            satsNumber: v.satsNumber,
             authorities: this._student?.authorities ?? [],
             latestAcademicYear: this.buildLatestAcademicYear(v),
-
             admissionDetails: {
                 typeOfStudent: v.typeOfStudent,
                 detailDescription: v.detailDescription,

@@ -62,7 +62,7 @@ export class EmployeeListComponent {
     isLoading = false;
     employees = signal<ITenantUser[]>([]);
     selectedDepartment: any = null;
-    selectedRoles: string[] = []; // for multi-select role filter
+    selectedRoles: string[] = [];
     router = inject(Router);
     employeeService = inject(UserService);
     profileService = inject(ProfileConfigService);
@@ -82,13 +82,16 @@ export class EmployeeListComponent {
     roleOptions: any[] = [];
     masterDepartments: any[] = [];
     masterDepartmentService = inject(MasterDepartmentService);
+
     ngOnInit(): void {
         this.employeeService.getAuthorities().subscribe((res: any) => {
             this.availableAuthorities = res.body;
-            this.roleOptions = this.availableAuthorities.map((auth: any) => ({
-                label: auth.name || auth,
-                value: auth.name || auth
-            }));
+            this.roleOptions = this.availableAuthorities
+                .map((auth: any) => ({
+                    label: auth.name || auth,
+                    value: auth.name || auth
+                }))
+                ?.filter((auth: any) => auth.value !== 'STUDENT' && auth.value !== 'IT_ADMINISTRATOR' && auth.value !== 'SUPER_ADMIN' && auth.value !== 'GUARDIAN');
         });
         this.load();
 
@@ -106,13 +109,11 @@ export class EmployeeListComponent {
         );
     }
 
-    // Helper: generate avatar background color based on row index
     avatarBg(index: number): string {
         const colors = ['bg-amber-100', 'bg-emerald-100', 'bg-sky-100', 'bg-rose-100', 'bg-indigo-100', 'bg-purple-100', 'bg-teal-100', 'bg-orange-100'];
         return colors[index % colors.length];
     }
 
-    // Helper: generate avatar text color based on row index
     avatarText(index: number): string {
         const colors = ['text-amber-800', 'text-emerald-800', 'text-sky-800', 'text-rose-800', 'text-indigo-800', 'text-purple-800', 'text-teal-800', 'text-orange-800'];
         return colors[index % colors.length];
@@ -126,7 +127,6 @@ export class EmployeeListComponent {
 
         const filterParams: Record<string, any> = {};
 
-        // Base filters: branch and role exclusions
         if (this.commonService.getUserAuthorities?.includes('SUPER_ADMIN')) {
             filterParams['authorities.name.equals'] = 'IT_ADMINISTRATOR';
         } else {
@@ -134,12 +134,10 @@ export class EmployeeListComponent {
             filterParams['authorities.name.nin'] = ['IT_ADMINISTRATOR', 'STUDENT'];
         }
 
-        // Department filter
         if (this.selectedDepartment?.id) {
             filterParams['department.id'] = this.selectedDepartment.id;
         }
 
-        // Roles filter (multi-select)
         if (this.selectedRoles && this.selectedRoles.length > 0) {
             filterParams['authorities.name.in'] = this.selectedRoles;
         }
@@ -170,7 +168,7 @@ export class EmployeeListComponent {
             this.sortOrder = event.sortOrder === 1 ? 'ASC' : 'DESC';
         }
 
-        this.load(); // do not reset page here
+        this.load();
     }
 
     onSort(event: any): void {
@@ -318,6 +316,6 @@ export class EmployeeListComponent {
     clearFilters() {
         this.selectedDepartment = null;
         this.selectedRoles = [];
-        this.load(true); // reset page and reload
+        this.load(true);
     }
 }
