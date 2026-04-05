@@ -177,12 +177,7 @@ export class TakeAttendenceComponent implements OnInit {
         return formatDate(date, this.commonService.dateFormate, 'en-US') === formatDate(this.today, this.commonService.dateFormate, 'en-US');
     }
 
-    /**
-     * Determines if a slot can be selected for taking attendance
-     * Only allows selection of past slots and today's slots, not future slots
-     */
     canSelectSlot(slot: SlotWithDate): boolean {
-        // Allow selection if it's today or in the past
         return slot.isToday || slot.isPast;
     }
 

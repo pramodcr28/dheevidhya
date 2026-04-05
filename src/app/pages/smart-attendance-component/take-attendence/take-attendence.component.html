@@ -466,13 +466,21 @@
                         ? 'Record attendance for this past session.'
                         : 'Start recording attendance for this session.' }}
                 </p>
-                <button
+                <!-- <button
                     pButton
                     type="button"
                     [label]="selectedSlot.isPast ? 'Take Attendance for Past Session' : 'Start Taking Attendance'"
                     icon="pi pi-users"
                     [class]="selectedSlot.isPast ? 'p-button-warning p-button-lg' : 'p-button-primary p-button-lg'"
                     (click)="takeAttandence = true; checkAndLoadAttendance()"
+                ></button> -->
+                <button
+                    pButton
+                    type="button"
+                    [label]="selectedSlot.isPast ? 'Take Attendance for Past Session' : 'Start Taking Attendance'"
+                    icon="pi pi-users"
+                    [class]="selectedSlot.isPast ? 'p-button-warning p-button-lg' : 'p-button-primary p-button-lg'"
+                    (click)="takeAttandence = true; openSlotPicker()"
                 ></button>
             </div>
         }

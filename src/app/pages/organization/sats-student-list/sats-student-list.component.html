@@ -134,11 +134,6 @@
                     <i class="pi pi-user text-xs"></i> Gender: {{ filters.gender!.length }}
                 </span>
             }
-            @if (filters.socialCategory?.length) {
-                <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                    <i class="pi pi-tag text-xs"></i> Category: {{ filters.socialCategory!.length }}
-                </span>
-            }
         </div>
     }
 </div>
@@ -170,6 +165,10 @@
                     class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[200px]">
                     Student Name <p-sortIcon field="studentDetails.studentName.firstName" />
                 </th>
+                <th pSortableColumn="satsNumber"
+                    class="text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400 px-3 py-3 min-w-[200px] text-bold">
+                    Sats Number <p-sortIcon field="satsNumber" />
+                </th>
                 <!-- Department -->
                 <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[140px]">
                     Department
@@ -183,22 +182,17 @@
                 <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[80px]">
                     Section
                 </th>
-                <!-- Academic Year -->
-                <th pSortableColumn="latestAcademicYear.academicYear"
+                <th pSortableColumn="latestAcademicYear.status"
                     class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[120px]">
-                    Academic Year <p-sortIcon field="latestAcademicYear.academicYear" />
+                    Status <p-sortIcon field="latestAcademicYear.status" />
                 </th>
                 <!-- Gender -->
                 <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[90px]">
                     Gender
                 </th>
                 <!-- Guardian -->
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[160px]">
+                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[100px]">
                     Guardian
-                </th>
-                <!-- Social Category -->
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[110px]">
-                    Category
                 </th>
                 <!-- Actions -->
                 <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 text-center min-w-[100px]">
@@ -228,6 +222,10 @@
                             }
                         </div>
                     </div>
+                </td>
+                <!-- SATS Number -->
+                <td class="px-3 py-2 text-sm text-lg font-bold text-primary-600 dark:text-primary-400">
+                    {{ student.satsNumber || '—' }}
                 </td>
 
                 <!-- Department (from latestAcademicYear role) -->
@@ -265,7 +263,7 @@
 
                 <!-- Academic Year -->
                 <td class="px-3 py-2 text-sm font-semibold text-gray-800 dark:text-gray-200">
-                    {{ student.latestAcademicYear?.academicYear || '—' }}
+                    {{ student.latestAcademicYear?.status }}
                 </td>
 
                 <!-- Gender -->
@@ -291,16 +289,10 @@
                         }
                     </div>
                 </td>
-
-                <!-- Social Category -->
-                <td class="px-3 py-2">
-                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ student.studentDetails?.socialCategory || '—' }}</span>
-                </td>
-
-                <!-- Actions -->
-                <td class="px-3 py-2">
-                    <div class="flex items-center justify-center gap-1">
-                        <p-button
+                <td class="px-3 py-2 flex tems-center justify-start">
+                    <div class="flex items-center justify-center">
+                        @if(student.latestAcademicYear?.status === 'ACTIVE') {
+                          <p-button
                             icon="pi pi-pencil"
                             [rounded]="true"
                             [text]="true"
@@ -309,7 +301,7 @@
                             (click)="editStudent(student)"
                             pTooltip="Edit"
                         ></p-button>
-                        <p-button
+                         <p-button
                             icon="pi pi-trash"
                             [rounded]="true"
                             [text]="true"
@@ -318,6 +310,9 @@
                             (click)="deleteStudent(student)"
                             pTooltip="Delete"
                         ></p-button>
+                        }
+                      
+                       
                     </div>
                 </td>
 

@@ -110,16 +110,16 @@ export class CommonService {
                         visible: true
                     },
 
-                    {
-                        label: 'Stats Students',
-                        icon: 'pi pi-fw pi-users',
-                        routerLink: ['/stats-student-list'],
-                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
-                    },
+                    // {
+                    //     label: 'Sats Students',
+                    //     icon: 'pi pi-fw pi-users',
+                    //     routerLink: ['/stats-student-list'],
+                    //     visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
+                    // },
                     {
                         label: 'Students',
                         icon: 'pi pi-fw pi-users',
-                        routerLink: ['/students'],
+                        routerLink: ['/stats-student-list'],
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
                     },
                     {

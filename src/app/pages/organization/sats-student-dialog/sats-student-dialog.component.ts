@@ -12,6 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { TabsModule } from 'primeng/tabs';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
@@ -44,7 +45,8 @@ import { IProfileConfig } from '../../models/user.model';
         DividerModule,
         ToastModule,
         ConfirmDialogModule,
-        ConfirmationDialogComponent
+        ConfirmationDialogComponent,
+        SelectButtonModule
     ],
     templateUrl: './sats-student-dialog.component.html',
     providers: [MessageService, DheeConfirmationService]
@@ -55,7 +57,11 @@ export class SatsStudentDialogComponent implements OnInit {
     confirmService = inject(DheeConfirmationService);
     commonService = inject(CommonService);
     departmentConfigService = inject(DepartmentConfigService);
-
+    basicMode = true; // default = Basic
+    modeOptions = [
+        { label: 'Basic', value: true },
+        { label: 'All SATS', value: false }
+    ];
     @Input() visible: boolean = false;
     today: Date = new Date();
 
@@ -76,6 +82,7 @@ export class SatsStudentDialogComponent implements OnInit {
     form!: FormGroup;
     submitted = false;
     hasChanges = signal<boolean>(false);
+    showAllSats = false;
 
     // Cascading department → class → section (ngModel-driven, mirrors reference pattern)
     associatedDepartments: any[] = [];
@@ -160,6 +167,7 @@ export class SatsStudentDialogComponent implements OnInit {
 
         this.form = this.fb.group({
             academicYear: [academicYearStr],
+            satsNumber: [s?.satsNumber ?? null, Validators.required],
             typeOfStudent: [ad?.typeOfStudent ?? null],
             detailDescription: [ad?.detailDescription ?? null],
             mediumOfInstruction: [ad?.mediumOfInstruction ?? null],
@@ -346,7 +354,6 @@ export class SatsStudentDialogComponent implements OnInit {
             });
             return;
         }
-        console.log(this.form);
         if (this.form.invalid) {
             this.form.markAllAsTouched();
             this.messageService.add({
@@ -361,7 +368,8 @@ export class SatsStudentDialogComponent implements OnInit {
         const student: IStudent | NewStudent = {
             ...(this._student?.id ? { id: (this._student as IStudent).id } : { id: null }),
             branchId: this.commonService.branch?.id ?? null,
-
+            satsNumber: v.satsNumber ?? null,
+            authorities: this._student?.authorities ?? [],
             latestAcademicYear: this.buildLatestAcademicYear(v),
 
             admissionDetails: {

@@ -240,23 +240,31 @@ export class SatsStudentListComponent {
         this.studentDialogVisible.set(false);
     }
 
-    deleteStudent(student: IStudent): void {
+    deleteStudent(student: IStudent) {
         const name = student.studentDetails?.studentName?.firstName ?? 'this student';
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete ${name}?`,
-            header: 'Delete Confirmation',
+            message: `Are you sure you want to exit ${name}?`,
+            header: 'Exit Confirmation',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.loader.show('Deleting Student...');
-                this.studentService.delete(student.id!).subscribe({
-                    next: () => {
+                this.loader.show('Exiting Student');
+
+                this.studentService.delete(student.id).subscribe({
+                    next: (res) => {
                         this.load();
-                        this.loader.hide();
-                        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Student deleted successfully' });
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Student exited successfully'
+                        });
                     },
-                    error: () => {
+                    error: (error) => {
                         this.loader.hide();
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete student' });
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to exit student'
+                        });
                     }
                 });
             }

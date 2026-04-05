@@ -1,4 +1,4 @@
-import { IProfileConfig } from './user.model';
+import { IProfileConfig, ITenantAuthority } from './user.model';
 
 export interface IName {
     firstName: string | null;
@@ -86,6 +86,8 @@ export interface IBankDetails {
 
 export interface IStudent {
     id?: string | null;
+    satsNumber?: string | null;
+    authorities: ITenantAuthority[];
     branchId?: number | null;
     latestAcademicYear?: IProfileConfig | null;
     admissionDetails?: IAdmissionDetails | null;
@@ -101,7 +103,12 @@ export function createNewStudent(): NewStudent {
     return {
         id: null,
         branchId: null,
-        latestAcademicYear: null,
+        latestAcademicYear: {
+            status: 'ACTIVE' as any,
+            id: null
+        },
+        satsNumber: null,
+        authorities: [{ name: 'STUDENT' }],
         admissionDetails: {
             typeOfStudent: null,
             admissionClass: null,

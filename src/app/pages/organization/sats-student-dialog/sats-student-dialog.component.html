@@ -23,9 +23,37 @@
                     <p class="text-xs text-gray-500">Fill all sections accurately as per SATS portal requirements</p>
                 </div>
             </div>
-            <button type="button" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition" (click)="onCancel()">
-                <i class="pi pi-times text-gray-500 text-lg"></i>
-            </button>
+            <div class="flex items-center gap-3">   
+                        <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                <button
+                    type="button"
+                    class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
+                    [class.bg-white]="basicMode"
+                    [class.shadow]="basicMode"
+                    [class.text-primary-700]="basicMode"
+                    [class.dark:bg-gray-700]="basicMode"
+                    [class.text-gray-500]="!basicMode"
+                    (click)="basicMode = true"
+                >
+                    <i class="pi pi-list mr-1 !text-xs "></i><span> Basic</span>
+                </button>
+                <button
+                    type="button"
+                    class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
+                    [class.bg-white]="!basicMode"
+                    [class.shadow]="!basicMode"
+                    [class.text-primary-700]="!basicMode"
+                    [class.dark:bg-gray-700]="!basicMode"
+                    [class.text-gray-500]="basicMode"
+                    (click)="basicMode = false"
+                >
+                    <i class="pi pi-database mr-1 !text-xs "></i> <span>All SATS</span>
+                </button>
+            </div>
+                <button type="button" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition" (click)="onCancel()">
+                    <i class="pi pi-times text-gray-500 text-lg"></i>
+                </button>
+            </div>
         </div>
     </ng-template>
 
@@ -39,9 +67,13 @@
                     </span>
                 </ng-template>
                 <div class="space-y-5 pt-2">
-    
                     <div class="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="flex flex-col gap-1">
+                                <label class="form-label required">SATS Number</label>
+                                <input pInputText formControlName="satsNumber" placeholder="SATS Number" class="w-full" />
+                                <small class="text-red-500" *ngIf="fieldError('satsNumber')">Required</small>
+                            </div>
                             <div class="flex flex-col gap-1">
                                 <label class="form-label required">Department</label>
                                 <p-select
@@ -51,11 +83,10 @@
                                     (onChange)="onDepartmentChange()"
                                     optionLabel="name"
                                     placeholder="Select Department"
-                                    styleClass=" max-w-md w-full"
+                                    styleClass="max-w-md w-full"
                                 ></p-select>
                                 <small class="text-red-500" *ngIf="submitted && !selectedDepartment">Department is required.</small>
                             </div>
-
                             @if (selectedDepartment) {
                                 <div class="flex flex-col gap-1">
                                     <label class="form-label required">Class</label>
@@ -71,7 +102,6 @@
                                     <small class="text-red-500" *ngIf="submitted && !selectedClass">Class is required.</small>
                                 </div>
                             }
-
                             @if (selectedClass) {
                                 <div class="flex flex-col gap-1">
                                     <label class="form-label required">Section</label>
@@ -90,7 +120,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" *ngIf="!basicMode">
                         <div class="flex flex-col gap-1">
                             <label class="form-label">Type of Student</label>
                             <p-select formControlName="typeOfStudent" [options]="typeOfStudentOptions" placeholder="Select Type" styleClass="w-full" [showClear]="true" />
@@ -107,25 +137,21 @@
                             <label class="form-label">Language Group</label>
                             <p-select formControlName="languageGroup" [options]="languageGroupOptions" placeholder="Select Language Group" styleClass="w-full" [showClear]="true" />
                         </div>
-                        <div class="flex flex-col gap-1 sm:col-span-2">
+                        <!-- Hide Detail Description in Basic mode -->
+                        <div class="flex flex-col gap-1 sm:col-span-2" *ngIf="!basicMode">
                             <label class="form-label">Detail Description</label>
                             <textarea pTextarea formControlName="detailDescription" rows="2" class="w-full" placeholder="Additional admission details..."></textarea>
                         </div>
                     </div>
                 </div>
             </p-tabpanel>
-
-            <p-tabpanel>
+            <p-tabpanel *ngIf="!basicMode">
                 <ng-template pTemplate="header">
                     <span class="flex items-center gap-1.5 text-sm font-medium">
                         <i class="pi pi-building"></i> Previous School
                     </span>
                 </ng-template>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                    <!-- <div class="flex flex-col gap-1">
-                        <label class="form-label">School Name</label>
-                        <input pInputText formControlName="prevSchoolName" placeholder="Enter school name" class="w-full" />
-                    </div> -->
                     <div class="flex flex-col gap-1">
                         <label class="form-label">School Type</label>
                         <p-select formControlName="prevSchoolType" [options]="schoolTypeOptions" placeholder="Select Type" styleClass="w-full" [showClear]="true" />
@@ -156,8 +182,6 @@
                     </div>
                 </div>
             </p-tabpanel>
-
-            <!-- ===================== TAB 3: STUDENT DETAILS ===================== -->
             <p-tabpanel>
                 <ng-template pTemplate="header">
                     <span class="flex items-center gap-1.5 text-sm font-medium">
@@ -165,8 +189,6 @@
                     </span>
                 </ng-template>
                 <div class="space-y-5 pt-2">
-
-                    <!-- Name Section -->
                     <div>
                         <p class="section-heading">Student Name</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -183,11 +205,11 @@
                                 <label class="form-label">Last Name (English)</label>
                                 <input pInputText formControlName="stdLastName" placeholder="Last Name" class="w-full" />
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">First Name (ಕನ್ನಡ)</label>
                                 <input pInputText formControlName="stdFirstNameKn" placeholder="ಮೊದಲ ಹೆಸರು" class="w-full" />
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Last Name (ಕನ್ನಡ)</label>
                                 <input pInputText formControlName="stdLastNameKn" placeholder="ಕೊನೆ ಹೆಸರು" class="w-full" />
                             </div>
@@ -208,11 +230,11 @@
                                     <label class="form-label">Last Name</label>
                                     <input pInputText formControlName="fatherLastName" placeholder="Last Name" class="w-full" />
                                 </div>
-                                <div class="flex flex-col gap-1">
+                                <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                     <label class="form-label">ಮೊದಲ ಹೆಸರು</label>
                                     <input pInputText formControlName="fatherFirstNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
                                 </div>
-                                <div class="flex flex-col gap-1">
+                                <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                     <label class="form-label">ಕೊನೆ ಹೆಸರು</label>
                                     <input pInputText formControlName="fatherLastNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
                                 </div>
@@ -229,11 +251,11 @@
                                     <label class="form-label">Last Name</label>
                                     <input pInputText formControlName="motherLastName" placeholder="Last Name" class="w-full" />
                                 </div>
-                                <div class="flex flex-col gap-1">
+                                <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                     <label class="form-label">ಮೊದಲ ಹೆಸರು</label>
                                     <input pInputText formControlName="motherFirstNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
                                 </div>
-                                <div class="flex flex-col gap-1">
+                                <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                     <label class="form-label">ಕೊನೆ ಹೆಸರು</label>
                                     <input pInputText formControlName="motherLastNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
                                 </div>
@@ -243,7 +265,6 @@
 
                     <p-divider></p-divider>
 
-                    <!-- Personal Details -->
                     <div>
                         <p class="section-heading">Personal Details</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -252,37 +273,37 @@
                                 <p-datepicker formControlName="dob" dateFormat="dd/mm/yy" [showButtonBar]="true" styleClass="w-full" placeholder="DD/MM/YYYY" [maxDate]="today" />
                                 <small class="text-red-500" *ngIf="fieldError('dob')">Required</small>
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Age (as on 1st June)</label>
                                 <input pInputText type="number" formControlName="age" placeholder="Age" class="w-full" />
                             </div>
                             <div class="flex flex-col gap-1">
                                 <label class="form-label required">Gender</label>
-                                <p-select formControlName="gender"  [options]="genderOptions" placeholder="Select Gender" styleClass="w-full" />
+                                <p-select formControlName="gender" [options]="genderOptions" placeholder="Select Gender" styleClass="w-full" />
                                 <small class="text-red-500" *ngIf="fieldError('gender')">Required</small>
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Religion</label>
                                 <p-select formControlName="religion" [options]="religionOptions" placeholder="Select Religion" styleClass="w-full" [showClear]="true" />
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Nationality</label>
                                 <p-select formControlName="nationality" [options]="nationalityOptions" placeholder="Select" styleClass="w-full" />
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Social Category</label>
                                 <p-select formControlName="socialCategory" [options]="socialCategoryOptions" placeholder="Select Category" styleClass="w-full" [showClear]="true" />
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Student Aadhaar No.</label>
                                 <input pInputText formControlName="aadhaar" placeholder="12-digit Aadhaar" maxlength="12" class="w-full" />
                                 <small class="text-red-500" *ngIf="fieldError('aadhaar')">Enter valid 12-digit Aadhaar</small>
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Father's Aadhaar No.</label>
                                 <input pInputText formControlName="fatherAadhaar" placeholder="12-digit Aadhaar" maxlength="12" class="w-full" />
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Mother's Aadhaar No.</label>
                                 <input pInputText formControlName="motherAadhaar" placeholder="12-digit Aadhaar" maxlength="12" class="w-full" />
                             </div>
@@ -291,8 +312,8 @@
 
                     <p-divider></p-divider>
 
-                    <!-- Caste & Special -->
-                    <div>
+                    <!-- Caste & Special Category (hide in Basic mode) -->
+                    <div *ngIf="!basicMode">
                         <p class="section-heading">Caste & Special Category</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div class="flex flex-col gap-1">
@@ -329,8 +350,6 @@
                     </div>
                 </div>
             </p-tabpanel>
-
-            <!-- ===================== TAB 4: CONTACT DETAILS ===================== -->
             <p-tabpanel>
                 <ng-template pTemplate="header">
                     <span class="flex items-center gap-1.5 text-sm font-medium">
@@ -338,8 +357,6 @@
                     </span>
                 </ng-template>
                 <div class="space-y-5 pt-2">
-
-                    <!-- Contact Numbers -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div class="flex flex-col gap-1">
                             <label class="form-label">Admission Date</label>
@@ -363,12 +380,11 @@
                     </div>
 
                     <p-divider></p-divider>
-
-                    <!-- Current Address -->
                     <div>
                         <p class="section-heading">Current Address</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div class="flex flex-col gap-1">
+                            <!-- Hide address type in Basic mode -->
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Address Type</label>
                                 <p-select formControlName="curAddressType" [options]="addressTypeOptions" placeholder="Urban / Rural" styleClass="w-full" [showClear]="true" />
                             </div>
@@ -380,15 +396,16 @@
                                 <label class="form-label">District</label>
                                 <input pInputText formControlName="curDistrict" placeholder="District" class="w-full" />
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <!-- Hide these extra fields in Basic mode -->
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Local Body / Gram Panchayat</label>
                                 <input pInputText formControlName="curLocalBody" placeholder="Local Body" class="w-full" />
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Ward No.</label>
                                 <input pInputText formControlName="curWard" placeholder="Ward" class="w-full" />
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">Locality / Village</label>
                                 <input pInputText formControlName="curLocality" placeholder="Locality" class="w-full" />
                             </div>
@@ -400,9 +417,7 @@
                     </div>
 
                     <p-divider></p-divider>
-
-                    <!-- Permanent Address -->
-                    <div>
+                    <div *ngIf="!basicMode">
                         <div class="flex items-center justify-between mb-3">
                             <p class="section-heading !mb-0">Permanent Address</p>
                             <p-button
@@ -447,9 +462,7 @@
                     </div>
                 </div>
             </p-tabpanel>
-
-            <!-- ===================== TAB 5: BANK DETAILS ===================== -->
-            <p-tabpanel>
+            <p-tabpanel *ngIf="!basicMode">
                 <ng-template pTemplate="header">
                     <span class="flex items-center gap-1.5 text-sm font-medium">
                         <i class="pi pi-credit-card"></i> Bank Details
@@ -497,8 +510,6 @@
                 (click)="onSave()"
                 [disabled]="!hasChanges()"
             ></p-button>
-
-            
         </div>
     </ng-template>
 </p-dialog>
