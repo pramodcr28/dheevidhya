@@ -24,7 +24,6 @@ import { SchoolNoticeBoardComponent } from './app/pages/school-notice-board/scho
 import { MyAttendanceReportComponent } from './app/pages/smart-attendance-component/my-attendance-report/my-attendance-report.component';
 import { StaffAttendanceManagementComponent } from './app/pages/staff-attendance-management/staff-attendance-management.component';
 import { BulkStudentUploadComponent } from './app/pages/students/bulk-student-upload/bulk-student-upload.component';
-import { StudentListComponent } from './app/pages/students/student-list/student-list.component';
 import { BranchComponent } from './app/pages/tenant/branch/branch.component';
 import { TenantComponent } from './app/pages/tenant/tenant.component';
 
@@ -57,7 +56,7 @@ export const appRoutes: Routes = [
                 ]
             },
             { path: 'stats-student-list', component: SatsStudentListComponent },
-            { path: 'students', component: StudentListComponent },
+            // { path: 'students', component: StudentListComponent },
             { path: 'bulk-student-upload', component: BulkStudentUploadComponent },
             { path: 'employees', component: EmployeeListComponent },
             { path: 'org', component: OrgTreeComponent },

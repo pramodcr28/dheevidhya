@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -10,100 +9,203 @@ import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { SelectModule } from 'primeng/select';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import * as XLSX from 'xlsx';
 import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
-import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
-import { StudentExcelRow, ValidationResult } from '../../models/bulk-student-upload.model';
+import { StudentExcelRow, StudentSatsExcelRow, UploadMode, ValidationResult } from '../../models/bulk-student-upload.model';
 import { UserService } from '../../service/user.service';
 
 @Component({
     selector: 'app-bulk-student-upload',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, DialogModule, FileUploadModule, TableModule, TagModule, ToastModule, ProgressBarModule, CardModule, SelectModule],
+    imports: [CommonModule, TooltipModule, FormsModule, ButtonModule, DialogModule, FileUploadModule, TableModule, TagModule, ToastModule, ProgressBarModule, CardModule, SelectModule, SelectButtonModule],
     providers: [MessageService],
     templateUrl: './bulk-student-upload.component.html'
 })
 export class BulkStudentUploadComponent implements OnInit {
-    private store = inject(Store<{ userProfile: UserProfileState }>);
     private userService = inject(UserService);
     private messageService = inject(MessageService);
     private loader = inject(ApiLoaderService);
     public commonService = inject(CommonService);
     router = inject(Router);
-    // Signals
+    departmentConfigService = inject(DepartmentConfigService);
+
+    // ── Signals ──────────────────────────────────────────────────────────────
     uploadedStudents = signal<StudentExcelRow[]>([]);
     isProcessing = signal(false);
 
-    // Properties
+    // ── Upload mode ───────────────────────────────────────────────────────────
+    uploadMode: UploadMode = 'basic';
+    uploadModeOptions = [
+        { label: 'Basic', value: 'basic' },
+        { label: 'Full SATS', value: 'sats' }
+    ];
+
+    // ── Dialog / selection state ──────────────────────────────────────────────
     showConfirmDialog = false;
-    showStudentDetailDialog = false; // New dialog state
-    selectedStudentDetail: StudentExcelRow | null = null; // Selected student for dialog
-    submitted: boolean = false;
+    showStudentDetailDialog = false;
+    selectedStudentDetail: StudentExcelRow | null = null;
+    submitted = false;
     selectedDepartment: any;
     selectedClass: any;
     selectedSection: any;
-    // Computed Properties/Functions
+    associatedDepartments: any[] = [];
+
+    // ── Derived counts ────────────────────────────────────────────────────────
     validCount = () => this.uploadedStudents().filter((s) => s.isValid).length;
     invalidCount = () => this.uploadedStudents().filter((s) => !s.isValid).length;
-    associatedDepartments: any[] = [];
-    departmentConfigService = inject(DepartmentConfigService);
-    ngOnInit() {
-        this.getAssociatedDepartmentsOnAcademicyear();
+
+    ngOnInit(): void {
+        this.getAssociatedDepartments();
     }
 
-    getAssociatedDepartmentsOnAcademicyear() {
-        const filterParams = {
-            branch: this.commonService.branch?.id
-        };
-
+    // ── Department list ───────────────────────────────────────────────────────
+    getAssociatedDepartments(): void {
+        const filterParams = { branch: this.commonService.branch?.id };
         this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
-            this.associatedDepartments = res.content.map((re) => ({
+            this.associatedDepartments = res.content.map((re: any) => ({
                 ...re,
                 name: re.department.name
             }));
         });
     }
 
-    downloadTemplate() {
-        const sampleData = [
-            {
-                registrationId: 'STU002',
-                firstName: 'bulk',
-                lastName: 'upload',
-                gender: 'MALE',
-                houseNumber: '123',
-                street: 'Main Street',
-                locality: 'Downtown',
-                landmark: 'Near Park',
-                taluk: 'KR Pet',
-                district: 'Mandya',
-                state: 'Karnataka',
-                country: 'India',
-                postalCode: '560001',
-                password: 'User@123',
-                email: 'student@gmail.com',
-                studentContactNumber: 9999999999
-            }
-        ];
-
-        const worksheet = XLSX.utils.json_to_sheet(sampleData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Students');
-        XLSX.writeFile(workbook, 'Student_Upload_Template.xlsx');
-
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Template downloaded successfully'
-        });
+    // ── Template download ─────────────────────────────────────────────────────
+    downloadTemplate(): void {
+        if (this.uploadMode === 'basic') {
+            this.downloadBasicTemplate();
+        } else {
+            this.downloadSatsTemplate();
+        }
     }
 
-    onFileSelect(event: any) {
+    private downloadBasicTemplate(): void {
+        const sample = [
+            {
+                satsNumber: 'STU001',
+                firstName: 'Ravi',
+                middleName: '',
+                lastName: 'Kumar',
+                gender: 'MALE',
+                dateOfBirth: '2010-06-15',
+                email: 'ravi@example.com',
+                studentContactNumber: '9999999999',
+                password: 'User@123',
+                // Current address
+                addressLine: '123, Main Street',
+                locality: 'Downtown',
+                district: 'Mandya',
+                state: 'Karnataka',
+                pinCode: '560001',
+                country: 'India',
+                // Parents
+                fatherFirstName: 'Suresh',
+                fatherLastName: 'Kumar',
+                fatherMobile: '9888888888',
+                motherFirstName: 'Latha',
+                motherLastName: 'Kumar',
+                motherMobile: '9777777777'
+            }
+        ];
+        this.writeExcel(sample, 'Student_Basic_Template.xlsx');
+        this.messageService.add({ severity: 'success', summary: 'Downloaded', detail: 'Basic template downloaded' });
+    }
+
+    private downloadSatsTemplate(): void {
+        const sample = [
+            {
+                // Basic
+                satsNumber: 'SATS001',
+                firstName: 'Ravi',
+                middleName: '',
+                lastName: 'Kumar',
+                gender: 'MALE',
+                dateOfBirth: '2010-06-15',
+                email: 'ravi@example.com',
+                studentContactNumber: '9999999999',
+                password: 'User@123',
+                // SATS identity
+                stdFirstNameKn: 'ರವಿ',
+                stdLastNameKn: 'ಕುಮಾರ್',
+                aadhaarNumber: '123412341234',
+                religion: 'HINDU',
+                nationality: 'INDIAN',
+                socialCategory: 'GENERAL',
+                belongsToBPL: false,
+                bplCardNumber: '',
+                bhagyalakshmiBondNo: '',
+                childWithSpecialNeed: 'NONE',
+                specialCategory: '',
+                studentCasteCertNo: '',
+                // Father
+                fatherFirstName: 'Suresh',
+                fatherLastName: 'Kumar',
+                fatherFirstNameKn: 'ಸುರೇಶ್',
+                fatherLastNameKn: 'ಕುಮಾರ್',
+                fatherMobile: '9888888888',
+                fatherAadhaar: '432143214321',
+                fatherCasteCertNo: '',
+                // Mother
+                motherFirstName: 'Latha',
+                motherLastName: 'Kumar',
+                motherFirstNameKn: 'ಲತಾ',
+                motherLastNameKn: 'ಕುಮಾರ್',
+                motherMobile: '9777777777',
+                motherAadhaar: '567856785678',
+                motherCasteCertNo: '',
+                // Admission
+                typeOfStudent: 'SAME_STATE',
+                mediumOfInstruction: 'KANNADA',
+                motherTongue: 'KANNADA',
+                languageGroup: 'FIRST_LANGUAGE',
+                admissionDate: '2024-06-01',
+                // Previous school
+                affiliation: 'KSEEB',
+                tcNo: 'TC12345',
+                tcDate: '2024-05-30',
+                prevSchoolName: 'ABC School',
+                prevSchoolType: 'GOVERNMENT',
+                prevSchoolAddress: 'XYZ Road, Mysore',
+                prevPinCode: '570001',
+                prevState: 'KARNATAKA',
+                // Current address
+                addressLine: '123, Main Street',
+                locality: 'Downtown',
+                district: 'Mandya',
+                state: 'Karnataka',
+                pinCode: '560001',
+                country: 'India',
+                // Permanent address
+                perAddressLine: '456, Park Lane',
+                perLocality: 'Uptown',
+                perDistrict: 'Mysore',
+                perState: 'Karnataka',
+                perPinCode: '570002',
+                // Bank
+                bankName: 'SBI',
+                accountNumber: '123456789012',
+                ifscCode: 'SBIN0001234'
+            }
+        ];
+        this.writeExcel(sample, 'Student_SATS_Template.xlsx');
+        this.messageService.add({ severity: 'success', summary: 'Downloaded', detail: 'Full SATS template downloaded' });
+    }
+
+    private writeExcel(data: any[], filename: string): void {
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Students');
+        XLSX.writeFile(wb, filename);
+    }
+
+    // ── File upload ───────────────────────────────────────────────────────────
+    onFileSelect(event: any): void {
         const file = event.files[0];
         if (!file) return;
 
@@ -112,19 +214,12 @@ export class BulkStudentUploadComponent implements OnInit {
 
         reader.onload = (e: any) => {
             try {
-                const data = e.target.result;
-                const workbook = XLSX.read(data, { type: 'binary' });
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
+                const wb = XLSX.read(e.target.result, { type: 'binary' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(ws);
                 this.processExcelData(jsonData);
-            } catch (error) {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to process Excel file'
-                });
+            } catch {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to process Excel file' });
                 this.isProcessing.set(false);
             }
         };
@@ -132,32 +227,86 @@ export class BulkStudentUploadComponent implements OnInit {
         reader.readAsBinaryString(file);
     }
 
-    processExcelData(data: any[]) {
-        // Find department and set department IDs
+    // ── Process rows ──────────────────────────────────────────────────────────
+    processExcelData(data: any[]): void {
         const selectedDeptInfo = this.associatedDepartments.find((d) => d.department?.name?.toLowerCase() === this.selectedDepartment?.department?.name?.toLowerCase());
 
         const students: StudentExcelRow[] = data.map((row, index) => {
+            const str = (val: any) => val?.toString().trim() ?? '';
+
+            // ── Basic fields (always mapped) ──────────────────────────────────
             const student: StudentExcelRow = {
                 rowNumber: index + 2,
-                registrationId: row.registrationId?.toString().trim() || '',
-                firstName: row.firstName?.toString().trim() || '',
-                lastName: row.lastName?.toString().trim() || '',
-                gender: row.gender?.toString().trim().toUpperCase() || '',
-                houseNumber: row.houseNumber?.toString().trim() || '',
-                street: row.street?.toString().trim() || '',
-                locality: row.locality?.toString().trim() || '',
-                landmark: row.landmark?.toString().trim() || '',
-                taluk: row.taluk?.toString().trim() || '',
-                district: row.district?.toString().trim() || '',
-                state: row.state?.toString().trim() || '',
-                country: row.country?.toString().trim() || '',
-                postalCode: row.postalCode?.toString().trim() || '',
-                password: row.password?.toString().trim() || 'User@123',
-                email: row.email?.toString().trim(),
-                studentContactNumber: row.studentContactNumber // Keep as original type for now
+                satsNumber: str(row.satsNumber),
+                firstName: str(row.firstName),
+                middleName: str(row.middleName),
+                lastName: str(row.lastName),
+                gender: str(row.gender).toUpperCase(),
+                dateOfBirth: str(row.dateOfBirth),
+                email: str(row.email),
+                studentContactNumber: str(row.studentContactNumber),
+                password: str(row.password) || 'User@123',
+                addressLine: str(row.addressLine),
+                locality: str(row.locality),
+                district: str(row.district),
+                state: str(row.state),
+                pinCode: str(row.pinCode),
+                country: str(row.country),
+                fatherFirstName: str(row.fatherFirstName),
+                fatherLastName: str(row.fatherLastName),
+                fatherMobile: str(row.fatherMobile),
+                motherFirstName: str(row.motherFirstName),
+                motherLastName: str(row.motherLastName),
+                motherMobile: str(row.motherMobile)
             };
 
-            // Set department IDs
+            // ── SATS-only fields ──────────────────────────────────────────────
+            if (this.uploadMode === 'sats') {
+                const satsStudent = student as StudentSatsExcelRow;
+                satsStudent.satsNumber = str(row.satsNumber);
+                satsStudent.stdFirstNameKn = str(row.stdFirstNameKn);
+                satsStudent.stdLastNameKn = str(row.stdLastNameKn);
+                satsStudent.aadhaarNumber = str(row.aadhaarNumber);
+                satsStudent.religion = str(row.religion);
+                satsStudent.nationality = str(row.nationality) || 'INDIAN';
+                satsStudent.socialCategory = str(row.socialCategory);
+                satsStudent.belongsToBPL = row.belongsToBPL === true || str(row.belongsToBPL).toLowerCase() === 'true';
+                satsStudent.bplCardNumber = str(row.bplCardNumber);
+                satsStudent.bhagyalakshmiBondNo = str(row.bhagyalakshmiBondNo);
+                satsStudent.childWithSpecialNeed = str(row.childWithSpecialNeed) || 'NONE';
+                satsStudent.specialCategory = str(row.specialCategory);
+                satsStudent.studentCasteCertNo = str(row.studentCasteCertNo);
+                satsStudent.fatherFirstNameKn = str(row.fatherFirstNameKn);
+                satsStudent.fatherLastNameKn = str(row.fatherLastNameKn);
+                satsStudent.fatherAadhaar = str(row.fatherAadhaar);
+                satsStudent.fatherCasteCertNo = str(row.fatherCasteCertNo);
+                satsStudent.motherFirstNameKn = str(row.motherFirstNameKn);
+                satsStudent.motherLastNameKn = str(row.motherLastNameKn);
+                satsStudent.motherAadhaar = str(row.motherAadhaar);
+                satsStudent.motherCasteCertNo = str(row.motherCasteCertNo);
+                satsStudent.typeOfStudent = str(row.typeOfStudent);
+                satsStudent.mediumOfInstruction = str(row.mediumOfInstruction);
+                satsStudent.motherTongue = str(row.motherTongue);
+                satsStudent.languageGroup = str(row.languageGroup);
+                satsStudent.admissionDate = str(row.admissionDate);
+                satsStudent.affiliation = str(row.affiliation);
+                satsStudent.tcNo = str(row.tcNo);
+                satsStudent.tcDate = str(row.tcDate);
+                satsStudent.prevSchoolName = str(row.prevSchoolName);
+                satsStudent.prevSchoolType = str(row.prevSchoolType);
+                satsStudent.prevSchoolAddress = str(row.prevSchoolAddress);
+                satsStudent.prevPinCode = str(row.prevPinCode);
+                satsStudent.prevState = str(row.prevState);
+                satsStudent.perAddressLine = str(row.perAddressLine);
+                satsStudent.perLocality = str(row.perLocality);
+                satsStudent.perDistrict = str(row.perDistrict);
+                satsStudent.perState = str(row.perState);
+                satsStudent.perPinCode = str(row.perPinCode);
+                satsStudent.bankName = str(row.bankName);
+                satsStudent.accountNumber = str(row.accountNumber);
+                satsStudent.ifscCode = str(row.ifscCode);
+            }
+
             if (selectedDeptInfo) {
                 (student as any).departments = [selectedDeptInfo.id];
             }
@@ -179,89 +328,77 @@ export class BulkStudentUploadComponent implements OnInit {
         });
     }
 
+    // ── Validation ────────────────────────────────────────────────────────────
     validateStudent(student: StudentExcelRow): ValidationResult {
         const errors: string[] = [];
 
-        // Required fields validation
-        if (!student.registrationId) errors.push('Registration ID is required');
+        if (!student.satsNumber) errors.push('SATS Number is required');
         if (!student.firstName) errors.push('First Name is required');
         if (!student.lastName) errors.push('Last Name is required');
-
-        // Gender validation
-        if (!['MALE', 'FEMALE', 'OTHER'].includes(student.gender)) {
+        if (!['MALE', 'FEMALE', 'OTHER'].includes(student.gender ?? '')) {
             errors.push('Gender must be MALE, FEMALE, or OTHER');
         }
-
-        // Email validation
         if (student.email && !this.isValidEmail(student.email)) {
-            errors.push('Email is invalid');
+            errors.push('Email format is invalid');
         }
-
-        // Contact Number validation (Assuming it should be a number if provided)
         if (student.studentContactNumber && isNaN(Number(student.studentContactNumber))) {
-            errors.push('Contact Number is invalid (must be numeric)');
+            errors.push('Contact Number must be numeric');
         }
-
-        // Address validation (as per template logic)
-        if (!student.houseNumber) errors.push('House Number is required');
-        if (!student.street) errors.push('Street is required');
-        if (!student.locality) errors.push('Locality is required');
-        if (!student.taluk) errors.push('Taluk is required');
         if (!student.district) errors.push('District is required');
         if (!student.state) errors.push('State is required');
-        if (!student.country) errors.push('Country is required');
-        if (!student.postalCode) errors.push('Postal Code is required');
+        if (!student.pinCode) errors.push('PIN Code is required');
 
-        return {
-            student,
-            isValid: errors.length === 0,
-            errors
-        };
+        // Extra SATS validations
+        if (this.uploadMode === 'sats') {
+            const s = student as StudentSatsExcelRow;
+            if (!s.satsNumber) errors.push('SATS Number is required in SATS mode');
+            if (s.aadhaarNumber && !/^\d{12}$/.test(s.aadhaarNumber)) {
+                errors.push('Aadhaar Number must be 12 digits');
+            }
+        }
+
+        return { student, isValid: errors.length === 0, errors };
     }
 
     isValidEmail(email: string): boolean {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
-    openStudentDetails(student: StudentExcelRow) {
+    // ── Detail dialog ─────────────────────────────────────────────────────────
+    openStudentDetails(student: StudentExcelRow): void {
         this.selectedStudentDetail = student;
         this.showStudentDetailDialog = true;
     }
 
-    confirmSave() {
+    get isSatsDetail(): boolean {
+        return this.uploadMode === 'sats';
+    }
+
+    // ── Save flow ─────────────────────────────────────────────────────────────
+    confirmSave(): void {
         this.submitted = true;
         if (!this.selectedDepartment || !this.selectedClass || !this.selectedSection) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Missing Selection',
-                detail: 'Please select Department, Class, and Section before saving.'
-            });
+            this.messageService.add({ severity: 'error', summary: 'Missing Selection', detail: 'Please select Department, Class, and Section.' });
             return;
         }
         if (this.validCount() === 0) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'No Valid Students',
-                detail: 'There are no valid students to save.'
-            });
+            this.messageService.add({ severity: 'warn', summary: 'No Valid Students', detail: 'There are no valid students to save.' });
             return;
         }
         this.showConfirmDialog = true;
     }
 
-    saveAllStudents() {
+    saveAllStudents(): void {
         this.showConfirmDialog = false;
         const validStudents = this.uploadedStudents().filter((s) => s.isValid);
 
         this.loader.show('Saving students...');
 
-        const studentsPayload = validStudents.map((s) => {
-            const { errors, isValid, rowNumber, ...rest } = s;
-            return rest;
-        });
+        const studentsPayload = validStudents.map(({ errors, isValid, rowNumber, errorMessage, ...rest }) => rest);
 
         const payload = {
             students: studentsPayload,
+            uploadMode: this.uploadMode,
             branchId: this.commonService?.branch?.id,
             departmentId: this.selectedDepartment?.id,
             departmentName: this.selectedDepartment?.department?.name,
@@ -269,7 +406,7 @@ export class BulkStudentUploadComponent implements OnInit {
             className: this.selectedClass?.name,
             sectionId: this.selectedSection?.id,
             sectionName: this.selectedSection?.name,
-            academicYear: this.selectedDepartment.academicYear
+            academicYear: this.selectedDepartment?.academicYear
         };
 
         this.userService.bulkCreateStudents(payload).subscribe({
@@ -277,60 +414,39 @@ export class BulkStudentUploadComponent implements OnInit {
                 this.loader.hide();
 
                 if (response.failureCount > 0) {
-                    // Map failed students with error messages
-                    const failedStudentsWithErrors = this.uploadedStudents().map((uploadedStudent) => {
-                        const failedRecord = response.failedStudents.find((fs: any) => fs.registrationId === uploadedStudent.registrationId);
-
-                        if (failedRecord) {
-                            const errorInfo = response.errors?.find((err: any) => err.registrationId === failedRecord.registrationId);
-
-                            return {
-                                ...uploadedStudent,
-                                isValid: false,
-                                errorMessage: errorInfo?.errorMessage || 'Unknown error occurred during save',
-                                errors: []
-                            };
+                    const updated = this.uploadedStudents().map((uploaded) => {
+                        const failed = response.failedStudents?.find((fs: any) => fs.satsNumber === uploaded.satsNumber);
+                        if (failed) {
+                            const errInfo = response.errors?.find((e: any) => e.satsNumber === failed.satsNumber);
+                            return { ...uploaded, isValid: false, errorMessage: errInfo?.errorMessage || 'Unknown error', errors: [] };
                         }
-                        return uploadedStudent; // Keep original valid students
+                        return uploaded;
                     });
 
-                    this.uploadedStudents.set(failedStudentsWithErrors);
-
+                    this.uploadedStudents.set(updated);
                     this.messageService.add({
                         severity: 'warn',
                         summary: 'Partial Success',
-                        detail: `Successfully created ${response.successCount} students. ${response.failureCount} failed. Please review the errors below.`,
+                        detail: `Created ${response.successCount} students. ${response.failureCount} failed.`,
                         life: 5000
                     });
                 } else {
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: `Successfully created ${response.successCount} students`
-                    });
-
-                    setTimeout(() => {
-                        this.goBack();
-                    }, 2000);
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: `Successfully created ${response.successCount} students` });
+                    setTimeout(() => this.goBack(), 2000);
                 }
             },
             error: (error) => {
                 this.loader.hide();
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.error?.message || 'Failed to save students. Please try again.'
-                });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error?.message || 'Failed to save students.' });
             }
         });
     }
 
-    resetUpload() {
+    resetUpload(): void {
         this.uploadedStudents.set([]);
     }
 
-    goBack() {
-        // window.history.back();
-        this.router.navigate(['/students']);
+    goBack(): void {
+        this.router.navigate(['/stats-student-list']);
     }
 }
