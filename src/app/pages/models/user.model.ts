@@ -51,7 +51,8 @@ export type NewTenantUser = Omit<ITenantUser, 'id'> & { id: null };
 export enum UserStatus {
     ACTIVE,
     EXITED,
-    PROMOTED
+    PROMOTED,
+    INACTIVE
 }
 
 export interface IProfileConfig {

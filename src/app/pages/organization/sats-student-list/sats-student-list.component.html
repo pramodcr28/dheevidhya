@@ -1,7 +1,6 @@
 <app-confirmation-dialog></app-confirmation-dialog>
 <p-toast></p-toast>
 
-<!-- ── Page Header ──────────────────────────────────────────────────────── -->
 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
     <div>
         <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
@@ -11,132 +10,95 @@
         <p class="text-sm text-gray-500 mt-0.5">Student Registration</p>
     </div>
     <div class="flex gap-2 flex-wrap">
-        <p-button
-            icon="pi pi-filter"
-            [label]="showFilters() ? 'Hide Filters' : 'Show Filters'"
-            [outlined]="!showFilters()"
-            severity="secondary"
-            size="small"
-            (onClick)="toggleFilters()"
-            [badge]="hasActiveFilters ? '!' : ''"
-        ></p-button>
+        <p-button icon="pi pi-filter" [label]="showFilters() ? 'Hide Filters' : 'Show Filters'" [outlined]="!showFilters()" severity="secondary" size="small" (onClick)="toggleFilters()" [badge]="hasActiveFilters ? '!' : ''"></p-button>
         <p-button label="New Student" icon="pi pi-plus" size="small" (click)="openNew()"></p-button>
     </div>
 </div>
 
-<!-- ── Filter Panel ─────────────────────────────────────────────────────── -->
 @if (showFilters()) {
-<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 mb-4 shadow-sm animate-fade-in">
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 mb-4 shadow-sm animate-fade-in">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Department</label>
+                <p-multiSelect
+                    [options]="departmentOptions()"
+                    [(ngModel)]="filters.deptName"
+                    placeholder="Select Departments"
+                    [showClear]="true"
+                    [filter]="true"
+                    optionLabel="label"
+                    optionValue="value"
+                    styleClass="w-full text-sm"
+                    [maxSelectedLabels]="2"
+                ></p-multiSelect>
+            </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Class</label>
+                <p-multiSelect
+                    [options]="classOptions()"
+                    [(ngModel)]="filters.admissionClass"
+                    placeholder="Select Classes"
+                    [showClear]="true"
+                    [filter]="true"
+                    optionLabel="label"
+                    optionValue="value"
+                    styleClass="w-full text-sm"
+                    [maxSelectedLabels]="2"
+                ></p-multiSelect>
+            </div>
 
-        <!-- Department -->
-        <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Department</label>
-            <p-multiSelect
-                [options]="departmentOptions()"
-                [(ngModel)]="filters.deptName"
-                placeholder="Select Departments"
-                [showClear]="true"
-                [filter]="true"
-                optionLabel="label"
-                optionValue="value"
-                styleClass="w-full text-sm"
-                [maxSelectedLabels]="2"
-            ></p-multiSelect>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Section</label>
+                <p-multiSelect
+                    [options]="sectionOptions()"
+                    [(ngModel)]="filters.section"
+                    placeholder="Select Sections"
+                    [showClear]="true"
+                    [filter]="true"
+                    optionLabel="label"
+                    optionValue="value"
+                    styleClass="w-full text-sm"
+                    [maxSelectedLabels]="2"
+                ></p-multiSelect>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Gender</label>
+                <p-multiSelect [options]="genderOptions" [(ngModel)]="filters.gender" placeholder="Select Gender" [showClear]="true" styleClass="w-full text-sm" [maxSelectedLabels]="2"></p-multiSelect>
+            </div>
         </div>
 
-        <!-- Class -->
-        <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Class</label>
-            <p-multiSelect
-                [options]="classOptions()"
-                [(ngModel)]="filters.admissionClass"
-                placeholder="Select Classes"
-                [showClear]="true"
-                [filter]="true"
-                optionLabel="label"
-                optionValue="value"
-                styleClass="w-full text-sm"
-                [maxSelectedLabels]="2"
-            ></p-multiSelect>
+        <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p-button label="Apply Filters" icon="pi pi-check" size="small" (onClick)="applyFilters()"></p-button>
+            <p-button label="Clear All" icon="pi pi-times" size="small" severity="secondary" [outlined]="true" (onClick)="clearFilters()"></p-button>
         </div>
 
-        <!-- Section -->
-        <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Section</label>
-            <p-multiSelect
-                [options]="sectionOptions()"
-                [(ngModel)]="filters.section"
-                placeholder="Select Sections"
-                [showClear]="true"
-                [filter]="true"
-                optionLabel="label"
-                optionValue="value"
-                styleClass="w-full text-sm"
-                [maxSelectedLabels]="2"
-            ></p-multiSelect>
-        </div>
+        @if (hasActiveFilters) {
+            <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <span class="text-sm font-semibold text-gray-600 dark:text-gray-400">Active Filters:</span>
 
-        <!-- Gender -->
-        <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Gender</label>
-            <p-multiSelect
-                [options]="genderOptions"
-                [(ngModel)]="filters.gender"
-                placeholder="Select Gender"
-                [showClear]="true"
-                styleClass="w-full text-sm"
-                [maxSelectedLabels]="2"
-            ></p-multiSelect>
-        </div>
-
+                @if (filters.name) {
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1"> <i class="pi pi-search text-xs"></i> Name </span>
+                }
+                @if (filters.deptName?.length) {
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1"> <i class="pi pi-building text-xs"></i> Departments: {{ filters.deptName!.length }} </span>
+                }
+                @if (filters.admissionClass?.length) {
+                    <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1"> <i class="pi pi-book text-xs"></i> Classes: {{ filters.admissionClass!.length }} </span>
+                }
+                @if (filters.section?.length) {
+                    <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1"> <i class="pi pi-list text-xs"></i> Sections: {{ filters.section!.length }} </span>
+                }
+                @if (filters.academicYear) {
+                    <span class="bg-sky-100 text-sky-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1"> <i class="pi pi-calendar text-xs"></i> {{ filters.academicYear }} </span>
+                }
+                @if (filters.gender?.length) {
+                    <span class="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1"> <i class="pi pi-user text-xs"></i> Gender: {{ filters.gender!.length }} </span>
+                }
+            </div>
+        }
     </div>
-
-    <!-- Apply / Clear buttons -->
-    <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <p-button label="Apply Filters" icon="pi pi-check" size="small" (onClick)="applyFilters()"></p-button>
-        <p-button label="Clear All" icon="pi pi-times" size="small" severity="secondary" [outlined]="true" (onClick)="clearFilters()"></p-button>
-    </div>
-
-    <!-- Active filter chips (mirrors student-list) -->
-    @if (hasActiveFilters) {
-        <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-            <span class="text-sm font-semibold text-gray-600 dark:text-gray-400">Active Filters:</span>
-
-            @if (filters.name) {
-                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                    <i class="pi pi-search text-xs"></i> Name
-                </span>
-            }
-            @if (filters.deptName?.length) {
-                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                    <i class="pi pi-building text-xs"></i> Departments: {{ filters.deptName!.length }}
-                </span>
-            }
-            @if (filters.admissionClass?.length) {
-                <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                    <i class="pi pi-book text-xs"></i> Classes: {{ filters.admissionClass!.length }}
-                </span>
-            }
-            @if (filters.section?.length) {
-                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                    <i class="pi pi-list text-xs"></i> Sections: {{ filters.section!.length }}
-                </span>
-            }
-            @if (filters.academicYear) {
-                <span class="bg-sky-100 text-sky-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                    <i class="pi pi-calendar text-xs"></i> {{ filters.academicYear }}
-                </span>
-            }
-            @if (filters.gender?.length) {
-                <span class="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                    <i class="pi pi-user text-xs"></i> Gender: {{ filters.gender!.length }}
-                </span>
-            }
-        </div>
-    }
-</div>
 }
 
 <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -150,8 +112,6 @@
         (onLazyLoad)="onPageChange($event)"
         paginatorDropdownAppendTo="body"
         (onSort)="onSort($event)"
-        [rows]="itemsPerPage"
-        [paginator]="true"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Students"
         [showCurrentPageReport]="true"
         [rowsPerPageOptions]="[10, 20, 30, 50]"
@@ -160,61 +120,30 @@
     >
         <ng-template pTemplate="header">
             <tr class="bg-gray-50 dark:bg-gray-800">
-                <!-- Student -->
-                <th pSortableColumn="studentDetails.studentName.firstName"
-                    class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[200px]">
+                <th pSortableColumn="studentDetails.studentName.firstName" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300  px-3 py-3  min-w-[150px]">
                     Student Name <p-sortIcon field="studentDetails.studentName.firstName" />
                 </th>
-                <th pSortableColumn="satsNumber"
-                    class="text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400 px-3 py-3 min-w-[100px] text-bold">
-                    Sats Number <p-sortIcon field="satsNumber" />
-                </th>
-                <!-- Department -->
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[140px]">
-                    Department
-                </th>
-                <!-- Class -->
-                <th pSortableColumn="admissionDetails.admissionClass"
-                    class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[90px]">
-                    Class <p-sortIcon field="admissionDetails.admissionClass" />
-                </th>
-                <!-- Section -->
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[80px]">
-                    Section
-                </th>
-                <th pSortableColumn="latestAcademicYear.status"
-                    class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[120px]">
-                    Status <p-sortIcon field="latestAcademicYear.status" />
-                </th>
-                <th pSortableColumn="latestAcademicYear.academicYear"
-                    class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[120px]">
+                <th pSortableColumn="satsNumber" class="text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400 px-3 py-3 min-w-[100px]">Sats Number <p-sortIcon field="satsNumber" /></th>
+                <th pSortableColumn="latestAcademicYear.status" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[50px]">Status <p-sortIcon field="latestAcademicYear.status" /></th>
+                <th pSortableColumn="latestAcademicYear.academicYear" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[140px]">
                     Academic Year <p-sortIcon field="latestAcademicYear.academicYear" />
                 </th>
-                <!-- Gender -->
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[90px]">
-                    Gender
-                </th>
-                <!-- Guardian -->
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[100px]">
-                    Guardian
-                </th>
-                <!-- Actions -->
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 text-center min-w-[100px]">
-                    Actions
-                </th>
+                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[60px]">Gender</th>
+                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[90px]">Department</th>
+                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[100px]">Class - Section</th>
+                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[100px]">Guardian</th>
+                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 text-center min-w-[80px]">Actions</th>
             </tr>
         </ng-template>
-
-        <!-- ── Body ────────────────────────────────────────────────────── -->
         <ng-template pTemplate="body" let-student let-rowIndex="rowIndex">
-            <tr class="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors">
+            @let isCurrentYear = student.latestAcademicYear?.academicYear === commonService.currentUser.academicYear;
+            @let isActive = student.latestAcademicYear?.status === 'ACTIVE';
+            @let canEdit = isActive && isCurrentYear;
 
-                <!-- Student Name + avatar + Aadhaar -->
+            <tr class="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors" [class.opacity-70]="!canEdit">
                 <td class="px-3 py-2">
                     <div class="flex items-center gap-2">
-                        <span
-                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-                            [ngClass]="[avatarBg(rowIndex), avatarText(rowIndex)]">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold" [ngClass]="[avatarBg(rowIndex), avatarText(rowIndex)]">
                             {{ (student.studentDetails?.studentName?.firstName?.[0] ?? '') + (student.studentDetails?.studentName?.lastName?.[0] ?? '') }}
                         </span>
                         <div>
@@ -227,66 +156,60 @@
                         </div>
                     </div>
                 </td>
-                <!-- SATS Number -->
+
                 <td class="px-3 py-2 text-sm text-lg font-bold text-primary-600 dark:text-primary-400">
                     {{ student.satsNumber || '—' }}
                 </td>
 
-                <!-- Department (from latestAcademicYear role) -->
                 <td class="px-3 py-2">
-                    @if (student.latestAcademicYear?.roles?.student?.deptName) {
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-100">
-                            {{ student.latestAcademicYear.roles.student.deptName }}
-                        </span>
+                    @if (student.latestAcademicYear?.status) {
+                        <p-tag [value]="student.latestAcademicYear.status" [severity]="getStatusSeverity(student.latestAcademicYear.status)" styleClass="text-xs font-semibold"></p-tag>
                     } @else {
-                        <span class="text-gray-400 text-xs">N/A</span>
+                        <span class="text-gray-400 text-xs">—</span>
                     }
                 </td>
 
-                <!-- Class -->
                 <td class="px-3 py-2">
-                    @if (student.admissionDetails?.admissionClass) {
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-100">
-                            {{ student.admissionDetails.admissionClass }}
+                    @if (student.latestAcademicYear?.academicYear) {
+                        <span
+                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+                            [ngClass]="
+                                isCurrentYear
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300 ring-1 ring-green-300 dark:ring-green-700'
+                                    : 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300 ring-1 ring-orange-300 dark:ring-orange-700'
+                            "
+                            [pTooltip]="isCurrentYear ? 'Matches current academic year' : 'Does not match current year (' + commonService.currentUser.academicYear + ')'"
+                            tooltipPosition="top"
+                        >
+                            <i class="pi text-[10px]" [ngClass]="isCurrentYear ? 'pi-check-circle' : 'pi-exclamation-circle'"> </i>
+                            {{ student.latestAcademicYear.academicYear }}
                         </span>
                     } @else {
-                        <span class="text-gray-400 text-xs">N/A</span>
+                        <span class="text-gray-400 text-xs">—</span>
                     }
                 </td>
 
-                <!-- Section -->
-                <td class="px-3 py-2">
-                    @if (student.admissionDetails?.section) {
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100">
-                            {{ student.admissionDetails.section }}
-                        </span>
-                    } @else {
-                        <span class="text-gray-400 text-xs">N/A</span>
-                    }
-                </td>
-
-                <!-- Academic Year -->
-                <td class="px-3 py-2 text-sm font-semibold text-gray-800 dark:text-gray-200">
-                    {{ student.latestAcademicYear?.status }}
-                </td>
-
-                 <td class="px-3 py-2 text-sm font-semibold text-gray-800 dark:text-gray-200">
-                    {{ student.latestAcademicYear?.academicYear }}
-                </td>
-
-                <!-- Gender -->
                 <td class="px-3 py-2">
                     @if (student.studentDetails?.gender) {
-                        <p-tag
-                            [value]="getGenderTag(student.studentDetails.gender).label"
-                            [severity]="getGenderTag(student.studentDetails.gender).severity"
-                        ></p-tag>
+                        <p-tag [value]="getGenderTag(student.studentDetails.gender).label" [severity]="getGenderTag(student.studentDetails.gender).severity"></p-tag>
                     } @else {
                         <span class="text-gray-400 text-sm">—</span>
                     }
                 </td>
+                <td class="px-3 py-2">
+                    <span class="text-sm text-gray-800 dark:text-gray-200">{{ formatLabel(student.latestAcademicYear?.roles?.student?.deptName) || '—' }}</span>
+                </td>
 
-                <!-- Guardian (father → mother fallback) -->
+                <td class="px-3 py-2 flex flex-col justify-center items-center gap-1">
+                    <span class="text-sm text-gray-950 dark:text-gray-50">
+                        {{ formatLabel(student.latestAcademicYear?.roles?.student?.sectionName) }}
+                    </span>
+
+                    <span class="text-sm text-gray-950 dark:text-gray-50">
+                        {{ formatLabel(student.latestAcademicYear?.roles?.student?.className) }}
+                    </span>
+                </td>
+
                 <td class="px-3 py-2">
                     <div class="flex flex-col leading-tight">
                         <span class="text-sm text-gray-800 dark:text-gray-200">{{ getGuardianName(student) }}</span>
@@ -297,40 +220,34 @@
                         }
                     </div>
                 </td>
-                <td class="px-3 py-2 flex tems-center justify-start">
-                    <div class="flex items-center justify-center">
-                        @if(student.latestAcademicYear?.status === 'ACTIVE' && student.latestAcademicYear?.academicYear === commonService.currentUser.academicYear) {
-                          <p-button
-                            icon="pi pi-pencil"
-                            [rounded]="true"
-                            [text]="true"
-                            severity="info"
-                            size="small"
-                            (click)="editStudent(student)"
-                            pTooltip="Edit"
-                        ></p-button>
-                         <p-button
-                            icon="pi pi-trash"
-                            [rounded]="true"
-                            [text]="true"
-                            severity="danger"
-                            size="small"
-                            (click)="deleteStudent(student)"
-                            pTooltip="Delete"
-                        ></p-button>
+
+                <td class="px-3 py-2">
+                    <div class="flex items-center justify-center gap-1">
+                        @if (canEdit) {
+                            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="info" size="small" (click)="editStudent(student)" pTooltip="Edit student" tooltipPosition="top"></p-button>
+                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" size="small" (click)="deleteStudent(student)" pTooltip="Delete student" tooltipPosition="top"></p-button>
+                        } @else {
+                            <span
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs font-medium cursor-not-allowed select-none"
+                                [pTooltip]="
+                                    !isCurrentYear
+                                        ? 'Editing restricted — student belongs to academic year ' + student.latestAcademicYear?.academicYear + ', not the current year (' + commonService.currentUser.academicYear + ')'
+                                        : 'Editing restricted — student status is ' + student.latestAcademicYear?.status
+                                "
+                                tooltipPosition="top"
+                            >
+                                <i class="pi pi-lock text-xs"></i>
+                                <span>Restricted</span>
+                            </span>
                         }
-                      
-                       
                     </div>
                 </td>
-
             </tr>
         </ng-template>
 
-        <!-- ── Empty state ──────────────────────────────────────────────── -->
         <ng-template pTemplate="emptymessage">
             <tr>
-                <td colspan="9" class="text-center py-12">
+                <td colspan="7" class="text-center py-12">
                     <div class="flex flex-col items-center gap-3 text-gray-400">
                         <i class="pi pi-users text-5xl opacity-30"></i>
                         <p class="text-base font-medium">No students found</p>
@@ -344,16 +261,9 @@
                 </td>
             </tr>
         </ng-template>
-
     </p-table>
 </div>
 
-<!-- ── Student Dialog ───────────────────────────────────────────────────── -->
 @if (studentDialogVisible()) {
-    <app-sats-student-dialog
-        [visible]="studentDialogVisible()"
-        [student]="selectedStudent()!"
-        (save)="onSave($event)"
-        (cancel)="onCancel()"
-    ></app-sats-student-dialog>
+    <app-sats-student-dialog [visible]="studentDialogVisible()" [student]="selectedStudent()!" (save)="onSave($event)" (cancel)="onCancel()"></app-sats-student-dialog>
 }

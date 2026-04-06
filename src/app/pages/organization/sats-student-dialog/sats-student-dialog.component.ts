@@ -256,31 +256,49 @@ export class SatsStudentDialogComponent implements OnInit {
     }
 
     loadDepartments(student: IStudent | NewStudent | null): void {
-        const filterParams = {
-            branch: this.commonService.branch?.id || 0,
-            academicYear: this.commonService.currentUser.academicYear
-        };
+        const isITAdmin = this.commonService?.getUserAuthorities?.includes('IT_ADMINISTRATOR');
 
-        this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
-            this.associatedDepartments = res.content.map((re: any) => ({
-                ...re,
-                name: re.department.name
-            }));
+        if (isITAdmin) {
+            const filterParams = {
+                branch: this.commonService.branch?.id
+            };
 
-            if (student?.latestAcademicYear?.roles?.student) {
-                const role = student.latestAcademicYear.roles.student;
-                const deptId = student.latestAcademicYear.departments?.[0];
-                this.selectedDepartment = this.associatedDepartments.find((d) => d.id === deptId) ?? null;
+            this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe({
+                next: (res: any) => {
+                    this.associatedDepartments = res.content.map((re: any) => ({
+                        ...re,
+                        name: re.department.name
+                    }));
+                },
+                error: () => {}
+            });
+        } else {
+            this.associatedDepartments = this.commonService.associatedDepartments;
+        }
 
-                if (this.selectedDepartment) {
-                    this.selectedClass = this.selectedDepartment.department?.classes?.find((c: any) => c.id === role.classId) ?? null;
+        if (student?.latestAcademicYear?.roles?.student) {
+            const role = student.latestAcademicYear.roles.student;
+            const deptId = student.latestAcademicYear.departments?.[0];
+            this.selectedDepartment = this.associatedDepartments.find((d) => d.id === deptId) ?? null;
 
-                    if (this.selectedClass) {
-                        this.selectedSection = this.selectedClass.sections?.find((s: any) => s.id === role.sectionId) ?? null;
-                    }
+            if (this.selectedDepartment) {
+                this.selectedClass = this.selectedDepartment.department?.classes?.find((c: any) => c.id === role.classId) ?? null;
+
+                if (this.selectedClass) {
+                    this.selectedSection = this.selectedClass.sections?.find((s: any) => s.id === role.sectionId) ?? null;
                 }
             }
-        });
+        }
+        // const filterParams = {
+        //     branch: this.commonService.branch?.id
+        // };
+
+        // this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
+        //     this.associatedDepartments = res.content.map((re: any) => ({
+        //         ...re,
+        //         name: re.department.name
+        //     }));
+        // });
     }
 
     onDepartmentChange(): void {

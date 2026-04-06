@@ -14,6 +14,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
 import { CommonService } from '../../../core/services/common.service';
 import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
@@ -54,7 +55,8 @@ interface StudentFilter {
         DropdownModule,
         MultiSelectModule,
         ConfirmationDialogComponent,
-        SatsStudentDialogComponent
+        SatsStudentDialogComponent,
+        TooltipModule
     ],
     templateUrl: './sats-student-list.component.html',
     providers: [MessageService, DheeConfirmationService]
@@ -82,6 +84,8 @@ export class SatsStudentListComponent {
 
     showFilters = signal<boolean>(false);
     filters: StudentFilter = {};
+
+    expandedRows: any;
 
     // Signal-based options populated from master services (mirrors student-list pattern)
     classOptions = signal<any[]>([]);
@@ -303,5 +307,30 @@ export class SatsStudentListComponent {
     avatarText(index: number): string {
         const colors = ['text-amber-800', 'text-emerald-800', 'text-sky-800', 'text-rose-800', 'text-indigo-800', 'text-purple-800', 'text-teal-800', 'text-orange-800'];
         return colors[index % colors.length];
+    }
+
+    getStatusSeverity(status: string): any {
+        const map: Record<string, string> = {
+            ACTIVE: 'success',
+            PROMOTED: 'info',
+            EXITED: 'danger',
+            INACTIVE: 'warn'
+        };
+        return map[status] ?? 'secondary';
+    }
+
+    getStatusIcon(status: string): string {
+        const map: Record<string, string> = {
+            ACTIVE: 'pi-check-circle',
+            PROMOTED: 'pi-arrow-up-right',
+            EXITED: 'pi-sign-out',
+            INACTIVE: 'pi-ban'
+        };
+        return map[status] ?? '';
+    }
+
+    formatLabel(value: string): string {
+        if (!value) return '';
+        return value.replace(/_/g, ' ').replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
     }
 }
