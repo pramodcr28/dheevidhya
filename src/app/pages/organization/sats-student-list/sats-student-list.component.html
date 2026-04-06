@@ -166,7 +166,7 @@
                     Student Name <p-sortIcon field="studentDetails.studentName.firstName" />
                 </th>
                 <th pSortableColumn="satsNumber"
-                    class="text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400 px-3 py-3 min-w-[200px] text-bold">
+                    class="text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400 px-3 py-3 min-w-[100px] text-bold">
                     Sats Number <p-sortIcon field="satsNumber" />
                 </th>
                 <!-- Department -->
@@ -185,6 +185,10 @@
                 <th pSortableColumn="latestAcademicYear.status"
                     class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[120px]">
                     Status <p-sortIcon field="latestAcademicYear.status" />
+                </th>
+                <th pSortableColumn="latestAcademicYear.academicYear"
+                    class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[120px]">
+                    Academic Year <p-sortIcon field="latestAcademicYear.academicYear" />
                 </th>
                 <!-- Gender -->
                 <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[90px]">
@@ -266,6 +270,10 @@
                     {{ student.latestAcademicYear?.status }}
                 </td>
 
+                 <td class="px-3 py-2 text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    {{ student.latestAcademicYear?.academicYear }}
+                </td>
+
                 <!-- Gender -->
                 <td class="px-3 py-2">
                     @if (student.studentDetails?.gender) {
@@ -291,7 +299,7 @@
                 </td>
                 <td class="px-3 py-2 flex tems-center justify-start">
                     <div class="flex items-center justify-center">
-                        @if(student.latestAcademicYear?.status === 'ACTIVE') {
+                        @if(student.latestAcademicYear?.status === 'ACTIVE' && student.latestAcademicYear?.academicYear === commonService.currentUser.academicYear) {
                           <p-button
                             icon="pi pi-pencil"
                             [rounded]="true"
