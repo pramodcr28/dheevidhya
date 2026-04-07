@@ -15,7 +15,6 @@ export type NewTenantAuthority = Omit<ITenantAuthority, 'name'> & { name: null }
 export interface ITenantUser {
     id: number;
     login?: string | null;
-    passwordHash?: string | null;
     firstName?: string | null;
     lastName?: string | null;
     email?: string | null;
@@ -33,17 +32,10 @@ export interface ITenantUser {
     postalCode?: string | null;
     latitude?: number | null;
     longitude?: number | null;
-    activationKey?: string | null;
-    resetKey?: string | null;
     branchId?: number | null;
-    resetDate?: string | null;
-    isTenantUser?: boolean | null;
     authorities?: ITenantAuthority[] | null;
-    profile?: IProfileConfig | null;
+    latestAcademicYear?: IProfileConfig | null;
     status?: UserStatus | null;
-    deptName?: string | null;
-    className?: string | null;
-    sectionName?: string | null;
 }
 
 export type NewTenantUser = Omit<ITenantUser, 'id'> & { id: null };

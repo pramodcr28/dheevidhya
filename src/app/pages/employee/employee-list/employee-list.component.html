@@ -1,4 +1,5 @@
 
+ <app-confirmation-dialog></app-confirmation-dialog>
  <div
       class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-slate-800 dark:bg-[#161b27]">
 
@@ -58,7 +59,6 @@
 
             <div class="flex-1"></div>
 
-            <!-- Clear filters -->
             @if (selectedDepartment || selectedRoles.length) {
               <button
                 type="button"
@@ -79,46 +79,45 @@
           </div>
         </ng-template>
 
-        <!-- ── Column Headers ──────────────────────────────────── -->
         <ng-template pTemplate="header">
           <tr class="bg-gray-50/80 dark:bg-slate-800/40">
-            <th class="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-slate-500">
+            <th class="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-800 dark:text-slate-200">
               Full Name
+            </th>
+             <th class="px-4 py-3.5 text-right text-[11px] font-semibold uppercase tracking-widest text-gray-800 dark:text-slate-200">
+              Username
             </th>
             <th
               pSortableColumn="email"
-              class="cursor-pointer select-none px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-500 transition-colors hover:text-gray-800 dark:text-slate-500 dark:hover:text-slate-300">
+              class="cursor-pointer select-none px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-800 transition-colors hover:text-gray-800 dark:text-slate-200 dark:hover:text-slate-300">
               <span class="inline-flex items-center gap-1">Email <p-sortIcon field="email" /></span>
             </th>
-            <th class="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-slate-500">
+            <th class="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-800 dark:text-slate-200">
               Department
             </th>
             <th
               pSortableColumn="contactNumber"
-              class="cursor-pointer select-none px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-500 transition-colors hover:text-gray-800 dark:text-slate-500 dark:hover:text-slate-300">
+              class="cursor-pointer select-none px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-800 transition-colors hover:text-gray-800 dark:text-slate-200 dark:hover:text-slate-300">
               <span class="inline-flex items-center gap-1">Contact <p-sortIcon field="contactNumber" /></span>
             </th>
             <th
               pSortableColumn="authorities"
-              class="cursor-pointer select-none px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-500 transition-colors hover:text-gray-800 dark:text-slate-500 dark:hover:text-slate-300">
+              class="cursor-pointer select-none px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-800 transition-colors hover:text-gray-800 dark:text-slate-200 dark:hover:text-slate-300">
               <span class="inline-flex items-center gap-1">Role <p-sortIcon field="authorities" /></span>
             </th>
             <th
               pSortableColumn="status"
-              class="cursor-pointer select-none px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-500 transition-colors hover:text-gray-800 dark:text-slate-500 dark:hover:text-slate-300">
+              class="cursor-pointer select-none px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-800 transition-colors hover:text-gray-800 dark:text-slate-200 dark:hover:text-slate-300">
               <span class="inline-flex items-center gap-1">Status <p-sortIcon field="status" /></span>
             </th>
-            <th class="px-4 py-3.5 text-right text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-slate-500">
+            <th class="px-4 py-3.5 text-right text-[11px] font-semibold uppercase tracking-widest text-gray-800 dark:text-slate-200">
               Actions
             </th>
           </tr>
         </ng-template>
-
-        <!-- ── Body Rows ───────────────────────────────────────── -->
         <ng-template pTemplate="body" let-employee let-rowIndex="rowIndex">
           <tr class="group border-t border-gray-100 bg-white transition-colors hover:bg-gray-50/60 dark:border-slate-800 dark:bg-transparent dark:hover:bg-slate-800/25">
 
-            <!-- Name + coloured avatar -->
             <td class="px-4 py-3.5">
               <div class="flex items-center gap-3">
                 <span
@@ -131,13 +130,14 @@
                 </span>
               </div>
             </td>
+            <td class="px-4 py-3.5 !text-bold text-gray-800 dark:text-slate-200">
+              {{ employee.login }}
+            </td>
 
-            <!-- Email -->
-            <td class="px-4 py-3.5 text-sm text-gray-500 dark:text-slate-400">
+            <td class="px-4 py-3.5 text-sm text-gray-800 dark:text-slate-200">
               {{ employee.email }}
             </td>
 
-            <!-- Department -->
             <td class="px-4 py-3.5">
               @if (employee.department) {
                 <span class="inline-flex items-center rounded-md border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
@@ -148,30 +148,26 @@
               }
             </td>
 
-            <!-- Contact -->
-            <td class="px-4 py-3.5 text-sm text-gray-500 dark:text-slate-400">
+            <td class="px-4 py-3.5 text-sm text-gray-800 dark:text-slate-200">
               {{ employee.contactNumber || '—' }}
             </td>
-
-            <!-- Role badges -->
             <td class="px-4 py-3.5">
               <div class="flex flex-wrap gap-1">
                 @for (auth of employee.authorities; track auth.name) {
-                  <span class="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600 dark:border-slate-700/50 dark:bg-slate-800/60 dark:text-slate-400">
+                  <span class="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600 dark:border-slate-700/50 dark:bg-slate-800/60 dark:text-slate-200">
                     {{ auth.name }}
                   </span>
                 }
               </div>
             </td>
 
-            <!-- Status -->
             <td class="px-4 py-3.5">
               <span
                 class="inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-semibold"
                 [ngClass]="{
                   'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400': employee.status === 'ACTIVE',
                   'bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400': employee.status === 'PENDING',
-                  'bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-slate-400': employee.status === 'EXITED',
+                  'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-slate-200': employee.status === 'EXITED',
                   'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400': employee.status !== 'ACTIVE' && employee.status !== 'PENDING' && employee.status !== 'EXITED'
                 }">
                 <span
@@ -186,7 +182,6 @@
               </span>
             </td>
 
-            <!-- Actions -->
             <td class="px-4 py-3.5">
               <div class="flex items-center justify-start gap-1">
                 <button
@@ -207,17 +202,11 @@
                   </button>
                 }
 
-                <!-- <button
-                  type="button"
-                  class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-300 opacity-0 transition-all hover:bg-gray-100 hover:text-gray-600 group-hover:opacity-100 dark:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-300">
-                  <i class="pi pi-ellipsis-v text-xs"></i>
-                </button> -->
               </div>
             </td>
           </tr>
         </ng-template>
 
-        <!-- ── Empty State ─────────────────────────────────────── -->
         <ng-template pTemplate="emptymessage">
           <tr>
             <td colspan="8">
@@ -231,7 +220,7 @@
                   <button
                     type="button"
                     (click)="clearFilters()"
-                    class="mt-1 inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-medium text-gray-600 shadow-sm transition hover:border-gray-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-white">
+                    class="mt-1 inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-medium text-gray-600 shadow-sm transition hover:border-gray-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:text-white">
                     <i class="pi pi-times text-[10px]"></i> Clear Filters
                   </button>
                 } @else {
@@ -252,7 +241,6 @@
       </p-table>
     </div>
 
-<!-- ── Dialogs ─────────────────────────────────────────────────────── -->
 @if (studentDialog) {
   <app-employee-dialog
     [visible]="studentDialog"

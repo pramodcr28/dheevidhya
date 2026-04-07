@@ -153,17 +153,17 @@
 
             <p-tabs [value]="activeProfileIndex()" [scrollable]="true" (valueChange)="onTabChange($event)">
                 <p-tablist>
-                    @for (profileData of profilesList(); track profileData.profile.academicYear; let idx = $index) {
+                    @for (profileData of profilesList(); track profileData.latestAcademicYear.academicYear; let idx = $index) {
                         <p-tab [value]="idx">
                             <div class="flex items-center gap-2 px-1 whitespace-nowrap">
                                 <i class="pi pi-calendar-plus text-blue-600 text-sm"></i>
                                 <span class="font-semibold text-sm">
-                                    {{ profileData.profile.academicYear || 'New Year' }}
+                                    {{ profileData.latestAcademicYear.academicYear || 'New Year' }}
                                 </span>
                                 @if (idx === activeProfileIndex() && hasUnsavedChanges()) {
                                     <i class="pi pi-circle-fill text-orange-500 text-[8px]" title="Unsaved changes"> </i>
                                 }
-                                @if (profileData.profile.id == null) {
+                                @if (profileData.latestAcademicYear.id == null) {
                                     <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-bold uppercase"> NEW </span>
                                     <button type="button" class="ml-1 text-red-500 hover:text-red-700 p-1" (click)="deleteProfile(idx); $event.stopPropagation()">
                                         <i class="pi pi-times text-xs"></i>
@@ -180,7 +180,7 @@
                 </p-tablist>
 
                 <p-tabpanels>
-                    @for (profileData of profilesList(); track profileData.profile.academicYear; let idx = $index) {
+                    @for (profileData of profilesList(); track profileData.latestAcademicYear.academicYear; let idx = $index) {
                         <p-tabpanel [value]="idx">
                             <div class="p-4 md:p-6 space-y-6">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -205,21 +205,21 @@
                                         </p-datepicker>
                                         <small class="text-blue-600 block mt-1 text-xs">
                                             <i class="pi pi-info-circle text-[10px]"></i>
-                                            Year: <strong>{{ profilesList()[idx]?.profile?.academicYear || 'Not selected' }}</strong>
+                                            Year: <strong>{{ profilesList()[idx]?.latestAcademicYear?.academicYear || 'Not selected' }}</strong>
                                         </small>
                                         <small class="text-red-500" *ngIf="submitted && (!profilesList()[idx]?.dateRange || profilesList()[idx]?.dateRange?.length !== 2)"> Academic year range is required. </small>
                                     </div>
 
                                     <div>
                                         <label class="block font-semibold mb-1 text-sm ">Contact Number</label>
-                                        <input type="text" pInputText [(ngModel)]="profileData.profile.contactNumber" (ngModelChange)="markAsChanged()" class="w-full" />
+                                        <input type="text" pInputText [(ngModel)]="profileData.latestAcademicYear.contactNumber" (ngModelChange)="markAsChanged()" class="w-full" />
                                     </div>
 
                                     <div>
                                         <label class="block font-semibold mb-1 text-sm ">Gender *</label>
-                                        <p-select [options]="genderOptions" [(ngModel)]="profileData.profile.gender" (onChange)="markAsChanged()" optionLabel="label" optionValue="value" placeholder="Select Gender" [style]="{ width: '100%' }">
+                                        <p-select [options]="genderOptions" [(ngModel)]="profileData.latestAcademicYear.gender" (onChange)="markAsChanged()" optionLabel="label" optionValue="value" placeholder="Select Gender" [style]="{ width: '100%' }">
                                         </p-select>
-                                        <small class="text-red-500" *ngIf="submitted && !profileData.profile.gender"> Gender is required. </small>
+                                        <small class="text-red-500" *ngIf="submitted && !profileData.latestAcademicYear.gender"> Gender is required. </small>
                                     </div>
 
                                     @if (!commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
@@ -248,7 +248,7 @@
                                                         [options]="associatedSubjects"
                                                         optionLabel="name"
                                                         optionValue="id"
-                                                        [(ngModel)]="profileData.profile.subjectIds"
+                                                        [(ngModel)]="profileData.latestAcademicYear.subjectIds"
                                                         (onChange)="markAsChanged()"
                                                         placeholder="Select Subjects"
                                                         [style]="{ width: '100%' }"
@@ -280,7 +280,7 @@
                                         <div class="sm:col-span-2 border-b border-blue-100 pb-1">
                                             <span >Academic Year:</span>
                                             <span class="ml-2 font-bold ">
-                                                {{ profileData.profile.academicYear || 'Not selected' }}
+                                                {{ profileData.latestAcademicYear.academicYear || 'Not selected' }}
                                             </span>
                                         </div>
                                         <div>
@@ -297,11 +297,11 @@
                                         </div>
                                         <div>
                                             <span >Gender:</span>
-                                            <span class="ml-2 font-medium">{{ profileData.profile.gender || 'Not set' }}</span>
+                                            <span class="ml-2 font-medium">{{ profileData.latestAcademicYear.gender || 'Not set' }}</span>
                                         </div>
                                         <div>
                                             <span >Contact:</span>
-                                            <span class="ml-2 font-medium">{{ profileData.profile.contactNumber || 'N/A' }}</span>
+                                            <span class="ml-2 font-medium">{{ profileData.latestAcademicYear.contactNumber || 'N/A' }}</span>
                                         </div>
                                         <div class="sm:col-span-2">
                                             <span >Departments:</span>
@@ -309,7 +309,7 @@
                                         </div>
                                         <div class="sm:col-span-2">
                                             <span >Subjects:</span>
-                                            <span class="ml-2 font-medium "> {{ profileData.profile.subjectIds?.length || 0 }} selected </span>
+                                            <span class="ml-2 font-medium "> {{ profileData.latestAcademicYear.subjectIds?.length || 0 }} selected </span>
                                         </div>
                                     </div>
                                 </div>

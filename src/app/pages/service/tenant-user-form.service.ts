@@ -16,7 +16,6 @@ type TenantUserFormRawValue = FormValueOf<ITenantUser>;
 type TenantUserFormGroupContent = {
     id: FormControl<TenantUserFormRawValue['id'] | NewTenantUser['id']>;
     login: FormControl<TenantUserFormRawValue['login']>;
-    passwordHash: FormControl<TenantUserFormRawValue['passwordHash']>;
     firstName: FormControl<TenantUserFormRawValue['firstName']>;
     lastName: FormControl<TenantUserFormRawValue['lastName']>;
     email: FormControl<TenantUserFormRawValue['email']>;
@@ -34,16 +33,9 @@ type TenantUserFormGroupContent = {
     postalCode: FormControl<TenantUserFormRawValue['postalCode']>;
     latitude: FormControl<TenantUserFormRawValue['latitude']>;
     longitude: FormControl<TenantUserFormRawValue['longitude']>;
-    activationKey: FormControl<TenantUserFormRawValue['activationKey']>;
-    resetKey: FormControl<TenantUserFormRawValue['resetKey']>;
-    resetDate: FormControl<TenantUserFormRawValue['resetDate']>;
-    isTenantUser: FormControl<TenantUserFormRawValue['isTenantUser']>;
     authorities: FormControl<TenantUserFormRawValue['authorities']>;
     branchId: FormControl<TenantUserFormRawValue['branchId']>;
     status: FormControl<TenantUserFormRawValue['status']>;
-    sectionName: FormControl<TenantUserFormRawValue['sectionName']>;
-    className: FormControl<TenantUserFormRawValue['className']>;
-    deptName: FormControl<TenantUserFormRawValue['deptName']>;
 };
 
 export type TenantUserFormGroup = FormGroup<TenantUserFormGroupContent>;
@@ -65,18 +57,12 @@ export class TenantUserFormService {
             login: new FormControl(tenantUserRawValue.login, {
                 validators: [Validators.required]
             }),
-            passwordHash: new FormControl(tenantUserRawValue.passwordHash, {
-                validators: [Validators.required]
-            }),
             firstName: new FormControl(tenantUserRawValue.firstName, {
                 validators: [Validators.required]
             }),
             lastName: new FormControl(tenantUserRawValue.lastName),
             email: new FormControl(tenantUserRawValue.email),
             imageUrl: new FormControl(tenantUserRawValue.imageUrl),
-            sectionName: new FormControl(tenantUserRawValue.sectionName),
-            className: new FormControl(tenantUserRawValue.className),
-            deptName: new FormControl(tenantUserRawValue.deptName),
 
             activated: new FormControl(tenantUserRawValue.activated),
             langKey: new FormControl(tenantUserRawValue.langKey),
@@ -101,10 +87,6 @@ export class TenantUserFormService {
             }),
             latitude: new FormControl(tenantUserRawValue.latitude),
             longitude: new FormControl(tenantUserRawValue.longitude),
-            activationKey: new FormControl(tenantUserRawValue.activationKey),
-            resetKey: new FormControl(tenantUserRawValue.resetKey),
-            resetDate: new FormControl(tenantUserRawValue.resetDate),
-            isTenantUser: new FormControl(tenantUserRawValue.isTenantUser),
             authorities: new FormControl(tenantUserRawValue.authorities ?? []),
             branchId: new FormControl(tenantUserRawValue.branchId),
             status: new FormControl(tenantUserRawValue.status ?? UserStatus.ACTIVE)

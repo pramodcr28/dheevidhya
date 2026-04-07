@@ -29,7 +29,7 @@ import { TenantUserFormService } from '../../service/tenant-user-form.service';
 import { UserService } from '../../service/user.service';
 
 interface ProfileUIData {
-    profile: IProfileConfig;
+    latestAcademicYear: IProfileConfig;
     selectedDepartment: any;
     selectedClass: any;
     selectedSection: any;
@@ -131,7 +131,7 @@ export class StudentDialogComponent {
             if (!currentList[index]) return;
 
             const currentItem = currentList[index];
-            const assets = this.selectDepartmentAssets(this.associatedDepartments, currentItem.profile);
+            const assets = this.selectDepartmentAssets(this.associatedDepartments, currentItem.latestAcademicYear);
 
             this.profilesList.update((list) =>
                 list.map((item, i) =>
@@ -195,7 +195,7 @@ export class StudentDialogComponent {
 
         this.profilesList.set([
             {
-                profile: newProfile,
+                latestAcademicYear: newProfile,
                 selectedDepartment: null,
                 selectedClass: null,
                 selectedSection: null,
@@ -309,7 +309,7 @@ export class StudentDialogComponent {
         }
 
         const currentYear = new Date().getFullYear();
-        const existingYears = this.profilesList().map((p) => p.profile.academicYear);
+        const existingYears = this.profilesList().map((p) => p.latestAcademicYear.academicYear);
 
         let nextYear = currentYear;
         let startDate = new Date(nextYear, 3, 1);
@@ -341,7 +341,7 @@ export class StudentDialogComponent {
 
         const profiles: ProfileUIData[] = [
             {
-                profile: newProfile,
+                latestAcademicYear: newProfile,
                 selectedDepartment: null,
                 selectedClass: null,
                 selectedSection: null,
@@ -355,12 +355,12 @@ export class StudentDialogComponent {
         });
 
         this.profilesList.set(profiles);
-        const newIndex = profiles.findIndex((p) => p.profile === newProfile);
+        const newIndex = profiles.findIndex((p) => p.latestAcademicYear === newProfile);
         this.activeProfileIndex.set(newIndex);
         this.saveOriginalProfileData();
     }
 
-    hasNewProfile = computed(() => this.profilesList().some((p) => p.profile?.id == null));
+    hasNewProfile = computed(() => this.profilesList().some((p) => p.latestAcademicYear?.id == null));
 
     deleteProfile(profileIndex: number): void {
         if (this.profilesList().length === 1) {
@@ -375,11 +375,11 @@ export class StudentDialogComponent {
         const profileData = this.profilesList()[profileIndex];
 
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete the profile for ${profileData.profile.academicYear}?`,
+            message: `Are you sure you want to delete the profile for ${profileData.latestAcademicYear.academicYear}?`,
             header: 'Delete Confirmation',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                if (!profileData.profile.id) {
+                if (!profileData.latestAcademicYear.id) {
                     const profiles = this.profilesList().filter((_, i) => i !== profileIndex);
                     this.profilesList.set(profiles);
 
@@ -387,9 +387,9 @@ export class StudentDialogComponent {
                         this.activeProfileIndex.set(Math.max(0, profiles.length - 1));
                     }
                 } else {
-                    this.studentProfileService.delete(profileData.profile.id).subscribe({
+                    this.studentProfileService.delete(profileData.latestAcademicYear.id).subscribe({
                         next: () => {
-                            this.loadStudentProfiles(profileData.profile.userId);
+                            this.loadStudentProfiles(profileData.latestAcademicYear.userId);
                         }
                     });
                 }
@@ -421,7 +421,7 @@ export class StudentDialogComponent {
         const endDate = new Date(endYear, 2, 31);
         const academicYear = this.formatAcademicYear(startDate, endDate);
 
-        const isDuplicate = this.profilesList().some((p, i) => i !== profileIndex && p.profile.academicYear === academicYear);
+        const isDuplicate = this.profilesList().some((p, i) => i !== profileIndex && p.latestAcademicYear.academicYear === academicYear);
 
         if (isDuplicate) {
             this.messageService.add({
@@ -438,8 +438,8 @@ export class StudentDialogComponent {
             updated[profileIndex] = {
                 ...updated[profileIndex],
                 dateRange: [startDate, endDate],
-                profile: {
-                    ...updated[profileIndex].profile,
+                latestAcademicYear: {
+                    ...updated[profileIndex].latestAcademicYear,
                     academicYear
                 }
             };
@@ -459,7 +459,7 @@ export class StudentDialogComponent {
         if (currentProfile) {
             this.originalProfileData = JSON.parse(JSON.stringify(currentProfile));
         }
-        this.getAssociatedDepartmentsOnAcademicyear(currentProfile.profile.academicYear);
+        this.getAssociatedDepartmentsOnAcademicyear(currentProfile.latestAcademicYear.academicYear);
         this.hasUnsavedChanges.set(false);
     }
 
@@ -522,30 +522,30 @@ export class StudentDialogComponent {
         const updatedStudent = this.tenantUserFormService.getTenantUser(this.studentForm);
         let isStudentProfile = updatedStudent.authorities && updatedStudent.authorities.filter((auth) => auth.name === 'STUDENT').length != 0;
         if (!updatedStudent.id) {
-            updatedStudent.passwordHash = 'User@123';
+            // updatedStudent.passwordHash = 'User@123';
             updatedStudent.branchId = this.commonService.branch?.id || null;
             updatedStudent.status = UserStatus.ACTIVE;
             if (isStudentProfile) {
-                updatedStudent.status = profileData.profile.status || UserStatus.ACTIVE;
-                updatedStudent.sectionName = profileData.selectedSection?.name || null;
-                updatedStudent.className = profileData.selectedClass?.name || null;
-                updatedStudent.deptName = profileData.selectedDepartment?.department?.name || null;
+                updatedStudent.status = profileData.latestAcademicYear.status || UserStatus.ACTIVE;
+                // updatedStudent.sectionName = profileData.selectedSection?.name || null;
+                // updatedStudent.className = profileData.selectedClass?.name || null;
+                // updatedStudent.deptName = profileData.selectedDepartment?.department?.name || null;
             }
         } else {
             let latestDateRange = this.profilesList()[0].dateRange;
             let currentDateRange = profileData.dateRange;
             if (isStudentProfile && latestDateRange[0].getTime() === currentDateRange[0].getTime()) {
-                updatedStudent.sectionName = profileData.selectedSection?.name || null;
-                updatedStudent.className = profileData.selectedClass?.name || null;
-                updatedStudent.deptName = profileData.selectedDepartment?.department?.name || null;
-                updatedStudent.status = profileData.profile.status || UserStatus.ACTIVE;
+                // updatedStudent.sectionName = profileData.selectedSection?.name || null;
+                // updatedStudent.className = profileData.selectedClass?.name || null;
+                // updatedStudent.deptName = profileData.selectedDepartment?.department?.name || null;
+                updatedStudent.status = profileData.latestAcademicYear.status || UserStatus.ACTIVE;
             }
         }
 
         const profile: IProfileConfig = {
-            ...profileData.profile,
+            ...profileData.latestAcademicYear,
             userId: updatedStudent.id?.toString() || null,
-            academicYear: profileData.profile.academicYear,
+            academicYear: profileData.latestAcademicYear.academicYear,
             username: updatedStudent.login,
             email: updatedStudent.email,
             fullName: `${updatedStudent.firstName} ${updatedStudent.lastName}`,
@@ -587,9 +587,9 @@ export class StudentDialogComponent {
             return;
         }
 
-        if (!updatedStudent.passwordHash || updatedStudent.passwordHash === 'User@123') {
-            updatedStudent.passwordHash = null as any;
-        }
+        // if (!updatedStudent.passwordHash || updatedStudent.passwordHash === 'User@123') {
+        //     updatedStudent.passwordHash = null as any;
+        // }
 
         this.saveUser.emit(updatedStudent);
 
@@ -607,7 +607,7 @@ export class StudentDialogComponent {
                     sectionId: profileData.selectedSection?.id ?? null,
                     sectionName: profileData.selectedSection?.name ?? null,
                     className: profileData.selectedClass?.name ?? null,
-                    guardianId: profileData.profile.roles?.student?.guardianId || null
+                    guardianId: profileData.latestAcademicYear.roles?.student?.guardianId || null
                 } as IStudentProfile;
             }
         });

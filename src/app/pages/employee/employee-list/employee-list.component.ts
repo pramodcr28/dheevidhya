@@ -21,6 +21,7 @@ import { CommonService } from '../../../core/services/common.service';
 import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { MasterDepartmentService } from '../../../core/services/master-department.service';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { SortService } from '../../../shared/sort';
 import { IProfileConfig, ITenantAuthority, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
@@ -46,7 +47,8 @@ import { EmployeeDialogComponent } from './../employee-dialog/employee-dialog.co
         IconFieldModule,
         ConfirmDialogModule,
         EmployeeDialogComponent,
-        MultiSelectModule
+        MultiSelectModule,
+        ConfirmationDialogComponent
     ],
     templateUrl: './employee-list.component.html',
     styles: ``,
@@ -179,14 +181,12 @@ export class EmployeeListComponent {
     openNew() {
         this.employee = {
             authorities: [],
-            isTenantUser: true,
             activated: true,
             imageUrl: '',
             email: '',
             firstName: '',
             lastName: '',
-            login: '',
-            passwordHash: 'User@123'
+            login: ''
         } as NewTenantUser;
         this.submitted = false;
         this.studentDialog = true;
@@ -198,10 +198,10 @@ export class EmployeeListComponent {
         this.loader.hide();
     }
 
-    onEmployeeSave(data: { user: NewTenantUser | ITenantUser; profile: IProfileConfig }) {
+    onEmployeeSave(data: { user: NewTenantUser | ITenantUser; latestAcademicYear: IProfileConfig }) {
         this.submitted = true;
 
-        if (!data.profile) {
+        if (!data.latestAcademicYear) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Warning',
@@ -212,16 +212,14 @@ export class EmployeeListComponent {
 
         this.loader.show('Saving Staff Data');
 
-        if (data.profile.roles) {
-            for (const role in data.profile.roles) {
-                if (data.profile.roles[role] == null) delete data.profile.roles[role];
+        if (data.latestAcademicYear.roles) {
+            for (const role in data.latestAcademicYear.roles) {
+                if (data.latestAcademicYear.roles[role] == null) delete data.latestAcademicYear.roles[role];
             }
         }
-        data.profile.profileType = 'STAFF';
+        data.latestAcademicYear.profileType = 'STAFF';
 
-        if (!data.user.id) data.user.passwordHash = 'User@123';
-
-        this.employeeService.create({ user: data.user, profile: data.profile }).subscribe((res: any) => {
+        this.employeeService.create({ user: data.user, latestAcademicYear: data.latestAcademicYear }).subscribe((res: any) => {
             if (res && res.body.status === 200) {
                 this.hideDialog();
                 this.load(true);
@@ -279,7 +277,7 @@ export class EmployeeListComponent {
         this.confirmationService.confirm({
             message: `Are you sure you want to exit ${employee.firstName} ${employee.lastName}?`,
             header: 'Exit Confirmation',
-            icon: 'pi pi-exclamation-triangle',
+            icon: 'pi pi-question-circle',
             accept: () => {
                 this.loader.show('Exiting Staff');
                 this.employeeService.delete(+employee.id!, null).subscribe({

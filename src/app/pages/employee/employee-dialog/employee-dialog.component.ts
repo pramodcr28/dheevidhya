@@ -31,7 +31,7 @@ import { UserService } from '../../service/user.service';
 import { CommonService } from './../../../core/services/common.service';
 
 interface ProfileUIData {
-    profile: IProfileConfig;
+    latestAcademicYear: IProfileConfig;
     selectedDepartments: any[];
     dateRange: Date[] | null;
 }
@@ -87,7 +87,7 @@ export class EmployeeDialogComponent {
         return this._employee;
     }
 
-    @Output() save = new EventEmitter<{ user: NewTenantUser | ITenantUser; profile: IProfileConfig }>();
+    @Output() save = new EventEmitter<{ user: NewTenantUser | ITenantUser; latestAcademicYear: IProfileConfig }>();
     @Output() saveUser = new EventEmitter<NewTenantUser | ITenantUser>();
     @Output() cancel = new EventEmitter<void>();
 
@@ -171,7 +171,7 @@ export class EmployeeDialogComponent {
 
         this.profilesList.set([
             {
-                profile: newProfile,
+                latestAcademicYear: newProfile,
                 selectedDepartments: [],
                 dateRange: [startDate, endDate]
             }
@@ -187,11 +187,11 @@ export class EmployeeDialogComponent {
                 this.initializeNewEmployee();
             } else {
                 const profilesUIData: ProfileUIData[] = profiles
-                    .map((profile: IProfileConfig) => ({
-                        profile,
-                        selectedDepartments: profile.departments ? this.associatedDepartments.filter((d) => profile.departments?.includes(d.id)) : [],
+                    .map((latestAcademicYear: IProfileConfig) => ({
+                        latestAcademicYear,
+                        selectedDepartments: latestAcademicYear.departments ? this.associatedDepartments.filter((d) => latestAcademicYear.departments?.includes(d.id)) : [],
                         departmentSpecificSubjects: [],
-                        dateRange: this.parseAcademicYear(profile.academicYear || '')
+                        dateRange: this.parseAcademicYear(latestAcademicYear.academicYear || '')
                     }))
                     .sort((a, b) => {
                         const aTime = a.dateRange?.[0]?.getTime() ?? 0;
@@ -270,7 +270,7 @@ export class EmployeeDialogComponent {
         }
 
         const currentYear = new Date().getFullYear();
-        const existingYears = this.profilesList().map((p) => p.profile.academicYear);
+        const existingYears = this.profilesList().map((p) => p.latestAcademicYear.academicYear);
 
         let nextYear = currentYear;
         let startDate = new Date(nextYear, 3, 1);
@@ -300,9 +300,9 @@ export class EmployeeDialogComponent {
             status: UserStatus.ACTIVE
         };
 
-        const profiles: ProfileUIData[] = [
+        const latestAcademicYear: ProfileUIData[] = [
             {
-                profile: newProfile,
+                latestAcademicYear: newProfile,
                 selectedDepartments: [],
                 departmentSpecificSubjects: [],
                 dateRange: [startDate, endDate]
@@ -314,16 +314,16 @@ export class EmployeeDialogComponent {
             return bTime - aTime;
         });
 
-        this.profilesList.set(profiles);
+        this.profilesList.set(latestAcademicYear);
 
-        const newIndex = profiles.findIndex((p) => p.profile === newProfile);
+        const newIndex = latestAcademicYear.findIndex((p) => p.latestAcademicYear === newProfile);
 
         this.activeProfileIndex.set(newIndex);
 
         this.saveOriginalProfileData();
     }
 
-    hasNewProfile = computed(() => this.profilesList().some((p) => p.profile?.id == null));
+    hasNewProfile = computed(() => this.profilesList().some((p) => p.latestAcademicYear?.id == null));
 
     deleteProfile(profileIndex: number): void {
         if (this.profilesList().length === 1) {
@@ -338,11 +338,11 @@ export class EmployeeDialogComponent {
         const profileData = this.profilesList()[profileIndex];
 
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete the profile for ${profileData.profile.academicYear}?`,
+            message: `Are you sure you want to delete the profile for ${profileData.latestAcademicYear.academicYear}?`,
             header: 'Delete Confirmation',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                if (!profileData.profile.id) {
+                if (!profileData.latestAcademicYear.id) {
                     const profiles = this.profilesList().filter((_, i) => i !== profileIndex);
                     this.profilesList.set(profiles);
 
@@ -350,9 +350,9 @@ export class EmployeeDialogComponent {
                         this.activeProfileIndex.set(Math.max(0, profiles.length - 1));
                     }
                 } else {
-                    this.employeeProfileService.delete(profileData.profile.id).subscribe({
+                    this.employeeProfileService.delete(profileData.latestAcademicYear.id).subscribe({
                         next: () => {
-                            this.loadEmployeeProfiles(profileData.profile.userId);
+                            this.loadEmployeeProfiles(profileData.latestAcademicYear.userId);
                         }
                     });
                 }
@@ -376,7 +376,7 @@ export class EmployeeDialogComponent {
     }
 
     onDepartmentChange(profileData) {
-        profileData.profile.subjectIds = [];
+        profileData.latestAcademicYear.subjectIds = [];
     }
 
     onAcademicYearChange(profileIndex: number, value: Date[]): void {
@@ -403,7 +403,7 @@ export class EmployeeDialogComponent {
         const endDate = new Date(endYear, 2, 31); // Mar 31
         const academicYear = this.formatAcademicYear(startDate, endDate);
 
-        const isDuplicate = this.profilesList().some((p, i) => i !== profileIndex && p.profile.academicYear === academicYear);
+        const isDuplicate = this.profilesList().some((p, i) => i !== profileIndex && p.latestAcademicYear.academicYear === academicYear);
 
         if (isDuplicate) {
             this.messageService.add({
@@ -421,12 +421,12 @@ export class EmployeeDialogComponent {
             updated[profileIndex] = {
                 ...updated[profileIndex],
                 dateRange: [startDate, endDate],
-                profile: {
-                    ...updated[profileIndex].profile,
+                latestAcademicYear: {
+                    ...updated[profileIndex].latestAcademicYear,
                     academicYear: this.formatAcademicYear(startDate, endDate)
                 }
             };
-            this.getAssociatedDepartmentsOnAcademicyear(updated[profileIndex].profile.academicYear);
+            this.getAssociatedDepartmentsOnAcademicyear(updated[profileIndex].latestAcademicYear.academicYear);
             return updated;
         });
 
@@ -442,7 +442,7 @@ export class EmployeeDialogComponent {
         if (currentProfile) {
             this.originalProfileData = JSON.parse(JSON.stringify(currentProfile));
         }
-        this.getAssociatedDepartmentsOnAcademicyear(currentProfile.profile.academicYear);
+        this.getAssociatedDepartmentsOnAcademicyear(currentProfile.latestAcademicYear.academicYear);
         this.hasUnsavedChanges.set(false);
     }
 
@@ -472,7 +472,6 @@ export class EmployeeDialogComponent {
 
     onSave(): void {
         this.submitted = true;
-
         if (this.employeeForm.invalid) {
             this.messageService.add({
                 severity: 'warn',
@@ -497,28 +496,28 @@ export class EmployeeDialogComponent {
         const updatedEmployee = this.tenantUserFormService.getTenantUser(this.employeeForm);
 
         if (!updatedEmployee.id) {
-            updatedEmployee.passwordHash = 'User@123';
+            // updatedEmployee.passwordHash = 'User@123';
             if (!this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
                 updatedEmployee.branchId = this.commonService.branch?.id || null;
             }
         }
 
-        const profile: IProfileConfig = {
-            ...profileData.profile,
+        const latestAcademicYear: IProfileConfig = {
+            ...profileData.latestAcademicYear,
             userId: updatedEmployee.id?.toString() || null,
-            academicYear: profileData.profile.academicYear,
+            academicYear: profileData.latestAcademicYear.academicYear,
             username: updatedEmployee.login,
             email: updatedEmployee.email,
             status: updatedEmployee.status,
             fullName: `${updatedEmployee.firstName} ${updatedEmployee.lastName}`,
             departments: profileData.selectedDepartments.map((d) => d.id),
-            subjectIds: profileData.profile.subjectIds || [],
+            subjectIds: profileData.latestAcademicYear.subjectIds || [],
             roles: this.generateRoleConfig(updatedEmployee.authorities!, profileData)
         };
 
         this.save.emit({
             user: updatedEmployee,
-            profile
+            latestAcademicYear
         });
 
         this.hasUnsavedChanges.set(false);
@@ -550,9 +549,9 @@ export class EmployeeDialogComponent {
             return;
         }
 
-        if (!updatedEmployee.passwordHash || updatedEmployee.passwordHash === 'User@123') {
-            updatedEmployee.passwordHash = null as any;
-        }
+        // if (!updatedEmployee.passwordHash || updatedEmployee.passwordHash === 'User@123') {
+        //     updatedEmployee.passwordHash = null as any;
+        // }
 
         this.saveUser.emit(updatedEmployee);
 
@@ -572,8 +571,8 @@ export class EmployeeDialogComponent {
                 list
                     .map((profileUI) => ({
                         ...profileUI,
-                        selectedDepartments: profileUI.profile.departments ? this.associatedDepartments.filter((d) => profileUI.profile.departments?.includes(d.id)) : [],
-                        dateRange: this.parseAcademicYear(profileUI.profile.academicYear || '')
+                        selectedDepartments: profileUI.latestAcademicYear.departments ? this.associatedDepartments.filter((d) => profileUI.latestAcademicYear.departments?.includes(d.id)) : [],
+                        dateRange: this.parseAcademicYear(profileUI.latestAcademicYear.academicYear || '')
                     }))
                     .sort((a, b) => (b.dateRange?.[0]?.getTime() ?? 0) - (a.dateRange?.[0]?.getTime() ?? 0))
             );
@@ -588,8 +587,8 @@ export class EmployeeDialogComponent {
         authorities?.forEach((authority) => {
             const roleName = authority?.name;
 
-            if (profileData.profile.roles?.[roleName.toLowerCase()]) {
-                roleConfig[roleName.toLowerCase()] = profileData.profile.roles[roleName.toLowerCase()];
+            if (profileData.latestAcademicYear.roles?.[roleName.toLowerCase()]) {
+                roleConfig[roleName.toLowerCase()] = profileData.latestAcademicYear.roles[roleName.toLowerCase()];
                 return;
             }
 
@@ -603,7 +602,7 @@ export class EmployeeDialogComponent {
                 case 'VICE_PRINCIPAL':
                 case 'SUBSTITUTE_TEACHER':
                     roleConfig[roleName.toLowerCase().replace(/_/g, '')] = {
-                        subjectIds: profileData.profile.subjectIds || []
+                        subjectIds: profileData.latestAcademicYear.subjectIds || []
                     };
                     break;
                 case 'SPORTS_COACH':
@@ -642,10 +641,7 @@ export class EmployeeDialogComponent {
         if (match) {
             const startYear = parseInt(match[1]);
             const endYear = parseInt(match[2]);
-            return [
-                new Date(startYear, 3, 1), // Apr 1
-                new Date(endYear, 2, 31) // Mar 31
-            ];
+            return [new Date(startYear, 3, 1), new Date(endYear, 2, 31)];
         }
         return null;
     }
