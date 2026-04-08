@@ -1,30 +1,39 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, HostBinding, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AppConfigurator } from '../core/layout/app.configurator';
+import { LayoutService } from '../core/services/layout.service';
+import { setTheme } from '../core/store/user-profile/user-profile.actions';
+import { UserProfileState } from '../core/store/user-profile/user-profile.reducer';
 
 @Component({
     selector: 'app-welcome-page',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, RouterLink, AppConfigurator],
     templateUrl: './welcome-page.component.html',
     styleUrls: ['./welcome-page.component.scss']
 })
 export class WelcomePageComponent implements OnInit, OnDestroy {
     isScrolled = false;
     mobileMenuOpen = false;
+    theme: 'light' | 'dark' = 'light';
 
+    @HostBinding('class.dark-theme') get darkTheme() {
+        return this.theme === 'dark';
+    }
+    private store = inject(Store<{ userProfile: UserProfileState }>);
     private observer!: IntersectionObserver;
     private sectionObserver!: IntersectionObserver;
     private navLinks: NodeListOf<HTMLAnchorElement> | null = null;
-
+    layoutService = inject(LayoutService);
     constructor(private el: ElementRef) {}
 
-    // ── Navbar scroll ──────────────────────────────────────────
     @HostListener('window:scroll')
     onWindowScroll(): void {
         this.isScrolled = window.scrollY > 30;
     }
 
-    // ── Mobile menu ────────────────────────────────────────────
     toggleMobileMenu(): void {
         this.mobileMenuOpen = !this.mobileMenuOpen;
     }
@@ -33,9 +42,24 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
         this.mobileMenuOpen = false;
     }
 
-    // ── Lifecycle ──────────────────────────────────────────────
+    toggleTheme(): void {
+        const isDark = !this.layoutService.layoutConfig().darkTheme;
+        // Update UI
+        this.theme = isDark ? 'dark' : 'light';
+        this.layoutService.layoutConfig.update((state) => ({
+            ...state,
+            darkTheme: isDark
+        }));
+
+        // Save in store
+        this.store.dispatch(
+            setTheme({
+                theme: isDark ? 'dark' : 'light'
+            })
+        );
+    }
+
     ngOnInit(): void {
-        // Slight delay so the view has rendered before we query it
         setTimeout(() => this.initObservers(), 100);
     }
 
@@ -47,7 +71,6 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
     private initObservers(): void {
         const host: HTMLElement = this.el.nativeElement;
 
-        // ── Intersection Observer for scroll animations ──
         this.observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
@@ -61,7 +84,6 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
 
         host.querySelectorAll<HTMLElement>('.fade-up, .slide-left, .slide-right').forEach((el) => this.observer.observe(el));
 
-        // ── Active nav-link highlighting ──
         this.navLinks = host.querySelectorAll<HTMLAnchorElement>('nav a[href^="#"]');
 
         this.sectionObserver = new IntersectionObserver(
@@ -70,8 +92,9 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
                     if (entry.isIntersecting && this.navLinks) {
                         this.navLinks.forEach((link) => {
                             link.style.color = '';
-                            if (link.getAttribute('href') === '#' + entry.target.id) {
-                                link.style.color = '#E8651A'; // --orange
+                            const fragment = link.getAttribute('fragment');
+                            if (fragment && fragment === entry.target.id) {
+                                link.style.color = '#E8651A';
                             }
                         });
                     }

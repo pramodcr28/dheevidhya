@@ -1,28 +1,38 @@
-<!-- ══════════════════════════════════════════════
-     NAVBAR
-══════════════════════════════════════════════ -->
+
+<app-configurator></app-configurator>
 <nav id="navbar" [class.scrolled]="isScrolled" class="py-4 px-6 lg:px-12">
   <div class="max-w-7xl mx-auto flex items-center justify-between">
 
     <!-- Logo -->
-    <a href="#" class="flex items-center gap-2 flex-shrink-0">
-      <span class="font-display font-extrabold text-2xl tracking-tight brand-color">Dheevidhya</span>
+    <a [routerLink]="['/']" class="flex items-center gap-2 flex-shrink-0">
+      <div>
+        <img src="../../../../assets/images/logo.png" class="white-logo" width="220" alt="Dheevidhya Logo" />
+        <img src="../../../../assets/images/logo-white.png" class="dark-logo" width="220" alt="Dheevidhya Logo" />
+      </div>
     </a>
 
     <!-- Desktop Nav -->
     <div class="hidden lg:flex items-center gap-8 text-sm font-medium nav-text">
-      <a href="#features" class="nav-link">Features</a>
-      <a href="#modules"  class="nav-link">Modules</a>
-      <a href="#boarding" class="nav-link">Boarding</a>
-      <a href="#billing"  class="nav-link">Billing</a>
-      <a href="#roadmap"  class="nav-link">Roadmap</a>
-      <a href="#ai"       class="nav-link">AI Features</a>
+      <a [routerLink]="[]" fragment="features" class="nav-link">Features</a>
+      <a [routerLink]="[]" fragment="modules" class="nav-link">Modules</a>
+      <a [routerLink]="[]" fragment="boarding" class="nav-link">Boarding</a>
+      <a [routerLink]="[]" fragment="billing" class="nav-link">Billing</a>
+      <a [routerLink]="[]" fragment="roadmap" class="nav-link">Roadmap</a>
+      <a [routerLink]="[]" fragment="ai" class="nav-link">AI Features</a>
     </div>
 
-    <!-- CTA -->
+    <!-- CTA + Theme Toggle -->
     <div class="hidden lg:flex items-center gap-3">
-      <a href="#" class="btn-outline text-sm py-2 px-5">Login</a>
-      <a href="#contact" class="btn-orange text-sm py-2 px-5">Book a Demo</a>
+      <a [routerLink]="['/auth/login']" class="btn-outline text-sm py-2 px-5">Login</a>
+      <a [routerLink]="[]" fragment="contact" class="btn-orange text-sm py-2 px-5">Book a Demo</a>
+      <button (click)="toggleTheme()" class="theme-toggle p-2 rounded-xl" aria-label="Toggle theme">
+        <svg *ngIf="theme === 'light'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+        <svg *ngIf="theme === 'dark'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </button>
     </div>
 
     <!-- Hamburger -->
@@ -36,15 +46,23 @@
 
   <!-- Mobile Menu -->
   <div [class.hidden]="!mobileMenuOpen" class="lg:hidden mt-4 pb-4 px-4 space-y-3 border-t mobile-menu-border">
-    <a href="#features" (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Features</a>
-    <a href="#modules"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Modules</a>
-    <a href="#boarding" (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Boarding</a>
-    <a href="#billing"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Billing</a>
-    <a href="#roadmap"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Roadmap</a>
-    <a href="#ai"       (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">AI Features</a>
+    <a [routerLink]="[]" fragment="features" (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Features</a>
+    <a [routerLink]="[]" fragment="modules"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Modules</a>
+    <a [routerLink]="[]" fragment="boarding" (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Boarding</a>
+    <a [routerLink]="[]" fragment="billing"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Billing</a>
+    <a [routerLink]="[]" fragment="roadmap"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Roadmap</a>
+    <a [routerLink]="[]" fragment="ai"       (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">AI Features</a>
     <div class="flex gap-3 pt-2">
-      <a href="#" class="btn-outline text-sm py-2 px-4">Login</a>
-      <a href="#contact" (click)="closeMobileMenu()" class="btn-orange text-sm py-2 px-4">Book a Demo</a>
+      <a [routerLink]="['/auth/login']" class="btn-outline text-sm py-2 px-4">Login</a>
+      <a [routerLink]="[]" fragment="contact" (click)="closeMobileMenu()" class="btn-orange text-sm py-2 px-4">Book a Demo</a>
+      <button (click)="toggleTheme(); closeMobileMenu()" class="theme-toggle p-2 rounded-xl" aria-label="Toggle theme">
+        <svg *ngIf="theme === 'light'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+        <svg *ngIf="theme === 'dark'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </button>
     </div>
   </div>
 </nav>
@@ -55,42 +73,42 @@
 ══════════════════════════════════════════════ -->
 <section class="hero-gradient relative min-h-screen flex items-center overflow-hidden pt-20">
 
-  <div class="hero-blob w-96 h-96 blob-orange" style="top:-80px;right:-60px;"></div>
-  <div class="hero-blob w-64 h-64 blob-peach" style="bottom:60px;left:-40px;animation-delay:3s;"></div>
+  <div class="hero-blob w-64 h-64 md:w-96 md:h-96 blob-orange" style="top:-80px;right:-60px;"></div>
+  <div class="hero-blob w-48 h-48 md:w-64 md:h-64 blob-peach" style="bottom:60px;left:-40px;animation-delay:3s;"></div>
 
-  <div class="max-w-7xl mx-auto px-6 lg:px-12 py-20 grid lg:grid-cols-2 gap-16 items-center w-full">
+  <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12 md:py-20 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full">
 
     <!-- Text -->
-    <div class="space-y-7 fade-up">
+    <div class="space-y-6 md:space-y-7 fade-up">
       <span class="tag">🎓 Education SaaS Platform</span>
-      <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight hero-heading">
+      <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight hero-heading">
         Administration<br/>
         <span class="brand-color">Handled.</span><br/>
         Excellence<br/>Delivered.
       </h1>
-      <p class="text-lg leading-relaxed max-w-lg muted-text">
+      <p class="text-base md:text-lg leading-relaxed max-w-lg muted-text">
         A comprehensive SaaS platform that digitally transforms education institutes from traditional operations to streamlined management for every branch, every stakeholder, every day.
       </p>
       <div class="flex flex-wrap gap-4">
-        <a href="#contact" class="btn-orange text-base">Book a Free Demo</a>
-        <a href="#modules" class="btn-outline text-base">Explore Modules</a>
+        <a [routerLink]="[]" fragment="contact" class="btn-orange text-base">Book a Free Demo</a>
+        <a [routerLink]="[]" fragment="modules" class="btn-outline text-base">Explore Modules</a>
       </div>
 
       <!-- Mini stats -->
-      <div class="flex flex-wrap gap-6 pt-2">
+      <div class="flex flex-wrap gap-4 md:gap-6 pt-2">
         <div>
-          <p class="text-3xl font-extrabold stat-number">20+</p>
-          <p class="text-sm muted-text">Hours saved weekly</p>
+          <p class="text-2xl md:text-3xl font-extrabold stat-number">20+</p>
+          <p class="text-xs md:text-sm muted-text">Hours saved weekly</p>
         </div>
         <div class="stat-divider w-px"></div>
         <div>
-          <p class="text-3xl font-extrabold stat-number">0</p>
-          <p class="text-sm muted-text">Paperwork required</p>
+          <p class="text-2xl md:text-3xl font-extrabold stat-number">0</p>
+          <p class="text-xs md:text-sm muted-text">Paperwork required</p>
         </div>
         <div class="stat-divider w-px"></div>
         <div>
-          <p class="text-3xl font-extrabold stat-number">∞</p>
-          <p class="text-sm muted-text">Branches supported</p>
+          <p class="text-2xl md:text-3xl font-extrabold stat-number">∞</p>
+          <p class="text-xs md:text-sm muted-text">Branches supported</p>
         </div>
       </div>
     </div>
@@ -617,14 +635,14 @@
           <li class="flex items-center gap-2 text-sm muted-text"><span class="text-gray-300">✗</span> AI Features</li>
           <li class="flex items-center gap-2 text-sm muted-text"><span class="text-gray-300">✗</span> Boarding Module</li>
         </ul>
-        <a href="#contact" class="btn-outline w-full text-center text-sm">Get Started</a>
+        <a [routerLink]="[]" fragment="contact" class="btn-outline w-full text-center text-sm">Get Started</a>
       </div>
 
       <!-- Pro – featured -->
       <div class="plan-card featured p-8 fade-up shadow-2xl">
         <div class="absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full popular-badge">Most Popular</div>
         <p class="text-xs font-bold uppercase tracking-widest mb-4 brand-color">Professional</p>
-        <p class="text-5xl font-extrabold mb-1 text-white stat-number-font">₹9,999</p>
+        <p class="text-5xl font-extrabold mb-1 text-white dark:text-gray-300 stat-number-font">₹9,999</p>
         <p class="text-sm mb-6 text-gray-400">per month · up to 2000 students</p>
         <ul class="space-y-3 mb-8">
           <li class="flex items-center gap-2 text-sm text-gray-200"><span class="brand-color">✔</span> Up to 5 Branches</li>
@@ -634,7 +652,7 @@
           <li class="flex items-center gap-2 text-sm text-gray-200"><span class="brand-color">✔</span> Leave &amp; Outing Workflows</li>
           <li class="flex items-center gap-2 text-sm text-gray-200"><span class="brand-color">✔</span> Priority Support</li>
         </ul>
-        <a href="#contact" class="btn-orange w-full text-center text-sm block">Start Free Trial</a>
+        <a [routerLink]="[]" fragment="contact" class="btn-orange w-full text-center text-sm block">Start Free Trial</a>
       </div>
 
       <!-- Enterprise -->
@@ -650,7 +668,7 @@
           <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> SLA &amp; Custom Integrations</li>
           <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> On-premise option available</li>
         </ul>
-        <a href="#contact" class="btn-outline w-full text-center text-sm">Contact Sales</a>
+        <a [routerLink]="[]" fragment="contact" class="btn-outline w-full text-center text-sm">Contact Sales</a>
       </div>
     </div>
   </div>
@@ -914,11 +932,11 @@
       <div>
         <h5 class="text-white font-bold text-sm mb-4 uppercase tracking-wider">Platform</h5>
         <ul class="space-y-3">
-          <li><a href="#modules"  class="text-sm text-gray-400 hover:text-orange-400 transition-colors">All Modules</a></li>
-          <li><a href="#boarding" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Boarding Management</a></li>
-          <li><a href="#billing"  class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Billing &amp; Finance</a></li>
-          <li><a href="#ai"       class="text-sm text-gray-400 hover:text-orange-400 transition-colors">AI Features</a></li>
-          <li><a href="#roadmap"  class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Roadmap</a></li>
+          <li><a [routerLink]="[]" fragment="modules" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">All Modules</a></li>
+          <li><a [routerLink]="[]" fragment="boarding" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Boarding Management</a></li>
+          <li><a [routerLink]="[]" fragment="billing" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Billing &amp; Finance</a></li>
+          <li><a [routerLink]="[]" fragment="ai" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">AI Features</a></li>
+          <li><a [routerLink]="[]" fragment="roadmap" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Roadmap</a></li>
         </ul>
       </div>
 
@@ -928,7 +946,7 @@
           <li class="flex items-start gap-2 text-sm text-gray-400"><span>📞</span>+91 98765 00000</li>
           <li class="flex items-start gap-2 text-sm text-gray-400"><span>📍</span>Chennai, Tamil Nadu, India</li>
         </ul>
-        <a href="#contact" class="btn-orange text-sm mt-6 inline-block">Book a Demo</a>
+        <a [routerLink]="[]" fragment="contact" class="btn-orange text-sm mt-6 inline-block">Book a Demo</a>
       </div>
     </div>
 
