@@ -116,6 +116,7 @@ export const appRoutes: Routes = [
         ]
     },
     { path: 'notfound', component: Notfound },
+    { path: 'welcome', loadComponent: () => import('./app/welcome-page/welcome-page.component').then((m) => m.WelcomePageComponent) },
     { path: 'auth', loadChildren: () => import('./app/core/auth/auth.routes') },
     { path: '**', redirectTo: '/notfound' }
 ];
