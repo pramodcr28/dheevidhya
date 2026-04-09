@@ -59,6 +59,7 @@ export interface IProfileConfig {
     gender?: keyof typeof Gender | null;
     profileType?: keyof typeof ProfileType | null;
     departments?: string[] | null;
+    departmentNames?: string[];
     roles?: IRoleConfigs | null;
     subjectIds?: string[] | null;
     status: UserStatus | null;

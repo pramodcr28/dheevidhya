@@ -63,7 +63,7 @@ export class EmployeeListComponent {
     tenantAuthorities = signal<ITenantAuthority[]>([]);
     isLoading = false;
     employees = signal<ITenantUser[]>([]);
-    selectedDepartment: any = null;
+    selectedDepartments: any[] = [];
     selectedRoles: string[] = [];
     router = inject(Router);
     employeeService = inject(UserService);
@@ -136,8 +136,8 @@ export class EmployeeListComponent {
             filterParams['authorities.name.nin'] = ['IT_ADMINISTRATOR', 'STUDENT'];
         }
 
-        if (this.selectedDepartment?.id) {
-            filterParams['department.id'] = this.selectedDepartment.id;
+        if (this.selectedDepartments && this.selectedDepartments.length > 0) {
+            filterParams['latestAcademicYear.departmentNames.in'] = this.selectedDepartments;
         }
 
         if (this.selectedRoles && this.selectedRoles.length > 0) {
@@ -312,7 +312,7 @@ export class EmployeeListComponent {
     }
 
     clearFilters() {
-        this.selectedDepartment = null;
+        this.selectedDepartments = [];
         this.selectedRoles = [];
         this.load(true);
     }

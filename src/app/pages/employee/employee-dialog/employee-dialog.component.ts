@@ -511,6 +511,7 @@ export class EmployeeDialogComponent {
             status: updatedEmployee.status,
             fullName: `${updatedEmployee.firstName} ${updatedEmployee.lastName}`,
             departments: profileData.selectedDepartments.map((d) => d.id),
+            departmentNames: profileData.selectedDepartments.map((d) => d.name),
             subjectIds: profileData.latestAcademicYear.subjectIds || [],
             roles: this.generateRoleConfig(updatedEmployee.authorities!, profileData)
         };
