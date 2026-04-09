@@ -87,7 +87,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             plugins: { legend: { display: false } },
             scales: {
                 x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-                y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 } } }
+                y: { grid: { color: '#898989' }, ticks: { font: { size: 11 } } }
             },
             responsive: true,
             maintainAspectRatio: false

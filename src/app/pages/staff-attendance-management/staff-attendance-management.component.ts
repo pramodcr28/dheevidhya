@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
@@ -17,6 +18,9 @@ import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { CommonService } from '../../core/services/common.service';
+import { UserProfileState } from '../../core/store/user-profile/user-profile.reducer';
+import { getAssociatedDepartments } from '../../core/store/user-profile/user-profile.selectors';
+import { DheeSelectComponent } from '../../shared/dhee-select/dhee-select.component';
 import { StaffAttendance, StaffAttendanceReport } from '../models/staff-attendence.mdel';
 import { ITenantUser } from '../models/user.model';
 import { StaffAttendanceService } from '../service/staff-attendance.service';
@@ -25,7 +29,25 @@ import { UserService } from '../service/user.service';
 @Component({
     selector: 'app-staff-attendance-management',
     standalone: true,
-    imports: [CommonModule, FormsModule, CardModule, ButtonModule, DatePickerModule, TableModule, TagModule, ToastModule, TabsModule, ChartModule, MultiSelectModule, ProgressBarModule, InputTextModule, AvatarModule, IconFieldModule, InputIconModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        CardModule,
+        ButtonModule,
+        DatePickerModule,
+        TableModule,
+        TagModule,
+        ToastModule,
+        TabsModule,
+        ChartModule,
+        MultiSelectModule,
+        ProgressBarModule,
+        InputTextModule,
+        AvatarModule,
+        IconFieldModule,
+        InputIconModule,
+        DheeSelectComponent
+    ],
     providers: [MessageService],
     templateUrl: './staff-attendance-management.component.html',
     styles: []
@@ -36,8 +58,8 @@ export class StaffAttendanceManagementComponent implements OnInit {
 
     // ── Shared ─────────────────────────────────────────────────
     staffAttendanceService = inject(StaffAttendanceService);
-    // associatedDepartments: any[] = [];
-    // private store = inject(Store<{ userProfile: UserProfileState }>);
+    associatedDepartments: any[] = [];
+    private store = inject(Store<{ userProfile: UserProfileState }>);
     commonService = inject(CommonService);
     userService = inject(UserService);
     staffOptions: any[] = [];
@@ -83,13 +105,13 @@ export class StaffAttendanceManagementComponent implements OnInit {
     }
 
     ngOnInit() {
-        // this.store.select(getAssociatedDepartments).subscribe((departments) => {
-        //     this.associatedDepartments = departments;
-        //     if (this.associatedDepartments?.length > 0) {
-        //         this.logFilters.departments = this.associatedDepartments.map((d) => d.id);
-        //         this.analyticsFilters.departments = this.associatedDepartments.map((d) => d.id);
-        //     }
-        // });
+        this.store.select(getAssociatedDepartments).subscribe((departments) => {
+            this.associatedDepartments = departments;
+            if (this.associatedDepartments?.length > 0) {
+                this.logFilters.departments = this.associatedDepartments.map((d) => d.id);
+                this.analyticsFilters.departments = this.associatedDepartments.map((d) => d.id);
+            }
+        });
         this.loadAttendanceLogs();
         this.loadStaff();
     }
@@ -149,7 +171,7 @@ export class StaffAttendanceManagementComponent implements OnInit {
 
         if (this.logFilters.startDate) filters['attendanceDate.gte'] = this.commonService.formatDateForApi(this.logFilters.startDate);
         if (this.logFilters.endDate) filters['attendanceDate.lte'] = this.commonService.formatDateForApi(this.logFilters.endDate);
-        if (this.logFilters.departments?.length) filters['departmentId.in'] = this.logFilters.departments;
+        if (this.logFilters.departments?.length) filters['departmentIds.in'] = this.logFilters.departments;
         if (this.logFilters.staffIds?.length) filters['staffId.in'] = this.logFilters.staffIds.map((id) => id.toString());
 
         filters['branchId.eq'] = this.commonService.branch?.id?.toString() || '';
@@ -194,7 +216,7 @@ export class StaffAttendanceManagementComponent implements OnInit {
                 this.buildStatusDistributionChart(data.statusDistribution);
                 this.topPerformers = (data.topPerformers || []).map((p: any) => ({
                     name: p.staffName,
-                    department: p.departmentName,
+                    department: p.departmentNames?.join(', '),
                     percentage: p.attendancePercentage,
                     present: p.presentDays,
                     total: p.totalDays
@@ -292,7 +314,7 @@ export class StaffAttendanceManagementComponent implements OnInit {
                 legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true, font: { size: 12 } } }
             },
             scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                y: { beginAtZero: true, grid: { color: 'rgba(118, 118, 118)' } },
                 x: { grid: { display: false } }
             }
         };

@@ -2,8 +2,8 @@ export interface StaffAttendance {
     id?: string;
     staffId?: string;
     staffName?: string;
-    departmentId: string;
-    departmentName: string;
+    departmentIds: string[];
+    departmentNames: string[];
     branchId?: string;
     branchName?: string;
     attendanceDate?: string;
@@ -18,10 +18,11 @@ export enum AttendanceStatus {
     ABSENT = 'ABSENT',
     LEAVE = 'LEAVE'
 }
+
 export interface StaffAttendanceReport {
     staffId: string;
     staffName: string;
-    departmentName: string;
+    departmentNames: string[]; // was: departmentName: string
     branchName: string;
     totalDays: number;
     presentDays: number;
