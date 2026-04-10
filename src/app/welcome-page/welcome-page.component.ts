@@ -17,17 +17,26 @@ import { UserProfileState } from '../core/store/user-profile/user-profile.reduce
 export class WelcomePageComponent implements OnInit, OnDestroy {
     isScrolled = false;
     mobileMenuOpen = false;
-    theme: 'light' | 'dark' = 'light';
+    today = new Date();
 
-    @HostBinding('class.dark-theme') get darkTheme() {
-        return this.theme === 'dark';
-    }
     private store = inject(Store<{ userProfile: UserProfileState }>);
     private observer!: IntersectionObserver;
     private sectionObserver!: IntersectionObserver;
     private navLinks: NodeListOf<HTMLAnchorElement> | null = null;
+
     layoutService = inject(LayoutService);
+
     constructor(private el: ElementRef) {}
+
+    /**
+     * Bind the `dark` class to the host element whenever darkTheme is active.
+     * Tailwind's `dark:` variants require `class="dark"` somewhere in the ancestor
+     * tree. Since this component IS the page root, we bind it here.
+     */
+    @HostBinding('class.dark')
+    get isDark(): boolean {
+        return this.layoutService.layoutConfig().darkTheme ?? false;
+    }
 
     @HostListener('window:scroll')
     onWindowScroll(): void {
@@ -44,14 +53,12 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
 
     toggleTheme(): void {
         const isDark = !this.layoutService.layoutConfig().darkTheme;
-        // Update UI
-        this.theme = isDark ? 'dark' : 'light';
+
         this.layoutService.layoutConfig.update((state) => ({
             ...state,
             darkTheme: isDark
         }));
 
-        // Save in store
         this.store.dispatch(
             setTheme({
                 theme: isDark ? 'dark' : 'light'

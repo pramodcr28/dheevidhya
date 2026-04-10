@@ -1,963 +1,897 @@
-
 <app-configurator></app-configurator>
-<nav id="navbar" [class.scrolled]="isScrolled" class="py-4 px-6 lg:px-12">
-  <div class="max-w-7xl mx-auto flex items-center justify-between">
 
-    <!-- Logo -->
-    <a [routerLink]="['/']" class="flex items-center gap-2 flex-shrink-0">
-      <div>
-        <img src="../../../../assets/images/logo.png" class="white-logo" width="220" alt="Dheevidhya Logo" />
-        <img src="../../../../assets/images/logo-white.png" class="dark-logo" width="220" alt="Dheevidhya Logo" />
-      </div>
-    </a>
+<!-- ── NAVBAR ── -->
+<nav id="navbar" [class.scrolled]="isScrolled"
+     class="fixed top-0 left-0 right-0 z-[100] py-4 px-6 lg:px-12 transition-all duration-300">
+    <div class="max-w-[1400px] mx-auto flex items-center justify-between">
 
-    <!-- Desktop Nav -->
-    <div class="hidden lg:flex items-center gap-8 text-sm font-medium nav-text">
-      <a [routerLink]="[]" fragment="features" class="nav-link">Features</a>
-      <a [routerLink]="[]" fragment="modules" class="nav-link">Modules</a>
-      <a [routerLink]="[]" fragment="boarding" class="nav-link">Boarding</a>
-      <a [routerLink]="[]" fragment="billing" class="nav-link">Billing</a>
-      <a [routerLink]="[]" fragment="roadmap" class="nav-link">Roadmap</a>
-      <a [routerLink]="[]" fragment="ai" class="nav-link">AI Features</a>
+        <!-- Logo -->
+        <a [routerLink]="['/']" class="flex items-center gap-2 flex-shrink-0">
+            <img src="../../../../assets/images/logo.png"      class="block dark:hidden" width="220" alt="Dheevidhya Logo" />
+            <img src="../../../../assets/images/logo-white.png" class="hidden dark:block" width="220" alt="Dheevidhya Logo" />
+        </a>
+
+        <!-- Desktop Nav -->
+        <div class="hidden lg:flex items-center gap-8 text-sm font-medium text-[#3D3530] dark:text-gray-200">
+            <a [routerLink]="[]" fragment="features" class="nav-link hover:text-orange-500 transition-colors duration-200">Features</a>
+            <a [routerLink]="[]" fragment="modules"  class="nav-link hover:text-orange-500 transition-colors duration-200">Modules</a>
+            <a [routerLink]="[]" fragment="boarding" class="nav-link hover:text-orange-500 transition-colors duration-200">Boarding</a>
+            <a [routerLink]="[]" fragment="billing"  class="nav-link hover:text-orange-500 transition-colors duration-200">Billing</a>
+            <a [routerLink]="[]" fragment="roadmap"  class="nav-link hover:text-orange-500 transition-colors duration-200">Roadmap</a>
+            <a [routerLink]="[]" fragment="ai"       class="nav-link hover:text-orange-500 transition-colors duration-200">AI Features</a>
+        </div>
+
+        <!-- CTA + Theme Toggle -->
+        <div class="hidden lg:flex items-center gap-3">
+            <a [routerLink]="['/auth/login']" class="btn-outline text-sm py-1 px-3">Login</a>
+            <a [routerLink]="[]" fragment="contact"  class="btn-orange text-sm py-1 px-3">Book a Demo</a>
+            <button (click)="toggleTheme()"
+                    class="p-2 rounded-xl text-[#1A1714] dark:text-gray-200 bg-transparent hover:bg-orange-50 dark:hover:bg-white/10 transition-colors"
+                    aria-label="Toggle theme">
+                @if (!layoutService.layoutConfig().darkTheme) {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                }
+                @if (layoutService.layoutConfig().darkTheme) {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                }
+            </button>
+        </div>
+
+        <!-- Hamburger -->
+        <button (click)="toggleMobileMenu()"
+                class="lg:hidden p-2 rounded-xl text-[#1A1714] dark:text-gray-200"
+                aria-label="Toggle menu">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path *ngIf="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                <path *ngIf="mobileMenuOpen"  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
     </div>
 
-    <!-- CTA + Theme Toggle -->
-    <div class="hidden lg:flex items-center gap-3">
-      <a [routerLink]="['/auth/login']" class="btn-outline text-sm py-2 px-5">Login</a>
-      <a [routerLink]="[]" fragment="contact" class="btn-orange text-sm py-2 px-5">Book a Demo</a>
-      <button (click)="toggleTheme()" class="theme-toggle p-2 rounded-xl" aria-label="Toggle theme">
-        <svg *ngIf="theme === 'light'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-        </svg>
-        <svg *ngIf="theme === 'dark'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      </button>
+    <!-- Mobile Menu -->
+    <div [class.hidden]="!mobileMenuOpen"
+         class="lg:hidden mt-4 pb-4 px-4 space-y-3 border-t border-orange-200/30 dark:border-orange-400/20 hero-gradient">
+        <a [routerLink]="[]" fragment="features" (click)="closeMobileMenu()" class="block py-2 font-medium nav-link text-[#3D3530] dark:text-gray-200 hover:text-orange-500 transition-colors">Features</a>
+        <a [routerLink]="[]" fragment="modules"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link text-[#3D3530] dark:text-gray-200 hover:text-orange-500 transition-colors">Modules</a>
+        <a [routerLink]="[]" fragment="boarding" (click)="closeMobileMenu()" class="block py-2 font-medium nav-link text-[#3D3530] dark:text-gray-200 hover:text-orange-500 transition-colors">Boarding</a>
+        <a [routerLink]="[]" fragment="billing"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link text-[#3D3530] dark:text-gray-200 hover:text-orange-500 transition-colors">Billing</a>
+        <a [routerLink]="[]" fragment="roadmap"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link text-[#3D3530] dark:text-gray-200 hover:text-orange-500 transition-colors">Roadmap</a>
+        <a [routerLink]="[]" fragment="ai"       (click)="closeMobileMenu()" class="block py-2 font-medium nav-link text-[#3D3530] dark:text-gray-200 hover:text-orange-500 transition-colors">AI Features</a>
+        <div class="flex gap-3 pt-2">
+            <a [routerLink]="['/auth/login']" class="btn-outline text-sm py-2 px-4">Login</a>
+            <a [routerLink]="[]" fragment="contact" (click)="closeMobileMenu()" class="btn-orange text-sm py-2 px-4">Book a Demo</a>
+            <button (click)="toggleTheme(); closeMobileMenu()"
+                    class="p-2 rounded-xl text-[#1A1714] dark:text-gray-200 bg-transparent hover:bg-orange-50 dark:hover:bg-white/10 transition-colors"
+                    aria-label="Toggle theme">
+                @if (!layoutService.layoutConfig().darkTheme) {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                }
+                @if (layoutService.layoutConfig().darkTheme) {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                }
+            </button>
+        </div>
     </div>
-
-    <!-- Hamburger -->
-    <button (click)="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl hamburger-btn" aria-label="Toggle menu">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path *ngIf="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        <path *ngIf="mobileMenuOpen"  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-      </svg>
-    </button>
-  </div>
-
-  <!-- Mobile Menu -->
-  <div [class.hidden]="!mobileMenuOpen" class="lg:hidden mt-4 pb-4 px-4 space-y-3 border-t mobile-menu-border">
-    <a [routerLink]="[]" fragment="features" (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Features</a>
-    <a [routerLink]="[]" fragment="modules"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Modules</a>
-    <a [routerLink]="[]" fragment="boarding" (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Boarding</a>
-    <a [routerLink]="[]" fragment="billing"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Billing</a>
-    <a [routerLink]="[]" fragment="roadmap"  (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">Roadmap</a>
-    <a [routerLink]="[]" fragment="ai"       (click)="closeMobileMenu()" class="block py-2 font-medium nav-link">AI Features</a>
-    <div class="flex gap-3 pt-2">
-      <a [routerLink]="['/auth/login']" class="btn-outline text-sm py-2 px-4">Login</a>
-      <a [routerLink]="[]" fragment="contact" (click)="closeMobileMenu()" class="btn-orange text-sm py-2 px-4">Book a Demo</a>
-      <button (click)="toggleTheme(); closeMobileMenu()" class="theme-toggle p-2 rounded-xl" aria-label="Toggle theme">
-        <svg *ngIf="theme === 'light'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-        </svg>
-        <svg *ngIf="theme === 'dark'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      </button>
-    </div>
-  </div>
 </nav>
 
+<!-- ── HERO ── -->
+<section class="hero-gradient dark:bg-[#111010] relative min-h-screen flex items-center overflow-hidden pt-20">
+    <div class="hero-blob w-64 h-64 md:w-96 md:h-96 blob-orange" style="top:-80px;right:-60px"></div>
+    <div class="hero-blob w-48 h-48 md:w-64 md:h-64 blob-peach" style="bottom:60px;left:-40px;animation-delay:3s"></div>
 
-<!-- ══════════════════════════════════════════════
-     HERO
-══════════════════════════════════════════════ -->
-<section class="hero-gradient relative min-h-screen flex items-center overflow-hidden pt-20">
+    <div class="max-w-[1400px] mx-auto px-6 lg:px-12 py-12 md:py-20 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full">
+        <!-- Text -->
+        <div class="space-y-6 md:space-y-7 fade-up">
+            <span class="tag">🎓 Education SaaS Platform</span>
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight text-[#3D3530] dark:text-[#FDF6EF]">
+                Administration<br />
+                <span class="text-[#E8651A]">Handled.</span><br />
+                Excellence<br />Delivered.
+            </h1>
+            <p class="text-base md:text-lg leading-relaxed max-w-lg text-700 dark:text-gray-300">
+                A comprehensive SaaS platform that digitally transforms education institutes from traditional operations to streamlined management for every branch, every stakeholder, every day.
+            </p>
+            <div class="flex flex-wrap gap-4">
+                <a [routerLink]="[]" fragment="contact"  class="btn-orange text-base">Book a Free Demo</a>
+                <a [routerLink]="[]" fragment="modules"  class="btn-outline text-base">Explore Modules</a>
+            </div>
 
-  <div class="hero-blob w-64 h-64 md:w-96 md:h-96 blob-orange" style="top:-80px;right:-60px;"></div>
-  <div class="hero-blob w-48 h-48 md:w-64 md:h-64 blob-peach" style="bottom:60px;left:-40px;animation-delay:3s;"></div>
-
-  <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12 md:py-20 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full">
-
-    <!-- Text -->
-    <div class="space-y-6 md:space-y-7 fade-up">
-      <span class="tag">🎓 Education SaaS Platform</span>
-      <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight hero-heading">
-        Administration<br/>
-        <span class="brand-color">Handled.</span><br/>
-        Excellence<br/>Delivered.
-      </h1>
-      <p class="text-base md:text-lg leading-relaxed max-w-lg muted-text">
-        A comprehensive SaaS platform that digitally transforms education institutes from traditional operations to streamlined management for every branch, every stakeholder, every day.
-      </p>
-      <div class="flex flex-wrap gap-4">
-        <a [routerLink]="[]" fragment="contact" class="btn-orange text-base">Book a Free Demo</a>
-        <a [routerLink]="[]" fragment="modules" class="btn-outline text-base">Explore Modules</a>
-      </div>
-
-      <!-- Mini stats -->
-      <div class="flex flex-wrap gap-4 md:gap-6 pt-2">
-        <div>
-          <p class="text-2xl md:text-3xl font-extrabold stat-number">20+</p>
-          <p class="text-xs md:text-sm muted-text">Hours saved weekly</p>
+            <!-- Mini stats -->
+            <div class="flex flex-wrap gap-4 md:gap-6 pt-2">
+                <div>
+                    <p class="text-2xl md:text-3xl font-extrabold text-[#E8651A]">20+</p>
+                    <p class="text-xs md:text-sm text-300 dark:text-gray-300">Hours saved weekly</p>
+                </div>
+                <div class="w-px bg-orange-200/40 dark:bg-orange-400/20"></div>
+                <div>
+                    <p class="text-2xl md:text-3xl font-extrabold text-[#E8651A]">0</p>
+                    <p class="text-xs md:text-sm text-300 dark:text-gray-300">Paperwork required</p>
+                </div>
+                <div class="w-px bg-orange-200/40 dark:bg-orange-400/20"></div>
+                <div>
+                    <p class="text-2xl md:text-3xl font-extrabold text-[#E8651A]">∞</p>
+                    <p class="text-xs md:text-sm text-300 dark:text-gray-300">Branches supported</p>
+                </div>
+            </div>
         </div>
-        <div class="stat-divider w-px"></div>
-        <div>
-          <p class="text-2xl md:text-3xl font-extrabold stat-number">0</p>
-          <p class="text-xs md:text-sm muted-text">Paperwork required</p>
+
+        <!-- Float cards visual -->
+        <div class="relative hidden lg:flex items-center justify-center h-96">
+            <!-- Center dashboard mockup -->
+            <div class="absolute w-80 rounded-2xl overflow-hidden shadow-2xl bg-[#1A1714]" style="padding:1.5rem">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="w-3 h-3 rounded-full bg-red-400"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-400"></span>
+                    <span class="ml-2 text-xs text-gray-400 font-mono">dashboard.dheevidhya.in</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-300">Total Students</span>
+                        <span class="text-sm font-bold text-white">2,486</span>
+                    </div>
+                    <div class="w-full rounded-full h-1.5 bg-[#2C2825]">
+                        <div class="h-1.5 rounded-full bg-[#E8651A]" style="width:72%"></div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-300">Attendance Today</span>
+                        <span class="text-sm font-bold text-[#E8651A]">94.2%</span>
+                    </div>
+                    <div class="w-full rounded-full h-1.5 bg-[#2C2825]">
+                        <div class="h-1.5 rounded-full" style="background:#4ade80;width:94%"></div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-300">Fee Collection</span>
+                        <span class="text-sm font-bold text-white">₹18.4L</span>
+                    </div>
+                    <div class="w-full rounded-full h-1.5 bg-[#2C2825]">
+                        <div class="h-1.5 rounded-full" style="background:#60a5fa;width:61%"></div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-300">Pending Exams</span>
+                        <span class="text-sm font-bold text-yellow-400">3 Scheduled</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <div class="rounded-lg p-2 text-center bg-[#2C2825]">
+                            <span class="text-lg">👨‍🏫</span>
+                            <p class="text-xs text-gray-400 mt-1">84 Staff</p>
+                        </div>
+                        <div class="rounded-lg p-2 text-center bg-[#2C2825]">
+                            <span class="text-lg">📚</span>
+                            <p class="text-xs text-gray-400 mt-1">12 Depts</p>
+                        </div>
+                        <div class="rounded-lg p-2 text-center bg-[#2C2825]">
+                            <span class="text-lg">🏢</span>
+                            <p class="text-xs text-gray-400 mt-1">4 Branches</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating notification cards -->
+            <div class="float-card absolute top-4 right-0 text-sm min-w-max float-card-accent">
+                <div class="flex items-center gap-2">
+                    <span>✅</span>
+                    <span class="font-medium text-xs text-[#1A1714]">Attendance marked – Grade 10A</span>
+                </div>
+            </div>
+            <div class="float-card absolute bottom-10 left-0 text-sm min-w-max">
+                <div class="flex items-center gap-2">
+                    <span>💰</span>
+                    <span class="font-medium text-xs text-[#1A1714]">Fee payment received – ₹12,500</span>
+                </div>
+            </div>
+            <div class="float-card absolute bottom-28 right-4 text-sm min-w-max">
+                <div class="flex items-center gap-2">
+                    <span>🤖</span>
+                    <span class="font-medium text-xs text-[#E8651A]">AI: 3 students need attention</span>
+                </div>
+            </div>
         </div>
-        <div class="stat-divider w-px"></div>
-        <div>
-          <p class="text-2xl md:text-3xl font-extrabold stat-number">∞</p>
-          <p class="text-xs md:text-sm muted-text">Branches supported</p>
-        </div>
-      </div>
     </div>
-
-    <!-- Float cards visual -->
-    <div class="relative hidden lg:flex items-center justify-center h-96">
-
-      <!-- Center dashboard mockup -->
-      <div class="absolute w-80 rounded-2xl overflow-hidden shadow-2xl dashboard-card" style="padding:1.5rem;">
-        <div class="flex items-center gap-2 mb-4">
-          <span class="w-3 h-3 rounded-full bg-red-400"></span>
-          <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
-          <span class="w-3 h-3 rounded-full bg-green-400"></span>
-          <span class="ml-2 text-xs text-gray-400 font-mono">dashboard.dheevidhya.in</span>
-        </div>
-        <div class="space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-gray-300">Total Students</span>
-            <span class="text-sm font-bold text-white">2,486</span>
-          </div>
-          <div class="w-full rounded-full h-1.5 progress-bg">
-            <div class="h-1.5 rounded-full progress-orange" style="width:72%;"></div>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-gray-300">Attendance Today</span>
-            <span class="text-sm font-bold brand-color">94.2%</span>
-          </div>
-          <div class="w-full rounded-full h-1.5 progress-bg">
-            <div class="h-1.5 rounded-full" style="background:#4ADE80;width:94%;"></div>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-gray-300">Fee Collection</span>
-            <span class="text-sm font-bold text-white">₹18.4L</span>
-          </div>
-          <div class="w-full rounded-full h-1.5 progress-bg">
-            <div class="h-1.5 rounded-full" style="background:#60A5FA;width:61%;"></div>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-gray-300">Pending Exams</span>
-            <span class="text-sm font-bold text-yellow-400">3 Scheduled</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 mt-4">
-            <div class="rounded-lg p-2 text-center dashboard-cell">
-              <span class="text-lg">👨‍🏫</span>
-              <p class="text-xs text-gray-400 mt-1">84 Staff</p>
-            </div>
-            <div class="rounded-lg p-2 text-center dashboard-cell">
-              <span class="text-lg">📚</span>
-              <p class="text-xs text-gray-400 mt-1">12 Depts</p>
-            </div>
-            <div class="rounded-lg p-2 text-center dashboard-cell">
-              <span class="text-lg">🏢</span>
-              <p class="text-xs text-gray-400 mt-1">4 Branches</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Floating notification cards -->
-      <div class="float-card absolute top-4 right-0 text-sm min-w-max float-card-accent">
-        <div class="flex items-center gap-2">
-          <span>✅</span>
-          <span class="font-medium text-xs dark-text">Attendance marked – Grade 10A</span>
-        </div>
-      </div>
-      <div class="float-card absolute bottom-10 left-0 text-sm min-w-max">
-        <div class="flex items-center gap-2">
-          <span>💰</span>
-          <span class="font-medium text-xs dark-text">Fee payment received – ₹12,500</span>
-        </div>
-      </div>
-      <div class="float-card absolute bottom-28 right-4 text-sm min-w-max">
-        <div class="flex items-center gap-2">
-          <span>🤖</span>
-          <span class="font-medium text-xs brand-color">AI: 3 students need attention</span>
-        </div>
-      </div>
-    </div>
-  </div>
 </section>
 
-
-<!-- ══════════════════════════════════════════════
-     TICKER
-══════════════════════════════════════════════ -->
-<div class="py-4 ticker-bg">
-  <div class="ticker-wrap">
-    <div class="ticker text-white font-semibold text-sm">
-      <span>🎓 Multi-Tenant Architecture</span><span>•</span>
-      <span>📋 Attendance Management</span><span>•</span>
-      <span>💳 Billing &amp; Fees</span><span>•</span>
-      <span>🏫 Boarding Management</span><span>•</span>
-      <span>🤖 AI-Powered Insights</span><span>•</span>
-      <span>📊 Exam Analytics</span><span>•</span>
-      <span>📬 Smart Notifications</span><span>•</span>
-      <span>🗂️ Timetable Scheduling</span><span>•</span>
-      <!-- duplicate for seamless loop -->
-      <span>🎓 Multi-Tenant Architecture</span><span>•</span>
-      <span>📋 Attendance Management</span><span>•</span>
-      <span>💳 Billing &amp; Fees</span><span>•</span>
-      <span>🏫 Boarding Management</span><span>•</span>
-      <span>🤖 AI-Powered Insights</span><span>•</span>
-      <span>📊 Exam Analytics</span><span>•</span>
-      <span>📬 Smart Notifications</span><span>•</span>
-      <span>🗂️ Timetable Scheduling</span>
+<!-- ── TICKER ── -->
+<div class="py-4 bg-[#E8651A]">
+    <div class="overflow-hidden">
+        <div class="ticker text-white font-semibold text-sm">
+            <span>🎓 Multi-Tenant Architecture</span><span>•</span> <span>📋 Attendance Management</span><span>•</span> <span>💳 Billing &amp; Fees</span><span>•</span> <span>🏫 Boarding Management</span><span>•</span>
+            <span>🤖 AI-Powered Insights</span><span>•</span> <span>📊 Exam Analytics</span><span>•</span> <span>📬 Smart Notifications</span><span>•</span> <span>🗂️ Timetable Scheduling</span><span>•</span>
+            <span>🎓 Multi-Tenant Architecture</span><span>•</span> <span>📋 Attendance Management</span><span>•</span> <span>💳 Billing &amp; Fees</span><span>•</span> <span>🏫 Boarding Management</span><span>•</span>
+            <span>🤖 AI-Powered Insights</span><span>•</span> <span>📊 Exam Analytics</span><span>•</span> <span>📬 Smart Notifications</span><span>•</span> <span>🗂️ Timetable Scheduling</span>
+        </div>
     </div>
-  </div>
 </div>
 
+<!-- ── FEATURES ── -->
+<section id="features" class="py-24 px-6 lg:px-12 bg-[#FDF6EF] dark:bg-[#111010]">
+    <div class="max-w-[1400px] mx-auto">
+        <div class="text-center mb-16 fade-up">
+            <span class="tag">The Problem</span>
+            <h2 class="text-4xl md:text-5xl font-extrabold mt-4 text-[#1A1714] dark:text-[#FDF6EF]">
+                Education Institutes Are <span class="text-[#E8651A]">Drowning</span>
+            </h2>
+            <p class="text-lg mt-4 max-w-2xl mx-auto text-300 dark:text-gray-300">Manual administration wastes over 20+ hours every single week. Your staff deserves better.</p>
+        </div>
 
-<!-- ══════════════════════════════════════════════
-     THE PROBLEM
-══════════════════════════════════════════════ -->
-<section id="features" class="py-24 px-6 lg:px-12 cream-bg">
-  <div class="max-w-7xl mx-auto">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5 stagger">
+            <div class="stat-card p-6 col-span-1 fade-up bg-white dark:bg-[#1F1A17] border border-orange-200/30 dark:border-orange-400/25">
+                <div class="text-3xl mb-3">📚</div>
+                <p class="font-bold text-sm text-[#1A1714] dark:text-[#FDF6EF]">30% of time wasted</p>
+                <p class="text-xs mt-1 text-300 dark:text-gray-300">Staff spend nearly a third of their day on paperwork</p>
+            </div>
+            <div class="stat-card p-6 col-span-1 fade-up bg-white dark:bg-[#1F1A17] border border-orange-200/30 dark:border-orange-400/25">
+                <div class="text-3xl mb-3">⏰</div>
+                <p class="font-bold text-sm text-[#1A1714] dark:text-[#FDF6EF]">20+ hours lost weekly</p>
+                <p class="text-xs mt-1 text-300 dark:text-gray-300">Every institute loses over 20 hours to admin tasks</p>
+            </div>
+            <div class="stat-card p-6 col-span-1 fade-up bg-white dark:bg-[#1F1A17] border border-orange-200/30 dark:border-orange-400/25">
+                <div class="text-3xl mb-3">👥</div>
+                <p class="font-bold text-sm text-[#1A1714] dark:text-[#FDF6EF]">Stakeholders uninformed</p>
+                <p class="text-xs mt-1 text-300 dark:text-gray-300">Parents, teachers &amp; management stay in the dark</p>
+            </div>
+            <div class="stat-card p-6 col-span-1 fade-up bg-white dark:bg-[#1F1A17] border border-orange-200/30 dark:border-orange-400/25">
+                <div class="text-3xl mb-3">📂</div>
+                <p class="font-bold text-sm text-[#1A1714] dark:text-[#FDF6EF]">Scattered records</p>
+                <p class="text-xs mt-1 text-300 dark:text-gray-300">Data scattered across Excel, filing cabinets &amp; drives</p>
+            </div>
+            <div class="stat-card p-6 col-span-1 fade-up bg-white dark:bg-[#1F1A17] border border-orange-200/30 dark:border-orange-400/25">
+                <div class="text-3xl mb-3">📉</div>
+                <p class="font-bold text-sm text-[#1A1714] dark:text-[#FDF6EF]">Growth blocked</p>
+                <p class="text-xs mt-1 text-300 dark:text-gray-300">Branches operate in silos, preventing scale</p>
+            </div>
+        </div>
 
-    <div class="text-center mb-16 fade-up">
-      <span class="tag mb-4">The Problem</span>
-      <h2 class="text-4xl md:text-5xl font-extrabold mt-4 dark-text">
-        Education Institutes Are <span class="brand-color">Drowning</span>
-      </h2>
-      <p class="text-lg mt-4 max-w-2xl mx-auto muted-text">
-        Manual administration wastes over 20+ hours every single week. Your staff deserves better.
-      </p>
+        <!-- Solution bridge -->
+        <div class="mt-16 rounded-2xl p-10 text-center relative overflow-hidden fade-up bg-[#1A1714] dark:bg-[#0C0A09]">
+            <div class="absolute inset-0 solution-glow opacity-10"></div>
+            <h3 class="text-3xl font-extrabold text-white relative z-10">
+                One platform. Zero paperwork.<br /><span class="text-[#E8651A]">Complete visibility for every branch.</span>
+            </h3>
+            <p class="text-gray-300 mt-3 relative z-10">Every administrative module working in perfect harmony — from a single digital ecosystem.</p>
+        </div>
     </div>
-
-    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5 stagger">
-      <div class="stat-card p-6 col-span-1 fade-up">
-        <div class="text-3xl mb-3">📚</div>
-        <p class="font-bold text-sm dark-text">30% of time wasted</p>
-        <p class="text-xs mt-1 muted-text">Staff spend nearly a third of their day on paperwork</p>
-      </div>
-      <div class="stat-card p-6 col-span-1 fade-up">
-        <div class="text-3xl mb-3">⏰</div>
-        <p class="font-bold text-sm dark-text">20+ hours lost weekly</p>
-        <p class="text-xs mt-1 muted-text">Every institute loses over 20 hours to admin tasks</p>
-      </div>
-      <div class="stat-card p-6 col-span-1 fade-up">
-        <div class="text-3xl mb-3">👥</div>
-        <p class="font-bold text-sm dark-text">Stakeholders uninformed</p>
-        <p class="text-xs mt-1 muted-text">Parents, teachers &amp; management stay in the dark</p>
-      </div>
-      <div class="stat-card p-6 col-span-1 fade-up">
-        <div class="text-3xl mb-3">📂</div>
-        <p class="font-bold text-sm dark-text">Scattered records</p>
-        <p class="text-xs mt-1 muted-text">Data scattered across Excel, filing cabinets &amp; drives</p>
-      </div>
-      <div class="stat-card p-6 col-span-1 fade-up">
-        <div class="text-3xl mb-3">📉</div>
-        <p class="font-bold text-sm dark-text">Growth blocked</p>
-        <p class="text-xs mt-1 muted-text">Branches operate in silos, preventing scale</p>
-      </div>
-    </div>
-
-    <!-- Solution bridge -->
-    <div class="mt-16 rounded-2xl p-10 text-center relative overflow-hidden fade-up dark-section">
-      <div class="absolute inset-0 solution-glow opacity-10"></div>
-      <h3 class="text-3xl font-extrabold text-white relative z-10">
-        One platform. Zero paperwork.<br/><span class="brand-color">Complete visibility for every branch.</span>
-      </h3>
-      <p class="text-gray-400 mt-3 relative z-10">Every administrative module working in perfect harmony — from a single digital ecosystem.</p>
-    </div>
-  </div>
 </section>
 
+<!-- ── MODULES ── -->
+<section id="modules" class="py-24 px-6 lg:px-12 bg-white dark:bg-[#111010]">
+    <div class="max-w-[1400px] mx-auto">
+        <div class="text-center mb-16 fade-up">
+            <span class="tag mb-4">Platform Modules</span>
+            <h2 class="text-4xl md:text-5xl font-extrabold mt-4 text-[#1A1714] dark:text-[#FDF6EF]">Everything Your Institute Needs</h2>
+            <p class="text-lg mt-4 max-w-xl mx-auto text-300 dark:text-gray-300">A complete suite of tools built for modern educational institutions of any size.</p>
+        </div>
 
-<!-- ══════════════════════════════════════════════
-     MODULES
-══════════════════════════════════════════════ -->
-<section id="modules" class="py-24 px-6 lg:px-12 white-bg">
-  <div class="max-w-7xl mx-auto">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger">
+            <!-- Module Card shared classes: module-card + bg/border for dark -->
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">🏢</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Multi-Tenant Architecture</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Secure, isolated tenant system enabling institutes with multiple campuses to manage all locations from one platform. Complete data isolation per branch.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Unlimited branches under one account</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Centralized mgmt, decentralized control</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Branch-level data segregation</li>
+                </ul>
+            </div>
 
-    <div class="text-center mb-16 fade-up">
-      <span class="tag mb-4">Platform Modules</span>
-      <h2 class="text-4xl md:text-5xl font-extrabold mt-4 dark-text">Everything Your Institute Needs</h2>
-      <p class="text-lg mt-4 max-w-xl mx-auto muted-text">
-        A complete suite of tools built for modern educational institutions of any size.
-      </p>
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">📐</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Hierarchical Academic Setup</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Eliminate manual paperwork and reduce setup time from weeks to hours with user-friendly configuration — classes, sections, subjects, teachers.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Template-based fast configuration</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Subject allocation with credit/hour mgmt</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Teacher-subject-section mapping</li>
+                </ul>
+            </div>
+
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">📊</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Unified Dashboard &amp; Operations</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Single platform for all stakeholders — Principal, HOD, Teacher, Student, Parent — to manage daily tasks with complete real-time visibility.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Role-based personalized dashboards</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Real-time attendance &amp; exam overviews</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Priority notification center</li>
+                </ul>
+            </div>
+
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">👨‍🏫</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Staff Management System</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Centralized staff database with granular access control ensuring proper governance and operational efficiency across all departments.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Unlimited staff with role-based access</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Department &amp; branch-wise allocation</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Profile with qualifications &amp; certs</li>
+                </ul>
+            </div>
+
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">🎒</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Student Enrolment &amp; Management</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Simplified admission process maintaining complete student records digitally, eliminating paper-based documentation from end to end.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Digital admission workflows</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Complete student record lifecycle</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Automated student promotion</li>
+                </ul>
+            </div>
+
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">🗓️</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Automated Timetable Scheduling</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Intelligent scheduling engine that auto-generates conflict-free timetables for all classes, sections, and teachers in minutes.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Conflict-free auto-scheduling</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Teacher workload balancing</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Instant rescheduling tools</li>
+                </ul>
+            </div>
+
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">✅</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Attendance Management</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Real-time attendance marking for both staff and students with comprehensive historical reports and automated parent alerts.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Separate staff &amp; student tracking</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Historical reports &amp; analytics</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Automated parent notifications</li>
+                </ul>
+            </div>
+
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">📝</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Complete Examination Management</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Digitize exam creation, scheduling, marking, analytics and results publishing — fully automated from paper to insights.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Exam scheduling &amp; hall assignment</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Digital mark entry &amp; grading</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Performance analytics &amp; reports</li>
+                </ul>
+            </div>
+
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">🔔</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Smart Notification System</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Audience-specific smart communication for students, parents, staff and departments — right message, right person, right time.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Role-targeted push notifications</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Bulk announcement broadcasting</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Priority-based alert center</li>
+                </ul>
+            </div>
+
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">📦</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Custom Inventory Management</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Track and manage all institutional assets, lab equipment, library books, stationery and resources with full audit trails.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Asset tracking &amp; categorization</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Low-stock alerts &amp; reorder</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Full audit trail</li>
+                </ul>
+            </div>
+
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">🗂️</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Academic Year Isolation</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Complete data isolation per academic year with archived historical records — start each year fresh without losing any past data.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Year-bound data separation</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Read-only archival for past years</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Quick retrieval for audits</li>
+                </ul>
+            </div>
+
+            <div class="module-card p-7 fade-up bg-white dark:bg-[#1F1A17] border border-orange-100/60 dark:border-orange-400/20">
+                <div class="module-icon mb-5 text-2xl bg-[#FFF0E6] dark:bg-[#2C241E]">📎</div>
+                <h3 class="font-bold text-lg mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Assignment Management</h3>
+                <p class="text-sm leading-relaxed text-300 dark:text-gray-300">Subject-wise assignment distribution, submission tracking and feedback system — streamlined for both teachers and students.</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Digital submission workflows</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Teacher feedback &amp; grading</li>
+                    <li class="flex items-center gap-2 text-xs text-300 dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Deadline tracking &amp; reminders</li>
+                </ul>
+            </div>
+        </div>
     </div>
-
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger">
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">🏢</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Multi-Tenant Architecture</h3>
-        <p class="text-sm leading-relaxed muted-text">Secure, isolated tenant system enabling institutes with multiple campuses to manage all locations from one platform. Complete data isolation per branch.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Unlimited branches under one account</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Centralized mgmt, decentralized control</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Branch-level data segregation</li>
-        </ul>
-      </div>
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">📐</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Hierarchical Academic Setup</h3>
-        <p class="text-sm leading-relaxed muted-text">Eliminate manual paperwork and reduce setup time from weeks to hours with user-friendly configuration — classes, sections, subjects, teachers.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Template-based fast configuration</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Subject allocation with credit/hour mgmt</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Teacher-subject-section mapping</li>
-        </ul>
-      </div>
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">📊</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Unified Dashboard &amp; Operations</h3>
-        <p class="text-sm leading-relaxed muted-text">Single platform for all stakeholders — Principal, HOD, Teacher, Student, Parent — to manage daily tasks with complete real-time visibility.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Role-based personalized dashboards</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Real-time attendance &amp; exam overviews</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Priority notification center</li>
-        </ul>
-      </div>
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">👨‍🏫</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Staff Management System</h3>
-        <p class="text-sm leading-relaxed muted-text">Centralized staff database with granular access control ensuring proper governance and operational efficiency across all departments.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Unlimited staff with role-based access</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Department &amp; branch-wise allocation</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Profile with qualifications &amp; certs</li>
-        </ul>
-      </div>
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">🎒</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Student Enrolment &amp; Management</h3>
-        <p class="text-sm leading-relaxed muted-text">Simplified admission process maintaining complete student records digitally, eliminating paper-based documentation from end to end.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Digital admission workflows</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Complete student record lifecycle</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Automated student promotion</li>
-        </ul>
-      </div>
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">🗓️</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Automated Timetable Scheduling</h3>
-        <p class="text-sm leading-relaxed muted-text">Intelligent scheduling engine that auto-generates conflict-free timetables for all classes, sections, and teachers in minutes.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Conflict-free auto-scheduling</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Teacher workload balancing</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Instant rescheduling tools</li>
-        </ul>
-      </div>
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">✅</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Attendance Management</h3>
-        <p class="text-sm leading-relaxed muted-text">Real-time attendance marking for both staff and students with comprehensive historical reports and automated parent alerts.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Separate staff &amp; student tracking</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Historical reports &amp; analytics</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Automated parent notifications</li>
-        </ul>
-      </div>
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">📝</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Complete Examination Management</h3>
-        <p class="text-sm leading-relaxed muted-text">Digitize exam creation, scheduling, marking, analytics and results publishing — fully automated from paper to insights.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Exam scheduling &amp; hall assignment</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Digital mark entry &amp; grading</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Performance analytics &amp; reports</li>
-        </ul>
-      </div>
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">🔔</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Smart Notification System</h3>
-        <p class="text-sm leading-relaxed muted-text">Audience-specific smart communication for students, parents, staff and departments — right message, right person, right time.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Role-targeted push notifications</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Bulk announcement broadcasting</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Priority-based alert center</li>
-        </ul>
-      </div>
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">📦</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Custom Inventory Management</h3>
-        <p class="text-sm leading-relaxed muted-text">Track and manage all institutional assets, lab equipment, library books, stationery and resources with full audit trails.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Asset tracking &amp; categorization</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Low-stock alerts &amp; reorder</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Full audit trail</li>
-        </ul>
-      </div>
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">🗂️</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Academic Year Isolation</h3>
-        <p class="text-sm leading-relaxed muted-text">Complete data isolation per academic year with archived historical records — start each year fresh without losing any past data.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Year-bound data separation</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Read-only archival for past years</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Quick retrieval for audits</li>
-        </ul>
-      </div>
-
-      <div class="module-card p-7 fade-up">
-        <div class="module-icon mb-5 text-2xl">📎</div>
-        <h3 class="font-bold text-lg mb-2 dark-text">Assignment Management</h3>
-        <p class="text-sm leading-relaxed muted-text">Subject-wise assignment distribution, submission tracking and feedback system — streamlined for both teachers and students.</p>
-        <ul class="mt-4 space-y-2">
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Digital submission workflows</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Teacher feedback &amp; grading</li>
-          <li class="flex items-center gap-2 text-xs muted-text"><span class="brand-color">✔</span> Deadline tracking &amp; reminders</li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
 </section>
 
+<!-- ── BOARDING ── -->
+<section id="boarding" class="py-24 px-6 lg:px-12 bg-[#FDF6EF] dark:bg-[#111010]">
+    <div class="max-w-[1400px] mx-auto">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+            <div class="fade-up slide-left">
+                <span class="tag mb-4">Boarding Institute</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold mt-4 mb-6 text-[#1A1714] dark:text-[#FDF6EF]">
+                    Hostel &amp; Boarding<br /><span class="text-[#E8651A]">Fully Managed</span>
+                </h2>
+                <p class="text-lg leading-relaxed mb-8 text-300 dark:text-gray-300">
+                    Purpose-built tools for residential institutes — manage hostels, boarding students, warden operations, and parent communication all from one place.
+                </p>
 
-<!-- ══════════════════════════════════════════════
-     BOARDING INSTITUTE MANAGEMENT
-══════════════════════════════════════════════ -->
-<section id="boarding" class="py-24 px-6 lg:px-12 cream-bg">
-  <div class="max-w-7xl mx-auto">
-    <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-2">
+                    <div class="boarding-item rounded-xl hover:bg-orange-50 dark:hover:bg-orange-400/5">
+                        <div class="boarding-icon flex-shrink-0 text-xl bg-[#FFF0E6] dark:bg-[#2C241E]">🏠</div>
+                        <div>
+                            <h4 class="font-bold text-sm mb-1 text-[#1A1714] dark:text-[#FDF6EF]">Room &amp; Bed Allocation</h4>
+                            <p class="text-xs text-300 dark:text-gray-300">Assign students to rooms and beds with full occupancy tracking, room-change history and capacity management.</p>
+                        </div>
+                    </div>
+                    <div class="boarding-item rounded-xl hover:bg-orange-50 dark:hover:bg-orange-400/5">
+                        <div class="boarding-icon flex-shrink-0 text-xl bg-[#FFF0E6] dark:bg-[#2C241E]">🍽️</div>
+                        <div>
+                            <h4 class="font-bold text-sm mb-1 text-[#1A1714] dark:text-[#FDF6EF]">Mess &amp; Meal Scheduling</h4>
+                            <p class="text-xs text-300 dark:text-gray-300">Plan weekly meal calendars, track dietary requirements and manage mess attendance with digital records.</p>
+                        </div>
+                    </div>
+                    <div class="boarding-item rounded-xl hover:bg-orange-50 dark:hover:bg-orange-400/5">
+                        <div class="boarding-icon flex-shrink-0 text-xl bg-[#FFF0E6] dark:bg-[#2C241E]">🌙</div>
+                        <div>
+                            <h4 class="font-bold text-sm mb-1 text-[#1A1714] dark:text-[#FDF6EF]">Night Roll Call &amp; Curfew</h4>
+                            <p class="text-xs text-300 dark:text-gray-300">Digital night attendance, curfew management and automated parent alerts for absent students.</p>
+                        </div>
+                    </div>
+                    <div class="boarding-item rounded-xl hover:bg-orange-50 dark:hover:bg-orange-400/5">
+                        <div class="boarding-icon flex-shrink-0 text-xl bg-[#FFF0E6] dark:bg-[#2C241E]">🏥</div>
+                        <div>
+                            <h4 class="font-bold text-sm mb-1 text-[#1A1714] dark:text-[#FDF6EF]">Health &amp; Infirmary Records</h4>
+                            <p class="text-xs text-300 dark:text-gray-300">Maintain student health records, medical visits, prescribed medicines and emergency contact management.</p>
+                        </div>
+                    </div>
+                    <div class="boarding-item rounded-xl hover:bg-orange-50 dark:hover:bg-orange-400/5">
+                        <div class="boarding-icon flex-shrink-0 text-xl bg-[#FFF0E6] dark:bg-[#2C241E]">🚪</div>
+                        <div>
+                            <h4 class="font-bold text-sm mb-1 text-[#1A1714] dark:text-[#FDF6EF]">Leave &amp; Outing Management</h4>
+                            <p class="text-xs text-300 dark:text-gray-300">Digital leave requests, parent approvals, outing passes with entry/exit tracking and warden oversight.</p>
+                        </div>
+                    </div>
+                    <div class="boarding-item rounded-xl hover:bg-orange-50 dark:hover:bg-orange-400/5">
+                        <div class="boarding-icon flex-shrink-0 text-xl bg-[#FFF0E6] dark:bg-[#2C241E]">💬</div>
+                        <div>
+                            <h4 class="font-bold text-sm mb-1 text-[#1A1714] dark:text-[#FDF6EF]">Warden-Parent Communication</h4>
+                            <p class="text-xs text-300 dark:text-gray-300">Direct messaging and incident reporting between wardens and parents with full audit logs.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-      <div class="fade-up slide-left">
-        <span class="tag mb-4">Boarding Institute</span>
-        <h2 class="text-4xl md:text-5xl font-extrabold mt-4 mb-6 dark-text">
-          Hostel &amp; Boarding<br/><span class="brand-color">Fully Managed</span>
+            <!-- Right visual (always dark card) -->
+            <div class="fade-up slide-right">
+                <div class="rounded-2xl overflow-hidden shadow-2xl bg-[#1A1714]" style="padding:2rem">
+                    <div class="flex items-center justify-between mb-6">
+                        <h4 class="text-white font-bold">Boarding Overview</h4>
+                        <span class="text-xs px-3 py-1 rounded-full text-white font-medium bg-[#E8651A]">Live</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <div class="rounded-xl p-3 text-center bg-[#2C2825]">
+                            <p class="text-2xl font-extrabold text-[#E8651A]">248</p>
+                            <p class="text-xs text-gray-400 mt-1">Total Boarders</p>
+                        </div>
+                        <div class="rounded-xl p-3 text-center bg-[#2C2825]">
+                            <p class="text-2xl font-extrabold text-green-400">234</p>
+                            <p class="text-xs text-gray-400 mt-1">Present Tonight</p>
+                        </div>
+                        <div class="rounded-xl p-3 text-center bg-[#2C2825]">
+                            <p class="text-2xl font-extrabold text-yellow-400">14</p>
+                            <p class="text-xs text-gray-400 mt-1">On Leave</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-3 uppercase tracking-widest">Hostel Blocks</p>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-300">Block A – Boys</span>
+                                <span class="text-gray-400">68/80 occupied</span>
+                            </div>
+                            <div class="w-full rounded-full h-2 bg-[#2C2825]">
+                                <div class="h-2 rounded-full bg-[#E8651A]" style="width:85%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-300">Block B – Girls</span>
+                                <span class="text-gray-400">72/80 occupied</span>
+                            </div>
+                            <div class="w-full rounded-full h-2 bg-[#2C2825]">
+                                <div class="h-2 rounded-full" style="background:#60a5fa;width:90%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-300">Block C – Senior</span>
+                                <span class="text-gray-400">94/100 occupied</span>
+                            </div>
+                            <div class="w-full rounded-full h-2 bg-[#2C2825]">
+                                <div class="h-2 rounded-full" style="background:#4ade80;width:94%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-6 mb-3 uppercase tracking-widest">Recent Activity</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3 p-2 rounded-lg bg-[#2C2825]">
+                            <span class="text-lg">🚪</span>
+                            <div>
+                                <p class="text-xs text-white">Arjun S. – Outing approved</p>
+                                <p class="text-xs text-gray-500">Block A · 3 min ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 p-2 rounded-lg bg-[#2C2825]">
+                            <span class="text-lg">🌙</span>
+                            <div>
+                                <p class="text-xs text-white">Night roll-call completed – Block B</p>
+                                <p class="text-xs text-gray-500">All 72 present · 18 min ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 p-2 rounded-lg bg-[#2C2825]">
+                            <span class="text-lg">🏥</span>
+                            <div>
+                                <p class="text-xs text-white">Priya M. visited infirmary</p>
+                                <p class="text-xs text-gray-500">Block C · 1 hr ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── BILLING ── -->
+<section id="billing" class="py-24 px-6 lg:px-12 bg-white dark:bg-[#111010]">
+    <div class="max-w-[1400px] mx-auto">
+        <div class="text-center mb-16 fade-up">
+            <span class="tag mb-4">💳 Billing &amp; Finance</span>
+            <h2 class="text-4xl md:text-5xl font-extrabold mt-4 text-[#1A1714] dark:text-[#FDF6EF]">
+                Fees. Finance. <span class="text-[#E8651A]">Fully Automated.</span>
+            </h2>
+            <p class="text-lg mt-4 max-w-xl mx-auto text-300 dark:text-gray-300">End-to-end fee management from structure setup to collection, reminders and accounting — no manual ledgers.</p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16 stagger">
+            <div class="billing-feature-card rounded-2xl p-6 text-center fade-up bg-[#FFF0E6] dark:bg-[#2C241E] border border-orange-200/40 dark:border-orange-400/20">
+                <div class="text-3xl mb-3">📋</div>
+                <h4 class="font-bold mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Fee Structure Setup</h4>
+                <p class="text-xs text-300 dark:text-gray-300">Configure tuition, transport, hostel, exam and miscellaneous fee heads with custom payment schedules.</p>
+            </div>
+            <div class="billing-feature-card rounded-2xl p-6 text-center fade-up bg-[#FFF0E6] dark:bg-[#2C241E] border border-orange-200/40 dark:border-orange-400/20">
+                <div class="text-3xl mb-3">📱</div>
+                <h4 class="font-bold mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Online &amp; Offline Payment</h4>
+                <p class="text-xs text-300 dark:text-gray-300">Accept UPI, card, net banking and cash payments. Auto-generate receipts with digital delivery.</p>
+            </div>
+            <div class="billing-feature-card rounded-2xl p-6 text-center fade-up bg-[#FFF0E6] dark:bg-[#2C241E] border border-orange-200/40 dark:border-orange-400/20">
+                <div class="text-3xl mb-3">🔔</div>
+                <h4 class="font-bold mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Automated Reminders</h4>
+                <p class="text-xs text-300 dark:text-gray-300">SMS, email and push notification reminders for upcoming dues, overdue fees and partial payments.</p>
+            </div>
+            <div class="billing-feature-card rounded-2xl p-6 text-center fade-up bg-[#FFF0E6] dark:bg-[#2C241E] border border-orange-200/40 dark:border-orange-400/20">
+                <div class="text-3xl mb-3">📊</div>
+                <h4 class="font-bold mb-2 text-[#1A1714] dark:text-[#FDF6EF]">Finance Reports &amp; Analytics</h4>
+                <p class="text-xs text-300 dark:text-gray-300">Collection reports, outstanding dues, branch-wise revenue breakdowns and audit-ready ledgers.</p>
+            </div>
+        </div>
+
+        <!-- Pricing Plans -->
+        <div class="text-center mb-12 fade-up">
+            <h3 class="text-3xl font-extrabold text-[#1A1714] dark:text-[#FDF6EF]">Simple, Transparent Pricing</h3>
+            <p class="mt-2 text-300 dark:text-gray-300">Start free. Scale as you grow. No hidden charges.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6 stagger">
+            <!-- Starter -->
+            <div class="plan-card p-8 fade-up bg-white dark:bg-[#1F1A17] border-2 border-orange-200/30 dark:border-orange-400/20">
+                <p class="text-xs font-bold uppercase tracking-widest mb-4 text-[#E8651A]">Starter</p>
+                <p class="text-5xl font-extrabold mb-1 text-[#1A1714] dark:text-[#FDF6EF]">₹4,999</p>
+                <p class="text-sm mb-6 text-300 dark:text-gray-300">per month · up to 500 students</p>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center gap-2 text-sm text-[#3D3530] dark:text-gray-300"><span class="text-[#E8651A]">✔</span> 1 Branch</li>
+                    <li class="flex items-center gap-2 text-sm text-[#3D3530] dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Core Modules (8)</li>
+                    <li class="flex items-center gap-2 text-sm text-[#3D3530] dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Basic Fee Management</li>
+                    <li class="flex items-center gap-2 text-sm text-[#3D3530] dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Email &amp; Push Notifications</li>
+                    <li class="flex items-center gap-2 text-sm text-300 dark:text-gray-500"><span class="text-gray-300">✗</span> AI Features</li>
+                    <li class="flex items-center gap-2 text-sm text-300 dark:text-gray-500"><span class="text-gray-300">✗</span> Boarding Module</li>
+                </ul>
+                <a [routerLink]="[]" fragment="contact" class="btn-outline w-full text-center text-sm">Get Started</a>
+            </div>
+
+            <!-- Pro – featured (always dark) -->
+            <div class="plan-card featured p-8 fade-up shadow-2xl relative bg-[#1A1714] border-2 border-[#E8651A]">
+                <div class="absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full bg-[#E8651A] text-white">Most Popular</div>
+                <p class="text-xs font-bold uppercase tracking-widest mb-4 text-[#E8651A]">Professional</p>
+                <p class="text-5xl font-extrabold mb-1 text-white">₹9,999</p>
+                <p class="text-sm mb-6 text-gray-400">per month · up to 2000 students</p>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center gap-2 text-sm text-gray-200"><span class="text-[#E8651A]">✔</span> Up to 5 Branches</li>
+                    <li class="flex items-center gap-2 text-sm text-gray-200"><span class="text-[#E8651A]">✔</span> All 12 Core Modules</li>
+                    <li class="flex items-center gap-2 text-sm text-gray-200"><span class="text-[#E8651A]">✔</span> Full Billing &amp; Finance Suite</li>
+                    <li class="flex items-center gap-2 text-sm text-gray-200"><span class="text-[#E8651A]">✔</span> Boarding Management</li>
+                    <li class="flex items-center gap-2 text-sm text-gray-200"><span class="text-[#E8651A]">✔</span> Leave &amp; Outing Workflows</li>
+                    <li class="flex items-center gap-2 text-sm text-gray-200"><span class="text-[#E8651A]">✔</span> Priority Support</li>
+                </ul>
+                <a [routerLink]="[]" fragment="contact" class="btn-orange w-full text-center text-sm block">Start Free Trial</a>
+            </div>
+
+            <!-- Enterprise -->
+            <div class="plan-card p-8 fade-up bg-white dark:bg-[#1F1A17] border-2 border-orange-200/30 dark:border-orange-400/20">
+                <p class="text-xs font-bold uppercase tracking-widest mb-4 text-[#E8651A]">Enterprise</p>
+                <p class="text-5xl font-extrabold mb-1 text-[#1A1714] dark:text-[#FDF6EF]">Custom</p>
+                <p class="text-sm mb-6 text-300 dark:text-gray-300">per month · unlimited students</p>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center gap-2 text-sm text-[#3D3530] dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Unlimited Branches</li>
+                    <li class="flex items-center gap-2 text-sm text-[#3D3530] dark:text-gray-300"><span class="text-[#E8651A]">✔</span> All Modules + AI Suite</li>
+                    <li class="flex items-center gap-2 text-sm text-[#3D3530] dark:text-gray-300"><span class="text-[#E8651A]">✔</span> White-label Branding</li>
+                    <li class="flex items-center gap-2 text-sm text-[#3D3530] dark:text-gray-300"><span class="text-[#E8651A]">✔</span> Dedicated Account Manager</li>
+                    <li class="flex items-center gap-2 text-sm text-[#3D3530] dark:text-gray-300"><span class="text-[#E8651A]">✔</span> SLA &amp; Custom Integrations</li>
+                    <li class="flex items-center gap-2 text-sm text-[#3D3530] dark:text-gray-300"><span class="text-[#E8651A]">✔</span> On-premise option available</li>
+                </ul>
+                <a [routerLink]="[]" fragment="contact" class="btn-outline w-full text-center text-sm">Contact Sales</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── AI SECTION ── -->
+<section id="ai" class="py-24 px-6 lg:px-12 bg-[#1A1714] dark:bg-[#0C0A09]">
+    <div class="max-w-[1400px] mx-auto">
+        <div class="text-center mb-16 fade-up">
+            <span class="tag tag-dark mb-4">🤖 AI-Powered — Upcoming</span>
+            <h2 class="text-4xl md:text-5xl font-extrabold mt-4 text-white">Intelligence Built <span class="text-[#E8651A]">Into Every Decision</span></h2>
+            <p class="text-lg mt-4 max-w-xl mx-auto text-gray-400">Phase 3 brings machine learning and AI to every corner of your institution. A glimpse at what's coming.</p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger">
+            <div class="ai-card p-7 fade-up">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="ai-icon text-xl">🧠</div>
+                    <span class="ai-phase-badge text-xs px-2 py-1 rounded-full text-orange-300 font-medium">Phase 3</span>
+                </div>
+                <h3 class="font-bold text-white mb-2">AI-Powered Performance Insights</h3>
+                <p class="text-sm text-gray-400">Identify at-risk students automatically using ML models trained on attendance, grades, and engagement patterns. Get actionable recommendations for teachers.</p>
+            </div>
+            <div class="ai-card p-7 fade-up">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="ai-icon text-xl">👁️</div>
+                    <span class="ai-phase-badge text-xs px-2 py-1 rounded-full text-orange-300 font-medium">Phase 3</span>
+                </div>
+                <h3 class="font-bold text-white mb-2">Smart Attendance (Face Recognition)</h3>
+                <p class="text-sm text-gray-400">Camera-based automated attendance using facial recognition. Eliminate proxy attendance and manual marking — accurate, fast, and touchless.</p>
+            </div>
+            <div class="ai-card p-7 fade-up">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="ai-icon text-xl">📈</div>
+                    <span class="ai-phase-badge text-xs px-2 py-1 rounded-full text-orange-300 font-medium">Phase 3</span>
+                </div>
+                <h3 class="font-bold text-white mb-2">Predictive Analytics for Students</h3>
+                <p class="text-sm text-gray-400">Forecast student performance trends, exam outcomes, and dropout risks months in advance — enabling proactive interventions that improve outcomes.</p>
+            </div>
+            <div class="ai-card p-7 fade-up">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="ai-icon text-xl">📄</div>
+                    <span class="ai-phase-badge text-xs px-2 py-1 rounded-full text-orange-300 font-medium">Phase 3</span>
+                </div>
+                <h3 class="font-bold text-white mb-2">AI Exam Paper Generator</h3>
+                <p class="text-sm text-gray-400">Generate balanced, curriculum-aligned question papers in seconds. Specify difficulty distribution, topic weightage, and question types — AI does the rest.</p>
+            </div>
+            <div class="ai-card p-7 fade-up">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="ai-icon text-xl">🎯</div>
+                    <span class="ai-phase-badge text-xs px-2 py-1 rounded-full text-orange-300 font-medium">Phase 3</span>
+                </div>
+                <h3 class="font-bold text-white mb-2">Personalised Learning Recommendations</h3>
+                <p class="text-sm text-gray-400">Adaptive learning paths tailored to each student's strengths, weaknesses, and learning style — powered by continuous performance analysis.</p>
+            </div>
+            <div class="ai-card p-7 fade-up">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="ai-icon text-xl">🚌</div>
+                    <span class="text-xs px-2 py-1 rounded-full text-blue-300 font-medium ai-phase-badge-blue">Phase 2</span>
+                </div>
+                <h3 class="font-bold text-white mb-2">Institution Van Tracking</h3>
+                <p class="text-sm text-gray-400">Live GPS tracking of institution transport with route optimization, ETA notifications for parents and driver management — coming in Phase 2.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── ROADMAP ── -->
+<section id="roadmap" class="py-24 px-6 lg:px-12 bg-[#FDF6EF] dark:bg-[#111010]">
+    <div class="max-w-[1400px] mx-auto">
+        <div class="text-center mb-16 fade-up">
+            <span class="tag mb-4">Product Roadmap</span>
+            <h2 class="text-4xl md:text-5xl font-extrabold mt-4 text-[#1A1714] dark:text-[#FDF6EF]">
+                What's Built. <span class="text-[#E8651A]">What's Next.</span>
+            </h2>
+            <p class="text-lg mt-4 max-w-lg mx-auto text-300 dark:text-gray-300">Where administration ends and excellence begins.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Phase 1 – always dark card -->
+            <div class="phase-card fade-up bg-[#1A1714] dark:bg-[#0C0A09] rounded-2xl overflow-hidden">
+                <div class="p-6 border-b border-orange-400/30">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold uppercase tracking-widest text-[#E8651A]">Phase 1</span>
+                        <span class="flex items-center gap-1.5 text-xs font-bold text-green-400">
+                            <span class="phase-dot" style="background:#4ade80;box-shadow:0 0 6px #4ade80"></span> LIVE
+                        </span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-white">Foundation</h3>
+                </div>
+                <ul class="p-6 space-y-3">
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Unified Dashboard &amp; Operations</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Multi-Tenant Architecture</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Hierarchical Academic Setup</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Staff Management System</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Student Enrolment &amp; Management</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Automated Timetable Scheduling</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Attendance Management</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Complete Examination Management</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Assignment Management</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Notification System</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Custom Inventory Management</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Automated Student Promotion</li>
+                    <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Academic Year Isolation</li>
+                </ul>
+            </div>
+
+            <!-- Phase 2 -->
+            <div class="phase-card fade-up bg-white dark:bg-[#1F1A17] border-2 border-orange-200/30 dark:border-orange-400/20 rounded-2xl overflow-hidden">
+                <div class="p-6 border-b border-orange-200/20 dark:border-orange-400/15">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold uppercase tracking-widest text-[#E8651A]">Phase 2</span>
+                        <span class="flex items-center gap-1.5 text-xs font-bold text-blue-500">
+                            <span class="phase-dot phase-dot-blue phase-dot-pulse"></span> IN PROGRESS
+                        </span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-[#1A1714] dark:text-[#FDF6EF]">Expansion</h3>
+                </div>
+                <ul class="p-6 space-y-3">
+                    <li class="flex items-center gap-3 text-sm text-[#3D3530] dark:text-gray-300"><span class="phase-dot phase-dot-blue"></span>Leave Approval &amp; Rejection Workflows</li>
+                    <li class="flex items-center gap-3 text-sm text-[#3D3530] dark:text-gray-300"><span class="phase-dot phase-dot-blue"></span>Fees &amp; Finance Management</li>
+                    <li class="flex items-center gap-3 text-sm text-[#3D3530] dark:text-gray-300"><span class="phase-dot phase-dot-blue"></span>Advanced Module Suite</li>
+                    <li class="flex items-center gap-3 text-sm text-[#3D3530] dark:text-gray-300"><span class="phase-dot phase-dot-blue"></span>Staff Handover System</li>
+                    <li class="flex items-center gap-3 text-sm text-[#3D3530] dark:text-gray-300"><span class="phase-dot phase-dot-blue"></span>Storing Subject Materials</li>
+                    <li class="flex items-center gap-3 text-sm text-[#3D3530] dark:text-gray-300"><span class="phase-dot phase-dot-blue"></span>Institution Van Tracking</li>
+                    <li class="flex items-center gap-3 text-sm text-[#3D3530] dark:text-gray-300"><span class="phase-dot phase-dot-blue"></span>Boarding Institute Management</li>
+                </ul>
+            </div>
+
+            <!-- Phase 3 -->
+            <div class="phase-card fade-up bg-white dark:bg-[#1F1A17] border-2 border-orange-200/30 dark:border-orange-400/20 rounded-2xl overflow-hidden">
+                <div class="p-6 border-b border-orange-200/20 dark:border-orange-400/15">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold uppercase tracking-widest text-[#E8651A]">Phase 3</span>
+                        <span class="flex items-center gap-1.5 text-xs font-bold text-300 dark:text-gray-500">
+                            <span class="phase-dot phase-dot-muted"></span> PLANNED
+                        </span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-[#1A1714] dark:text-[#FDF6EF]">Intelligence</h3>
+                </div>
+                <ul class="p-6 space-y-3">
+                    <li class="flex items-center gap-3 text-sm text-700 dark:text-gray-300"><span class="phase-dot phase-dot-muted"></span>Alumni Network &amp; Portal</li>
+                    <li class="flex items-center gap-3 text-sm text-700 dark:text-gray-300"><span class="phase-dot phase-dot-muted"></span>AI-Powered Performance Insights</li>
+                    <li class="flex items-center gap-3 text-sm text-700 dark:text-gray-300"><span class="phase-dot phase-dot-muted"></span>Smart Attendance (Face Recognition)</li>
+                    <li class="flex items-center gap-3 text-sm text-700 dark:text-gray-300"><span class="phase-dot phase-dot-muted"></span>Predictive Analytics for Students</li>
+                    <li class="flex items-center gap-3 text-sm text-700 dark:text-gray-300"><span class="phase-dot phase-dot-muted"></span>AI Exam Paper Generator</li>
+                    <li class="flex items-center gap-3 text-sm text-700 dark:text-gray-300"><span class="phase-dot phase-dot-muted"></span>Personalised Learning Recommendations</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="flex justify-center gap-8 mt-8 fade-up">
+            <span class="flex items-center gap-2 text-sm text-300 dark:text-gray-300"><span class="phase-dot" style="background:#4ade80"></span>Delivered</span>
+            <span class="flex items-center gap-2 text-sm text-300 dark:text-gray-300"><span class="phase-dot phase-dot-blue"></span>In Progress</span>
+            <span class="flex items-center gap-2 text-sm text-300 dark:text-gray-300"><span class="phase-dot phase-dot-muted"></span>Planned</span>
+        </div>
+    </div>
+</section>
+
+<!-- ── CONTACT ── -->
+<section id="contact" class="py-24 px-6 lg:px-12 bg-[#1A1714] dark:bg-[#0C0A09]">
+    <div class="max-w-4xl mx-auto text-center fade-up">
+        <span class="tag tag-dark mb-6">Get Started Today</span>
+        <h2 class="text-5xl md:text-6xl font-extrabold text-white mt-4 leading-tight">
+            Transform Your<br /><span class="text-[#E8651A]">Institution Today</span>
         </h2>
-        <p class="text-lg leading-relaxed mb-8 muted-text">
-          Purpose-built tools for residential institutes — manage hostels, boarding students, warden operations, and parent communication all from one place.
-        </p>
+        <p class="text-xl text-gray-400 mt-6 max-w-xl mx-auto">Administration handled. Staff empowered. School transformed.</p>
 
-        <div class="space-y-2">
-          <div class="boarding-item rounded-xl">
-            <div class="boarding-icon flex-shrink-0 text-xl">🏠</div>
-            <div>
-              <h4 class="font-bold text-sm mb-1 dark-text">Room &amp; Bed Allocation</h4>
-              <p class="text-xs muted-text">Assign students to rooms and beds with full occupancy tracking, room-change history and capacity management.</p>
+        <!-- Contact form -->
+        <div class="mt-12 rounded-2xl p-8 md:p-12 text-left bg-[#2C2825] dark:bg-[#1A1714]">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Full Name</label>
+                    <input type="text" placeholder="Dr. Ramesh Kumar" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Institution Name</label>
+                    <input type="text" placeholder="Sri Vidya Academy" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Email Address</label>
+                    <input type="email" placeholder="admin@example.edu" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Phone Number</label>
+                    <input type="tel" placeholder="+91 98765 43210" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Number of Students</label>
+                    <select class="form-input form-select w-full rounded-xl px-4 py-3 text-sm outline-none">
+                        <option>Under 500</option>
+                        <option>500 – 1000</option>
+                        <option>1000 – 2000</option>
+                        <option>2000 – 5000</option>
+                        <option>5000+</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">City</label>
+                    <input type="text" placeholder="Chennai, Tamil Nadu" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
+                </div>
             </div>
-          </div>
-          <div class="boarding-item rounded-xl">
-            <div class="boarding-icon flex-shrink-0 text-xl">🍽️</div>
-            <div>
-              <h4 class="font-bold text-sm mb-1 dark-text">Mess &amp; Meal Scheduling</h4>
-              <p class="text-xs muted-text">Plan weekly meal calendars, track dietary requirements and manage mess attendance with digital records.</p>
+            <div class="mt-6">
+                <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Message (Optional)</label>
+                <textarea rows="3" placeholder="Tell us about your institution's needs..." class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none resize-none"></textarea>
             </div>
-          </div>
-          <div class="boarding-item rounded-xl">
-            <div class="boarding-icon flex-shrink-0 text-xl">🌙</div>
-            <div>
-              <h4 class="font-bold text-sm mb-1 dark-text">Night Roll Call &amp; Curfew</h4>
-              <p class="text-xs muted-text">Digital night attendance, curfew management and automated parent alerts for absent students.</p>
+            <div class="mt-6 flex flex-col sm:flex-row gap-4">
+                <button class="btn-orange text-base flex-1 text-center">Book a Free Demo</button>
+                <button class="btn-outline text-base flex-1 text-center">Download Brochure</button>
             </div>
-          </div>
-          <div class="boarding-item rounded-xl">
-            <div class="boarding-icon flex-shrink-0 text-xl">🏥</div>
-            <div>
-              <h4 class="font-bold text-sm mb-1 dark-text">Health &amp; Infirmary Records</h4>
-              <p class="text-xs muted-text">Maintain student health records, medical visits, prescribed medicines and emergency contact management.</p>
-            </div>
-          </div>
-          <div class="boarding-item rounded-xl">
-            <div class="boarding-icon flex-shrink-0 text-xl">🚪</div>
-            <div>
-              <h4 class="font-bold text-sm mb-1 dark-text">Leave &amp; Outing Management</h4>
-              <p class="text-xs muted-text">Digital leave requests, parent approvals, outing passes with entry/exit tracking and warden oversight.</p>
-            </div>
-          </div>
-          <div class="boarding-item rounded-xl">
-            <div class="boarding-icon flex-shrink-0 text-xl">💬</div>
-            <div>
-              <h4 class="font-bold text-sm mb-1 dark-text">Warden-Parent Communication</h4>
-              <p class="text-xs muted-text">Direct messaging and incident reporting between wardens and parents with full audit logs.</p>
-            </div>
-          </div>
         </div>
-      </div>
-
-      <!-- Right visual -->
-      <div class="fade-up slide-right">
-        <div class="rounded-2xl overflow-hidden shadow-2xl dashboard-card" style="padding:2rem;">
-          <div class="flex items-center justify-between mb-6">
-            <h4 class="text-white font-bold">Boarding Overview</h4>
-            <span class="text-xs px-3 py-1 rounded-full text-white font-medium live-badge">Live</span>
-          </div>
-
-          <div class="grid grid-cols-3 gap-3 mb-6">
-            <div class="rounded-xl p-3 text-center dashboard-cell">
-              <p class="text-2xl font-extrabold brand-color stat-number-font">248</p>
-              <p class="text-xs text-gray-400 mt-1">Total Boarders</p>
-            </div>
-            <div class="rounded-xl p-3 text-center dashboard-cell">
-              <p class="text-2xl font-extrabold text-green-400 stat-number-font">234</p>
-              <p class="text-xs text-gray-400 mt-1">Present Tonight</p>
-            </div>
-            <div class="rounded-xl p-3 text-center dashboard-cell">
-              <p class="text-2xl font-extrabold text-yellow-400 stat-number-font">14</p>
-              <p class="text-xs text-gray-400 mt-1">On Leave</p>
-            </div>
-          </div>
-
-          <p class="text-xs text-gray-400 mb-3 uppercase tracking-widest">Hostel Blocks</p>
-          <div class="space-y-3">
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-300">Block A – Boys</span>
-                <span class="text-gray-400">68/80 occupied</span>
-              </div>
-              <div class="w-full rounded-full h-2 progress-bg">
-                <div class="h-2 rounded-full progress-orange" style="width:85%;"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-300">Block B – Girls</span>
-                <span class="text-gray-400">72/80 occupied</span>
-              </div>
-              <div class="w-full rounded-full h-2 progress-bg">
-                <div class="h-2 rounded-full" style="background:#60A5FA;width:90%;"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-300">Block C – Senior</span>
-                <span class="text-gray-400">94/100 occupied</span>
-              </div>
-              <div class="w-full rounded-full h-2 progress-bg">
-                <div class="h-2 rounded-full" style="background:#4ADE80;width:94%;"></div>
-              </div>
-            </div>
-          </div>
-
-          <p class="text-xs text-gray-400 mt-6 mb-3 uppercase tracking-widest">Recent Activity</p>
-          <div class="space-y-2">
-            <div class="flex items-center gap-3 p-2 rounded-lg dashboard-cell">
-              <span class="text-lg">🚪</span>
-              <div>
-                <p class="text-xs text-white">Arjun S. – Outing approved</p>
-                <p class="text-xs text-gray-500">Block A · 3 min ago</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-3 p-2 rounded-lg dashboard-cell">
-              <span class="text-lg">🌙</span>
-              <div>
-                <p class="text-xs text-white">Night roll-call completed – Block B</p>
-                <p class="text-xs text-gray-500">All 72 present · 18 min ago</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-3 p-2 rounded-lg dashboard-cell">
-              <span class="text-lg">🏥</span>
-              <div>
-                <p class="text-xs text-white">Priya M. visited infirmary</p>
-                <p class="text-xs text-gray-500">Block C · 1 hr ago</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 </section>
 
+<footer class="py-12 px-6 lg:px-12 bg-[#111010] dark:bg-[#050505]">
+    <div class="max-w-[1400px] mx-auto">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+            <div class="lg:col-span-2">
+                <span class="font-extrabold text-2xl tracking-tight text-[#E8651A]">Dheevidhya</span>
+                <p class="text-sm text-gray-400 mt-3 max-w-xs leading-relaxed">A comprehensive SaaS platform that digitally transforms education institutes. One platform. Zero paperwork. Complete visibility.</p>
+                <div class="flex gap-4 mt-5">
+                    <a href="#" class="w-9 h-9 rounded-xl flex items-center justify-center bg-[#1A1714] text-gray-400 hover:text-white transition-colors">in</a>
+                    <a href="#" class="w-9 h-9 rounded-xl flex items-center justify-center bg-[#1A1714] text-gray-400 hover:text-white transition-colors">𝕏</a>
+                    <a href="#" class="w-9 h-9 rounded-xl flex items-center justify-center bg-[#1A1714] text-gray-400 hover:text-white transition-colors">📘</a>
+                </div>
+            </div>
 
-<!-- ══════════════════════════════════════════════
-     BILLING MODULE
-══════════════════════════════════════════════ -->
-<section id="billing" class="py-24 px-6 lg:px-12 white-bg">
-  <div class="max-w-7xl mx-auto">
+            <div>
+                <h5 class="text-white font-bold text-sm mb-4 uppercase tracking-wider">Platform</h5>
+                <ul class="space-y-3">
+                    <li><a [routerLink]="[]" fragment="modules"  class="text-sm text-gray-400 hover:text-orange-400 transition-colors">All Modules</a></li>
+                    <li><a [routerLink]="[]" fragment="boarding" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Boarding Management</a></li>
+                    <li><a [routerLink]="[]" fragment="billing"  class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Billing &amp; Finance</a></li>
+                    <li><a [routerLink]="[]" fragment="ai"       class="text-sm text-gray-400 hover:text-orange-400 transition-colors">AI Features</a></li>
+                    <li><a [routerLink]="[]" fragment="roadmap"  class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Roadmap</a></li>
+                </ul>
+            </div>
 
-    <div class="text-center mb-16 fade-up">
-      <span class="tag mb-4">💳 Billing &amp; Finance</span>
-      <h2 class="text-4xl md:text-5xl font-extrabold mt-4 dark-text">
-        Fees. Finance. <span class="brand-color">Fully Automated.</span>
-      </h2>
-      <p class="text-lg mt-4 max-w-xl mx-auto muted-text">
-        End-to-end fee management from structure setup to collection, reminders and accounting — no manual ledgers.
-      </p>
+            <div>
+                <h5 class="text-white font-bold text-sm mb-4 uppercase tracking-wider">Contact</h5>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-2 text-sm text-gray-400"><span>📞</span>+91 98765 00000</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-400"><span>📍</span>Chennai, Tamil Nadu, India</li>
+                </ul>
+                <a [routerLink]="[]" fragment="contact" class="btn-orange text-sm mt-6 inline-block">Book a Demo</a>
+            </div>
+        </div>
+
+        <div class="h-px mb-6" style="background:linear-gradient(90deg,transparent,rgba(232,101,26,.2),transparent)"></div>
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p class="text-xs text-gray-400">© {{today.getFullYear()}} Dheevidhya. All rights reserved.</p>
+            <div class="flex gap-6">
+                <a href="#" class="text-xs text-gray-400 hover:text-gray-400 transition-colors">Privacy Policy</a>
+                <a href="#" class="text-xs text-gray-400 hover:text-gray-400 transition-colors">Terms of Service</a>
+                <a href="#" class="text-xs text-gray-400 hover:text-gray-400 transition-colors">Cookie Policy</a>
+            </div>
+        </div>
     </div>
-
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16 stagger">
-      <div class="billing-feature-card rounded-2xl p-6 text-center fade-up">
-        <div class="text-3xl mb-3">📋</div>
-        <h4 class="font-bold mb-2 dark-text">Fee Structure Setup</h4>
-        <p class="text-xs muted-text">Configure tuition, transport, hostel, exam and miscellaneous fee heads with custom payment schedules.</p>
-      </div>
-      <div class="billing-feature-card rounded-2xl p-6 text-center fade-up">
-        <div class="text-3xl mb-3">📱</div>
-        <h4 class="font-bold mb-2 dark-text">Online &amp; Offline Payment</h4>
-        <p class="text-xs muted-text">Accept UPI, card, net banking and cash payments. Auto-generate receipts with digital delivery.</p>
-      </div>
-      <div class="billing-feature-card rounded-2xl p-6 text-center fade-up">
-        <div class="text-3xl mb-3">🔔</div>
-        <h4 class="font-bold mb-2 dark-text">Automated Reminders</h4>
-        <p class="text-xs muted-text">SMS, email and push notification reminders for upcoming dues, overdue fees and partial payments.</p>
-      </div>
-      <div class="billing-feature-card rounded-2xl p-6 text-center fade-up">
-        <div class="text-3xl mb-3">📊</div>
-        <h4 class="font-bold mb-2 dark-text">Finance Reports &amp; Analytics</h4>
-        <p class="text-xs muted-text">Collection reports, outstanding dues, branch-wise revenue breakdowns and audit-ready ledgers.</p>
-      </div>
-    </div>
-
-    <!-- Pricing Plans -->
-    <div class="text-center mb-12 fade-up">
-      <h3 class="text-3xl font-extrabold dark-text">Simple, Transparent Pricing</h3>
-      <p class="mt-2 muted-text">Start free. Scale as you grow. No hidden charges.</p>
-    </div>
-
-    <div class="grid md:grid-cols-3 gap-6 stagger">
-
-      <!-- Starter -->
-      <div class="plan-card p-8 fade-up">
-        <p class="text-xs font-bold uppercase tracking-widest mb-4 brand-color">Starter</p>
-        <p class="text-5xl font-extrabold mb-1 dark-text stat-number-font">₹4,999</p>
-        <p class="text-sm mb-6 muted-text">per month · up to 500 students</p>
-        <ul class="space-y-3 mb-8">
-          <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> 1 Branch</li>
-          <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> Core Modules (8)</li>
-          <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> Basic Fee Management</li>
-          <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> Email &amp; Push Notifications</li>
-          <li class="flex items-center gap-2 text-sm muted-text"><span class="text-gray-300">✗</span> AI Features</li>
-          <li class="flex items-center gap-2 text-sm muted-text"><span class="text-gray-300">✗</span> Boarding Module</li>
-        </ul>
-        <a [routerLink]="[]" fragment="contact" class="btn-outline w-full text-center text-sm">Get Started</a>
-      </div>
-
-      <!-- Pro – featured -->
-      <div class="plan-card featured p-8 fade-up shadow-2xl">
-        <div class="absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full popular-badge">Most Popular</div>
-        <p class="text-xs font-bold uppercase tracking-widest mb-4 brand-color">Professional</p>
-        <p class="text-5xl font-extrabold mb-1 text-white dark:text-gray-300 stat-number-font">₹9,999</p>
-        <p class="text-sm mb-6 text-gray-400">per month · up to 2000 students</p>
-        <ul class="space-y-3 mb-8">
-          <li class="flex items-center gap-2 text-sm text-gray-200"><span class="brand-color">✔</span> Up to 5 Branches</li>
-          <li class="flex items-center gap-2 text-sm text-gray-200"><span class="brand-color">✔</span> All 12 Core Modules</li>
-          <li class="flex items-center gap-2 text-sm text-gray-200"><span class="brand-color">✔</span> Full Billing &amp; Finance Suite</li>
-          <li class="flex items-center gap-2 text-sm text-gray-200"><span class="brand-color">✔</span> Boarding Management</li>
-          <li class="flex items-center gap-2 text-sm text-gray-200"><span class="brand-color">✔</span> Leave &amp; Outing Workflows</li>
-          <li class="flex items-center gap-2 text-sm text-gray-200"><span class="brand-color">✔</span> Priority Support</li>
-        </ul>
-        <a [routerLink]="[]" fragment="contact" class="btn-orange w-full text-center text-sm block">Start Free Trial</a>
-      </div>
-
-      <!-- Enterprise -->
-      <div class="plan-card p-8 fade-up">
-        <p class="text-xs font-bold uppercase tracking-widest mb-4 brand-color">Enterprise</p>
-        <p class="text-5xl font-extrabold mb-1 dark-text stat-number-font">Custom</p>
-        <p class="text-sm mb-6 muted-text">per month · unlimited students</p>
-        <ul class="space-y-3 mb-8">
-          <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> Unlimited Branches</li>
-          <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> All Modules + AI Suite</li>
-          <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> White-label Branding</li>
-          <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> Dedicated Account Manager</li>
-          <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> SLA &amp; Custom Integrations</li>
-          <li class="flex items-center gap-2 text-sm body-text"><span class="brand-color">✔</span> On-premise option available</li>
-        </ul>
-        <a [routerLink]="[]" fragment="contact" class="btn-outline w-full text-center text-sm">Contact Sales</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     AI FEATURES
-══════════════════════════════════════════════ -->
-<section id="ai" class="py-24 px-6 lg:px-12 dark-section">
-  <div class="max-w-7xl mx-auto">
-
-    <div class="text-center mb-16 fade-up">
-      <span class="tag mb-4 tag-dark">🤖 AI-Powered — Upcoming</span>
-      <h2 class="text-4xl md:text-5xl font-extrabold mt-4 text-white">
-        Intelligence Built <span class="brand-color">Into Every Decision</span>
-      </h2>
-      <p class="text-lg mt-4 max-w-xl mx-auto text-gray-400">
-        Phase 3 brings machine learning and AI to every corner of your institution. A glimpse at what's coming.
-      </p>
-    </div>
-
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger">
-
-      <div class="ai-card p-7 fade-up">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="ai-icon text-xl">🧠</div>
-          <span class="ai-phase-badge text-xs px-2 py-1 rounded-full text-orange-300 font-medium">Phase 3</span>
-        </div>
-        <h3 class="font-bold text-white mb-2">AI-Powered Performance Insights</h3>
-        <p class="text-sm text-gray-400">Identify at-risk students automatically using ML models trained on attendance, grades, and engagement patterns. Get actionable recommendations for teachers.</p>
-      </div>
-
-      <div class="ai-card p-7 fade-up">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="ai-icon text-xl">👁️</div>
-          <span class="ai-phase-badge text-xs px-2 py-1 rounded-full text-orange-300 font-medium">Phase 3</span>
-        </div>
-        <h3 class="font-bold text-white mb-2">Smart Attendance (Face Recognition)</h3>
-        <p class="text-sm text-gray-400">Camera-based automated attendance using facial recognition. Eliminate proxy attendance and manual marking — accurate, fast, and touchless.</p>
-      </div>
-
-      <div class="ai-card p-7 fade-up">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="ai-icon text-xl">📈</div>
-          <span class="ai-phase-badge text-xs px-2 py-1 rounded-full text-orange-300 font-medium">Phase 3</span>
-        </div>
-        <h3 class="font-bold text-white mb-2">Predictive Analytics for Students</h3>
-        <p class="text-sm text-gray-400">Forecast student performance trends, exam outcomes, and dropout risks months in advance — enabling proactive interventions that improve outcomes.</p>
-      </div>
-
-      <div class="ai-card p-7 fade-up">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="ai-icon text-xl">📄</div>
-          <span class="ai-phase-badge text-xs px-2 py-1 rounded-full text-orange-300 font-medium">Phase 3</span>
-        </div>
-        <h3 class="font-bold text-white mb-2">AI Exam Paper Generator</h3>
-        <p class="text-sm text-gray-400">Generate balanced, curriculum-aligned question papers in seconds. Specify difficulty distribution, topic weightage, and question types — AI does the rest.</p>
-      </div>
-
-      <div class="ai-card p-7 fade-up">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="ai-icon text-xl">🎯</div>
-          <span class="ai-phase-badge text-xs px-2 py-1 rounded-full text-orange-300 font-medium">Phase 3</span>
-        </div>
-        <h3 class="font-bold text-white mb-2">Personalised Learning Recommendations</h3>
-        <p class="text-sm text-gray-400">Adaptive learning paths tailored to each student's strengths, weaknesses, and learning style — powered by continuous performance analysis.</p>
-      </div>
-
-      <div class="ai-card p-7 fade-up">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="ai-icon text-xl">🚌</div>
-          <span class="text-xs px-2 py-1 rounded-full text-blue-300 font-medium ai-phase-badge-blue">Phase 2</span>
-        </div>
-        <h3 class="font-bold text-white mb-2">Institution Van Tracking</h3>
-        <p class="text-sm text-gray-400">Live GPS tracking of institution transport with route optimization, ETA notifications for parents and driver management — coming in Phase 2.</p>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     PRODUCT ROADMAP
-══════════════════════════════════════════════ -->
-<section id="roadmap" class="py-24 px-6 lg:px-12 cream-bg">
-  <div class="max-w-7xl mx-auto">
-
-    <div class="text-center mb-16 fade-up">
-      <span class="tag mb-4">Product Roadmap</span>
-      <h2 class="text-4xl md:text-5xl font-extrabold mt-4 dark-text">
-        What's Built. <span class="brand-color">What's Next.</span>
-      </h2>
-      <p class="text-lg mt-4 max-w-lg mx-auto muted-text">Where administration ends and excellence begins.</p>
-    </div>
-
-    <div class="grid lg:grid-cols-3 gap-6">
-
-      <!-- Phase 1 -->
-      <div class="phase-card fade-up dark-section">
-        <div class="p-6 phase-header-border">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-widest brand-color">Phase 1</span>
-            <span class="flex items-center gap-1.5 text-xs font-bold text-green-400">
-              <span class="phase-dot" style="background:#4ADE80;box-shadow:0 0 6px #4ADE80;"></span> LIVE
-            </span>
-          </div>
-          <h3 class="text-2xl font-extrabold text-white stat-number-font">Foundation</h3>
-        </div>
-        <ul class="p-6 space-y-3">
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Unified Dashboard &amp; Operations</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Multi-Tenant Architecture</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Hierarchical Academic Setup</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Staff Management System</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Student Enrolment &amp; Management</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Automated Timetable Scheduling</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Attendance Management</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Complete Examination Management</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Assignment Management</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Notification System</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Custom Inventory Management</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Automated Student Promotion</li>
-          <li class="flex items-center gap-3 text-sm text-gray-300"><span class="phase-dot phase-dot-orange"></span>Academic Year Isolation</li>
-        </ul>
-      </div>
-
-      <!-- Phase 2 -->
-      <div class="phase-card fade-up white-bg phase-card-bordered">
-        <div class="p-6 phase-header-border-light">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-widest brand-color">Phase 2</span>
-            <span class="flex items-center gap-1.5 text-xs font-bold text-blue-500">
-              <span class="phase-dot phase-dot-blue phase-dot-pulse"></span> IN PROGRESS
-            </span>
-          </div>
-          <h3 class="text-2xl font-extrabold dark-text stat-number-font">Expansion</h3>
-        </div>
-        <ul class="p-6 space-y-3">
-          <li class="flex items-center gap-3 text-sm body-text"><span class="phase-dot phase-dot-blue"></span>Leave Approval &amp; Rejection Workflows</li>
-          <li class="flex items-center gap-3 text-sm body-text"><span class="phase-dot phase-dot-blue"></span>Fees &amp; Finance Management</li>
-          <li class="flex items-center gap-3 text-sm body-text"><span class="phase-dot phase-dot-blue"></span>Advanced Module Suite</li>
-          <li class="flex items-center gap-3 text-sm body-text"><span class="phase-dot phase-dot-blue"></span>Staff Handover System</li>
-          <li class="flex items-center gap-3 text-sm body-text"><span class="phase-dot phase-dot-blue"></span>Storing Subject Materials</li>
-          <li class="flex items-center gap-3 text-sm body-text"><span class="phase-dot phase-dot-blue"></span>Institution Van Tracking</li>
-          <li class="flex items-center gap-3 text-sm body-text"><span class="phase-dot phase-dot-blue"></span>Boarding Institute Management</li>
-        </ul>
-      </div>
-
-      <!-- Phase 3 -->
-      <div class="phase-card fade-up white-bg phase-card-bordered">
-        <div class="p-6 phase-header-border-light">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-widest brand-color">Phase 3</span>
-            <span class="flex items-center gap-1.5 text-xs font-bold muted-text">
-              <span class="phase-dot phase-dot-muted"></span> PLANNED
-            </span>
-          </div>
-          <h3 class="text-2xl font-extrabold dark-text stat-number-font">Intelligence</h3>
-        </div>
-        <ul class="p-6 space-y-3">
-          <li class="flex items-center gap-3 text-sm muted-text"><span class="phase-dot phase-dot-muted"></span>Alumni Network &amp; Portal</li>
-          <li class="flex items-center gap-3 text-sm muted-text"><span class="phase-dot phase-dot-muted"></span>AI-Powered Performance Insights</li>
-          <li class="flex items-center gap-3 text-sm muted-text"><span class="phase-dot phase-dot-muted"></span>Smart Attendance (Face Recognition)</li>
-          <li class="flex items-center gap-3 text-sm muted-text"><span class="phase-dot phase-dot-muted"></span>Predictive Analytics for Students</li>
-          <li class="flex items-center gap-3 text-sm muted-text"><span class="phase-dot phase-dot-muted"></span>AI Exam Paper Generator</li>
-          <li class="flex items-center gap-3 text-sm muted-text"><span class="phase-dot phase-dot-muted"></span>Personalised Learning Recommendations</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Legend -->
-    <div class="flex justify-center gap-8 mt-8 fade-up">
-      <span class="flex items-center gap-2 text-sm muted-text"><span class="phase-dot" style="background:#4ADE80;"></span>Delivered</span>
-      <span class="flex items-center gap-2 text-sm muted-text"><span class="phase-dot phase-dot-blue"></span>In Progress</span>
-      <span class="flex items-center gap-2 text-sm muted-text"><span class="phase-dot phase-dot-muted"></span>Planned</span>
-    </div>
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     CONTACT / CTA
-══════════════════════════════════════════════ -->
-<section id="contact" class="py-24 px-6 lg:px-12 dark-section">
-  <div class="max-w-4xl mx-auto text-center fade-up">
-    <span class="tag mb-6 tag-dark">Get Started Today</span>
-    <h2 class="text-5xl md:text-6xl font-extrabold text-white mt-4 leading-tight">
-      Transform Your<br/><span class="brand-color">Institution Today</span>
-    </h2>
-    <p class="text-xl text-gray-400 mt-6 max-w-xl mx-auto">
-      Administration handled. Staff empowered. School transformed.
-    </p>
-
-    <!-- Contact form -->
-    <div class="mt-12 rounded-2xl p-8 md:p-12 text-left form-bg">
-      <div class="grid md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Full Name</label>
-          <input type="text" placeholder="Dr. Ramesh Kumar" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Institution Name</label>
-          <input type="text" placeholder="Sri Vidya Academy" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Email Address</label>
-          <input type="email" placeholder="admin@example.edu" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Phone Number</label>
-          <input type="tel" placeholder="+91 98765 43210" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Number of Students</label>
-          <select class="form-input form-select w-full rounded-xl px-4 py-3 text-sm outline-none">
-            <option>Under 500</option>
-            <option>500 – 1000</option>
-            <option>1000 – 2000</option>
-            <option>2000 – 5000</option>
-            <option>5000+</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">City</label>
-          <input type="text" placeholder="Chennai, Tamil Nadu" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
-        </div>
-      </div>
-      <div class="mt-6">
-        <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Message (Optional)</label>
-        <textarea rows="3" placeholder="Tell us about your institution's needs..." class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none resize-none"></textarea>
-      </div>
-      <div class="mt-6 flex flex-col sm:flex-row gap-4">
-        <button class="btn-orange text-base flex-1 text-center">Book a Free Demo 🚀</button>
-        <button class="btn-outline text-base flex-1 text-center">Download Brochure</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     FOOTER
-══════════════════════════════════════════════ -->
-<footer class="py-12 px-6 lg:px-12 footer-bg">
-  <div class="max-w-7xl mx-auto">
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-
-      <div class="lg:col-span-2">
-        <span class="font-display font-extrabold text-2xl tracking-tight brand-color">Dheevidhya</span>
-        <p class="text-sm text-gray-400 mt-3 max-w-xs leading-relaxed">
-          A comprehensive SaaS platform that digitally transforms education institutes. One platform. Zero paperwork. Complete visibility.
-        </p>
-        <div class="flex gap-4 mt-5">
-          <a href="#" class="social-link w-9 h-9 rounded-xl flex items-center justify-center text-gray-400 hover:text-white transition-colors">in</a>
-          <a href="#" class="social-link w-9 h-9 rounded-xl flex items-center justify-center text-gray-400 hover:text-white transition-colors">𝕏</a>
-          <a href="#" class="social-link w-9 h-9 rounded-xl flex items-center justify-center text-gray-400 hover:text-white transition-colors">📘</a>
-        </div>
-      </div>
-
-      <div>
-        <h5 class="text-white font-bold text-sm mb-4 uppercase tracking-wider">Platform</h5>
-        <ul class="space-y-3">
-          <li><a [routerLink]="[]" fragment="modules" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">All Modules</a></li>
-          <li><a [routerLink]="[]" fragment="boarding" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Boarding Management</a></li>
-          <li><a [routerLink]="[]" fragment="billing" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Billing &amp; Finance</a></li>
-          <li><a [routerLink]="[]" fragment="ai" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">AI Features</a></li>
-          <li><a [routerLink]="[]" fragment="roadmap" class="text-sm text-gray-400 hover:text-orange-400 transition-colors">Roadmap</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h5 class="text-white font-bold text-sm mb-4 uppercase tracking-wider">Contact</h5>
-        <ul class="space-y-3">
-          <li class="flex items-start gap-2 text-sm text-gray-400"><span>📞</span>+91 98765 00000</li>
-          <li class="flex items-start gap-2 text-sm text-gray-400"><span>📍</span>Chennai, Tamil Nadu, India</li>
-        </ul>
-        <a [routerLink]="[]" fragment="contact" class="btn-orange text-sm mt-6 inline-block">Book a Demo</a>
-      </div>
-    </div>
-
-    <div class="section-divider mb-6"></div>
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-      <p class="text-xs text-gray-600">© 2025 Dheevidhya. All rights reserved.</p>
-      <div class="flex gap-6">
-        <a href="#" class="text-xs text-gray-600 hover:text-gray-400 transition-colors">Privacy Policy</a>
-        <a href="#" class="text-xs text-gray-600 hover:text-gray-400 transition-colors">Terms of Service</a>
-        <a href="#" class="text-xs text-gray-600 hover:text-gray-400 transition-colors">Cookie Policy</a>
-      </div>
-    </div>
-  </div>
 </footer>
