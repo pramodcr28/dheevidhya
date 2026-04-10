@@ -229,7 +229,13 @@ export class TakeAttendenceComponent implements OnInit {
                                     status: status
                                 });
                             });
-
+                            if (res.content && res.content.length == 0) {
+                                this.messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'No Students Found Please Contact Administrator'
+                                });
+                            }
                             this.loader.hide();
                         });
                 }
@@ -284,6 +290,7 @@ export class TakeAttendenceComponent implements OnInit {
                     closeIcon: 'close'
                 });
                 this.takeAttandence = true;
+                this.checkAndLoadAttendance();
             },
             error: (err) => {
                 this.messageService.add({

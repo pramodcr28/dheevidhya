@@ -477,7 +477,7 @@
                 <button
                     pButton
                     type="button"
-                    [label]="selectedSlot.isPast ? 'Take Attendance for Past Session' : 'Start Taking Attendance'"
+                    [label]="selectedSlot.isPast ? 'Choose Other Period' : 'Start Taking Attendance'"
                     icon="pi pi-users"
                     [class]="selectedSlot.isPast ? 'p-button-warning p-button-lg' : 'p-button-primary p-button-lg'"
                     (click)="takeAttandence = true; openSlotPicker()"
