@@ -806,23 +806,23 @@
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Full Name</label>
-                    <input type="text" placeholder="Dr. Ramesh Kumar" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
+                    <input type="text" placeholder="Dr. Ramesh Kumar" [(ngModel)]="contactForm.fullName" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Institution Name</label>
-                    <input type="text" placeholder="Sri Vidya Academy" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
+                    <input type="text" placeholder="Sri Vidya Academy" [(ngModel)]="contactForm.institutionName" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Email Address</label>
-                    <input type="email" placeholder="admin@example.edu" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
+                    <input type="email" placeholder="admin@example.edu" [(ngModel)]="contactForm.email" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Phone Number</label>
-                    <input type="tel" placeholder="+91 98765 43210" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
+                    <input type="tel" placeholder="+91 98765 43210"  [(ngModel)]="contactForm.phone" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Number of Students</label>
-                    <select class="form-input form-select w-full rounded-xl px-4 py-3 text-sm outline-none">
+                    <select class="form-input form-select w-full rounded-xl px-4 py-3 text-sm outline-none" [(ngModel)]="contactForm.studentRange">
                         <option>Under 500</option>
                         <option>500 – 1000</option>
                         <option>1000 – 2000</option>
@@ -832,16 +832,17 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">City</label>
-                    <input type="text" placeholder="Banglore, Karnataka" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
+                    <input type="text" placeholder="Banglore, Karnataka" [(ngModel)]="contactForm.city" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none" />
                 </div>
             </div>
             <div class="mt-6">
                 <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Message (Optional)</label>
-                <textarea rows="3" placeholder="Tell us about your institution's needs..." class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none resize-none"></textarea>
+                <textarea rows="3" placeholder="Tell us about your institution's needs..."  [(ngModel)]="contactForm.message" class="form-input w-full rounded-xl px-4 py-3 text-sm outline-none resize-none"></textarea>
             </div>
             <div class="mt-6 flex flex-col sm:flex-row gap-4">
-                <button class="btn-orange text-base flex-1 text-center">Book a Free Demo</button>
-                <button class="btn-outline text-base flex-1 text-center">Download Brochure</button>
+                <div type="button" class="btn-orange text-base flex-1 text-center" (click)="submitForm()">Book a Free Demo</div>
+                
+                <button class="btn-outline text-base flex-1 text-center" disabled="true">Download Brochure</button>
             </div>
         </div>
     </div>

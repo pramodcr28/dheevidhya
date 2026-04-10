@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { SwitchAcademicYearDTO } from '../model/account.model';
+import { ContactLead, SwitchAcademicYearDTO } from '../model/account.model';
 import { Account } from '../model/auth';
 import { addAuthorities, loadUserProfile } from '../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
@@ -64,5 +64,15 @@ export class AccountService {
 
     switchAcademicYear(academicYear: string): Observable<SwitchAcademicYearDTO> {
         return this.http.post<SwitchAcademicYearDTO>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + `config/switch/${academicYear}`), {});
+    }
+
+    // add here to api connection to save log
+
+    saveContactLead(data: ContactLead): Observable<any> {
+        return this.http.post(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'public/contact'), data);
+    }
+
+    getContactLeads(): Observable<ContactLead[]> {
+        return this.http.get<ContactLead[]>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'public/contact'));
     }
 }

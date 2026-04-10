@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './app/core/auth/auth-guard.guard';
 import { AppLayout } from './app/core/layout/app.layout';
+import { ContactLeadsTableComponent } from './app/dashboards/admin-dashboard/contact-leads-table.component';
 import { StaffAttendanceComponent } from './app/pages/calendar/staff-calendar.component';
 import { DashboardComponent } from './app/pages/dashboard/dashboard';
 import { EmployeeListComponent } from './app/pages/employee/employee-list/employee-list.component';
@@ -29,11 +30,12 @@ import { TenantComponent } from './app/pages/tenant/tenant.component';
 
 export const appRoutes: Routes = [
     {
-        path: '',
+        path: 'home',
         canActivate: [authGuard],
         component: AppLayout,
         children: [
             { path: '', component: DashboardComponent },
+            { path: 'contact-leads', component: ContactLeadsTableComponent },
             {
                 path: 'tenant',
                 children: [
@@ -116,7 +118,7 @@ export const appRoutes: Routes = [
         ]
     },
     { path: 'notfound', component: Notfound },
-    { path: 'welcome', loadComponent: () => import('./app/welcome-page/welcome-page.component').then((m) => m.WelcomePageComponent) },
+    { path: '', loadComponent: () => import('./app/welcome-page/welcome-page.component').then((m) => m.WelcomePageComponent) },
     { path: 'auth', loadChildren: () => import('./app/core/auth/auth.routes') },
     { path: '**', redirectTo: '/notfound' }
 ];

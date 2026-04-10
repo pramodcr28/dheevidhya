@@ -129,17 +129,17 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
     }
 
     viewAllNotices() {
-        this.router.navigate(['./notice-board']);
+        this.router.navigate(['./home/notice-board']);
     }
 
     viewAllExams() {
-        this.router.navigate(['./examination']);
+        this.router.navigate(['./home/examination']);
     }
 
     viewAllInventory() {
-        this.router.navigate(['./inventory/assets']);
+        this.router.navigate(['./home/inventory/assets']);
     }
     viewAllStaffAttendance() {
-        this.router.navigate(['./attendance-management']);
+        this.router.navigate(['./home/attendance-management']);
     }
 }

@@ -83,7 +83,7 @@ export class PushNotificationService {
         //     // Navigate to specific page if needed
         //     const data = action.notification.data;
         //     if (data?.route) {
-        //         this.router.navigate(['./notice-board']); // https://dheevidhya.in/notice-board
+        //         this.router.navigate(['./home/notice-board']); // https://dheevidhya.in/notice-board
         //     }
         // });
     }

@@ -77,7 +77,7 @@ export class Login {
                         this.isLoading.set(false);
                         this.authServerProvider.authenticationError = null;
                         if (!this.router.getCurrentNavigation()) {
-                            this.router.navigate(['']);
+                            this.router.navigate(['/home']);
                         }
                     } else {
                         this.isLoading.set(false);

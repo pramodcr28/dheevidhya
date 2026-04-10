@@ -447,6 +447,6 @@ export class BulkStudentUploadComponent implements OnInit {
     }
 
     goBack(): void {
-        this.router.navigate(['/stats-student-list']);
+        this.router.navigate(['/home/stats-student-list']);
     }
 }

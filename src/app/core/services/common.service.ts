@@ -106,8 +106,15 @@ export class CommonService {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-home',
-                        routerLink: ['/'],
+                        routerLink: ['/home'],
                         visible: true
+                    },
+
+                    {
+                        label: 'Contact leads',
+                        icon: 'pi pi-fw pi-address-book',
+                        routerLink: ['/home/contact-leads'],
+                        visible: this.hasRoles(['SUPER_ADMIN'])
                     },
 
                     // {
@@ -119,31 +126,31 @@ export class CommonService {
                     {
                         label: 'Students',
                         icon: 'pi pi-fw pi-users',
-                        routerLink: ['/stats-student-list'],
+                        routerLink: ['/home/stats-student-list'],
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
                     },
                     {
                         label: 'Bulk Student Upload',
                         icon: 'pi pi-fw pi-upload',
-                        routerLink: ['/bulk-student-upload'],
+                        routerLink: ['/home/bulk-student-upload'],
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
                     },
                     {
                         label: 'Staff',
                         icon: 'pi pi-fw pi-graduation-cap',
-                        routerLink: ['/employees'],
+                        routerLink: ['/home/employees'],
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR'])
                     },
                     {
                         label: 'Calendar',
                         icon: 'pi pi-fw pi-calendar',
-                        routerLink: ['/staff-calendar'],
+                        routerLink: ['/home/staff-calendar'],
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER', 'STUDENT'])
                     },
                     {
                         label: 'Staff Attendence',
                         icon: 'pi pi-fw pi-calendar-times',
-                        routerLink: ['/attendance-management'],
+                        routerLink: ['/home/attendance-management'],
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR'])
                     }
                 ]
@@ -151,19 +158,19 @@ export class CommonService {
             {
                 label: 'Tenant Management',
                 icon: 'pi pi-fw pi-home',
-                routerLink: ['/tenant'],
+                routerLink: ['/home/tenant'],
                 visible: this.hasRoles(['SUPER_ADMIN']),
                 items: [
                     {
                         label: 'Tenant Setup',
                         icon: 'pi pi-fw pi-list',
-                        routerLink: ['/tenant/list'],
+                        routerLink: ['/home/tenant/list'],
                         visible: true
                     },
                     {
                         label: 'Staff',
                         icon: 'pi pi-fw pi-graduation-cap',
-                        routerLink: ['/employees'],
+                        routerLink: ['/home/employees'],
                         visible: true
                     }
                 ]
@@ -175,37 +182,37 @@ export class CommonService {
                     {
                         label: 'Time Table',
                         icon: 'pi pi-fw pi-table',
-                        routerLink: ['/time-table-list'],
+                        routerLink: ['/home/time-table-list'],
                         visible: true
                     },
                     {
                         label: 'Student Attendence',
                         icon: 'pi pi-fw pi-home',
-                        routerLink: ['/student-attendence'],
+                        routerLink: ['/home/student-attendence'],
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER'])
                     },
                     {
                         label: 'Attendence',
                         icon: 'pi pi-fw pi-home',
-                        routerLink: ['/attendence'],
+                        routerLink: ['/home/attendence'],
                         visible: this.hasRoles(['STUDENT'])
                     },
                     {
                         label: 'Examination',
                         icon: 'pi pi-fw pi-verified',
-                        routerLink: ['/examination'],
+                        routerLink: ['/home/examination'],
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER', 'STUDENT'])
                     },
                     {
                         label: 'Assignment',
                         icon: 'pi pi-fw pi-book',
-                        routerLink: ['/assignment'],
+                        routerLink: ['/home/assignment'],
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'LECTURER', 'TEACHER', 'STUDENT'])
                     },
                     {
                         label: 'Notification',
                         icon: 'pi pi-fw pi-bell',
-                        routerLink: ['/notice-board'],
+                        routerLink: ['/home/notice-board'],
                         visible: true
                     }
                 ]
@@ -218,20 +225,20 @@ export class CommonService {
                     {
                         label: 'Department Setup',
                         icon: 'pi pi-fw pi-building-columns',
-                        routerLink: ['/departments'],
+                        routerLink: ['/home/departments'],
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR'])
                     },
                     {
                         label: 'Org Tree',
                         icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/org'],
+                        routerLink: ['/home/org'],
                         visible: this.hasRoles(['LECTURER', 'TEACHER', 'HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR', 'STUDENT'])
                     },
                     // NEW: Student Promotion Menu Item
                     {
                         label: 'Student Promotion',
                         icon: 'pi pi-fw pi-arrow-up',
-                        routerLink: ['/student-promotion'],
+                        routerLink: ['/home/student-promotion'],
                         visible: this.hasRoles(['LECTURER', 'TEACHER', 'HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR'])
                     }
                 ]
@@ -243,13 +250,13 @@ export class CommonService {
                     {
                         label: 'Categories',
                         icon: 'pi pi-fw pi-tags',
-                        routerLink: ['/inventory/categories'],
+                        routerLink: ['/home/inventory/categories'],
                         visible: true
                     },
                     {
                         label: 'Items',
                         icon: 'pi pi-fw pi-box',
-                        routerLink: ['/inventory/assets'],
+                        routerLink: ['/home/inventory/assets'],
                         visible: true
                     }
                 ]

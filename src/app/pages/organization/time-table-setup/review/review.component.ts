@@ -189,7 +189,7 @@ export class ReviewComponent {
                     detail: result.message
                 });
             } else {
-                this.router.navigate(['/time-table-list']);
+                this.router.navigate(['/home/time-table-list']);
                 this.messageService.add({ severity: 'success', summary: 'Success Message', detail: 'Congrats! Time Table Added' });
             }
         });

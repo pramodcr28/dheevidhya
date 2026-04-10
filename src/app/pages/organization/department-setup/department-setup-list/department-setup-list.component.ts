@@ -54,6 +54,6 @@ export class DepartmentListComponent implements OnInit {
     // }
 
     selectDepartment(dept: IMasterDepartment) {
-        this.router.navigate(['/department-setup', dept.id]);
+        this.router.navigate(['/home/department-setup', dept.id]);
     }
 }

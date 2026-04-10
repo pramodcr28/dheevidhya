@@ -154,22 +154,22 @@ export class DepartmentSetupComponent implements OnInit {
     }
 
     goBack() {
-        this.router.navigate(['/departments']);
+        this.router.navigate(['/home/departments']);
     }
 
     addNewAcademicYear() {
-        this.router.navigate(['/add-academic-year', this.selectedDepartment?.id ?? this.selectedDepartmentId]);
+        this.router.navigate(['/home/add-academic-year', this.selectedDepartment?.id ?? this.selectedDepartmentId]);
     }
 
     editAcademicYear() {
         if (this.selectedAcademicYear) {
-            this.router.navigate(['/edit-academic-year', this.selectedAcademicYear.deptConfigId]);
+            this.router.navigate(['/home/edit-academic-year', this.selectedAcademicYear.deptConfigId]);
         }
     }
 
     cloneAcademicYear() {
         if (this.selectedAcademicYear) {
-            this.router.navigate(['/clone-academic-year', this.selectedAcademicYear.deptConfigId]);
+            this.router.navigate(['/home/clone-academic-year', this.selectedAcademicYear.deptConfigId]);
         }
     }
 

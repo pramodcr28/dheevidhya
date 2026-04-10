@@ -79,7 +79,7 @@ import { AppConfigurator } from './app.configurator';
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <a [routerLink]="'/profile'">
+                    <a [routerLink]="'/home/profile'">
                         <button type="button" class="layout-topbar-action">
                             <i class="pi pi-user"></i>
                             <span>Profile</span>

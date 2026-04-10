@@ -248,14 +248,14 @@ export class StaffDashboardComponent implements OnInit, OnDestroy {
     }
 
     viewAllAssignments() {
-        this.router.navigate(['./assignment']);
+        this.router.navigate(['./home/assignment']);
     }
 
     viewAllNotifications() {
-        this.router.navigate(['./notice-board']);
+        this.router.navigate(['./home/notice-board']);
     }
     viewAllExams() {
-        this.router.navigate(['./examination']);
+        this.router.navigate(['./home/examination']);
     }
 
     getNoticeBadgeClass(priority: string): string {

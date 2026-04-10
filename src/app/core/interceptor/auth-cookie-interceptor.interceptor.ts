@@ -1,10 +1,10 @@
-import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
+import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { switchMap, take, tap, throwError } from 'rxjs';
-import { getToken } from '../store/user-profile/user-profile.selectors';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { switchMap, take, throwError } from 'rxjs';
 import { ApiLoaderService } from '../services/loaderService';
+import { getToken } from '../store/user-profile/user-profile.selectors';
 
 function isTokenExpired(token: string): boolean {
     try {
@@ -27,7 +27,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             let modifiedReq = req;
             if (token) {
                 if (isTokenExpired(token)) {
-                    router.navigate(['/auth/login']);
+                    router.navigate(['']);
                     loader.hide();
                     throwError(() => new Error('No token, redirecting to login'));
                 }
@@ -40,7 +40,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                 }
             } else {
                 if (!req.url.includes('/api/authenticate')) {
-                    router.navigate(['/auth/login']);
+                    router.navigate(['']);
                     loader.hide();
                     throwError(() => new Error('No token, redirecting to login'));
                 }

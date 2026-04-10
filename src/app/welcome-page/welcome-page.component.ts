@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, HostBinding, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { MessageService } from 'primeng/api';
 import { AppConfigurator } from '../core/layout/app.configurator';
+import { AccountService } from '../core/services/account.service';
 import { LayoutService } from '../core/services/layout.service';
 import { setTheme } from '../core/store/user-profile/user-profile.actions';
 import { UserProfileState } from '../core/store/user-profile/user-profile.reducer';
@@ -10,7 +13,7 @@ import { UserProfileState } from '../core/store/user-profile/user-profile.reduce
 @Component({
     selector: 'app-welcome-page',
     standalone: true,
-    imports: [CommonModule, RouterLink, AppConfigurator],
+    imports: [CommonModule, RouterLink, AppConfigurator, FormsModule],
     templateUrl: './welcome-page.component.html',
     styleUrls: ['./welcome-page.component.scss']
 })
@@ -24,15 +27,21 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
     private sectionObserver!: IntersectionObserver;
     private navLinks: NodeListOf<HTMLAnchorElement> | null = null;
 
-    layoutService = inject(LayoutService);
+    contactForm = {
+        fullName: '',
+        institutionName: '',
+        email: '',
+        phone: '',
+        studentRange: '',
+        city: '',
+        message: ''
+    };
 
+    layoutService = inject(LayoutService);
+    accountService = inject(AccountService);
+    messageService = inject(MessageService);
     constructor(private el: ElementRef) {}
 
-    /**
-     * Bind the `dark` class to the host element whenever darkTheme is active.
-     * Tailwind's `dark:` variants require `class="dark"` somewhere in the ancestor
-     * tree. Since this component IS the page root, we bind it here.
-     */
     @HostBinding('class.dark')
     get isDark(): boolean {
         return this.layoutService.layoutConfig().darkTheme ?? false;
@@ -73,6 +82,34 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.observer?.disconnect();
         this.sectionObserver?.disconnect();
+    }
+
+    submitForm() {
+        this.accountService.saveContactLead(this.contactForm).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Academic Year Switched',
+                    detail: `Request Saved SuccessFully `
+                });
+                this.contactForm = {
+                    fullName: '',
+                    institutionName: '',
+                    email: '',
+                    phone: '',
+                    studentRange: '',
+                    city: '',
+                    message: ''
+                };
+            },
+            error: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Unable to save your request'
+                });
+            }
+        });
     }
 
     private initObservers(): void {

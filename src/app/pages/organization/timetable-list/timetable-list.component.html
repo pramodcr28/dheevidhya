@@ -59,7 +59,7 @@
                 <p-select [options]="statusOptions" [(ngModel)]="statusFilter" (onChange)="apiCall()" optionLabel="label" optionValue="value" placeholder="Select Status" class="w-full"> </p-select>
             </div>
             @if(isManagementUser()){  
-               <button pButton icon="pi pi-plus" label="New Timetable" [routerLink]="['/time-table-setup']" class="bg-orange-500 ms-auto"></button>
+               <button pButton icon="pi pi-plus" label="New Timetable" [routerLink]="['/home/time-table-setup']" class="bg-orange-500 ms-auto"></button>
             }
         </div>
 

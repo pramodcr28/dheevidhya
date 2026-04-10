@@ -1,0 +1,66 @@
+<div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+  <div class="flex items-center justify-between px-5 pt-4 pb-2">
+    <div>
+      <p class="text-sm font-bold">Generated Leads</p>
+      <p class="text-xs text-gray-400 mt-0.5">Requests submitted from the welcome page contact form</p>
+    </div>
+    <p-button
+      icon="pi pi-refresh"
+      label="Refresh"
+      [text]="true"
+      [loading]="loading"
+      (onClick)="loadLeads()">
+    </p-button>
+  </div>
+
+  <div class="px-5 pb-5">
+    <div *ngIf="error" class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+      {{ error }}
+    </div>
+
+    <p-table
+      [value]="leads"
+      [loading]="loading"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-sm p-datatable-gridlines"
+      [tableStyle]="{ 'min-width': '72rem' }">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Name</th>
+          <th>Institution</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Students</th>
+          <th>City</th>
+          <th>Message</th>
+          <th>Created</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-lead>
+        <tr>
+          <td>{{ lead.fullName || '-' }}</td>
+          <td>{{ lead.institutionName || '-' }}</td>
+          <td>{{ lead.email || '-' }}</td>
+          <td>{{ lead.phone || '-' }}</td>
+          <td>{{ lead.studentRange || '-' }}</td>
+          <td>{{ lead.city || '-' }}</td>
+          <td class="max-w-[18rem]">
+            <div class="truncate" [pTooltip]="lead.message || '-'" tooltipPosition="top">
+              {{ lead.message || '-' }}
+            </div>
+          </td>
+          <td>{{ getCreatedOn(lead) ? (getCreatedOn(lead) | date:'MMM d, y, h:mm a') : '-' }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center py-6 text-sm text-gray-400">
+            No leads available.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

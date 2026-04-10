@@ -261,7 +261,7 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
                         detail: `Academic year ${this.calculatedAcademicYear} cloned successfully`
                     });
                     setTimeout(() => {
-                        this.router.navigate(['/department-setup', this.masterDepartment?.id]);
+                        this.router.navigate(['/home/department-setup', this.masterDepartment?.id]);
                     }, 1500);
                 },
                 error: () => {
@@ -366,6 +366,6 @@ export class CloneAcademicYearComponent implements OnInit, OnDestroy {
     }
 
     goBack(): void {
-        this.router.navigate(['/department-setup', this.masterDepartment?.id]);
+        this.router.navigate(['/home/department-setup', this.masterDepartment?.id]);
     }
 }

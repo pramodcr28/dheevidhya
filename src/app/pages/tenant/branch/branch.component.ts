@@ -97,6 +97,6 @@ export class BranchComponent implements OnInit {
     }
 
     goBack() {
-        this.router.navigate(['/tenant']);
+        this.router.navigate(['/home/tenant']);
     }
 }

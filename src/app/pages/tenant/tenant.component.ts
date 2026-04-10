@@ -103,7 +103,7 @@ export class TenantComponent implements OnInit {
     }
 
     viewBranches(tenant: ITenant): void {
-        this.router.navigate(['/tenant', tenant.id, 'branch']);
+        this.router.navigate(['/home/tenant', tenant.id, 'branch']);
     }
 
     onSaved(_: ITenant) {

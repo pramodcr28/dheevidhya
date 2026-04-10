@@ -15,3 +15,16 @@ export interface SwitchAcademicYearDTO {
     profile: any;
     token: string;
 }
+
+export interface ContactLead {
+    id?: string;
+    fullName: string;
+    institutionName: string;
+    email: string;
+    phone: string;
+    studentRange: string;
+    city: string;
+    message: string;
+    createdDate?: string;
+    createdAt?: string;
+}
