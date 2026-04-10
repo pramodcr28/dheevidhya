@@ -5,6 +5,7 @@ import { MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
+import { ApiLoaderService } from '../../../../core/services/loaderService';
 import { TimetableViewComponent } from '../../../../shared/timetable-view/timetable-view.component';
 import { ClassSection, DepartmentTimetable } from '../../../models/time-table';
 import { TimeTableService } from '../../../service/time-table.service';
@@ -24,6 +25,7 @@ export class ReviewComponent {
     timeTableService = inject(TimeTableService);
     router = inject(Router);
     validationErrors: string[];
+    loader = inject(ApiLoaderService);
 
     generateTimetable() {
         const teachers = this.timeTableService.getTeachersWithAvailability().map((t) => ({
@@ -48,9 +50,10 @@ export class ReviewComponent {
         }
 
         this.validationErrors = [];
-
+        this.loader.show('Generating Weekly Slots');
         this.timeTableService.generateTimeTable(exportData).subscribe(
             (response: any) => {
+                this.loader.hide();
                 const rawTimetable = response.timetable;
                 const classSections: any[] = [];
                 if (rawTimetable) {
@@ -158,6 +161,7 @@ export class ReviewComponent {
                 }
             },
             (errors) => {
+                this.loader.hide();
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to generate timetable. Please Contact IT Admin.' });
             }
         );

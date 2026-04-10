@@ -4,6 +4,7 @@ import { MessageService } from 'primeng/api';
 import { DragDropModule } from 'primeng/dragdrop';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { CommonService } from '../../core/services/common.service';
 import { DheeConfirmationService } from '../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../core/services/loaderService';
 import { BreakConfig, DepartmentTimetable } from '../../pages/models/time-table';
@@ -66,7 +67,7 @@ export class TimetableViewComponent {
     timeTableService = inject(TimeTableService);
     messageService = inject(MessageService);
     displayTimeTableJson!: DepartmentTimetable | any;
-
+    commonService = inject(CommonService);
     selectedPeriod: SelectedPeriod | null = null;
     isValidatingConflicts = false;
     validatingPeriodKey: string | null = null;
