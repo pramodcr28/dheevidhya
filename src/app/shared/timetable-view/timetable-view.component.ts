@@ -175,6 +175,17 @@ export class TimetableViewComponent {
         return `${scheduleIndex}-${periodIndex}`;
     }
 
+    formatTime(time: string | undefined): string {
+        if (!time) return '';
+
+        const [hours, minutes] = time.split(':').map(Number);
+
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const formattedHour = hours % 12 || 12; // converts 0 → 12
+
+        return `${formattedHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+    }
+
     onPeriodClick(classSec: any, scheduleIndex: number, periodIndex: number, cell: any) {
         if (cell.type !== 'lecture') {
             this.messageService.add({

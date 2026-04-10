@@ -189,9 +189,20 @@ export class StaffTimetableComponent implements OnInit {
         return `repeat(${this.timeSlots.length + 1}, auto)`;
     }
 
+    // formatTime(time: string | undefined): string {
+    //     if (!time) return '';
+    //     return time.split(':').slice(0, 2).join(':');
+    // }
+
     formatTime(time: string | undefined): string {
         if (!time) return '';
-        return time.split(':').slice(0, 2).join(':');
+
+        const [hours, minutes] = time.split(':').map(Number);
+
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const formattedHour = hours % 12 || 12; // converts 0 → 12
+
+        return `${formattedHour}:${minutes.toString().padStart(2, '0')} ${period}`;
     }
 
     isPeriodScheduled(day: any, slot: TimeSlot): boolean {

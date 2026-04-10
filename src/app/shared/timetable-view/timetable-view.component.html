@@ -89,7 +89,7 @@
                                         [pTooltip]="cell.tooltipText || cell.tooltip"
                                         tooltipPosition="top"
                                         [escape]="false"
-                                        class="relative p-2 min-h-[60px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md border"
+                                        class="relative p-2 min-h-[60px] min-w-[95px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md border"
                                         [ngClass]="{
                                             'drag-valid-target': cell.canDrop && selectedPeriod && classSec === selectedPeriod.classSec,
                                             'drag-conflict-target': !cell.canDrop && selectedPeriod && classSec === selectedPeriod.classSec,
@@ -115,13 +115,13 @@
                                                     {{ cell.instructor?.name || 'No Instructor' }}
                                                 </div>
 
-                                                <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">{{ cell.startTime }} - {{ cell.endTime }}</div>
+                                                <div class="text-[8px] font-semibold text-primary-600 dark:text-primary-400">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime)}}</div>
                                             </div>
 
                                             <ng-template #freeBlock>
                                                 <div class="h-full flex flex-col items-center justify-center text-center">
                                                     <div class="text-xs font-bold uppercase mb-1 text-surface-600 dark:text-surface-400">Free Period</div>
-                                                    <div class="text-[10px] text-surface-500 dark:text-surface-500">{{ cell.startTime }} - {{ cell.endTime }}</div>
+                                                    <div class="text-[8px] text-surface-500 dark:text-surface-500">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime) }}</div>
                                                 </div>
                                             </ng-template>
                                         </ng-template>
@@ -134,7 +134,7 @@
                                         [pTooltip]="cell.tooltipText || cell.tooltip"
                                         tooltipPosition="top"
                                         [escape]="false"
-                                        class="relative p-2 min-h-[60px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md border"
+                                        class="relative p-2 min-h-[60px] min-w-[70px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md border"
                                     >
                                         <ng-container *ngIf="isValidatingPeriod(cell.dayIndex, cell.realPeriodIndex); else viewContent">
                                             <div class="h-full flex flex-col justify-center items-center text-center gap-2">
@@ -153,13 +153,13 @@
                                                     {{ cell.instructor?.name || 'No Instructor' }}
                                                 </div>
 
-                                                <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">{{ cell.startTime }} - {{ cell.endTime }}</div>
+                                                <div class="text-[8px]  font-semibold text-primary-600 dark:text-primary-400">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime) }}</div>
                                             </div>
 
                                             <ng-template #freeBlockView>
                                                 <div class="h-full flex flex-col items-center justify-center text-center">
                                                     <div class="text-xs font-bold uppercase mb-1 text-surface-600 dark:text-surface-400">Free Period</div>
-                                                    <div class="text-[10px] text-surface-500 dark:text-surface-500">{{ cell.startTime }} - {{ cell.endTime }}</div>
+                                                    <div class="text-[8px] text-surface-500 dark:text-surface-500">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime) }}</div>
                                                 </div>
                                             </ng-template>
                                         </ng-template>
