@@ -82,7 +82,110 @@
     </div>
 </nav>
 
-<section class="hero-gradient dark:bg-[#111010] relative min-h-screen flex items-center overflow-hidden pt-20">
+<section class="hero-gradient dark:bg-[#111010] relative md:min-h-screen flex items-center overflow-hidden pt-20">
+<div class="hero-blob w-64 h-64 md:w-96 md:h-96 blob-orange" style="top:-80px;right:-60px"></div>
+  <div class="hero-blob w-48 h-48 md:w-64 md:h-64 blob-peach" style="bottom:60px;left:-40px;animation-delay:3s"></div>
+
+  <div class="max-w-[1400px] mx-auto px-6 lg:px-12 py-12 md:py-20 w-full">
+    <!-- Grid: on mobile reverse order using order classes so card appears first (top), text second -->
+    <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+      
+      <!-- Right Column (Dashboard Card) - appears first on mobile due to order-1 -->
+      <div class="order-1 lg:order-2 relative flex flex-col items-center justify-center">
+        <!-- Main Dashboard Card (centered, no absolute on mobile/desktop) -->
+        <div class="w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl bg-white dark:bg-neutral-900 p-5 transition-all duration-300 hover:scale-[1.02] float-card">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="w-3 h-3 rounded-full bg-red-500"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+            <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            <span class="ml-2 text-xs text-neutral-500 dark:text-neutral-400 font-mono">dashboard.dheevidhya.in</span>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-neutral-600 dark:text-neutral-300">Total Students</span>
+              <span class="text-sm font-bold text-neutral-800 dark:text-white">2,486</span>
+            </div>
+            <div class="w-full rounded-full h-1.5 bg-neutral-200 dark:bg-neutral-700">
+              <div class="h-1.5 rounded-full bg-primary-500" style="width:72%"></div>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-neutral-600 dark:text-neutral-300">Attendance Today</span>
+              <span class="text-sm font-bold text-primary-600 dark:text-primary-400">94.2%</span>
+            </div>
+            <div class="w-full rounded-full h-1.5 bg-neutral-200 dark:bg-neutral-700">
+              <div class="h-1.5 rounded-full bg-green-500" style="width:94%"></div>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-neutral-600 dark:text-neutral-300">Fee Collection</span>
+              <span class="text-sm font-bold text-neutral-800 dark:text-white">₹18.4L</span>
+            </div>
+            <div class="w-full rounded-full h-1.5 bg-neutral-200 dark:bg-neutral-700">
+              <div class="h-1.5 rounded-full bg-blue-500" style="width:61%"></div>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-neutral-600 dark:text-neutral-300">Pending Exams</span>
+              <span class="text-sm font-bold text-amber-500 dark:text-amber-400">3 Scheduled</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 mt-4">
+              <div class="rounded-lg p-2 text-center bg-neutral-100 dark:bg-neutral-800">
+                <span class="text-lg">👨‍🏫</span>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">84 Staff</p>
+              </div>
+              <div class="rounded-lg p-2 text-center bg-neutral-100 dark:bg-neutral-800">
+                <span class="text-lg">📚</span>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">12 Depts</p>
+              </div>
+              <div class="rounded-lg p-2 text-center bg-neutral-100 dark:bg-neutral-800">
+                <span class="text-lg">🏢</span>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">4 Branches</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating notification cards (only visible on large screens) -->
+        <div class="float-card bg-white dark:bg-neutral-800 absolute top-4 right-0 text-sm min-w-max rounded-xl shadow-lg p-3 hidden lg:flex items-center gap-2 border border-primary-100 dark:border-primary-900/30">
+          <span>✅</span>
+          <span class="font-medium text-xs text-neutral-700 dark:text-neutral-200">Attendance marked – Grade 10A</span>
+        </div>
+
+        <div class="float-card bg-white dark:bg-neutral-800 absolute bottom-10 left-0 text-sm min-w-max rounded-xl shadow-lg p-3 hidden lg:flex items-center gap-2 border border-primary-100 dark:border-primary-900/30">
+          <span>💰</span>
+          <span class="font-medium text-xs text-neutral-700 dark:text-neutral-200">Fee payment received – ₹12,500</span>
+        </div>
+
+        <div class="float-card bg-white dark:bg-neutral-800 absolute bottom-28 right-4 text-sm min-w-max rounded-xl shadow-lg p-3 hidden lg:flex items-center gap-2 border border-primary-100 dark:border-primary-900/30">
+          <span>🤖</span>
+          <span class="font-medium text-xs text-primary-600 dark:text-primary-400">AI: 3 students need attention</span>
+        </div>
+      </div>
+
+      <!-- Left Column (Text & Buttons) - appears second on mobile, center aligned on mobile -->
+      <div class="order-2 lg:order-1 space-y-6 md:space-y-7 fade-up text-center lg:text-left">
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight text-neutral-800 dark:text-white">
+          Administration<br />
+          <span class="text-primary-500">Handled.</span><br />
+          Excellence <span class="text-primary-500">Delivered.</span>
+        </h1>
+
+        <p class="text-base md:text-lg leading-relaxed max-w-lg mx-auto lg:mx-0 text-neutral-600 dark:text-neutral-300">
+          A comprehensive SaaS platform that digitally transforms education institutes from traditional operations to streamlined management for every branch, every stakeholder, every day.
+        </p>
+
+        <div class="flex flex-wrap gap-4 justify-center lg:justify-start">
+          <a href="#contact" class="bg-primary-500 hover:bg-primary-600 text-white font-semibold px-6 py-3 rounded-full transition-all shadow-md hover:shadow-lg text-base inline-block">Book a Free Demo</a>
+          <a href="#modules" class="border-2 border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/30 font-semibold px-6 py-3 rounded-full transition-all text-base inline-block">Explore Modules</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- <section class="hero-gradient dark:bg-[#111010] relative md:min-h-screen flex items-center overflow-hidden pt-20">
 
   <div class="hero-blob w-64 h-64 md:w-96 md:h-96 blob-orange" style="top:-80px;right:-60px"></div>
   <div class="hero-blob w-48 h-48 md:w-64 md:h-64 blob-peach" style="bottom:60px;left:-40px;animation-delay:3s"></div>
@@ -91,13 +194,11 @@
 
     <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
-      <div class="space-y-6 md:space-y-7 fade-up">
-        <span class="tag">🎓 Education SaaS Platform</span>
-
-        <h1 class="text-3xl md:text-6xl lg:text-7xl font-extrabold leading-tight text-[#3D3530] dark:text-[#FDF6EF]">
+      <div class="space-y-6 md:space-y-7 fade-up gap-5">
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight text-[#3D3530] dark:text-[#FDF6EF]">
           Administration<br />
-          <span class="text-[#E8651A]">Handled.</span><br />
-          Excellence Delivered.
+          <span class="text-primary-500">Handled.</span><br />
+          Excellence     <span class="text-primary-500">Delivered.</span>
         </h1>
 
         <p class="text-base md:text-lg leading-relaxed max-w-lg text-[#7A6C62] dark:text-gray-300">
@@ -107,24 +208,6 @@
         <div class="flex flex-wrap gap-4">
           <a [routerLink]="[]" fragment="contact" class="btn-orange text-base">Book a Free Demo</a>
           <a [routerLink]="[]" fragment="modules" class="btn-outline text-base">Explore Modules</a>
-        </div>
-
-        <!-- Mini stats -->
-        <div class="flex flex-wrap gap-4 md:gap-6 pt-2">
-          <div>
-            <p class="text-2xl md:text-3xl font-extrabold text-[#E8651A]">20+</p>
-            <p class="text-xs md:text-sm text-[#A0928A] dark:text-gray-300">Hours saved weekly</p>
-          </div>
-          <div class="w-px bg-orange-200/40 dark:bg-orange-400/20"></div>
-          <div>
-            <p class="text-2xl md:text-3xl font-extrabold text-[#E8651A]">0</p>
-            <p class="text-xs md:text-sm text-[#A0928A] dark:text-gray-300">Paperwork required</p>
-          </div>
-          <div class="w-px bg-orange-200/40 dark:bg-orange-400/20"></div>
-          <div>
-            <p class="text-2xl md:text-3xl font-extrabold text-[#E8651A]">∞</p>
-            <p class="text-xs md:text-sm text-[#A0928A] dark:text-gray-300">Branches supported</p>
-          </div>
         </div>
       </div>
       <div class="relative flex items-center justify-center lg:h-96">
@@ -209,7 +292,7 @@
     </div>
 
   </div>
-</section>
+</section> -->
 
 <div class="py-4 bg-[#E8651A]">
     <div class="overflow-hidden">
