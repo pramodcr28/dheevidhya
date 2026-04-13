@@ -1,31 +1,59 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostBinding, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, HostBinding, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
 import { AppConfigurator } from '../core/layout/app.configurator';
 import { AccountService } from '../core/services/account.service';
 import { LayoutService } from '../core/services/layout.service';
-import { setTheme } from '../core/store/user-profile/user-profile.actions';
 import { UserProfileState } from '../core/store/user-profile/user-profile.reducer';
+import { AiSectionComponent } from './ai-section/ai-section.component';
+import { BillingSectionComponent } from './billing-section/billing-section.component';
+import { BoardingSectionComponent } from './boarding-section/boarding-section.component';
+import { ContactSectionComponent } from './contact-section/contact-section.component';
+import { FeaturesSectionComponent } from './features-section/features-section.component';
+import { FooterSectionComponent } from './footer-section/footer-section.component';
+import { HeroSectionComponent } from './hero-section/hero-section.component';
+import { ModulesSectionComponent } from './modules-section/modules-section.component';
+import { PublicNavComponent } from './public-nav/public-nav.component';
+import { RoadmapSectionComponent } from './roadmap-section/roadmap-section.component';
 
 @Component({
     selector: 'app-welcome-page',
     standalone: true,
-    imports: [CommonModule, RouterLink, AppConfigurator, FormsModule],
+    imports: [
+        CommonModule,
+        AppConfigurator,
+        FormsModule,
+        PublicNavComponent,
+        HeroSectionComponent,
+        FeaturesSectionComponent,
+        ModulesSectionComponent,
+        BoardingSectionComponent,
+        BillingSectionComponent,
+        AiSectionComponent,
+        RoadmapSectionComponent,
+        ContactSectionComponent,
+        FooterSectionComponent
+    ],
     templateUrl: './welcome-page.component.html',
     styleUrls: ['./welcome-page.component.scss']
 })
 export class WelcomePageComponent implements OnInit, OnDestroy {
-    isScrolled = false;
-    mobileMenuOpen = false;
     today = new Date();
 
-    private store = inject(Store<{ userProfile: UserProfileState }>);
+    private el = inject(ElementRef);
     private observer!: IntersectionObserver;
-    private sectionObserver!: IntersectionObserver;
-    private navLinks: NodeListOf<HTMLAnchorElement> | null = null;
+    private store = inject(Store<{ userProfile: UserProfileState }>);
+
+    layoutService = inject(LayoutService);
+    accountService = inject(AccountService);
+    messageService = inject(MessageService);
+
+    @HostBinding('class.dark')
+    get isDark(): boolean {
+        return this.layoutService.layoutConfig().darkTheme ?? false;
+    }
 
     contactForm = {
         fullName: '',
@@ -37,60 +65,21 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
         message: ''
     };
 
-    layoutService = inject(LayoutService);
-    accountService = inject(AccountService);
-    messageService = inject(MessageService);
-    constructor(private el: ElementRef) {}
-
-    @HostBinding('class.dark')
-    get isDark(): boolean {
-        return this.layoutService.layoutConfig().darkTheme ?? false;
-    }
-
-    @HostListener('window:scroll')
-    onWindowScroll(): void {
-        this.isScrolled = window.scrollY > 30;
-    }
-
-    toggleMobileMenu(): void {
-        this.mobileMenuOpen = !this.mobileMenuOpen;
-    }
-
-    closeMobileMenu(): void {
-        this.mobileMenuOpen = false;
-    }
-
-    toggleTheme(): void {
-        const isDark = !this.layoutService.layoutConfig().darkTheme;
-
-        this.layoutService.layoutConfig.update((state) => ({
-            ...state,
-            darkTheme: isDark
-        }));
-
-        this.store.dispatch(
-            setTheme({
-                theme: isDark ? 'dark' : 'light'
-            })
-        );
-    }
-
     ngOnInit(): void {
-        setTimeout(() => this.initObservers(), 100);
+        setTimeout(() => this.initScrollObserver(), 150);
     }
 
     ngOnDestroy(): void {
         this.observer?.disconnect();
-        this.sectionObserver?.disconnect();
     }
 
-    submitForm() {
+    submitForm(): void {
         this.accountService.saveContactLead(this.contactForm).subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success',
-                    summary: 'Academic Year Switched',
-                    detail: `Request Saved SuccessFully `
+                    summary: 'Request Saved',
+                    detail: 'Your request has been saved successfully.'
                 });
                 this.contactForm = {
                     fullName: '',
@@ -106,47 +95,21 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Unable to save your request'
+                    detail: 'Unable to save your request. Please try again.'
                 });
             }
         });
     }
 
-    private initObservers(): void {
+    private initScrollObserver(): void {
         const host: HTMLElement = this.el.nativeElement;
-
         this.observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
-                });
-            },
-            { threshold: 0.12 }
+            (entries) =>
+                entries.forEach((e) => {
+                    if (e.isIntersecting) e.target.classList.add('visible');
+                }),
+            { threshold: 0.1 }
         );
-
         host.querySelectorAll<HTMLElement>('.fade-up, .slide-left, .slide-right').forEach((el) => this.observer.observe(el));
-
-        this.navLinks = host.querySelectorAll<HTMLAnchorElement>('nav a[href^="#"]');
-
-        this.sectionObserver = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting && this.navLinks) {
-                        this.navLinks.forEach((link) => {
-                            link.style.color = '';
-                            const fragment = link.getAttribute('fragment');
-                            if (fragment && fragment === entry.target.id) {
-                                link.style.color = '#E8651A';
-                            }
-                        });
-                    }
-                });
-            },
-            { threshold: 0.4 }
-        );
-
-        host.querySelectorAll<HTMLElement>('section[id]').forEach((s) => this.sectionObserver.observe(s));
     }
 }

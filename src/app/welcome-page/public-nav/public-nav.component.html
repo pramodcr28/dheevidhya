@@ -1,0 +1,105 @@
+<!-- ── PUBLIC NAV ── -->
+<!-- <app-configurator></app-configurator> -->
+<nav id="navbar" [class.scrolled]="isScrolled"
+     class="fixed top-0 left-0 right-0 z-[100] py-3 px-6 lg:px-12 transition-all duration-300">
+  <div class="max-w-[1400px] mx-auto flex items-center justify-between">
+
+    <!-- Logo → always goes to welcome page root -->
+    <a [routerLink]="['/']" class="flex items-center gap-2 flex-shrink-0">
+      <img src="assets/images/logo.png"       class="block dark:hidden" width="200" alt="Dheevidhya" />
+      <img src="assets/images/logo-white.png" class="hidden dark:block" width="200" alt="Dheevidhya" />
+    </a>
+
+    <div class="hidden lg:flex items-center gap-7 text-sm font-medium text-surface-700 dark:text-surface-200">
+       <a [routerLink]="['/']" fragment="hero"
+         class="nav-link hover:text-primary-500 transition-colors duration-200 text-bold">home</a>
+      <a [routerLink]="['/']" fragment="features"
+         class="nav-link hover:text-primary-500 transition-colors duration-200">Features</a>
+      <a [routerLink]="['/']" fragment="modules"
+         class="nav-link hover:text-primary-500 transition-colors duration-200">Modules</a>
+      <a [routerLink]="['/']" fragment="boarding"
+         class="nav-link hover:text-primary-500 transition-colors duration-200">Boarding</a>
+      <a [routerLink]="['/']" fragment="billing"
+         class="nav-link hover:text-primary-500 transition-colors duration-200">Billing</a>
+      <a [routerLink]="['/']" fragment="roadmap"
+         class="nav-link hover:text-primary-500 transition-colors duration-200">Roadmap</a>
+      <a [routerLink]="['/']" fragment="ai"
+         class="nav-link hover:text-primary-500 transition-colors duration-200">AI</a>
+    </div>
+
+    <!-- CTA + theme toggle -->
+    <div class="hidden lg:flex items-center gap-3">
+      @if (showLoginCta) {
+        <a [routerLink]="['/auth/login']" class="btn-outline text-sm py-1.5 px-4">Login</a>
+      }
+      @if (showDemoCta) {
+        <a [routerLink]="['/']" fragment="contact" class="btn-orange text-sm py-1.5 px-4">Book a Demo</a>
+      }
+      <!-- theme toggle -->
+      <button (click)="toggleTheme()"
+              class="p-2 rounded-xl text-surface-700 dark:text-surface-200 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+              aria-label="Toggle theme">
+        @if (!isDark) {
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        } @else {
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+        }
+      </button>
+    </div>
+
+    <!-- Mobile hamburger -->
+    <button (click)="toggleMobileMenu()"
+            class="lg:hidden p-2 rounded-xl text-surface-700 dark:text-surface-200"
+            aria-label="Toggle menu">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path *ngIf="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        <path *ngIf="mobileMenuOpen"  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div [class.hidden]="!mobileMenuOpen"
+       class="lg:hidden mt-3 pb-4 px-4 space-y-1 border-t border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900">
+    <a [routerLink]="['/']" fragment="features" (click)="closeMobileMenu()"
+       class="block py-2.5 font-medium text-surface-700 dark:text-surface-200 hover:text-primary-500">Features</a>
+    <a [routerLink]="['/']" fragment="modules"  (click)="closeMobileMenu()"
+       class="block py-2.5 font-medium text-surface-700 dark:text-surface-200 hover:text-primary-500">Modules</a>
+    <a [routerLink]="['/']" fragment="boarding" (click)="closeMobileMenu()"
+       class="block py-2.5 font-medium text-surface-700 dark:text-surface-200 hover:text-primary-500">Boarding</a>
+    <a [routerLink]="['/']" fragment="billing"  (click)="closeMobileMenu()"
+       class="block py-2.5 font-medium text-surface-700 dark:text-surface-200 hover:text-primary-500">Billing</a>
+    <a [routerLink]="['/']" fragment="roadmap"  (click)="closeMobileMenu()"
+       class="block py-2.5 font-medium text-surface-700 dark:text-surface-200 hover:text-primary-500">Roadmap</a>
+    <a [routerLink]="['/']" fragment="ai"       (click)="closeMobileMenu()"
+       class="block py-2.5 font-medium text-surface-700 dark:text-surface-200 hover:text-primary-500">AI Features</a>
+    <div class="flex gap-3 pt-3 border-t border-surface-100 dark:border-surface-800">
+      @if (showLoginCta) {
+        <a [routerLink]="['/auth/login']" (click)="closeMobileMenu()" class="btn-outline text-sm py-2 px-4">Login</a>
+      }
+      @if (showDemoCta) {
+        <a [routerLink]="['/']" fragment="contact" (click)="closeMobileMenu()" class="btn-orange text-sm py-2 px-4">Book a Demo</a>
+      }
+      <button (click)="toggleTheme(); closeMobileMenu()"
+              class="ml-auto p-2 rounded-xl text-surface-700 dark:text-surface-200 hover:bg-surface-200 dark:hover:bg-surface-700">
+        @if (!isDark) {
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        } @else {
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+</nav>
