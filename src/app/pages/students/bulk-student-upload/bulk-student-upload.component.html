@@ -166,7 +166,7 @@
                     <th class="font-semibold">Contact</th>
                     <th class="font-semibold">District</th>
                     <th class="font-semibold">State</th>
-                    <th class="font-semibold">Errors</th>
+                    <th class="font-semibold"   pFrozenColumn alignFrozen="right">Errors</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-student>
@@ -194,7 +194,7 @@
                     <td>{{ student.studentContactNumber || '—' }}</td>
                     <td>{{ student.district || '—' }}</td>
                     <td>{{ student.state || '—' }}</td>
-                    <td>
+                    <td pFrozenColumn alignFrozen="right">
                         <span *ngIf="!student.isValid" class="text-red-600 text-xs">
                             {{ student.errors?.length ? student.errors[0] : (student['errorMessage'] || 'Error') }}
                             <span *ngIf="(student.errors?.length ?? 0) > 1"> (+{{ (student.errors?.length ?? 0) - 1 }} more)</span>

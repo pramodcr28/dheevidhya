@@ -36,18 +36,15 @@ export class BulkStudentUploadComponent implements OnInit {
     router = inject(Router);
     departmentConfigService = inject(DepartmentConfigService);
 
-    // ── Signals ──────────────────────────────────────────────────────────────
     uploadedStudents = signal<StudentExcelRow[]>([]);
     isProcessing = signal(false);
 
-    // ── Upload mode ───────────────────────────────────────────────────────────
     uploadMode: UploadMode = 'basic';
     uploadModeOptions = [
         { label: 'Basic', value: 'basic' },
         { label: 'Full SATS', value: 'sats' }
     ];
 
-    // ── Dialog / selection state ──────────────────────────────────────────────
     showConfirmDialog = false;
     showStudentDetailDialog = false;
     selectedStudentDetail: StudentExcelRow | null = null;
@@ -84,6 +81,8 @@ export class BulkStudentUploadComponent implements OnInit {
             this.downloadSatsTemplate();
         }
     }
+
+    private readonly SATS_INDICATOR_COLUMNS = ['aadhaarNumber', 'stdFirstNameKn', 'socialCategory', 'fatherAadhaar', 'motherAadhaar', 'admissionDate', 'ifscCode', 'perPinCode', 'belongsToBPL', 'religion', 'typeOfStudent'] as const;
 
     private downloadBasicTemplate(): void {
         const sample = [
@@ -204,7 +203,14 @@ export class BulkStudentUploadComponent implements OnInit {
         XLSX.writeFile(wb, filename);
     }
 
-    // ── File upload ───────────────────────────────────────────────────────────
+    private detectModeFromExcel(firstRow: any): UploadMode {
+        if (!firstRow) return 'basic';
+        const keys = Object.keys(firstRow);
+        const hasSatsColumns = this.SATS_INDICATOR_COLUMNS.some((col) => keys.includes(col));
+        return hasSatsColumns ? 'sats' : 'basic';
+    }
+
+    // ── File select ───────────────────────────────────────────────────────────
     onFileSelect(event: any): void {
         const file = event.files[0];
         if (!file) return;
@@ -227,14 +233,36 @@ export class BulkStudentUploadComponent implements OnInit {
         reader.readAsBinaryString(file);
     }
 
-    // ── Process rows ──────────────────────────────────────────────────────────
+    // ── Process Excel ─────────────────────────────────────────────────────────
     processExcelData(data: any[]): void {
+        if (!data.length) {
+            this.messageService.add({ severity: 'warn', summary: 'Empty File', detail: 'The uploaded file has no data rows.' });
+            this.isProcessing.set(false);
+            return;
+        }
+
+        // ── Auto-detect mode from the Excel columns ───────────────────────────
+        const detectedMode = this.detectModeFromExcel(data[0]);
+
+        if (detectedMode !== this.uploadMode) {
+            // Silently upgrade — never downgrade (basic selected but sats file uploaded)
+            this.uploadMode = detectedMode;
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Upload Mode Changed',
+                detail: `Excel contains SATS columns — mode automatically switched to "${detectedMode === 'sats' ? 'Full SATS' : 'Basic'}".`,
+                life: 6000
+            });
+        }
+
         const selectedDeptInfo = this.associatedDepartments.find((d) => d.department?.name?.toLowerCase() === this.selectedDepartment?.department?.name?.toLowerCase());
 
-        const students: StudentExcelRow[] = data.map((row, index) => {
-            const str = (val: any) => val?.toString().trim() ?? '';
+        const seenSatsNumbers = new Set<string>();
 
-            // ── Basic fields (always mapped) ──────────────────────────────────
+        const students: StudentExcelRow[] = data.map((row, index) => {
+            const str = (val: any): string => (val != null ? val.toString().trim() : '');
+
+            // ── Base fields (always mapped) ───────────────────────────────────
             const student: StudentExcelRow = {
                 rowNumber: index + 2,
                 satsNumber: str(row.satsNumber),
@@ -260,60 +288,64 @@ export class BulkStudentUploadComponent implements OnInit {
                 motherMobile: str(row.motherMobile)
             };
 
-            // ── SATS-only fields ──────────────────────────────────────────────
+            // ── SATS extended fields (mapped when mode = sats) ────────────────
             if (this.uploadMode === 'sats') {
-                const satsStudent = student as StudentSatsExcelRow;
-                satsStudent.satsNumber = str(row.satsNumber);
-                satsStudent.stdFirstNameKn = str(row.stdFirstNameKn);
-                satsStudent.stdLastNameKn = str(row.stdLastNameKn);
-                satsStudent.aadhaarNumber = str(row.aadhaarNumber);
-                satsStudent.religion = str(row.religion);
-                satsStudent.nationality = str(row.nationality) || 'INDIAN';
-                satsStudent.socialCategory = str(row.socialCategory);
-                satsStudent.belongsToBPL = row.belongsToBPL === true || str(row.belongsToBPL).toLowerCase() === 'true';
-                satsStudent.bplCardNumber = str(row.bplCardNumber);
-                satsStudent.bhagyalakshmiBondNo = str(row.bhagyalakshmiBondNo);
-                satsStudent.childWithSpecialNeed = str(row.childWithSpecialNeed) || 'NONE';
-                satsStudent.specialCategory = str(row.specialCategory);
-                satsStudent.studentCasteCertNo = str(row.studentCasteCertNo);
-                satsStudent.fatherFirstNameKn = str(row.fatherFirstNameKn);
-                satsStudent.fatherLastNameKn = str(row.fatherLastNameKn);
-                satsStudent.fatherAadhaar = str(row.fatherAadhaar);
-                satsStudent.fatherCasteCertNo = str(row.fatherCasteCertNo);
-                satsStudent.motherFirstNameKn = str(row.motherFirstNameKn);
-                satsStudent.motherLastNameKn = str(row.motherLastNameKn);
-                satsStudent.motherAadhaar = str(row.motherAadhaar);
-                satsStudent.motherCasteCertNo = str(row.motherCasteCertNo);
-                satsStudent.typeOfStudent = str(row.typeOfStudent);
-                satsStudent.mediumOfInstruction = str(row.mediumOfInstruction);
-                satsStudent.motherTongue = str(row.motherTongue);
-                satsStudent.languageGroup = str(row.languageGroup);
-                satsStudent.admissionDate = str(row.admissionDate);
-                satsStudent.affiliation = str(row.affiliation);
-                satsStudent.tcNo = str(row.tcNo);
-                satsStudent.tcDate = str(row.tcDate);
-                satsStudent.prevSchoolName = str(row.prevSchoolName);
-                satsStudent.prevSchoolType = str(row.prevSchoolType);
-                satsStudent.prevSchoolAddress = str(row.prevSchoolAddress);
-                satsStudent.prevPinCode = str(row.prevPinCode);
-                satsStudent.prevState = str(row.prevState);
-                satsStudent.perAddressLine = str(row.perAddressLine);
-                satsStudent.perLocality = str(row.perLocality);
-                satsStudent.perDistrict = str(row.perDistrict);
-                satsStudent.perState = str(row.perState);
-                satsStudent.perPinCode = str(row.perPinCode);
-                satsStudent.bankName = str(row.bankName);
-                satsStudent.accountNumber = str(row.accountNumber);
-                satsStudent.ifscCode = str(row.ifscCode);
+                const s = student as StudentSatsExcelRow;
+                s.stdFirstNameKn = str(row.stdFirstNameKn);
+                s.stdLastNameKn = str(row.stdLastNameKn);
+                s.aadhaarNumber = str(row.aadhaarNumber);
+                s.religion = str(row.religion);
+                s.nationality = str(row.nationality) || 'INDIAN';
+                s.socialCategory = str(row.socialCategory);
+                s.belongsToBPL = row.belongsToBPL === true || str(row.belongsToBPL).toLowerCase() === 'true';
+                s.bplCardNumber = str(row.bplCardNumber);
+                s.bhagyalakshmiBondNo = str(row.bhagyalakshmiBondNo);
+                s.childWithSpecialNeed = str(row.childWithSpecialNeed) || 'NONE';
+                s.specialCategory = str(row.specialCategory);
+                s.studentCasteCertNo = str(row.studentCasteCertNo);
+                s.fatherFirstNameKn = str(row.fatherFirstNameKn);
+                s.fatherLastNameKn = str(row.fatherLastNameKn);
+                s.fatherAadhaar = str(row.fatherAadhaar);
+                s.fatherCasteCertNo = str(row.fatherCasteCertNo);
+                s.motherFirstNameKn = str(row.motherFirstNameKn);
+                s.motherLastNameKn = str(row.motherLastNameKn);
+                s.motherAadhaar = str(row.motherAadhaar);
+                s.motherCasteCertNo = str(row.motherCasteCertNo);
+                s.typeOfStudent = str(row.typeOfStudent);
+                s.mediumOfInstruction = str(row.mediumOfInstruction);
+                s.motherTongue = str(row.motherTongue);
+                s.languageGroup = str(row.languageGroup);
+                s.admissionDate = str(row.admissionDate);
+                s.affiliation = str(row.affiliation);
+                s.tcNo = str(row.tcNo);
+                s.tcDate = str(row.tcDate);
+                s.prevSchoolName = str(row.prevSchoolName);
+                s.prevSchoolType = str(row.prevSchoolType);
+                s.prevSchoolAddress = str(row.prevSchoolAddress);
+                s.prevPinCode = str(row.prevPinCode);
+                s.prevState = str(row.prevState);
+                s.perAddressLine = str(row.perAddressLine);
+                s.perLocality = str(row.perLocality);
+                s.perDistrict = str(row.perDistrict);
+                s.perState = str(row.perState);
+                s.perPinCode = str(row.perPinCode);
+                s.bankName = str(row.bankName);
+                s.accountNumber = str(row.accountNumber);
+                s.ifscCode = str(row.ifscCode);
             }
 
             if (selectedDeptInfo) {
                 (student as any).departments = [selectedDeptInfo.id];
             }
 
-            const validation = this.validateStudent(student);
+            // ── Cross-row duplicate check (within this upload batch) ──────────
+            const validation = this.validateStudent(student, seenSatsNumbers);
             student.isValid = validation.isValid;
             student.errors = validation.errors;
+
+            if (student.satsNumber) {
+                seenSatsNumbers.add(student.satsNumber);
+            }
 
             return student;
         });
@@ -329,42 +361,155 @@ export class BulkStudentUploadComponent implements OnInit {
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
-    validateStudent(student: StudentExcelRow): ValidationResult {
+    validateStudent(student: StudentExcelRow, seenSatsNumbers?: Set<string>): ValidationResult {
         const errors: string[] = [];
 
-        if (!student.satsNumber) errors.push('SATS Number is required');
+        // ── Required core fields ──────────────────────────────────────────────
+        if (!student.satsNumber) {
+            errors.push('SATS Number is required');
+        } else if (seenSatsNumbers?.has(student.satsNumber)) {
+            errors.push(`Duplicate SATS Number "${student.satsNumber}" found in this file`);
+        }
+
         if (!student.firstName) errors.push('First Name is required');
         if (!student.lastName) errors.push('Last Name is required');
+        if (!student.district) errors.push('District is required');
+        if (!student.state) errors.push('State is required');
+
+        // ── Gender ────────────────────────────────────────────────────────────
         if (!['MALE', 'FEMALE', 'OTHER'].includes(student.gender ?? '')) {
             errors.push('Gender must be MALE, FEMALE, or OTHER');
         }
+
+        // ── Date of Birth ─────────────────────────────────────────────────────
+        if (student.dateOfBirth) {
+            const dob = new Date(student.dateOfBirth);
+            if (isNaN(dob.getTime())) {
+                errors.push('Date of Birth is not a valid date (expected YYYY-MM-DD)');
+            } else if (dob > new Date()) {
+                errors.push('Date of Birth cannot be a future date');
+            }
+        }
+
+        // ── Email ─────────────────────────────────────────────────────────────
         if (student.email && !this.isValidEmail(student.email)) {
             errors.push('Email format is invalid');
         }
-        if (student.studentContactNumber && isNaN(Number(student.studentContactNumber))) {
-            errors.push('Contact Number must be numeric');
-        }
-        if (!student.district) errors.push('District is required');
-        if (!student.state) errors.push('State is required');
-        if (!student.pinCode) errors.push('PIN Code is required');
 
-        // Extra SATS validations
+        // ── Student contact: exactly 10 numeric digits ────────────────────────
+        if (student.studentContactNumber && !/^\d{10}$/.test(student.studentContactNumber)) {
+            errors.push('Contact Number must be exactly 10 numeric digits');
+        }
+
+        // ── Current address PIN Code: exactly 6 digits ────────────────────────
+        if (student.pinCode && !/^\d{6}$/.test(student.pinCode)) {
+            errors.push('PIN Code must be exactly 6 digits');
+        }
+
+        // ── Father / Mother mobile: exactly 10 numeric digits ────────────────
+        if (student.fatherMobile && !/^\d{10}$/.test(student.fatherMobile)) {
+            errors.push('Father Mobile must be exactly 10 numeric digits');
+        }
+        if (student.motherMobile && !/^\d{10}$/.test(student.motherMobile)) {
+            errors.push('Mother Mobile must be exactly 10 numeric digits');
+        }
+
+        // ── SATS-only validations ─────────────────────────────────────────────
         if (this.uploadMode === 'sats') {
             const s = student as StudentSatsExcelRow;
-            if (!s.satsNumber) errors.push('SATS Number is required in SATS mode');
+
+            // Aadhaar numbers: exactly 12 digits
             if (s.aadhaarNumber && !/^\d{12}$/.test(s.aadhaarNumber)) {
-                errors.push('Aadhaar Number must be 12 digits');
+                errors.push('Aadhaar Number must be exactly 12 digits');
+            }
+            if (s.fatherAadhaar && !/^\d{12}$/.test(s.fatherAadhaar)) {
+                errors.push('Father Aadhaar Number must be exactly 12 digits');
+            }
+            if (s.motherAadhaar && !/^\d{12}$/.test(s.motherAadhaar)) {
+                errors.push('Mother Aadhaar Number must be exactly 12 digits');
+            }
+
+            // Social category enum
+            const validSocialCategories = ['GENERAL', 'OBC', 'SC', 'ST', 'OTHER_MINORITY'];
+            if (s.socialCategory && !validSocialCategories.includes(s.socialCategory)) {
+                errors.push(`Social Category must be one of: ${validSocialCategories.join(', ')}`);
+            }
+
+            // BPL: card number required when flag is true
+            if (s.belongsToBPL === true && !s.bplCardNumber) {
+                errors.push('BPL Card Number is required when Belongs to BPL is TRUE');
+            }
+
+            // Admission date: valid past date
+            if (s.admissionDate) {
+                const admDate = new Date(s.admissionDate);
+                if (isNaN(admDate.getTime())) {
+                    errors.push('Admission Date is not a valid date (expected YYYY-MM-DD)');
+                } else if (admDate > new Date()) {
+                    errors.push('Admission Date cannot be a future date');
+                }
+            }
+
+            // TC date: valid date
+            if (s.tcDate && isNaN(new Date(s.tcDate).getTime())) {
+                errors.push('TC Date is not a valid date (expected YYYY-MM-DD)');
+            }
+
+            // PIN codes: exactly 6 digits
+            if (s.prevPinCode && !/^\d{6}$/.test(s.prevPinCode)) {
+                errors.push('Previous School PIN Code must be exactly 6 digits');
+            }
+            if (s.perPinCode && !/^\d{6}$/.test(s.perPinCode)) {
+                errors.push('Permanent Address PIN Code must be exactly 6 digits');
+            }
+
+            // IFSC: 4 letters + '0' + 6 alphanumeric
+            if (s.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(s.ifscCode)) {
+                errors.push('IFSC Code must be in the format XXXX0XXXXXX (e.g. SBIN0001234)');
+            }
+
+            // Bank account: numeric only
+            if (s.accountNumber && !/^\d+$/.test(s.accountNumber)) {
+                errors.push('Bank Account Number must be numeric');
             }
         }
 
         return { student, isValid: errors.length === 0, errors };
     }
+    // validateStudent(student: StudentExcelRow): ValidationResult {
+    //     const errors: string[] = [];
+
+    //     if (!student.satsNumber) errors.push('SATS Number is required');
+    //     if (!student.firstName) errors.push('First Name is required');
+    //     if (!student.lastName) errors.push('Last Name is required');
+    //     if (!['MALE', 'FEMALE', 'OTHER'].includes(student.gender ?? '')) {
+    //         errors.push('Gender must be MALE, FEMALE, or OTHER');
+    //     }
+    //     if (student.email && !this.isValidEmail(student.email)) {
+    //         errors.push('Email format is invalid');
+    //     }
+    //     if (student.studentContactNumber && isNaN(Number(student.studentContactNumber))) {
+    //         errors.push('Contact Number must be numeric');
+    //     }
+    //     if (!student.district) errors.push('District is required');
+    //     if (!student.state) errors.push('State is required');
+    //     if (!student.pinCode) errors.push('PIN Code is required');
+
+    //     if (this.uploadMode === 'sats') {
+    //         const s = student as StudentSatsExcelRow;
+    //         if (!s.satsNumber) errors.push('SATS Number is required in SATS mode');
+    //         if (s.aadhaarNumber && !/^\d{12}$/.test(s.aadhaarNumber)) {
+    //             errors.push('Aadhaar Number must be 12 digits');
+    //         }
+    //     }
+
+    //     return { student, isValid: errors.length === 0, errors };
+    // }
 
     isValidEmail(email: string): boolean {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
-    // ── Detail dialog ─────────────────────────────────────────────────────────
     openStudentDetails(student: StudentExcelRow): void {
         this.selectedStudentDetail = student;
         this.showStudentDetailDialog = true;
@@ -374,7 +519,6 @@ export class BulkStudentUploadComponent implements OnInit {
         return this.uploadMode === 'sats';
     }
 
-    // ── Save flow ─────────────────────────────────────────────────────────────
     confirmSave(): void {
         this.submitted = true;
         if (!this.selectedDepartment || !this.selectedClass || !this.selectedSection) {
@@ -412,12 +556,11 @@ export class BulkStudentUploadComponent implements OnInit {
         this.userService.bulkCreateStudents(payload).subscribe({
             next: (response: any) => {
                 this.loader.hide();
-
                 if (response.failureCount > 0) {
                     const updated = this.uploadedStudents().map((uploaded) => {
                         const failed = response.failedStudents?.find((fs: any) => fs.satsNumber === uploaded.satsNumber);
                         if (failed) {
-                            const errInfo = response.errors?.find((e: any) => e.satsNumber === failed.satsNumber);
+                            const errInfo = response.errors?.find((e: any) => e.registrationId === failed.satsNumber);
                             return { ...uploaded, isValid: false, errorMessage: errInfo?.errorMessage || 'Unknown error', errors: [] };
                         }
                         return uploaded;
