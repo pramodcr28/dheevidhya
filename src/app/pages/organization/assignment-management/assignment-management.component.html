@@ -22,7 +22,7 @@
                             </div>
 
                             @if (!commonService.currentUser?.roles?.student && currentView === 'cards') {
-                                <p-button label="Add Task" icon="pi pi-plus" severity="primary" size="small" class="w-full sm:w-auto" (onClick)="selectedAssignment = {}; showAddDialog = true"> </p-button>
+                                <p-button label="Add Task" icon="pi pi-plus" severity="primary" size="small" class="w-full sm:w-auto" (onClick)="addNewAssignment()"> </p-button>
                             }
                         </div>
                         @if(currentView !== 'submissions') {
@@ -88,7 +88,7 @@
                                 <p class="text-sm ">Assignments will appear here once they're created</p>
                             </div>
                             @if (!commonService.currentUser?.roles?.student) {
-                                <button pButton label="Create Assignment" icon="pi pi-plus" class="p-button-outlined mt-2" (click)="showAddDialog = true"></button>
+                                <button pButton label="Create Assignment" icon="pi pi-plus" class="p-button-outlined mt-2" (click)="addNewAssignment()"></button>
                             }
                         </div>
                     </ng-template>
@@ -305,21 +305,23 @@
         </div>
          }
        
+        @if(showAddDialog){
+                <app-add-assignment-dialog
+                    [visible]="showAddDialog"
+                    (visibleChange)="showAddDialog = $event"
+                    [typeOptions]="typeOptions"
+                    [associatedDepartments]="associatedDepartments"
+                    [(selectedDepartment)]="selectedDepartment"
+                    [treeNodes]="treeNodes"
+                    [(selectedSubject)]="selectedSubject"
+                    [newAssignment]="selectedAssignment"
+                    (departmentChange)="onDepartmentChange()"
+                    (submit)="addAssignment()"
+                    (cancel)="showAddDialog = false"
+                >
+                </app-add-assignment-dialog>
+        }
 
-        <app-add-assignment-dialog
-            [visible]="showAddDialog"
-            (visibleChange)="showAddDialog = $event"
-            [typeOptions]="typeOptions"
-            [associatedDepartments]="associatedDepartments"
-            [(selectedDepartment)]="selectedDepartment"
-            [treeNodes]="treeNodes"
-            [(selectedSubject)]="selectedSubject"
-            [newAssignment]="selectedAssignment"
-            (departmentChange)="onDepartmentChange()"
-            (submit)="addAssignment()"
-            (cancel)="showAddDialog = false"
-        >
-        </app-add-assignment-dialog>
 
         @if (assignmentSubmission != null) {
             <app-submit-assignment-dialog

@@ -39,7 +39,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                     });
                 }
             } else {
-                if (!req.url.includes('/api/authenticate')) {
+                if (!req.url.includes('/api/authenticate') && !req.url.includes('/uaa/login')) {
                     router.navigate(['']);
                     loader.hide();
                     throwError(() => new Error('No token, redirecting to login'));

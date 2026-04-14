@@ -116,23 +116,24 @@
         [showCurrentPageReport]="true"
         [rowsPerPageOptions]="[10, 20, 30, 50]"
         styleClass="p-datatable-striped rounded-2xl overflow-hidden shadow-sm"
-        [responsiveLayout]="'scroll'"
+        [scrollable]="true"
+        scrollHeight="flex"
     >
         <ng-template pTemplate="header">
             <tr class="bg-gray-50 dark:bg-gray-800">
-                <th pSortableColumn="studentDetails.studentName.firstName" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300  px-3 py-3  min-w-[150px]">
+                <th pSortableColumn="studentDetails.studentName.firstName" pFrozenColumn alignFrozen="left" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[150px] max-w-[180px]">
                     Student Name <p-sortIcon field="studentDetails.studentName.firstName" />
                 </th>
-                <th pSortableColumn="satsNumber" class="text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400 px-3 py-3 min-w-[100px]">Sats Number <p-sortIcon field="satsNumber" /></th>
-                <th pSortableColumn="latestAcademicYear.status" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[50px]">Status <p-sortIcon field="latestAcademicYear.status" /></th>
-                <th pSortableColumn="latestAcademicYear.academicYear" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[140px]">
+                <th pSortableColumn="satsNumber" class="text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400 px-3 py-3 min-w-[100px] max-w-[120px]">Sats Number <p-sortIcon field="satsNumber" /></th>
+                <th pSortableColumn="latestAcademicYear.status" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[80px] max-w-[100px]">Status <p-sortIcon field="latestAcademicYear.status" /></th>
+                <th pSortableColumn="latestAcademicYear.academicYear" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[130px] max-w-[150px]">
                     Academic Year <p-sortIcon field="latestAcademicYear.academicYear" />
                 </th>
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[60px]">Gender</th>
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[90px]">Department</th>
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[100px]">Class - Section</th>
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[100px]">Guardian</th>
-                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 text-center min-w-[80px]">Actions</th>
+                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[80px] max-w-[100px]">Gender</th>
+                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[120px] max-w-[150px]">Department</th>
+                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[120px] max-w-[150px]">Class - Section</th>
+                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[130px] max-w-[160px]">Guardian</th>
+                <th class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 text-center min-w-[80px]" pFrozenColumn alignFrozen="right">Actions</th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-student let-rowIndex="rowIndex">
@@ -141,27 +142,37 @@
             @let canEdit = isActive && isCurrentYear;
 
             <tr class="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors" [class.opacity-70]="!canEdit">
-                <td class="px-3 py-2">
-                    <div class="flex items-center gap-2">
+
+                <!-- Student Name — truncated, full name on tooltip -->
+                <td class="px-3 py-2 max-w-[180px]" pFrozenColumn alignFrozen="left">
+                    <div class="flex items-center gap-2 min-w-0">
                         <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold" [ngClass]="[avatarBg(rowIndex), avatarText(rowIndex)]">
                             {{ (student.studentDetails?.studentName?.firstName?.[0] ?? '') + (student.studentDetails?.studentName?.lastName?.[0] ?? '') }}
                         </span>
-                        <div>
-                            <p class="text-sm font-semibold text-gray-800 dark:text-white leading-tight">
+                        <div class="min-w-0 flex-1">
+                            <p
+                                class="text-sm font-semibold text-gray-800 dark:text-white leading-tight truncate max-w-[120px]"
+                                [pTooltip]="getStudentFullName(student)"
+                                tooltipPosition="top"
+                            >
                                 {{ getStudentFullName(student) }}
                             </p>
                             @if (student.studentDetails?.aadhaarNumber) {
-                                <p class="text-xs text-gray-400">{{ student.studentDetails.aadhaarNumber }}</p>
+                                <p class="text-xs text-gray-400 truncate max-w-[120px]">{{ student.studentDetails.aadhaarNumber }}</p>
                             }
                         </div>
                     </div>
                 </td>
 
-                <td class="px-3 py-2 text-sm text-lg font-bold text-primary-600 dark:text-primary-400">
-                    {{ student.satsNumber || '—' }}
+                <!-- SATS Number -->
+                <td class="px-3 py-2 text-sm text-lg font-bold text-primary-600 dark:text-primary-400 max-w-[120px]">
+                    <span class="truncate block" [pTooltip]="student.satsNumber || ''" tooltipPosition="top">
+                        {{ student.satsNumber || '—' }}
+                    </span>
                 </td>
 
-                <td class="px-3 py-2">
+                <!-- Status -->
+                <td class="px-3 py-2 max-w-[100px]">
                     @if (student.latestAcademicYear?.status) {
                         <p-tag [value]="student.latestAcademicYear.status" [severity]="getStatusSeverity(student.latestAcademicYear.status)" styleClass="text-xs font-semibold"></p-tag>
                     } @else {
@@ -169,7 +180,8 @@
                     }
                 </td>
 
-                <td class="px-3 py-2">
+                <!-- Academic Year -->
+                <td class="px-3 py-2 max-w-[150px]">
                     @if (student.latestAcademicYear?.academicYear) {
                         <span
                             class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
@@ -189,30 +201,56 @@
                     }
                 </td>
 
-                <td class="px-3 py-2">
+                <!-- Gender -->
+                <td class="px-3 py-2 max-w-[100px]">
                     @if (student.studentDetails?.gender) {
                         <p-tag [value]="getGenderTag(student.studentDetails.gender).label" [severity]="getGenderTag(student.studentDetails.gender).severity"></p-tag>
                     } @else {
                         <span class="text-gray-400 text-sm">—</span>
                     }
                 </td>
-                <td class="px-3 py-2">
-                    <span class="text-sm text-gray-800 dark:text-gray-200">{{ formatLabel(student.latestAcademicYear?.roles?.student?.deptName) || '—' }}</span>
-                </td>
 
-                <td class="px-3 py-2 flex flex-col justify-center items-center gap-1">
-                    <span class="text-sm text-gray-950 dark:text-gray-50">
-                        {{ formatLabel(student.latestAcademicYear?.roles?.student?.sectionName) }}
-                    </span>
-
-                    <span class="text-sm text-gray-950 dark:text-gray-50">
-                        {{ formatLabel(student.latestAcademicYear?.roles?.student?.className) }}
+                <!-- Department — truncated with tooltip -->
+                <td class="px-3 py-2 max-w-[150px]">
+                    <span
+                        class="text-sm text-gray-800 dark:text-gray-200 truncate block max-w-[130px]"
+                        [pTooltip]="formatLabel(student.latestAcademicYear?.roles?.student?.deptName) || ''"
+                        tooltipPosition="top"
+                    >
+                        {{ formatLabel(student.latestAcademicYear?.roles?.student?.deptName) || '—' }}
                     </span>
                 </td>
 
-                <td class="px-3 py-2">
-                    <div class="flex flex-col leading-tight">
-                        <span class="text-sm text-gray-800 dark:text-gray-200">{{ getGuardianName(student) }}</span>
+                <!-- Class - Section — truncated with tooltip -->
+                <td class="px-3 py-2 max-w-[150px]">
+                    <div class="flex flex-col justify-center items-start gap-0.5">
+                        <span
+                            class="text-sm text-gray-950 dark:text-gray-50 truncate block max-w-[130px]"
+                            [pTooltip]="formatLabel(student.latestAcademicYear?.roles?.student?.className)"
+                            tooltipPosition="top"
+                        >
+                            {{ formatLabel(student.latestAcademicYear?.roles?.student?.className) }}
+                        </span>
+                        <span
+                            class="text-sm text-gray-950 dark:text-gray-50 truncate block max-w-[130px]"
+                            [pTooltip]="formatLabel(student.latestAcademicYear?.roles?.student?.sectionName)"
+                            tooltipPosition="top"
+                        >
+                            {{ formatLabel(student.latestAcademicYear?.roles?.student?.sectionName) }}
+                        </span>
+                    </div>
+                </td>
+
+                <!-- Guardian — truncated with tooltip -->
+                <td class="px-3 py-2 max-w-[160px]" >
+                    <div class="flex flex-col leading-tight min-w-0">
+                        <span
+                            class="text-sm text-gray-800 dark:text-gray-200 truncate block max-w-[140px]"
+                            [pTooltip]="getGuardianName(student)"
+                            tooltipPosition="top"
+                        >
+                            {{ getGuardianName(student) }}
+                        </span>
                         @if (student.contactDetails?.fatherMobile) {
                             <span class="text-xs text-gray-400">{{ student.contactDetails.fatherMobile }}</span>
                         } @else if (student.contactDetails?.motherMobile) {
@@ -221,7 +259,8 @@
                     </div>
                 </td>
 
-                <td class="px-3 py-2">
+                <!-- Actions — frozen right -->
+                <td class="px-3 py-2" pFrozenColumn alignFrozen="right">
                     <div class="flex items-center justify-center gap-1">
                         @if (canEdit) {
                             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="info" size="small" (click)="editStudent(student)" pTooltip="Edit student" tooltipPosition="top"></p-button>
@@ -247,7 +286,7 @@
 
         <ng-template pTemplate="emptymessage">
             <tr>
-                <td colspan="7" class="text-center py-12">
+                <td colspan="9" class="text-center py-12">
                     <div class="flex flex-col items-center gap-3 text-gray-400">
                         <i class="pi pi-users text-5xl opacity-30"></i>
                         <p class="text-base font-medium">No students found</p>

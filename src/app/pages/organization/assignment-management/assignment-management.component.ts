@@ -330,6 +330,11 @@ export class AssignmentManagementComponent implements OnInit {
         });
     }
 
+    addNewAssignment() {
+        this.selectedAssignment = {};
+        this.showAddDialog = true;
+    }
+
     editAssignment(assignment: Assignment) {
         this.selectedAssignment = { ...assignment, dueDate: new Date(assignment.dueDate) };
         this.showAddDialog = true;
