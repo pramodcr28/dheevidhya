@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { MessageService, TreeNode } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
@@ -16,7 +16,9 @@ import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog
 import { Assignment, AssignmentSubmission, SubmissionStatus } from '../../models/assignment.model';
 import { IExaminationSubject } from '../../models/examination.model';
 import { IDepartmentConfig } from '../../models/org.model';
+import { IStudent } from '../../models/student.model';
 import { AssignmentService } from '../../service/assignment.service';
+import { StudentServiceService } from '../../service/student-service.service';
 import { CommonService } from './../../../core/services/common.service';
 import { AddAssignmentDialogComponent } from './add-assignment-dialog/add-assignment-dialog.component';
 import { SubmitAssignmentDialogComponent } from './submit-assignment-dialog/submit-assignment-dialog.component';
@@ -28,7 +30,6 @@ import { SubmitAssignmentDialogComponent } from './submit-assignment-dialog/subm
     templateUrl: './assignment-management.component.html'
 })
 export class AssignmentManagementComponent implements OnInit {
-    // currentView: 'cards' | 'submissions' = 'cards';
     showAddDialog = false;
     treeNodes: TreeNode[] = [];
     selectedStatus: string = '';
@@ -45,7 +46,8 @@ export class AssignmentManagementComponent implements OnInit {
         DRAFT: { bg: 'bg-gray-400', text: '' },
         SUBMITTED: { bg: 'bg-purple-400', text: 'text-purple-800' },
         REOPENED: { bg: 'bg-orange-500', text: 'text-orange-800' },
-        REVIEWED: { bg: 'bg-green-800', text: 'text-white' } // dark bg, light text
+        REVIEWED: { bg: 'bg-green-800', text: 'text-white' }, // dark bg, light text,
+        PENDING: { bg: 'bg-yellow-400', text: 'text-yellow-800' }
     };
 
     staffColors = {
@@ -57,7 +59,6 @@ export class AssignmentManagementComponent implements OnInit {
 
     assignmentSubmissions = [];
     assignments: Assignment[] = [];
-    // newAssignment: Partial<Assignment> = {};
     calendarDates: number[] = [];
     assignmentService = inject(AssignmentService);
     selectedDepartment: IDepartmentConfig;
@@ -69,7 +70,6 @@ export class AssignmentManagementComponent implements OnInit {
     selectedAssignment: Partial<Assignment> = {};
     subjectInfo: any = {};
     assignmentSubmission: AssignmentSubmission = null;
-    // isStudentView = true;
     loader = inject(ApiLoaderService);
     groupedAssignments: any[] = [];
     currentView: 'cards' | 'submissions' | 'group' = 'group';
@@ -77,18 +77,45 @@ export class AssignmentManagementComponent implements OnInit {
     messageService = inject(MessageService);
     dheeConfirmationService = inject(DheeConfirmationService);
     objectKeys = Object.keys;
-
+    students = signal<IStudent[]>([]);
+    studentService = inject(StudentServiceService);
+    totalItems = 0;
+    page = 0;
+    itemsPerPage = 200;
+    sortField = 'id';
+    sortOrder: 'ASC' | 'DESC' = 'DESC';
     ngOnInit(): void {
-        // this.apiCall();
         this.store.select(getAssociatedDepartments).subscribe((departments) => {
             this.associatedDepartments = departments;
         });
         this.getGroupedAssignments();
-        // if (this.commonService.getStudentInfo) {
-        //     this.isStudentView = true;
-        // } else {
-        //     this.isStudentView = false;
-        // }
+    }
+
+    loadSectionAssociatedStudents(req: any): void {
+        this.students.set([]);
+        this.studentService
+            .search({
+                page: this.page,
+                size: this.itemsPerPage,
+                sortBy: this.sortField,
+                sortDirection: this.sortOrder,
+                filters: {
+                    'branchId.equals': this.commonService.branch?.id,
+                    'latestAcademicYear.roles.student.deptId.in': req.departmentId,
+                    'latestAcademicYear.roles.student.sectionName.in': req.sectionName,
+                    'latestAcademicYear.roles.student.className.in': req.className
+                }
+            })
+            .subscribe({
+                next: (res: any) => {
+                    this.students.set(res.content || []);
+                    this.assignmentService.search(0, 100, 'id', 'ASC', req).subscribe((result) => {
+                        this.assignments = result.content;
+                        this.loader.hide();
+                    });
+                },
+                error: () => {}
+            });
     }
 
     selectGroup(group) {
@@ -102,11 +129,7 @@ export class AssignmentManagementComponent implements OnInit {
             reqBody = { subjectName: group.subjectName, className: group.className, sectionName: group.sectionName, departmentId: group.departmentId };
         }
         this.subjectInfo = { departmentId: group.departmentId, className: group.className, sectionName: group.sectionName, subjectName: group.subjectName };
-
-        this.assignmentService.search(0, 100, 'id', 'ASC', reqBody).subscribe((result) => {
-            this.assignments = result.content;
-            this.loader.hide();
-        });
+        this.loadSectionAssociatedStudents(this.subjectInfo);
     }
 
     getGroupedAssignments() {
@@ -218,7 +241,37 @@ export class AssignmentManagementComponent implements OnInit {
                 }
             } else {
                 this.currentView = 'submissions';
-                this.assignmentSubmissions = response?.content;
+
+                this.assignmentSubmissions = [];
+                const submissionMap = new Map();
+
+                (response?.content || []).forEach((sub) => {
+                    submissionMap.set(sub.studentId, sub);
+                });
+                this.students().forEach((stu) => {
+                    const existing = submissionMap.get(stu.id + '');
+
+                    if (existing) {
+                        this.assignmentSubmissions.push(existing);
+                    } else {
+                        this.assignmentSubmissions.push({
+                            studentId: stu.id,
+                            studentName: stu.latestAcademicYear?.fullName,
+                            status: 'PENDING',
+                            submissionDate: null,
+                            response: null,
+                            attachments: [],
+                            feedback: null
+                        });
+                    }
+                });
+                // this.assignmentSubmissions = [];
+                // console.log(JSON.stringify(this.students()));
+                // this.students().forEach((stu) => {
+                //     this.assignmentSubmissions.push();
+                // });
+                // this.assignmentSubmissions = response?.content;
+                // console.log(JSON.stringify(this.assignmentSubmissions));
             }
         });
     }

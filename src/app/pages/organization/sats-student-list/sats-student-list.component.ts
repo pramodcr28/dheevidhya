@@ -86,8 +86,6 @@ export class SatsStudentListComponent {
     filters: StudentFilter = {};
 
     expandedRows: any;
-
-    // Signal-based options populated from master services (mirrors student-list pattern)
     classOptions = signal<any[]>([]);
     sectionOptions = signal<any[]>([]);
     departmentOptions = signal<any[]>([]);
@@ -105,15 +103,6 @@ export class SatsStudentListComponent {
         { label: 'ST', value: 'ST' },
         { label: 'Other', value: 'OTHER' }
     ];
-
-    // academicYearOptions = (() => {
-    //     const opts = [];
-    //     const currentYear = new Date().getFullYear();
-    //     for (let y = currentYear - 2; y <= currentYear + 1; y++) {
-    //         opts.push({ label: `${y}-${y + 1}`, value: `${y}-${y + 1}` });
-    //     }
-    //     return opts;
-    // })();
 
     ngOnInit(): void {
         this.loadFilterOptions();

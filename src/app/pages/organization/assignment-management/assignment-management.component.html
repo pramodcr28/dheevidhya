@@ -205,7 +205,7 @@
                     </ng-template>
                 </div>
 
-                <div *ngIf="currentView === 'submissions'" class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div *ngIf="currentView === 'submissions'" class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
                     <p-table [value]="assignmentSubmissions" responsiveLayout="scroll" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '50rem' }">
                         <ng-template pTemplate="header">
                             <tr>
@@ -217,8 +217,8 @@
                         </ng-template>
 
                         <ng-template pTemplate="body" let-submission>
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                <td class="font-medium ">{{ submission.studentName || 'N/A' }}</td>
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
+                                <td class="font-medium leading-tight truncate max-w-[120px]" pTooltip="{{submission.studentName }}">{{ submission.studentName || 'N/A' }}</td>
                                 <td>
                                  <span [ngClass]="getSubmissionStatusClass(submission)">
                                     {{ submission.status }}
@@ -227,7 +227,7 @@
                                 </td>
                                 <td class="">{{ submission.submissionDate | date: 'MMM d, y, h:mm a' }}</td>
                                 <td>
-                                  @if(submission.status != 'DRAFT') {
+                                  @if(submission.status != 'DRAFT' && submission.status != "NO_RESPONSE") {
                                     <div class="flex gap-3">
                                         <i class="pi pi-eye text-blue-500 hover:text-blue-700 cursor-pointer text-lg" pTooltip="View Response" (click)="viewAssignmentSubmition(submission)"> <span> View</span></i>
                                     </div>
@@ -259,7 +259,7 @@
 
             @if (commonService.currentUser?.roles?.student) {
                 <div class="xl:col-span-1">
-                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
+                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden sticky top-6">
                         <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-4">
                             <h3 class="text-lg font-bold text-white flex items-center gap-2">
                                 <i class="pi pi-clock"></i>
