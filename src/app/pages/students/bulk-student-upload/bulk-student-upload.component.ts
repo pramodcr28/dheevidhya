@@ -348,7 +348,7 @@ export class BulkStudentUploadComponent implements OnInit {
                 s.admissionDate = this.parseExcelDate(row.admissionDate);
                 s.affiliation = str(row.affiliation);
                 s.tcNo = str(row.tcNo);
-                s.tcDate = str(row.tcDate);
+                s.tcDate = this.parseExcelDate(row.tcDate);
                 s.prevSchoolName = str(row.prevSchoolName);
                 s.prevSchoolType = str(row.prevSchoolType);
                 s.prevSchoolAddress = str(row.prevSchoolAddress);
