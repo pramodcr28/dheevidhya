@@ -222,7 +222,7 @@
 
                         <div class="mt-4 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-600 rounded-lg p-3 flex gap-2">
                             <i class="pi pi-info-circle text-blue-600 text-sm flex-shrink-0 mt-0.5"></i>
-                            <p class="text-xs text-blue-800"><strong>Tip:</strong> Highlight strengths, point out areas for improvement, and provide actionable suggestions.</p>
+                            <p class="text-xs text-blue-800 dark:text-blue-100"><strong>Tip:</strong> Highlight strengths, point out areas for improvement, and provide actionable suggestions.</p>
                         </div>
                     </div>
                 </div>
@@ -249,9 +249,10 @@
                         @if (studentResponse.status === SubmissionStatus.DRAFT) {
                             <p-button label="Save as Draft" icon="pi pi-save" severity="secondary" size="large" (onClick)="onSaveClick(SubmissionStatus.DRAFT)"> </p-button>
                         }
-
-                        <p-button label="Submit Assignment" icon="pi pi-send" severity="primary" size="large" (onClick)="onSaveClick(SubmissionStatus.SUBMITTED)"> </p-button>
-                    </div>
+                        @if(studentResponse.status != SubmissionStatus.REVIEWED){
+                            <p-button label="Submit Assignment" icon="pi pi-send" severity="primary" size="large" (onClick)="onSaveClick(SubmissionStatus.SUBMITTED)"> </p-button>                 
+                        }
+                     </div>
                 } @else {
                     <div class="flex gap-4">
                         <p-button label="Mark as Reviewed" icon="pi pi-check" severity="primary" size="large" class="hover:bg-blue-700 transition-colors duration-200 shadow-md" (onClick)="studentResponse.status = SubmissionStatus.REVIEWED; save()">

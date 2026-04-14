@@ -374,6 +374,7 @@ export class AssignmentManagementComponent implements OnInit {
     }
 
     submitAssignment() {
+        let successMessage = 'Assignment Submitted Successfully!';
         if (this.commonService.getStudentInfo) {
             this.assignmentSubmission.studentName = this.commonService.getStudentInfo.fullName;
             this.assignmentSubmission.studentId = this.commonService.getStudentInfo.userId;
@@ -382,15 +383,17 @@ export class AssignmentManagementComponent implements OnInit {
             this.assignmentSubmission.evaluatedBy = this.commonService.getUserInfo.userId;
             this.assignmentSubmission.evaluatedOn = this.commonService.formatDateTimeForApi(new Date());
             // this.assignmentSubmission.status = SubmissionStatus.REVIEWED;
+            successMessage = 'Assignment Reviewed';
         }
 
         this.assignmentService.createSubmission(this.assignmentSubmission).subscribe((response) => {
             this.getGroupedAssignments();
-            // this.selectGroup(this.selectedGroup);
+            this.selectGroup(this.selectedGroup);
+
             this.messageService.add({
                 severity: 'success',
                 summary: 'Success',
-                detail: 'Assignment Submitted Successfully!',
+                detail: successMessage,
                 life: 3000
             });
         });
