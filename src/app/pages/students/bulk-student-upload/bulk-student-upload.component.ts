@@ -233,6 +233,38 @@ export class BulkStudentUploadComponent implements OnInit {
         reader.readAsBinaryString(file);
     }
 
+    private parseExcelDate(value: any): string | null {
+        if (!value) return null;
+
+        // Case 1: Already a Date object
+        if (value instanceof Date) {
+            return this.formatDate(value);
+        }
+
+        // Case 2: Excel serial number
+        if (typeof value === 'number') {
+            const excelEpoch = new Date(1899, 11, 30);
+            const date = new Date(excelEpoch.getTime() + value * 86400000);
+            return this.formatDate(date);
+        }
+
+        // Case 3: String date
+        if (typeof value === 'string') {
+            const parsed = new Date(value);
+            if (!isNaN(parsed.getTime())) {
+                return this.formatDate(parsed);
+            }
+        }
+
+        return null;
+    }
+
+    private formatDate(date: Date): string {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`; // ISO format (recommended)
+    }
     // ── Process Excel ─────────────────────────────────────────────────────────
     processExcelData(data: any[]): void {
         if (!data.length) {
@@ -258,11 +290,9 @@ export class BulkStudentUploadComponent implements OnInit {
         const selectedDeptInfo = this.associatedDepartments.find((d) => d.department?.name?.toLowerCase() === this.selectedDepartment?.department?.name?.toLowerCase());
 
         const seenSatsNumbers = new Set<string>();
-
         const students: StudentExcelRow[] = data.map((row, index) => {
             const str = (val: any): string => (val != null ? val.toString().trim() : '');
 
-            // ── Base fields (always mapped) ───────────────────────────────────
             const student: StudentExcelRow = {
                 rowNumber: index + 2,
                 satsNumber: str(row.satsNumber),
@@ -270,7 +300,7 @@ export class BulkStudentUploadComponent implements OnInit {
                 middleName: str(row.middleName),
                 lastName: str(row.lastName),
                 gender: str(row.gender).toUpperCase(),
-                dateOfBirth: str(row.dateOfBirth),
+                dateOfBirth: this.parseExcelDate(row.dateOfBirth),
                 email: str(row.email),
                 studentContactNumber: str(row.studentContactNumber),
                 password: str(row.password) || 'User@123',
@@ -315,7 +345,7 @@ export class BulkStudentUploadComponent implements OnInit {
                 s.mediumOfInstruction = str(row.mediumOfInstruction);
                 s.motherTongue = str(row.motherTongue);
                 s.languageGroup = str(row.languageGroup);
-                s.admissionDate = str(row.admissionDate);
+                s.admissionDate = this.parseExcelDate(row.admissionDate);
                 s.affiliation = str(row.affiliation);
                 s.tcNo = str(row.tcNo);
                 s.tcDate = str(row.tcDate);
@@ -363,7 +393,6 @@ export class BulkStudentUploadComponent implements OnInit {
     // ── Validation ────────────────────────────────────────────────────────────
     validateStudent(student: StudentExcelRow, seenSatsNumbers?: Set<string>): ValidationResult {
         const errors: string[] = [];
-
         // ── Required core fields ──────────────────────────────────────────────
         if (!student.satsNumber) {
             errors.push('SATS Number is required');
@@ -380,7 +409,7 @@ export class BulkStudentUploadComponent implements OnInit {
         if (!['MALE', 'FEMALE', 'OTHER'].includes(student.gender ?? '')) {
             errors.push('Gender must be MALE, FEMALE, or OTHER');
         }
-
+        debugger;
         // ── Date of Birth ─────────────────────────────────────────────────────
         if (student.dateOfBirth) {
             const dob = new Date(student.dateOfBirth);
