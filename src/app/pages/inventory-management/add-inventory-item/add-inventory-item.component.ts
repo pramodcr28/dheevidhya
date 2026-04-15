@@ -10,13 +10,14 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 
 import { DatePickerModule } from 'primeng/datepicker';
+import { RadioButtonModule } from 'primeng/radiobutton';
 import { InventoryCategory } from '../../models/inventory.model';
 import { InventoryService } from '../../service/inventory.service';
 
 @Component({
     selector: 'app-add-inventory-item',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputTextModule, InputNumberModule, DatePickerModule, CheckboxModule, TextareaModule, MessageModule],
+    imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputTextModule, InputNumberModule, DatePickerModule, CheckboxModule, TextareaModule, MessageModule, RadioButtonModule],
     templateUrl: './add-inventory-item.component.html',
     styles: []
 })
@@ -34,7 +35,6 @@ export class AddInventoryItemComponent implements OnInit {
     constructor() {}
 
     ngOnInit() {
-        // Initialize selectedCategory if editing
         if (this.isEditMode && this.itemFormModel.category) {
             this.selectedCategory = this.categories.find((c) => c.id === this.itemFormModel.category) || null;
             this.initializeDynamicProperties();
@@ -45,7 +45,6 @@ export class AddInventoryItemComponent implements OnInit {
         this.selectedCategory = this.categories.find((c) => c.id === this.itemFormModel.category) || null;
         this.initializeDynamicProperties();
 
-        // Auto-populate academic year if category is academic year dependent and not in edit mode
         if (this.selectedCategory?.academicYearDependent && !this.isEditMode) {
             const currentYear = new Date().getFullYear();
             this.itemFormModel.academicYear = `${currentYear}-${(currentYear + 1).toString().substr(-2)}`;
@@ -58,12 +57,10 @@ export class AddInventoryItemComponent implements OnInit {
             return;
         }
 
-        // Initialize properties if they don't exist
         if (!this.itemFormModel.properties) {
             this.itemFormModel.properties = {};
         }
 
-        // Initialize default values for new properties
         this.selectedCategory.propertyDefinitions.forEach((prop) => {
             if (!(prop.fieldName in this.itemFormModel.properties)) {
                 let defaultValue: any = '';
@@ -95,7 +92,6 @@ export class AddInventoryItemComponent implements OnInit {
 
     onSave(form: NgForm): void {
         if (form.invalid) {
-            // Mark all fields as touched to show validation errors
             Object.keys(form.controls).forEach((key) => {
                 form.controls[key].markAsTouched();
             });
