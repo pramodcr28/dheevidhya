@@ -11,6 +11,7 @@ export interface PropertyDefinition {
     fieldType?: FieldType;
     options?: Option[];
     required?: boolean;
+    _new?: boolean;
 }
 
 export interface InventoryItem {

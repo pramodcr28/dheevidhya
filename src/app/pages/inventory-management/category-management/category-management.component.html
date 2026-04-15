@@ -181,13 +181,12 @@
                   <label class="block text-xs font-medium   mb-1">
                     Field Name *
                   </label>
-
                   <input 
                     type="text" 
                     [(ngModel)]="property.fieldName"
                     name="fieldName"
                     #fieldNameCtrl="ngModel"
-                    [disabled]="categoryForm.id !== null"
+                    [disabled]="categoryForm.id !== null && !property._new"
                     pattern="^[a-zA-Z]+$"
                     class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                     placeholder="e.g., serialNumber">
@@ -216,7 +215,7 @@
                       optionValue="value"
                       placeholder="Select type"
                       appendTo="body"
-                      [disabled]="categoryForm.id !== null"
+                      [disabled]="categoryForm.id !== null  && !property._new"
                       styleClass="w-full text-sm"
                       [overlayOptions]="{responsive:{direction:'top'}}"
                       (onChange)="onFieldTypeChange(property, $index)">
