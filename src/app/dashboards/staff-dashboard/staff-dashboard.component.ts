@@ -224,23 +224,24 @@ export class StaffDashboardComponent implements OnInit, OnDestroy {
 
     getExamStatusClass(s: string) {
         const m: Record<string, string> = {
-            SCHEDULED: 'bg-blue-50 text-blue-700 border-blue-200',
-            DRAFT: 'bg-amber-50 text-amber-700 border-amber-200',
-            ONGOING: 'bg-green-50 text-green-700 border-green-200',
-            CANCELLED: 'bg-red-50 text-red-700 border-red-200'
+            SCHEDULED: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700',
+            RESULT_DECLARED: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700',
+            DRAFT: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700',
+            ONGOING: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700',
+            CANCELLED: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700'
         };
-        return m[s] ?? 'bg-gray-50  border-gray-200';
+        return m[s] ?? 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
     }
 
     getAssignmentStatusClass(s: string) {
         const m: Record<string, string> = {
-            PUBLISHED: 'bg-amber-50 text-amber-700 border-amber-200',
-            ONGOING: 'bg-blue-50 text-blue-700 border-blue-200',
-            COMPLETED: 'bg-green-50 text-green-700 border-green-200',
-            OVERDUE: 'bg-red-50 text-red-700 border-red-200',
-            DRAFT: 'bg-gray-50  border-gray-200'
+            PUBLISHED: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700',
+            ONGOING: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700',
+            COMPLETED: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700',
+            OVERDUE: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700',
+            DRAFT: 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700'
         };
-        return m[s] ?? 'bg-gray-50  border-gray-200';
+        return m[s] ?? 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
     }
 
     getNoticeDotClass(p: string) {

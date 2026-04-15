@@ -184,7 +184,7 @@
           
           <ng-template pTemplate="body" let-result>
             <tr>
-              <td>{{ result.studentName }}</td>
+              <td [pTooltip]="result.studentName"  class="truncate max-w-[120px]">{{ result.studentName }}</td>
               <td>{{ result.className }}</td>
               <td>{{ result.section }}</td>
               <td>{{ result.obtainedMarks }}/{{ result.totalMarks }}</td>

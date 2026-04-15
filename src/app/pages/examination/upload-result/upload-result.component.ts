@@ -13,6 +13,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { CommonService } from '../../../core/services/common.service';
 import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
@@ -28,7 +29,7 @@ import { UserService } from '../../service/user.service';
 @Component({
     selector: 'app-upload-result',
     standalone: true,
-    imports: [SelectModule, FormsModule, CommonModule, ButtonModule, InputTextModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TagModule, InputNumberModule, DialogModule, CheckboxModule, ConfirmationDialogComponent],
+    imports: [SelectModule, TooltipModule, FormsModule, CommonModule, ButtonModule, InputTextModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TagModule, InputNumberModule, DialogModule, CheckboxModule, ConfirmationDialogComponent],
     templateUrl: './upload-result.component.html',
     providers: [DheeConfirmationService, MessageService]
 })

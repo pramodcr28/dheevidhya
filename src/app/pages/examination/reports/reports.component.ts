@@ -17,6 +17,7 @@ import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 
+import { TooltipModule } from 'primeng/tooltip';
 import { CommonService } from '../../../core/services/common.service';
 import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
@@ -47,7 +48,8 @@ import { ExaminationService } from '../../service/examination.service';
         ProgressBarModule,
         TabViewModule,
         SelectModule,
-        ConfirmationDialogComponent
+        ConfirmationDialogComponent,
+        TooltipModule
     ],
     templateUrl: './reports.component.html',
     providers: [MessageService, DheeConfirmationService],
@@ -107,8 +109,8 @@ export class ReportsComponent {
         this.store.select(getDepartmentById(this.selectedExam.departmentId)).subscribe((dept: IDepartmentConfig) => {
             this.sections = [];
             this.examinationSubjects = [];
-
-            dept.department.classes.forEach((clss) => {
+            debugger;
+            dept?.department?.classes.forEach((clss) => {
                 clss.sections.forEach((sec: any) => {
                     const sectionSubjects = [];
                     let hasExam = false;
