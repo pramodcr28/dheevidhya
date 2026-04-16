@@ -9,6 +9,7 @@ import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 
+import { MessageService } from 'primeng/api';
 import { DatePickerModule } from 'primeng/datepicker';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InventoryCategory } from '../../models/inventory.model';
@@ -31,7 +32,7 @@ export class AddInventoryItemComponent implements OnInit {
     selectedCategory: InventoryCategory | null = null;
     isSubmitting = false;
     inventoryService = inject(InventoryService);
-
+    messageService = inject(MessageService);
     constructor() {}
 
     ngOnInit() {
@@ -92,6 +93,11 @@ export class AddInventoryItemComponent implements OnInit {
 
     onSave(form: NgForm): void {
         if (form.invalid) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'All Feilds are Required'
+            });
             Object.keys(form.controls).forEach((key) => {
                 form.controls[key].markAsTouched();
             });

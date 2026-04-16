@@ -146,7 +146,7 @@
 
 
                             <div *ngIf="prop.fieldType === 'CHECKBOX'" class="flex items-center space-x-2">
-                                <p-checkbox [(ngModel)]="itemFormModel.properties[prop.fieldName]" [name]="'prop_' + prop.fieldName" [binary]="true"> </p-checkbox>
+                                <p-checkbox [(ngModel)]="itemFormModel.properties[prop.fieldName]" [required]="prop.required" [name]="'prop_' + prop.fieldName" [binary]="true"> </p-checkbox>
                                 <label class="text-sm">{{ prop.label }}</label>
                             </div>
 
@@ -169,7 +169,7 @@
                                 </div>
                             </div>
 
-                            <small *ngIf="prop.required && !itemFormModel.properties[prop.fieldName]" class="text-red-500 mt-1 block"> {{ prop.label }} is required </small>
+                            <small *ngIf="prop.required && !itemFormModel.properties[prop.fieldName] && prop.label !='Check Box'" class="text-red-500 mt-1 block"> {{ prop.label }} is required </small>
                         </div>
                     </ng-container>
                 }
