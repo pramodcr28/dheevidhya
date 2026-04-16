@@ -63,6 +63,8 @@ export interface IProfileConfig {
     roles?: IRoleConfigs | null;
     subjectIds?: string[] | null;
     status: UserStatus | null;
+    exitDate?: Date | null;
+    exitReason?: string | null;
 }
 
 export type NewProfileConfig = Omit<IProfileConfig, 'id'> & { id: null };

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -56,7 +57,8 @@ interface StudentFilter {
         MultiSelectModule,
         ConfirmationDialogComponent,
         SatsStudentDialogComponent,
-        TooltipModule
+        TooltipModule,
+        DialogModule
     ],
     templateUrl: './sats-student-list.component.html',
     providers: [MessageService, DheeConfirmationService]
@@ -103,6 +105,11 @@ export class SatsStudentListComponent {
         { label: 'ST', value: 'ST' },
         { label: 'Other', value: 'OTHER' }
     ];
+
+    showExitDialog = false;
+    exitReason = '';
+    exitReasonTouched = false;
+    pendingExitStudent: IStudent | null = null;
 
     ngOnInit(): void {
         this.loadFilterOptions();
@@ -234,35 +241,85 @@ export class SatsStudentListComponent {
     }
 
     deleteStudent(student: IStudent) {
-        const name = student.studentDetails?.studentName?.firstName ?? 'this student';
-        this.confirmationService.confirm({
-            message: `Are you sure you want to exit ${name}?`,
-            header: 'Exit Confirmation',
-            icon: 'pi pi-exclamation-triangle',
-            accept: () => {
-                this.loader.show('Exiting Student');
+        this.pendingExitStudent = student;
+        this.exitReason = student.latestAcademicYear?.exitReason ?? '';
+        this.exitReasonTouched = false;
+        this.showExitDialog = true;
+    }
+    confirmExit() {
+        this.exitReasonTouched = true;
 
-                this.studentService.delete(student.id).subscribe({
-                    next: (res) => {
-                        this.load();
-                        this.messageService.add({
-                            severity: 'success',
-                            summary: 'Success',
-                            detail: 'Student exited successfully'
-                        });
-                    },
-                    error: (error) => {
-                        this.loader.hide();
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Failed to exit student'
-                        });
-                    }
+        if (!this.exitReason?.trim()) {
+            return; // Block submission if empty
+        }
+
+        const student = this.pendingExitStudent!;
+        this.showExitDialog = false;
+        this.loader.show('Exiting Student');
+
+        this.studentService.delete(student.id, this.exitReason.trim()).subscribe({
+            next: () => {
+                this.load();
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Student exited successfully'
                 });
+                this.resetExitDialog();
+            },
+            error: () => {
+                this.loader.hide();
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to exit student'
+                });
+                this.resetExitDialog();
             }
         });
     }
+
+    cancelExit() {
+        this.showExitDialog = false;
+        this.resetExitDialog();
+    }
+
+    private resetExitDialog() {
+        this.pendingExitStudent = null;
+        this.exitReason = '';
+        this.exitReasonTouched = false;
+    }
+
+    // deleteStudent(student: IStudent) {
+    //     const name = student.studentDetails?.studentName?.firstName ?? 'this student';
+    //     this.confirmationService.confirm({
+    //         message: `Are you sure you want to exit ${name}?`,
+    //         header: 'Exit Confirmation',
+    //         icon: 'pi pi-exclamation-triangle',
+    //         accept: () => {
+    //             this.loader.show('Exiting Student');
+
+    //             this.studentService.delete(student.id).subscribe({
+    //                 next: (res) => {
+    //                     this.load();
+    //                     this.messageService.add({
+    //                         severity: 'success',
+    //                         summary: 'Success',
+    //                         detail: 'Student exited successfully'
+    //                     });
+    //                 },
+    //                 error: (error) => {
+    //                     this.loader.hide();
+    //                     this.messageService.add({
+    //                         severity: 'error',
+    //                         summary: 'Error',
+    //                         detail: 'Failed to exit student'
+    //                     });
+    //                 }
+    //             });
+    //         }
+    //     });
+    // }
 
     getStudentFullName(student: IStudent): string {
         const n = student.studentDetails?.studentName;

@@ -35,8 +35,8 @@ export class StudentServiceService {
         return this.http.get<IStudent>(`${this.resourceUrl}/${id}`, { observe: 'response' });
     }
 
-    delete(id: string): Observable<HttpResponse<{}>> {
-        return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+    delete(id: string, reason: string): Observable<HttpResponse<{}>> {
+        return this.http.delete(`${this.resourceUrl}/${id}/${reason}`, { observe: 'response' });
     }
 
     search(request: StudentSearchRequest): Observable<any> {
