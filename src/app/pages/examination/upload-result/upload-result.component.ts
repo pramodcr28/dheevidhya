@@ -55,7 +55,6 @@ export class UploadResultComponent implements OnInit {
     public isLoading = false;
     public isSaving = false;
     today: Date = new Date();
-    // Declare Result Dialog
     public showDeclareDialog = false;
     public sendNotification = true;
 
@@ -188,6 +187,7 @@ export class UploadResultComponent implements OnInit {
                         userId: student.userId,
                         fullName: student.fullName,
                         academicYear: student.academicYear,
+                        status: student.status,
                         examResults
                     };
                 });
@@ -202,6 +202,39 @@ export class UploadResultComponent implements OnInit {
                 this.isLoading = false;
             }
         });
+    }
+
+    getUserStatusStyle(status: string): { banner: string; badge: string; icon: string; label: string } {
+        switch (status) {
+            case 'EXITED':
+                return {
+                    banner: 'bg-gray-100 dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400',
+                    badge: 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+                    icon: 'pi pi-sign-out',
+                    label: 'Exited'
+                };
+            case 'PROMOTED':
+                return {
+                    banner: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400',
+                    badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+                    icon: 'pi pi-arrow-up',
+                    label: 'Promoted'
+                };
+            case 'INACTIVE':
+                return {
+                    banner: 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700 text-orange-600 dark:text-orange-400',
+                    badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
+                    icon: 'pi pi-pause-circle',
+                    label: 'Inactive'
+                };
+            default:
+                return {
+                    banner: 'bg-gray-100 dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 text-gray-500',
+                    badge: 'bg-gray-200 dark:bg-gray-700 text-gray-500',
+                    icon: 'pi pi-info-circle',
+                    label: 'Unknown'
+                };
+        }
     }
 
     onMarksChange(studentIndex: number, subjectIndex: number) {
@@ -236,7 +269,6 @@ export class UploadResultComponent implements OnInit {
     }
 
     declareResults() {
-        // Validate all subjects are filled
         const validation = this.validateAllResults();
         if (!validation.isValid) {
             this.messageService.add({
@@ -247,7 +279,6 @@ export class UploadResultComponent implements OnInit {
             return;
         }
 
-        // Show custom confirmation dialog
         this.showDeclareDialog = true;
         this.sendNotification = true;
     }
@@ -266,16 +297,15 @@ export class UploadResultComponent implements OnInit {
         for (const student of this.studentResults) {
             const missingSubjects: string[] = [];
             const invalidSubjects: string[] = [];
-
-            for (const result of student.examResults) {
-                // Check if marks are missing
-                if (result.obtainedMarks === null || result.obtainedMarks === undefined) {
-                    missingSubjects.push(result.subjectName);
-                } else {
-                    // Check if marks are within valid range
-                    const totalMarks = result.totalMarks || this.selectedExam?.totalMarks;
-                    if (result.obtainedMarks < 0 || result.obtainedMarks > totalMarks) {
-                        invalidSubjects.push(result.subjectName);
+            if (student.status == 'ACTIVE') {
+                for (const result of student.examResults) {
+                    if (result.obtainedMarks === null || result.obtainedMarks === undefined) {
+                        missingSubjects.push(result.subjectName);
+                    } else {
+                        const totalMarks = result.totalMarks || this.selectedExam?.totalMarks;
+                        if (result.obtainedMarks < 0 || result.obtainedMarks > totalMarks) {
+                            invalidSubjects.push(result.subjectName);
+                        }
                     }
                 }
             }
@@ -371,6 +401,8 @@ export class UploadResultComponent implements OnInit {
         return this.studentResults
             .map((student) => ({
                 fullName: student.fullName,
+                status: student.status,
+                userId: student.userId,
                 examResults: student.examResults
                     .filter((result) => result.obtainedMarks !== null && result.obtainedMarks !== undefined)
                     .map((result) => ({

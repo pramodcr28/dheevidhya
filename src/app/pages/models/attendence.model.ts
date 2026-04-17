@@ -1,3 +1,5 @@
+import { UserStatus } from './user.model';
+
 export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'EXCUSED' | 'LATE';
 export interface AttendanceRequest {
     id: string;
@@ -23,6 +25,7 @@ export interface AttendanceException {
     studentName: string;
     status: AttendanceStatus;
     remarks?: string;
+    _studentStatus?: UserStatus | any;
 }
 
 export interface LowAttendanceStudent {

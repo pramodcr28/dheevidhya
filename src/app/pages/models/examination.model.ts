@@ -100,6 +100,7 @@ export interface StudentResult {
     userId: string;
     fullName: string;
     academicYear: string;
+    status?: string;
     examResults: ExamResult[];
 }
 

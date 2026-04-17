@@ -17,7 +17,7 @@ import { CommonService } from '../../../core/services/common.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { UserProfileState } from '../../../core/store/user-profile/user-profile.reducer';
 import { AttendanceException, AttendanceRequest, AttendanceStatus } from '../../models/attendence.model';
-import { IProfileConfig } from '../../models/user.model';
+import { IProfileConfig, UserStatus } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { StudentAttendenceServiceService } from '../../service/student-attendence-service.service';
 import { TimeTableService } from '../../service/time-table.service';
@@ -75,6 +75,38 @@ export class TakeAttendenceComponent implements OnInit {
     takeAttandence = false;
     todayAttendence: AttendanceRequest;
     dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    protected readonly UserStatus = UserStatus;
+
+    getUserStatusStyle(status: any): { banner: string; icon: string; label: string } {
+        console.log(status);
+        switch (status) {
+            case 'EXITED':
+                return {
+                    banner: 'bg-gray-100 dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400',
+                    icon: 'pi pi-sign-out text-gray-400',
+                    label: 'Student has exited'
+                };
+            case 'PROMOTED':
+                return {
+                    banner: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400',
+                    icon: 'pi pi-arrow-up text-blue-400',
+                    label: 'Promoted to next grade'
+                };
+            case 'INACTIVE':
+                return {
+                    banner: 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700 text-orange-600 dark:text-orange-400',
+                    icon: 'pi pi-pause-circle text-orange-400',
+                    label: 'Currently inactive'
+                };
+            default:
+                return {
+                    banner: 'bg-gray-100 dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 text-gray-500',
+                    icon: 'pi pi-info-circle text-gray-400',
+                    label: 'Unknown status'
+                };
+        }
+    }
 
     ngOnInit() {
         this.loadInstructorTimetable();
@@ -226,7 +258,8 @@ export class TakeAttendenceComponent implements OnInit {
                                 this.currentAttendence.push({
                                     studentName: student.fullName,
                                     studentId: student.userId,
-                                    status: status
+                                    status: status,
+                                    _studentStatus: student.status
                                 });
                             });
                             if (res.content && res.content.length == 0) {

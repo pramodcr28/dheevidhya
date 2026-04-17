@@ -16,8 +16,9 @@ import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog
 import { Assignment, AssignmentSubmission, SubmissionStatus } from '../../models/assignment.model';
 import { IExaminationSubject } from '../../models/examination.model';
 import { IDepartmentConfig } from '../../models/org.model';
-import { IStudent } from '../../models/student.model';
+import { NewProfileConfig } from '../../models/user.model';
 import { AssignmentService } from '../../service/assignment.service';
+import { ProfileConfigService } from '../../service/profile-config.service';
 import { StudentServiceService } from '../../service/student-service.service';
 import { CommonService } from './../../../core/services/common.service';
 import { AddAssignmentDialogComponent } from './add-assignment-dialog/add-assignment-dialog.component';
@@ -77,8 +78,9 @@ export class AssignmentManagementComponent implements OnInit {
     messageService = inject(MessageService);
     dheeConfirmationService = inject(DheeConfirmationService);
     objectKeys = Object.keys;
-    students = signal<IStudent[]>([]);
+    students = signal<NewProfileConfig[]>([]);
     studentService = inject(StudentServiceService);
+    profileService = inject(ProfileConfigService);
     totalItems = 0;
     page = 0;
     itemsPerPage = 200;
@@ -93,18 +95,13 @@ export class AssignmentManagementComponent implements OnInit {
 
     loadSectionAssociatedStudents(req: any): void {
         this.students.set([]);
-        this.studentService
-            .search({
-                page: this.page,
-                size: this.itemsPerPage,
-                sortBy: this.sortField,
-                sortDirection: this.sortOrder,
-                filters: {
-                    'branchId.equals': this.commonService.branch?.id,
-                    'latestAcademicYear.roles.student.deptId.in': req.departmentId,
-                    'latestAcademicYear.roles.student.sectionName.in': req.sectionName,
-                    'latestAcademicYear.roles.student.className.in': req.className
-                }
+
+        this.profileService
+            .search(0, 100, 'id', 'ASC', {
+                'profileType.equals': 'STUDENT',
+                'departments.in': [req.departmentId],
+                'roles.student.class_name.equals': req.className,
+                'roles.student.section_name.equals': req.sectionName
             })
             .subscribe({
                 next: (res: any) => {
@@ -116,6 +113,29 @@ export class AssignmentManagementComponent implements OnInit {
                 },
                 error: () => {}
             });
+        // this.studentService
+        //     .search({
+        //         page: this.page,
+        //         size: this.itemsPerPage,
+        //         sortBy: this.sortField,
+        //         sortDirection: this.sortOrder,
+        //         filters: {
+        //             'branchId.equals': this.commonService.branch?.id,
+        //             'latestAcademicYear.roles.student.deptId.in': req.departmentId,
+        //             'latestAcademicYear.roles.student.sectionName.in': req.sectionName,
+        //             'latestAcademicYear.roles.student.className.in': req.className
+        //         }
+        //     })
+        //     .subscribe({
+        //         next: (res: any) => {
+        //             this.students.set(res.content || []);
+        //             this.assignmentService.search(0, 100, 'id', 'ASC', req).subscribe((result) => {
+        //                 this.assignments = result.content;
+        //                 this.loader.hide();
+        //             });
+        //         },
+        //         error: () => {}
+        //     });
     }
 
     selectGroup(group) {
@@ -128,8 +148,9 @@ export class AssignmentManagementComponent implements OnInit {
         } else {
             reqBody = { subjectName: group.subjectName, className: group.className, sectionName: group.sectionName, departmentId: group.departmentId };
         }
-        this.subjectInfo = { departmentId: group.departmentId, className: group.className, sectionName: group.sectionName, subjectName: group.subjectName };
-        this.loadSectionAssociatedStudents(this.subjectInfo);
+
+        // this.subjectInfo = { departmentId: group.departmentId, className: group.className, sectionName: group.sectionName, subjectName: group.subjectName };
+        this.loadSectionAssociatedStudents(reqBody);
     }
 
     getGroupedAssignments() {
@@ -256,7 +277,7 @@ export class AssignmentManagementComponent implements OnInit {
                     } else {
                         this.assignmentSubmissions.push({
                             studentId: stu.id,
-                            studentName: stu.latestAcademicYear?.fullName,
+                            studentName: stu?.fullName,
                             status: 'PENDING',
                             submissionDate: null,
                             response: null,

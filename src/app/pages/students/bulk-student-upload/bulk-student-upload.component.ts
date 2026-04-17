@@ -409,7 +409,7 @@ export class BulkStudentUploadComponent implements OnInit {
         if (!['MALE', 'FEMALE', 'OTHER'].includes(student.gender ?? '')) {
             errors.push('Gender must be MALE, FEMALE, or OTHER');
         }
-        debugger;
+
         // ── Date of Birth ─────────────────────────────────────────────────────
         if (student.dateOfBirth) {
             const dob = new Date(student.dateOfBirth);

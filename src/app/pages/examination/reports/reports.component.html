@@ -1,6 +1,6 @@
-   <app-confirmation-dialog></app-confirmation-dialog>
- <div class="p-6 space-y-6">
-      <p-card>
+<app-confirmation-dialog></app-confirmation-dialog>
+<div class="space-y-6">
+    <p-card>
         <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium mb-2">Select Examination</label>
@@ -18,122 +18,119 @@
               </ng-template>
             </p-select>
           </div>
-          
-        
         </div> -->
-         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <p-select [(ngModel)]="selectedExam" [options]="exams" optionLabel="examType" placeholder="Select an exam" class="w-full" [loading]="isLoading" (onChange)="onExamChange()">
-                    <ng-template let-exam pTemplate="selectedItem">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <p-select [(ngModel)]="selectedExam" [options]="exams" optionLabel="examType" placeholder="Select an exam" class="w-full" [loading]="isLoading" (onChange)="onExamChange()">
+                <ng-template let-exam pTemplate="selectedItem">
+                    <div class="flex items-center">
+                        <i class="pi pi-book mr-2 text-blue-600"></i>
+                        <span class="font-medium">{{ exam.examType }}</span>
+                        <span class="text-sm dark:text-white ml-2">({{ exam.timeTable.settings.startDate | date: 'shortDate' }})</span>
+                    </div>
+                </ng-template>
+                <ng-template let-exam pTemplate="item">
+                    <div class="flex items-center justify-between p-2">
                         <div class="flex items-center">
                             <i class="pi pi-book mr-2 text-blue-600"></i>
-                            <span class="font-medium">{{ exam.examType }}</span>
-                            <span class="text-sm  dark:text-white ml-2">({{ exam.timeTable.settings.startDate | date: 'shortDate' }})</span>
-                        </div>
-                    </ng-template>
-                    <ng-template let-exam pTemplate="item">
-                        <div class="flex items-center justify-between p-2">
-                            <div class="flex items-center">
-                                <i class="pi pi-book mr-2 text-blue-600"></i>
-                                <div>
-                                    <div class="font-medium">{{ exam.examType }}</div>
-                                    <div class="text-sm  dark:text-white">{{ exam.timeTable.settings.startDate | date: 'shortDate' }}</div>
-                                </div>
-                            </div>
-                            <p-tag [value]="exam.status" [severity]="exam.status === 'RESULT_DECLARED' ? 'success' : 'info'"></p-tag>
-                        </div>
-                    </ng-template>
-                </p-select>
-
-                <p-select [(ngModel)]="selectedSection" [options]="sections" optionLabel="sectionName" placeholder="Select a section" class="w-full" [disabled]="!selectedExam" (onChange)="onSectionChange()">
-                    <ng-template let-section pTemplate="selectedItem">
-                        <div class="flex items-center">
-                            <i class="pi pi-users mr-2 text-green-600"></i>
-                            <span class="font-medium">{{ section.className }}</span>
-                            <span class="text-sm  dark:text-white ml-2">({{ section.sectionName }})</span>
-                        </div>
-                    </ng-template>
-                    <ng-template let-section pTemplate="item">
-                        <div class="flex items-center p-2">
-                            <i class="pi pi-users mr-2 text-green-600"></i>
                             <div>
-                                <div class="font-medium">{{ section.className }}</div>
-                                <div class="text-sm  dark:text-white">{{ section.sectionName }} - {{ section.departmentName }}</div>
+                                <div class="font-medium">{{ exam.examType }}</div>
+                                <div class="text-sm dark:text-white">{{ exam.timeTable.settings.startDate | date: 'shortDate' }}</div>
                             </div>
                         </div>
-                    </ng-template>
-                </p-select>
-            </div>
-          
-      </p-card>
+                        <p-tag [value]="exam.status" [severity]="exam.status === 'RESULT_DECLARED' ? 'success' : 'info'"></p-tag>
+                    </div>
+                </ng-template>
+            </p-select>
 
-      <!-- Statistics Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4" *ngIf="report.stats">
+            <p-select [(ngModel)]="selectedSection" [options]="sections" optionLabel="sectionName" placeholder="Select a section" class="w-full" [disabled]="!selectedExam" (onChange)="onSectionChange()">
+                <ng-template let-section pTemplate="selectedItem">
+                    <div class="flex items-center">
+                        <i class="pi pi-users mr-2 text-green-600"></i>
+                        <span class="font-medium">{{ section.className }}</span>
+                        <span class="text-sm dark:text-white ml-2">({{ section.sectionName }})</span>
+                    </div>
+                </ng-template>
+                <ng-template let-section pTemplate="item">
+                    <div class="flex items-center p-2">
+                        <i class="pi pi-users mr-2 text-green-600"></i>
+                        <div>
+                            <div class="font-medium">{{ section.className }}</div>
+                            <div class="text-sm dark:text-white">{{ section.sectionName }} - {{ section.departmentName }}</div>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-select>
+        </div>
+    </p-card>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4" *ngIf="report.stats">
         <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-blue-100 text-sm">Total Students</p>
-              <p class="text-2xl font-bold">{{ report.stats.totalStudents }}</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-blue-100 text-sm">Total Students</p>
+                    <p class="text-2xl font-bold">{{ report.stats.totalStudents }}</p>
+                </div>
+                <i class="pi pi-users text-3xl text-blue-200"></i>
             </div>
-            <i class="pi pi-users text-3xl text-blue-200"></i>
-          </div>
         </div>
-        
+
         <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-green-100 text-sm">Passed</p>
-              <p class="text-2xl font-bold">{{ report.stats.passedStudents }}</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-green-100 text-sm">Passed</p>
+                    <p class="text-2xl font-bold">{{ report.stats.passedStudents }}</p>
+                </div>
+                <i class="pi pi-check-circle text-3xl text-green-200"></i>
             </div>
-            <i class="pi pi-check-circle text-3xl text-green-200"></i>
-          </div>
         </div>
-        
+
         <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-4 text-white">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-red-100 text-sm">Failed</p>
-              <p class="text-2xl font-bold">{{ report.stats.failedStudents }}</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-red-100 text-sm">Failed</p>
+                    <p class="text-2xl font-bold">{{ report.stats.failedStudents }}</p>
+                </div>
+                <i class="pi pi-times-circle text-3xl text-red-200"></i>
             </div>
-            <i class="pi pi-times-circle text-3xl text-red-200"></i>
-          </div>
         </div>
 
         <div class="bg-gradient-to-r from-gray-500 to-gray-600 rounded-lg p-4 text-white">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-black-100 text-sm">Result Not Found</p>
-              <p class="text-2xl font-bold">{{ report.stats.notFoundStudents }}</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-black-100 text-sm">Result Not Found</p>
+                    <p class="text-2xl font-bold">{{ report.stats.notFoundStudents }}</p>
+                </div>
+                <i class="pi pi-times-circle text-3xl text-black-200"></i>
             </div>
-            <i class="pi pi-times-circle text-3xl text-black-200"></i>
-          </div>
         </div>
-        
-        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-purple-100 text-sm">Average</p>
-              <p class="text-2xl font-bold">{{ report.stats.averagePercentage | number:'1.2-2' }}%</p>
-            </div>
-            <i class="pi pi-chart-line text-3xl text-purple-200"></i>
-          </div>
-        </div>
-      </div>
 
-      <!-- Charts and Results -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6" *ngIf="report.results.length > 0">
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-100 text-sm">Average</p>
+                    <p class="text-2xl font-bold">{{ report.stats.averagePercentage | number: '1.2-2' }}%</p>
+                </div>
+                <i class="pi pi-chart-line text-3xl text-purple-200"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Results -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6" *ngIf="report.results.length > 0">
         <!-- Performance Chart -->
         <p-card header="Performance Distribution">
-          <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="300"></p-chart>
+            <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="300"></p-chart>
         </p-card>
 
         <!-- Grade Distribution -->
         <p-card header="Grade Distribution">
-          <p-chart type="bar" [data]="gradeChartData" [options]="barChartOptions" height="300"></p-chart>
+            <p-chart type="bar" [data]="gradeChartData" [options]="barChartOptions" height="300"></p-chart>
         </p-card>
-      </div>
+    </div>
 
-      <!-- Results Table -->
-      <p-card header="Student Results" *ngIf="report.results.length > 0">
+    <!-- Results Table -->
+    <p-card header="Student Results" *ngIf="report.results.length > 0">
         <!-- <div class="mb-4 flex justify-between items-center">
           <p-button 
             label="Publish Results" 
@@ -150,147 +147,116 @@
           </div>
         </div> -->
 
-        <p-table 
-          [value]="report.results" 
-          [paginator]="true" 
-          [rows]="10" 
-          [globalFilterFields]="['studentName', 'className', 'section']"
-          styleClass="p-datatable-sm">
-          
-          <ng-template pTemplate="header">
-            <tr>
-              <th pSortableColumn="studentName">
-                Student Name <p-sortIcon field="studentName"></p-sortIcon>
-              </th>
-              <th pSortableColumn="className">
-                Class <p-sortIcon field="className"></p-sortIcon>
-              </th>
-              <th pSortableColumn="section">Section</th>
-              <th pSortableColumn="obtainedMarks">
-                Marks <p-sortIcon field="obtainedMarks"></p-sortIcon>
-              </th>
-              <th pSortableColumn="percentage">
-                Percentage <p-sortIcon field="percentage"></p-sortIcon>
-              </th>
-              <th pSortableColumn="grade">
-                Grade <p-sortIcon field="grade"></p-sortIcon>
-              </th>
-              <th pSortableColumn="status">
-                Status <p-sortIcon field="status"></p-sortIcon>
-              </th>
-              <th>Actions</th>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="body" let-result>
-            <tr>
-              <td [pTooltip]="result.studentName"  class="truncate max-w-[120px]">{{ result.studentName }}</td>
-              <td>{{ result.className }}</td>
-              <td>{{ result.section }}</td>
-              <td>{{ result.obtainedMarks }}/{{ result.totalMarks }}</td>
-              <td>
-                <div class="flex items-center gap-2">
-                  <p-progressBar 
-                    [value]="result.percentage  | number:'1.2-2'" 
-                    [style]="{ width: '60px', height: '6px' }">
-                  </p-progressBar>
-                  <span class="text-sm">{{ result.percentage | number:'1.2-2' }}%</span>
-                </div>
-              </td>
-              <td>
-                <p-tag [value]="result.grade" [severity]="getGradeSeverity(result.grade)"></p-tag>
-              </td>
-              <td class="flex justify-center">
-                <p-tag [value]="result.status" 
-                       [severity]="getStatusSeverity(result.status)">
-                </p-tag>
-              </td>
-              <td>
-                @if(result.status != "Unknown"){
-                <p-button 
-                  icon="pi pi-eye" 
-                  styleClass="p-button-text p-button-sm"
-                  pTooltip="View Details"
-                  (onClick)="viewStudentResult(result)">
-                </p-button>
+        <p-table [value]="report.results" [paginator]="true" [rows]="10" [globalFilterFields]="['studentName', 'className', 'section']" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="studentName">Student Name <p-sortIcon field="studentName"></p-sortIcon></th>
+                    <th pSortableColumn="className">Class <p-sortIcon field="className"></p-sortIcon></th>
+                    <th pSortableColumn="section">Section</th>
+                    <th pSortableColumn="obtainedMarks">Marks <p-sortIcon field="obtainedMarks"></p-sortIcon></th>
+                    <th pSortableColumn="percentage">Percentage <p-sortIcon field="percentage"></p-sortIcon></th>
+                    <th pSortableColumn="grade">Grade <p-sortIcon field="grade"></p-sortIcon></th>
+                    <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
 
-                }
-              </td>
-            </tr>
-          </ng-template>
+            <ng-template pTemplate="body" let-result>
+                <tr [ngClass]="result.status === 'Unknown' ? 'opacity-50 bg-gray-50 dark:bg-gray-800/50 pointer-events-none' : 'hover:bg-gray-50 dark:hover:bg-gray-800'" class="transition-colors border-b border-gray-200 dark:border-gray-700">
+                    <td [pTooltip]="result.studentName" class="truncate max-w-[120px]">
+                        {{ result.studentName }}
+                    </td>
+                    <td>{{ result.className }}</td>
+                    <td>{{ result.section }}</td>
+                    <td>{{ result.obtainedMarks }}/{{ result.totalMarks }}</td>
+
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <p-progressBar [value]="result.percentage | number: '1.2-2'" [style]="{ width: '60px', height: '6px' }"> </p-progressBar>
+                            <span class="text-sm">{{ result.percentage | number: '1.2-2' }}%</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <p-tag [value]="result.grade" [severity]="getGradeSeverity(result.grade)"></p-tag>
+                    </td>
+
+                    <td class="flex justify-center">
+                        <p-tag [value]="result.status" [severity]="getStatusSeverity(result.status)"></p-tag>
+                    </td>
+
+                    <td>
+                        @if (result.status !== 'Unknown') {
+                            <p-button icon="pi pi-eye" styleClass="p-button-text p-button-sm" pTooltip="View Details" (onClick)="viewStudentResult(result)"> </p-button>
+                        } @else {
+                            <span
+                                class="inline-flex items-center gap-1 text-[10px] font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700/50 border border-dashed border-gray-300 dark:border-gray-600 rounded-full px-2 py-1 pointer-events-none"
+                                pTooltip="Result not yet available"
+                            >
+                                <i class="pi pi-clock text-[9px]"></i>
+                                Pending
+                            </span>
+                        }
+                    </td>
+                </tr>
+            </ng-template>
         </p-table>
-      </p-card>
+    </p-card>
 
-      <!-- Import Dialog -->
-      <p-dialog 
-        header="Import Results" 
-        [(visible)]="showImportDialog" 
-        [modal]="true" 
-        [style]="{ width: '50vw' }">
+    <!-- Import Dialog -->
+    <p-dialog header="Import Results" [(visible)]="showImportDialog" [modal]="true" [style]="{ width: '50vw' }">
         <div class="space-y-4">
-          <p class="">Upload a CSV file with student results.</p>
-          <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <i class="pi pi-cloud-upload text-4xl text-gray-400 mb-4"></i>
-            <p class=" mb-4">Drag and drop your CSV file here or click to browse</p>
-            <p-button label="Browse Files" styleClass="p-button-outlined"></p-button>
-          </div>
+            <p class="">Upload a CSV file with student results.</p>
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <i class="pi pi-cloud-upload text-4xl text-gray-400 mb-4"></i>
+                <p class="mb-4">Drag and drop your CSV file here or click to browse</p>
+                <p-button label="Browse Files" styleClass="p-button-outlined"></p-button>
+            </div>
         </div>
         <ng-template pTemplate="footer">
-          <p-button 
-            label="Cancel" 
-            styleClass="p-button-text" 
-            (onClick)="showImportDialog = false">
-          </p-button>
-          <p-button 
-            label="Import" 
-            styleClass="p-button-success" 
-            (onClick)="importResults()">
-          </p-button>
+            <p-button label="Cancel" styleClass="p-button-text" (onClick)="showImportDialog = false"> </p-button>
+            <p-button label="Import" styleClass="p-button-success" (onClick)="importResults()"> </p-button>
         </ng-template>
-      </p-dialog>
+    </p-dialog>
 
-      <!-- Student Result Detail Dialog -->
-      <p-dialog 
-        header="Student Result Details" 
-        [(visible)]="showStudentDetail" 
-        [modal]="true" 
-        [style]="{ width: '70vw' }">
+    <!-- Student Result Detail Dialog -->
+    <p-dialog header="Student Result Details" [(visible)]="showStudentDetail" [modal]="true" [style]="{ width: '70vw' }">
         <div *ngIf="selectedStudentResult" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm ">Student Name</p>
-              <p class="font-medium">{{ selectedStudentResult.studentName }}</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm">Student Name</p>
+                    <p class="font-medium">{{ selectedStudentResult.studentName }}</p>
+                </div>
+                <div>
+                    <p class="text-sm">Class & Section</p>
+                    <p class="font-medium">{{ selectedStudentResult.className }} - {{ selectedStudentResult.section }}</p>
+                </div>
             </div>
-            <div>
-              <p class="text-sm ">Class & Section</p>
-              <p class="font-medium">{{ selectedStudentResult.className }} - {{ selectedStudentResult.section }}</p>
-            </div>
-          </div>
-          
-          <p-table [value]="selectedStudentResult.subjects" styleClass="p-datatable-sm">
-            <ng-template pTemplate="header">
-              <tr>
-                <th>Subject</th>
-                <th>Max Marks</th>
-                <th>Obtained Marks</th>
-                <th>Grade</th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-subject>
-              <tr>
-               <td>{{ subject.subjectName || 'N/A' }}</td>
-                <td>{{ subject.maxMarks !== null ? subject.maxMarks : '-' }}</td>
-                <td>{{ subject.obtainedMarks !== null ? subject.obtainedMarks : '-' }}</td>
 
-                <td>
-                  <p-tag [value]="subject.grade" [severity]="getGradeSeverity(subject.grade)"></p-tag>
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
+            <p-table [value]="selectedStudentResult.subjects" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Subject</th>
+                        <th>Max Marks</th>
+                        <th>Obtained Marks</th>
+                        <th>Grade</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-subject>
+                    <tr>
+                        <td>{{ subject.subjectName || 'N/A' }}</td>
+                        <td>{{ subject.maxMarks !== null ? subject.maxMarks : '-' }}</td>
+                        <td>{{ subject.obtainedMarks !== null ? subject.obtainedMarks : '-' }}</td>
+
+                        <td>
+                            <p-tag [value]="subject.grade" [severity]="getGradeSeverity(subject.grade)"></p-tag>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
-      </p-dialog>
-    </div>
+    </p-dialog>
+</div>
 
-    <p-toast></p-toast>
-    <p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>

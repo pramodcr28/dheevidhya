@@ -71,7 +71,86 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let student of studentResults; let i = index" class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
+                <tr
+    *ngFor="let student of studentResults; let i = index"
+    class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700"
+    [ngClass]="student.status !== 'ACTIVE' ? 'opacity-60 bg-gray-50 dark:bg-gray-800/50' : ''"
+>
+    <td class="px-4 py-3 whitespace-nowrap sticky left-0 z-10 border-r border-gray-300 font-medium dark:text-gray-50 min-w-[120px]"
+        [ngClass]="student.status !== 'ACTIVE' ? 'bg-gray-50 dark:bg-gray-800/50' : 'bg-white dark:bg-gray-900'"
+    >
+        <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                 [ngClass]="student.status !== 'ACTIVE' ? 'bg-gray-200 dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'"
+            >
+                <i class="pi pi-user text-sm"
+                   [ngClass]="student.status !== 'ACTIVE' ? 'text-gray-400' : ''"
+                ></i>
+            </div>
+            <div>
+                <div class="text-medium font-bold truncate max-w-[120px] dark:text-gray-50"
+                     [pTooltip]="student.fullName">
+                    {{ student.fullName }}
+                </div>
+                @if (student.status !== 'ACTIVE') {
+                    <span
+                        class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-0.5"
+                        [ngClass]="getUserStatusStyle(student.status).badge"
+                    >
+                        <i class="text-[9px]" [ngClass]="getUserStatusStyle(student.status).icon"></i>
+                        {{ getUserStatusStyle(student.status).label }}
+                    </span>
+                }
+            </div>
+        </div>
+    </td>
+
+    @if (student.status === 'ACTIVE') {
+        <td *ngFor="let subject of selectedSubjects; let j = index"
+            class="px-2 py-2 text-center border-r border-gray-200">
+            <p-inputNumber
+                type="number"
+                [(ngModel)]="student.examResults[j].obtainedMarks"
+                (ngModelChange)="onMarksChange(i, j)"
+                [min]="0"
+                [max]="selectedExam?.totalMarks"
+                [fluid]="true"
+                [disabled]="selectedExam?.status === 'RESULT_DECLARED'"
+            ></p-inputNumber>
+        </td>
+    } @else {
+        <td
+            [attr.colspan]="selectedSubjects.length"
+            class="px-4 py-2 text-center border-r border-gray-200"
+        >
+            <div
+                class="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 border border-dashed w-full"
+                [ngClass]="getUserStatusStyle(student.status).banner"
+            >
+                <i class="text-sm" [ngClass]="getUserStatusStyle(student.status).icon"></i>
+                <span class="text-xs font-semibold tracking-wide">
+                    {{ getUserStatusStyle(student.status).label }} — Marks entry not allowed
+                </span>
+            </div>
+        </td>
+    }
+
+    <td class="px-2 py-2 text-center border-r border-gray-200">
+        @if (student.status === 'ACTIVE') {
+            <ng-container *ngIf="isResultAvailable(student)">
+                <div class="text-sm font-medium">
+                    {{ getStudentPercentage(student) }}% ({{ getGrade(getStudentPercentage(student)) }})
+                </div>
+                <div class="text-xs" [ngClass]="isStudentPass(student) ? 'text-green-600' : 'text-red-600'">
+                    {{ isStudentPass(student) ? 'Pass' : 'Fail' }}
+                </div>
+            </ng-container>
+        } @else {
+            <span class="text-xs text-gray-400 dark:text-gray-500 italic">N/A</span>
+        }
+    </td>
+</tr>
+                <!-- <tr *ngFor="let student of studentResults; let i = index" class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
                     <td class="px-4 py-3 whitespace-nowrap sticky left-0 z-10 border-r border-gray-300 font-medium  dark:text-gray-50 min-w-[120px]">
                         <div class="flex items-center">
                             <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
@@ -104,7 +183,7 @@
                             </div>
                         </ng-container>
                       </td>
-                </tr>
+                </tr> -->
             </tbody>
         </table>
     </div>

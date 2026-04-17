@@ -109,7 +109,6 @@ export class ReportsComponent {
         this.store.select(getDepartmentById(this.selectedExam.departmentId)).subscribe((dept: IDepartmentConfig) => {
             this.sections = [];
             this.examinationSubjects = [];
-            debugger;
             dept?.department?.classes.forEach((clss) => {
                 clss.sections.forEach((sec: any) => {
                     const sectionSubjects = [];

@@ -227,7 +227,7 @@
                                 </td>
                                 <td class="">{{ submission.submissionDate | date: 'MMM d, y, h:mm a' }}</td>
                                 <td>
-                                  @if(submission.status != 'DRAFT' && submission.status != "NO_RESPONSE") {
+                                  @if(submission.status != 'DRAFT' && submission.status != "PENDING") {
                                     <div class="flex gap-3">
                                         <i class="pi pi-eye text-blue-500 hover:text-blue-700 cursor-pointer text-lg" pTooltip="View Response" (click)="viewAssignmentSubmition(submission)"> <span> View</span></i>
                                     </div>
