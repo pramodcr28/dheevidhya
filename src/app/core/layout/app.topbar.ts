@@ -11,7 +11,7 @@ import { CommonService } from '../services/common.service';
 import { LayoutService } from '../services/layout.service';
 import { addToken, loadUserProfile, setTheme } from '../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
-import { selectUserTheme } from '../store/user-profile/user-profile.selectors';
+import { selectUserConfig, selectUserTheme } from '../store/user-profile/user-profile.selectors';
 import { AppConfigurator } from './app.configurator';
 
 @Component({
@@ -30,7 +30,7 @@ import { AppConfigurator } from './app.configurator';
         </div>
 
         <div class="layout-topbar-actions">
-            @if (this.selectedAcademicYear && !commonService.getUserAuthorities.includes('SUPER_ADMIN') && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
+            @if (showAcademicYear()) {
                 <div class="flex items-center mr-2 sm:mr-3">
                     <p-select
                         [options]="academicYears"
@@ -39,7 +39,6 @@ import { AppConfigurator } from './app.configurator';
                         styleClass="w-24 sm:w-32 md:w-40 text-xs sm:text-sm"
                         [disabled]="loading || academicYears.length <= 1"
                         (onChange)="onAcademicYearChange()"
-                        10--
                     >
                     </p-select>
                 </div>
@@ -101,6 +100,10 @@ export class AppTopbar {
     messageService = inject(MessageService);
     commonService = inject(CommonService);
 
+    showAcademicYear() {
+        return this.selectedAcademicYear && !this.commonService.getUserAuthorities.includes('SUPER_ADMIN') && !this.commonService.getUserAuthorities.includes('IT_ADMINISTRATOR');
+    }
+
     toggleDarkMode() {
         // this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
         const isDark = !this.layoutService.layoutConfig().darkTheme;
@@ -132,6 +135,11 @@ export class AppTopbar {
             }
 
             this.selectedAcademicYear = this.commonService.currentUser?.academicYear;
+        });
+        this.store.select(selectUserConfig).subscribe((res) => {
+            if (res) {
+                this.selectedAcademicYear = res?.academicYear;
+            }
         });
     }
 
