@@ -54,7 +54,6 @@ export class BulkStudentUploadComponent implements OnInit {
     selectedSection: any;
     associatedDepartments: any[] = [];
 
-    // ── Derived counts ────────────────────────────────────────────────────────
     validCount = () => this.uploadedStudents().filter((s) => s.isValid).length;
     invalidCount = () => this.uploadedStudents().filter((s) => !s.isValid).length;
 
@@ -62,7 +61,6 @@ export class BulkStudentUploadComponent implements OnInit {
         this.getAssociatedDepartments();
     }
 
-    // ── Department list ───────────────────────────────────────────────────────
     getAssociatedDepartments(): void {
         const filterParams = { branch: this.commonService.branch?.id };
         this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
@@ -73,7 +71,6 @@ export class BulkStudentUploadComponent implements OnInit {
         });
     }
 
-    // ── Template download ─────────────────────────────────────────────────────
     downloadTemplate(): void {
         if (this.uploadMode === 'basic') {
             this.downloadBasicTemplate();
@@ -88,6 +85,7 @@ export class BulkStudentUploadComponent implements OnInit {
         const sample = [
             {
                 satsNumber: 'STU001',
+                login: 'STU001',
                 firstName: 'Ravi',
                 middleName: '',
                 lastName: 'Kumar',
@@ -96,7 +94,6 @@ export class BulkStudentUploadComponent implements OnInit {
                 email: 'ravi@example.com',
                 studentContactNumber: '9999999999',
                 password: 'User@123',
-                // Current address
                 addressLine: '123, Main Street',
                 locality: 'Downtown',
                 district: 'Mandya',
@@ -121,6 +118,7 @@ export class BulkStudentUploadComponent implements OnInit {
             {
                 // Basic
                 satsNumber: 'SATS001',
+                login: 'SATS001',
                 firstName: 'Ravi',
                 middleName: '',
                 lastName: 'Kumar',
@@ -236,19 +234,16 @@ export class BulkStudentUploadComponent implements OnInit {
     private parseExcelDate(value: any): string | null {
         if (!value) return null;
 
-        // Case 1: Already a Date object
         if (value instanceof Date) {
             return this.formatDate(value);
         }
 
-        // Case 2: Excel serial number
         if (typeof value === 'number') {
             const excelEpoch = new Date(1899, 11, 30);
             const date = new Date(excelEpoch.getTime() + value * 86400000);
             return this.formatDate(date);
         }
 
-        // Case 3: String date
         if (typeof value === 'string') {
             const parsed = new Date(value);
             if (!isNaN(parsed.getTime())) {
@@ -263,9 +258,9 @@ export class BulkStudentUploadComponent implements OnInit {
         const yyyy = date.getFullYear();
         const mm = String(date.getMonth() + 1).padStart(2, '0');
         const dd = String(date.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`; // ISO format (recommended)
+        return `${yyyy}-${mm}-${dd}`;
     }
-    // ── Process Excel ─────────────────────────────────────────────────────────
+
     processExcelData(data: any[]): void {
         if (!data.length) {
             this.messageService.add({ severity: 'warn', summary: 'Empty File', detail: 'The uploaded file has no data rows.' });
@@ -290,12 +285,14 @@ export class BulkStudentUploadComponent implements OnInit {
         const selectedDeptInfo = this.associatedDepartments.find((d) => d.department?.name?.toLowerCase() === this.selectedDepartment?.department?.name?.toLowerCase());
 
         const seenSatsNumbers = new Set<string>();
+        const seenRegistrations = new Set<string>();
         const students: StudentExcelRow[] = data.map((row, index) => {
             const str = (val: any): string => (val != null ? val.toString().trim() : '');
 
             const student: StudentExcelRow = {
                 rowNumber: index + 2,
                 satsNumber: str(row.satsNumber),
+                login: str(row.login),
                 firstName: str(row.firstName),
                 middleName: str(row.middleName),
                 lastName: str(row.lastName),
@@ -369,7 +366,7 @@ export class BulkStudentUploadComponent implements OnInit {
             }
 
             // ── Cross-row duplicate check (within this upload batch) ──────────
-            const validation = this.validateStudent(student, seenSatsNumbers);
+            const validation = this.validateStudent(student, seenSatsNumbers, seenRegistrations);
             student.isValid = validation.isValid;
             student.errors = validation.errors;
 
@@ -391,7 +388,7 @@ export class BulkStudentUploadComponent implements OnInit {
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
-    validateStudent(student: StudentExcelRow, seenSatsNumbers?: Set<string>): ValidationResult {
+    validateStudent(student: StudentExcelRow, seenSatsNumbers?: Set<string>, seenRegistrations?: Set<string>): ValidationResult {
         const errors: string[] = [];
         // ── Required core fields ──────────────────────────────────────────────
         if (!student.satsNumber) {
@@ -400,17 +397,21 @@ export class BulkStudentUploadComponent implements OnInit {
             errors.push(`Duplicate SATS Number "${student.satsNumber}" found in this file`);
         }
 
+        if (!student.login) {
+            errors.push('Duplicate Registration Id is required');
+        } else if (seenRegistrations?.has(student.login)) {
+            errors.push(`Duplicate Registration Id" ${student.login}" found in this file`);
+        }
+
         if (!student.firstName) errors.push('First Name is required');
         if (!student.lastName) errors.push('Last Name is required');
         if (!student.district) errors.push('District is required');
         if (!student.state) errors.push('State is required');
 
-        // ── Gender ────────────────────────────────────────────────────────────
         if (!['MALE', 'FEMALE', 'OTHER'].includes(student.gender ?? '')) {
             errors.push('Gender must be MALE, FEMALE, or OTHER');
         }
 
-        // ── Date of Birth ─────────────────────────────────────────────────────
         if (student.dateOfBirth) {
             const dob = new Date(student.dateOfBirth);
             if (isNaN(dob.getTime())) {

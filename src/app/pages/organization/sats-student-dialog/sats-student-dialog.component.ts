@@ -166,6 +166,7 @@ export class SatsStudentDialogComponent implements OnInit {
         const academicYearStr = s?.latestAcademicYear?.academicYear ?? null;
         this.form = this.fb.group({
             academicYear: [academicYearStr],
+            login: [s?.login, Validators.required],
             satsNumber: [s?.satsNumber, Validators.required],
             typeOfStudent: [ad?.typeOfStudent ?? null],
             detailDescription: [ad?.detailDescription ?? null],
@@ -322,7 +323,7 @@ export class SatsStudentDialogComponent implements OnInit {
 
             academicYear: v.academicYear ?? null,
 
-            username: v.satsNumber ?? null,
+            username: v.login ?? null,
             email: existing?.email ?? null,
 
             fullName: [v.stdFirstName, v.stdMiddleName, v.stdLastName].filter((x: string) => x && x.trim()).join(' '),
@@ -381,6 +382,7 @@ export class SatsStudentDialogComponent implements OnInit {
             ...(this._student?.id ? { id: (this._student as IStudent).id } : { id: null }),
             branchId: this.commonService.branch?.id ?? null,
             satsNumber: v.satsNumber,
+            login: v.login,
             authorities: this._student?.authorities ?? [],
             latestAcademicYear: this.buildLatestAcademicYear(v),
             admissionDetails: {

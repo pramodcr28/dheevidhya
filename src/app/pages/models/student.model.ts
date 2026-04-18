@@ -86,6 +86,7 @@ export interface IBankDetails {
 
 export interface IStudent {
     id?: string | null;
+    login: string | null;
     satsNumber?: string | null;
     authorities: ITenantAuthority[];
     branchId?: number | null;
@@ -108,6 +109,7 @@ export function createNewStudent(): NewStudent {
             id: null
         },
         satsNumber: null,
+        login: null,
         authorities: [{ name: 'STUDENT' }],
         admissionDetails: {
             typeOfStudent: null,

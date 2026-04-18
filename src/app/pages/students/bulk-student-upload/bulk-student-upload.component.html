@@ -156,6 +156,7 @@
             <ng-template pTemplate="header">
                 <tr>
                     <th style="width:3rem"></th>
+                     <th class="font-semibold">Registration Id</th>
                      <th class="font-semibold">SATS No.</th>
                     <th class="font-semibold">Status</th>
                    
@@ -181,7 +182,8 @@
                             (onClick)="openStudentDetails(student)"
                         ></p-button>
                     </td>
-                      <td>{{ student.satsNumber }}</td>
+                    <td>{{ student.login }}</td>
+                    <td>{{ student.satsNumber }}</td>
                     <!-- <td>{{ student.rowNumber }}</td> -->
                     <td>
                         <p-tag [value]="student.isValid ? 'Valid' : 'Invalid'" [severity]="student.isValid ? 'success' : 'danger'"></p-tag>
@@ -189,6 +191,7 @@
                     
                     <td>{{ student.firstName }} {{ student.lastName }}</td>
                     <td>{{ student.gender }}</td>
+                    <td>{{ student.login }}</td>
                     <td *ngIf="uploadMode === 'sats'">{{ student['satsNumber'] || '—' }}</td>
                     <td>{{ student.email || '—' }}</td>
                     <td>{{ student.studentContactNumber || '—' }}</td>
@@ -252,6 +255,12 @@
 
             <!-- ── Basic info grid ──────────────────────────────────── -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+
+                 <!-- Account -->
+                <div class="space-y-3">
+                    <h5 class="font-semibold border-b pb-1">Account Information</h5>
+                    <div><span class="text-xs text-gray-500 block">Registration Id</span><p class="text-sm font-medium">{{ selectedStudentDetail.login }}</p></div>
+                </div>
 
                 <!-- Personal -->
                 <div class="space-y-3">

@@ -124,6 +124,7 @@
                 <th pSortableColumn="studentDetails.studentName.firstName" pFrozenColumn alignFrozen="left" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[150px] max-w-[180px]">
                     Student Name <p-sortIcon field="studentDetails.studentName.firstName" />
                 </th>
+                <th pSortableColumn="login" class="text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400 px-3 py-3 min-w-[100px] max-w-[120px]">Registration Id <p-sortIcon field="login" /></th>
                 <th pSortableColumn="satsNumber" class="text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400 px-3 py-3 min-w-[100px] max-w-[120px]">Sats Number <p-sortIcon field="satsNumber" /></th>
                 <th pSortableColumn="latestAcademicYear.status" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[80px] max-w-[100px]">Status <p-sortIcon field="latestAcademicYear.status" /></th>
                 <th pSortableColumn="latestAcademicYear.academicYear" class="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 px-3 py-3 min-w-[130px] max-w-[150px]">
@@ -162,6 +163,13 @@
                             }
                         </div>
                     </div>
+                </td>
+
+                    <!-- SATS Number -->
+                <td class="px-3 py-2 text-sm text-lg font-bold text-primary-600 dark:text-primary-400 max-w-[120px]">
+                    <span class="truncate block" [pTooltip]="student.login || ''" tooltipPosition="top">
+                        {{ student.login || '—' }}
+                    </span>
                 </td>
 
                 <!-- SATS Number -->
