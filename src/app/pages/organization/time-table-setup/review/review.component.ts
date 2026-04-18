@@ -213,6 +213,7 @@ export class ReviewComponent {
     }
 
     validateTimetable(exportData: any): string[] {
+        console.log(exportData);
         const errors: string[] = [];
         let timeTable = this.timeTableService.timeTable;
         let settings = timeTable.settings;
@@ -266,6 +267,8 @@ export class ReviewComponent {
                     const teacherData = teacherMap.get(teacherId);
                     teacherData.totalAssigned += subj.hours_per_week;
                     teacherMap.set(teacherId, teacherData);
+                } else {
+                    errors.push(`Teacher not assigned for subject "${subj.name}" in class "${cls.name}"` + (cls.section ? ` (Section: ${cls.section})` : '') + `.`);
                 }
             });
         });

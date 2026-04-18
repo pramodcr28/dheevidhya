@@ -1,193 +1,180 @@
 <p-toast></p-toast>
 <div class="min-h-screen">
-
     <div class="mb-10 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <button pButton icon="pi pi-arrow-left" (click)="goBack()" class="p-button-text p-button-rounded bg-white dark:bg-gray-900 shadow-sm border border-gray-100 dark:border-gray-700"></button>
-        <div>
-          <h2 class="text-3xl font-extrabold  tracking-tight">Department Setup</h2>
-          <p class="text-sm  font-semibold">{{ masterDepartment?.name }}</p>
+        <div class="flex items-center gap-4">
+            <button pButton icon="pi pi-arrow-left" (click)="goBack()" class="p-button-text p-button-rounded bg-white dark:bg-gray-900 shadow-sm border border-gray-100 dark:border-gray-700"></button>
+            <div>
+                <h2 class="text-3xl font-extrabold tracking-tight">Department Setup</h2>
+                <p class="text-sm font-semibold">{{ masterDepartment?.name }}</p>
+            </div>
         </div>
-      </div>
-      <div class="flex gap-4">
-        <button pButton label="Cancel" class="p-button-text  font-bold" (click)="goBack()"></button>
-        <button pButton 
-                class="p-button-primary shadow-xl shadow-primary-200 dark:shadow-gray-900 font-bold" 
-                (click)="saveAll()" 
-                [disabled]="!isValidRange || isOverlapping || isNotTwelveMonths"
-                [loading]="isSaving"> <i class="pi pi-check text-white"></i> <span class="text-white font-medium">Save Configuration</span></button>
-      </div>
+        <div class="flex gap-4">
+            <button pButton label="Cancel" class="p-button-text font-bold" (click)="goBack()"></button>
+            <button pButton class="p-button-primary shadow-xl shadow-primary-200 dark:shadow-gray-900 font-bold" (click)="saveAll()" [disabled]="!isValidRange || isOverlapping || isNotTwelveMonths" [loading]="isSaving">
+                <i class="pi pi-check text-white"></i> <span class="text-white font-medium">Save Configuration</span>
+            </button>
+        </div>
     </div>
 
     <div class="grid grid-cols-12 gap-8">
-      <div class="col-span-12 lg:col-span-8 space-y-8">
-        
-        <!-- Academic Cycle Section -->
-        <div [ngClass]="{
-            'border-red-500 bg-red-50 ring-4 ring-red-100': isNotTwelveMonths || isOverlapping,
-            'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700': !isNotTwelveMonths && !isOverlapping
-        }" class="rounded-3xl border p-8 transition-all duration-500 shadow-sm">
-          
-          <div class="flex justify-between items-center mb-8">
-            <h3 class="text-xs font-black uppercase tracking-[0.2em]" [ngClass]="(isNotTwelveMonths || isOverlapping) ? 'text-red-600' : 'text-gray-400'">
-                1. Academic Cycle
-            </h3>
-            
-            <div *ngIf="isNotTwelveMonths || isOverlapping" class="flex gap-2">
-                <span class="bg-red-600 text-white text-[10px] px-3 py-1.5 rounded-lg font-black animate-pulse shadow-lg">
-                    VALIDATION ERROR
-                </span>
-            </div>
-          </div>
+        <div class="col-span-12 lg:col-span-8 space-y-8">
+            <!-- Academic Cycle Section -->
+            <div
+                [ngClass]="{
+                    'border-red-500 bg-red-50 ring-4 ring-red-100': isNotTwelveMonths || isOverlapping,
+                    'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700': !isNotTwelveMonths && !isOverlapping
+                }"
+                class="rounded-3xl border p-8 transition-all duration-500 shadow-sm"
+            >
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-xs font-black uppercase tracking-[0.2em]" [ngClass]="isNotTwelveMonths || isOverlapping ? 'text-red-600' : 'text-gray-400'">1. Academic Cycle</h3>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div class="space-y-4">
-              <label class="text-sm font-bold  block">Select Start & End Month</label>
-              <p-datePicker 
-                [(ngModel)]="dateRange"
-                (ngModelChange)="onDateRangeChange()"
-                selectionMode="range"
-                dateFormat="mm/yy"
-                view="month"
-                [showIcon]="true"
-                placeholder="MM/YYYY - MM/YYYY"
-                styleClass="w-full"
-                appendTo="body">
-              </p-datePicker>
-              
-              <div class="mt-4 space-y-3 bg-white/50 dark:bg-gray-700 p-4 rounded-xl border border-red-100 dark:border-red-900" *ngIf="isNotTwelveMonths || isOverlapping">
-                <div *ngIf="isNotTwelveMonths" class="flex items-start gap-3 text-red-700 dark:text-red-400">
-                    <i class="pi pi-info-circle text-lg"></i>
-                    <p class="text-xs font-bold leading-relaxed">Cycle must be exactly 12 months. Your selection is not a full academic year.</p>
-                </div>
-                <div *ngIf="isOverlapping" class="flex items-start gap-3 text-red-700 dark:text-red-400">
-                    <i class="pi pi-exclamation-triangle text-lg"></i>
-                    <p class="text-xs font-bold leading-relaxed">The year <strong>{{calculatedAcademicYear}}</strong> already exists. Please select a different range.</p>
-                </div>
-              </div>
-            </div>
-
-            <div *ngIf="isValidRange" class="bg-primary-600 rounded-2xl p-8 text-white shadow-2xl flex flex-col justify-center relative overflow-hidden animate-fade-in">
-                <div class="absolute -right-6 -bottom-6 opacity-10">
-                    <i class="pi pi-calendar" style="font-size: 10rem;"></i>
-                </div>
-                <p class="text-[10px] font-bold uppercase opacity-70 tracking-widest mb-2">Target Academic Year</p>
-                <p class="text-5xl font-black mb-3">{{ calculatedAcademicYear }}</p>
-                <div class="flex items-center gap-2 text-xs font-bold bg-white/20 dark:bg-gray-700 w-fit px-4 py-1.5 rounded-full backdrop-blur-sm">
-                    <i class="pi pi-check-circle"></i> {{ rangeInfo }}
-                </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Curriculum Setup Section -->
-        <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
-            <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-8">2. Curriculum Setup</h3>
-            
-            <div class="space-y-6">
-              <div *ngFor="let classConfig of classConfigs" 
-                   class="p-6 border border-gray-100 dark:border-gray-700 rounded-2xl bg-gray-50/50 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-all hover:shadow-md">
-                
-                <!-- Class Header -->
-                <div class="flex items-center justify-between mb-6">
-                    <span class="font-extrabold  text-lg flex items-center gap-3">
-                        <div class="w-2 h-8 bg-primary-500 rounded-full"></div>
-                        {{ classConfig.name }}
-                    </span>
-                    
-                    <!-- Section Toggles -->
-                    <div class="flex gap-2 flex-wrap">
-                        <button *ngFor="let section of masterSectionCollection"
-                                (click)="toggleSection(classConfig, section)"
-                                [ngClass]="isSectionEnabled(classConfig, section.id) 
-                                    ? 'bg-primary-600 text-white' 
-                                    : 'bg-gray-100 dark:bg-gray-700  hover:bg-gray-200'"
-                                class="px-4 py-2 rounded-lg text-xs font-bold transition-all">
-                            {{ section.name }}
-                        </button>
+                    <div *ngIf="isNotTwelveMonths || isOverlapping" class="flex gap-2">
+                        <span class="bg-red-600 text-white text-[10px] px-3 py-1.5 rounded-lg font-black animate-pulse shadow-lg"> VALIDATION ERROR </span>
                     </div>
                 </div>
 
-                <!-- Section Configurations -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div *ngFor="let sectionConfig of classConfig.sections" 
-                       class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                    
-                    <label class="text-[10px] font-black block mb-3 text-gray-400 dark:text-gray-500 uppercase">
-                        Subjects for {{ sectionConfig.name }}
-                    </label>
-                    
-                    <!-- Subject Checkboxes -->
-                    <div class="space-y-2 max-h-64 overflow-y-auto">
-                        <label *ngFor="let subject of masterSubjectsCollection" 
-                               class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-colors">
-                            <input type="checkbox"
-                                   [checked]="isSubjectSelected(sectionConfig, subject.id)"
-                                   (change)="toggleSubject(sectionConfig, subject.id)"
-                                   class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500">
-                            <span class="text-sm ">{{ subject.name }}</span>
-                        </label>
-                        
-                        <div *ngIf="masterSubjectsCollection.length === 0" class="text-xs text-gray-400 dark:text-gray-500 italic p-2">
-                            No subjects available
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold block">Select Start & End Month</label>
+                        <p-datePicker [(ngModel)]="dateRange" (ngModelChange)="onDateRangeChange()" selectionMode="range" dateFormat="mm/yy" view="month" [showIcon]="true" placeholder="MM/YYYY - MM/YYYY" styleClass="w-full" appendTo="body">
+                        </p-datePicker>
+
+                        <div class="mt-4 space-y-3 bg-white/50 dark:bg-gray-700 p-4 rounded-xl border border-red-100 dark:border-red-900" *ngIf="isNotTwelveMonths || isOverlapping">
+                            <div *ngIf="isNotTwelveMonths" class="flex items-start gap-3 text-red-700 dark:text-red-400">
+                                <i class="pi pi-info-circle text-lg"></i>
+                                <p class="text-xs font-bold leading-relaxed">Cycle must be exactly 12 months. Your selection is not a full academic year.</p>
+                            </div>
+                            <div *ngIf="isOverlapping" class="flex items-start gap-3 text-red-700 dark:text-red-400">
+                                <i class="pi pi-exclamation-triangle text-lg"></i>
+                                <p class="text-xs font-bold leading-relaxed">
+                                    The year <strong>{{ calculatedAcademicYear }}</strong> already exists. Please select a different range.
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    
-                    <!-- Selected Count -->
-                    <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                        <span class="text-xs  font-semibold">
-                            {{ getSelectedSubjectCount(sectionConfig) }} subject(s) selected
-                        </span>
+
+                    <div *ngIf="isValidRange" class="bg-primary-600 rounded-2xl p-8 text-white shadow-2xl flex flex-col justify-center relative overflow-hidden animate-fade-in">
+                        <div class="absolute -right-6 -bottom-6 opacity-10">
+                            <i class="pi pi-calendar" style="font-size: 10rem"></i>
+                        </div>
+                        <p class="text-[10px] font-bold uppercase opacity-70 tracking-widest mb-2">Target Academic Year</p>
+                        <p class="text-5xl font-black mb-3">{{ calculatedAcademicYear }}</p>
+                        <div class="flex items-center gap-2 text-xs font-bold bg-white/20 dark:bg-gray-700 w-fit px-4 py-1.5 rounded-full backdrop-blur-sm"><i class="pi pi-check-circle"></i> {{ rangeInfo }}</div>
                     </div>
-                  </div>
                 </div>
-              </div>
+            </div>
+
+            <!-- Curriculum Setup Section -->
+            <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
+                <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-8">2. Curriculum Setup</h3>
+
+                <div class="space-y-6">
+                    <div *ngFor="let classConfig of classConfigs" class="p-6 border border-gray-100 dark:border-gray-700 rounded-2xl bg-gray-50/50 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-all hover:shadow-md">
+                        <!-- Class Header -->
+                        <div class="flex items-center justify-between mb-6">
+                            <span class="font-extrabold text-lg flex items-center gap-3">
+                                <div class="w-2 h-8 bg-primary-500 rounded-full"></div>
+                                {{ classConfig.name }}
+                            </span>
+
+                            <!-- Section Toggles -->
+                            <div class="flex gap-2 flex-wrap">
+                                <button
+                                    *ngFor="let section of masterSectionCollection"
+                                    (click)="toggleSection(classConfig, section)"
+                                    [ngClass]="
+                                        isSectionEnabled(classConfig, section.id)
+                                            ? 'bg-primary-600 text-white hover:bg-primary-700 dark:hover:bg-primary-500'
+                                            : 'bg-gray-100 text-gray-800 hover:bg-gray-200  dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 
+               border border-gray-300 dark:border-gray-600'
+                                    "
+                                    class="px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-400 active:scale-95"
+                                >
+                                    {{ section.name }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Section Configurations -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div *ngFor="let sectionConfig of classConfig.sections" class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                                <label class="text-[10px] font-black block mb-3 text-gray-400 dark:text-gray-500 uppercase"> Subjects for {{ sectionConfig.name }} </label>
+
+                                <!-- Subject Checkboxes -->
+                                <div class="space-y-2 max-h-64 overflow-y-auto">
+                                    <label *ngFor="let subject of masterSubjectsCollection" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-colors">
+                                        <input type="checkbox" [checked]="isSubjectSelected(sectionConfig, subject.id)" (change)="toggleSubject(sectionConfig, subject.id)" class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500" />
+                                        <span class="text-sm">{{ subject.name }}</span>
+                                    </label>
+
+                                    <div *ngIf="masterSubjectsCollection.length === 0" class="text-xs text-gray-400 dark:text-gray-500 italic p-2">No subjects available</div>
+                                </div>
+
+                                <!-- Selected Count -->
+                                <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                    <span class="text-xs font-semibold"> {{ getSelectedSubjectCount(sectionConfig) }} subject(s) selected </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-      </div>
 
-      <!-- Staff Allocation Section -->
-      <div class="col-span-12 lg:col-span-4">
-        <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col sticky top-6 h-[calc(100vh-80px)] overflow-hidden">
-          <div class="p-6 border-b">
-            <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-6">3. Staff Allocation</h3>
-            <div class="relative">
-                <input pInputText type="text" [(ngModel)]="searchSource" placeholder="Search staff members..." 
-                       class="w-full pl-12 py-3 rounded-2xl border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-primary-100" />
-            </div>
-          </div>
-
-          <div class="flex-1 overflow-y-auto p-6 space-y-3 bg-gray-50/20 dark:bg-gray-950">
-            <div *ngFor="let s of filteredStaffList" (click)="toggleStaff(s)"
-                 [ngClass]="isStaffSelected(s) ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-100 shadow-sm dark:bg-primary-950' : 'border-white bg-white dark:bg-gray-700  hover:border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'"
-                 class="group flex items-center justify-between p-4 border rounded-2xl cursor-pointer transition-all">
-              <div class="flex items-center gap-4">
-                <div [ngClass]="isStaffSelected(s) ? 'bg-primary-600 text-white shadow-primary-200' : 'bg-gray-100 text-gray-400'" 
-                     class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black shadow-lg dark:shadow-none transition-colors">
-                  {{ s.firstName[0] }}{{ s.lastName[0] }}
+        <!-- Staff Allocation Section -->
+        <div class="col-span-12 lg:col-span-4">
+            <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col sticky top-6 h-[calc(100vh-80px)] overflow-hidden">
+                <div class="p-6 border-b">
+                    <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-6">3. Staff Allocation</h3>
+                    <div class="relative">
+                        <input
+                            pInputText
+                            type="text"
+                            [(ngModel)]="searchSource"
+                            placeholder="Search staff members..."
+                            class="w-full pl-12 py-3 rounded-2xl border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-primary-100"
+                        />
+                    </div>
                 </div>
-                <div>
-                  <p class="text-sm font-black ">{{ s.firstName }} {{ s.lastName }}</p>
-                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{{ getAuthorities(s) }}</p>
-                </div>
-              </div>
-              <i [ngClass]="isStaffSelected(s) ? 'pi pi-check-circle text-primary-600 scale-125' : 'pi pi-plus '" class="transition-transform"></i>
-            </div>
-          </div>
 
-          <div class="p-6 bg-white dark:bg-gray-800 border-t">
-            <div class="flex justify-between items-center">
-              <div>
-                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Selected Staff</p>
-                <p class="text-xl font-black ">{{ selectedStaffCount }} Members</p>
-              </div>
-              <div class="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 font-black">
-                <i class="pi pi-users"></i>
-              </div>
+                <div class="flex-1 overflow-y-auto p-6 space-y-3 bg-gray-50/20 dark:bg-gray-950">
+                    <div
+                        *ngFor="let s of filteredStaffList"
+                        (click)="toggleStaff(s)"
+                        [ngClass]="
+                            isStaffSelected(s) ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-100 shadow-sm dark:bg-primary-950' : 'border-white bg-white dark:bg-gray-700  hover:border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
+                        "
+                        class="group flex items-center justify-between p-4 border rounded-2xl cursor-pointer transition-all"
+                    >
+                        <div class="flex items-center gap-4">
+                            <div
+                                [ngClass]="isStaffSelected(s) ? 'bg-primary-600 text-white shadow-primary-200' : 'bg-gray-100 text-gray-400'"
+                                class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black shadow-lg dark:shadow-none transition-colors"
+                            >
+                                {{ s.firstName[0] }}{{ s.lastName[0] }}
+                            </div>
+                            <div>
+                                <p class="text-sm font-black">{{ s.firstName }} {{ s.lastName }}</p>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{{ getAuthorities(s) }}</p>
+                            </div>
+                        </div>
+                        <i [ngClass]="isStaffSelected(s) ? 'pi pi-check-circle text-primary-600 scale-125' : 'pi pi-plus '" class="transition-transform"></i>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-white dark:bg-gray-800 border-t">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Selected Staff</p>
+                            <p class="text-xl font-black">{{ selectedStaffCount }} Members</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 font-black">
+                            <i class="pi pi-users"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
- 
 </div>
