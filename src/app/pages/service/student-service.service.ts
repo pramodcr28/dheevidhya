@@ -23,12 +23,12 @@ export class StudentServiceService {
 
     protected resourceUrl = `${environment.ServerUrl}${environment.UAA_BASE_URL}students`;
 
-    create(student: NewStudent): Observable<EntityResponseType> {
-        return this.http.post<IStudent>(this.resourceUrl, student, { observe: 'response' });
+    create(student: NewStudent): Observable<any> {
+        return this.http.post<any>(this.resourceUrl, student, { observe: 'response' });
     }
 
-    update(student: IStudent): Observable<EntityResponseType> {
-        return this.http.put<IStudent>(`${this.resourceUrl}/${student.id}`, student, { observe: 'response' });
+    update(student: IStudent): Observable<any> {
+        return this.http.put<any>(`${this.resourceUrl}/${student.id}`, student, { observe: 'response' });
     }
 
     find(id: string): Observable<EntityResponseType> {

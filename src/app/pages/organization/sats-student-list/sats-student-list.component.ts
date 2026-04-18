@@ -223,15 +223,19 @@ export class SatsStudentListComponent {
         const obs = (student as IStudent).id ? this.studentService.update(student as IStudent) : this.studentService.create(student as NewStudent);
 
         obs.subscribe({
-            next: () => {
+            next: (res) => {
+                if (res.body.status == 200 || res.body.status == 201) {
+                    this.studentDialogVisible.set(false);
+                    this.load();
+                    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Student record saved successfully' });
+                } else {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save student' });
+                }
                 this.loader.hide();
-                this.studentDialogVisible.set(false);
-                this.load();
-                this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Student record saved successfully' });
             },
             error: (err: any) => {
                 this.loader.hide();
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'Failed to save student' });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'Failed to save student Contact Admin' });
             }
         });
     }
