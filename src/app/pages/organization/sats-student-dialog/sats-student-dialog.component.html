@@ -76,13 +76,13 @@
                                 <small class="text-red-500 !text-xs" *ngIf="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')">Registration Id is read-only.Please contact your administrator.</small>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label class="form-label required">SATS Number</label>
+                                <label class="form-label required">SATS Number *</label>
                                 <input pInputText formControlName="satsNumber" placeholder="SATS Number" class="w-full" [readonly]="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')"  />
                                 <small class="text-red-500" *ngIf="fieldError('satsNumber')">Required</small>
                                 <small class="text-red-500 !text-xs" *ngIf="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')">SATS Number is read-only.Please contact your administrator.</small>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label class="form-label required">Department</label>
+                                <label class="form-label required">Department *</label>
                                 <p-select
                                     [options]="associatedDepartments"
                                     [(ngModel)]="selectedDepartment"
@@ -96,7 +96,7 @@
                             </div>
                             @if (selectedDepartment) {
                                 <div class="flex flex-col gap-1">
-                                    <label class="form-label required">Class</label>
+                                    <label class="form-label required">Class *</label>
                                     <p-select
                                         [options]="selectedDepartment?.department?.classes"
                                         [(ngModel)]="selectedClass"
@@ -111,7 +111,7 @@
                             }
                             @if (selectedClass) {
                                 <div class="flex flex-col gap-1">
-                                    <label class="form-label required">Section</label>
+                                    <label class="form-label required">Section *</label>
                                     <p-select
                                         [options]="selectedClass?.sections"
                                         [(ngModel)]="selectedSection"
@@ -197,7 +197,7 @@
                 </ng-template>
                 <div class="space-y-5 pt-2">
                     <div>
-                        <p class="section-heading">Student Name</p>
+                        <p class="section-heading">Student Name *</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div class="flex flex-col gap-1">
                                 <label class="form-label required">First Name (English)</label>
@@ -276,7 +276,7 @@
                         <p class="section-heading">Personal Details</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div class="flex flex-col gap-1">
-                                <label class="form-label required">Date of Birth</label>
+                                <label class="form-label required">Date of Birth *</label>
                                 <p-datepicker formControlName="dob" dateFormat="dd/mm/yy" [showButtonBar]="true" styleClass="w-full" placeholder="DD/MM/YYYY" [maxDate]="today" />
                                 <small class="text-red-500" *ngIf="fieldError('dob')">Required</small>
                             </div>
@@ -285,7 +285,7 @@
                                 <input pInputText type="number" formControlName="age" placeholder="Age" class="w-full" />
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label class="form-label required">Gender</label>
+                                <label class="form-label required">Gender *</label>
                                 <p-select formControlName="gender" [options]="genderOptions" placeholder="Select Gender" styleClass="w-full" />
                                 <small class="text-red-500" *ngIf="fieldError('gender')">Required</small>
                             </div>
