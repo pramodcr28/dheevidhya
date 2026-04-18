@@ -16,6 +16,7 @@ import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
+import { Tooltip } from 'primeng/tooltip';
 import { Column, ExportColumn } from '../../../core/model/table.model';
 import { CommonService } from '../../../core/services/common.service';
 import { DheeConfirmationService } from '../../../core/services/dhee-confirmation.service';
@@ -48,7 +49,8 @@ import { EmployeeDialogComponent } from './../employee-dialog/employee-dialog.co
         ConfirmDialogModule,
         EmployeeDialogComponent,
         MultiSelectModule,
-        ConfirmationDialogComponent
+        ConfirmationDialogComponent,
+        Tooltip
     ],
     templateUrl: './employee-list.component.html',
     styles: ``,
