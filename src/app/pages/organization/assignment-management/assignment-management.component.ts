@@ -113,29 +113,6 @@ export class AssignmentManagementComponent implements OnInit {
                 },
                 error: () => {}
             });
-        // this.studentService
-        //     .search({
-        //         page: this.page,
-        //         size: this.itemsPerPage,
-        //         sortBy: this.sortField,
-        //         sortDirection: this.sortOrder,
-        //         filters: {
-        //             'branchId.equals': this.commonService.branch?.id,
-        //             'latestAcademicYear.roles.student.deptId.in': req.departmentId,
-        //             'latestAcademicYear.roles.student.sectionName.in': req.sectionName,
-        //             'latestAcademicYear.roles.student.className.in': req.className
-        //         }
-        //     })
-        //     .subscribe({
-        //         next: (res: any) => {
-        //             this.students.set(res.content || []);
-        //             this.assignmentService.search(0, 100, 'id', 'ASC', req).subscribe((result) => {
-        //                 this.assignments = result.content;
-        //                 this.loader.hide();
-        //             });
-        //         },
-        //         error: () => {}
-        //     });
     }
 
     selectGroup(group) {
@@ -149,7 +126,7 @@ export class AssignmentManagementComponent implements OnInit {
             reqBody = { subjectName: group.subjectName, className: group.className, sectionName: group.sectionName, departmentId: group.departmentId };
         }
 
-        // this.subjectInfo = { departmentId: group.departmentId, className: group.className, sectionName: group.sectionName, subjectName: group.subjectName };
+        this.subjectInfo = { departmentId: group.departmentId, className: group.className, sectionName: group.sectionName, subjectName: group.subjectName };
         this.loadSectionAssociatedStudents(reqBody);
     }
 
@@ -204,10 +181,6 @@ export class AssignmentManagementComponent implements OnInit {
         return this.assignments.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()).slice(0, 5);
     }
 
-    // setView(view: 'cards' | 'submissions') {
-    //     this.currentView = view;
-    // }
-
     getActiveColors() {
         return this.commonService.isStudent ? this.studentColors : this.staffColors;
     }
@@ -230,11 +203,6 @@ export class AssignmentManagementComponent implements OnInit {
         const colors = colorMap[status] || { bg: 'bg-gray-400', text: '' };
         return `${colors.bg} ${colors.text} px-2 py-1 rounded-md text-xs`;
     }
-
-    // getAssignmentsForDate(date: number): Assignment[] {
-    //     const dateStr = `2025-02-${date.toString().padStart(2, '0')}`;
-    //     return this.assignments.filter((assignment) => assignment.dueDate === dateStr);
-    // }
 
     viewAssignment(assignment: Assignment) {
         this.selectedAssignment = assignment;
@@ -270,7 +238,7 @@ export class AssignmentManagementComponent implements OnInit {
                     submissionMap.set(sub.studentId, sub);
                 });
                 this.students().forEach((stu) => {
-                    const existing = submissionMap.get(stu.id + '');
+                    const existing = submissionMap.get(stu.userId);
 
                     if (existing) {
                         this.assignmentSubmissions.push(existing);
