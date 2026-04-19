@@ -251,7 +251,7 @@ export class TimeTableService {
     getPeriodIndexByStartAndEndTime(startTime: string, endTime: string): number {
         const settings = this.timeTable.settings;
         const enabledBreaks = (settings.breaks || []).filter((b) => b.enabled).sort((a, b) => a.afterPeriod - b.afterPeriod);
-
+        debugger;
         const dayStartMinutes = this.toMinutes(settings.startTime);
         const targetStart = this.toMinutes(startTime);
         const targetEnd = this.toMinutes(endTime);
@@ -265,7 +265,7 @@ export class TimeTableService {
             const periodStart = currentStart;
             const periodEnd = currentStart + settings.periodDuration;
 
-            if ((targetStart >= periodStart && targetStart <= periodEnd) || (targetEnd >= periodStart && targetEnd <= periodEnd)) {
+            if ((targetStart >= periodStart && targetStart < periodEnd) || (targetEnd >= periodStart && targetEnd < periodEnd)) {
                 return p;
             }
 
