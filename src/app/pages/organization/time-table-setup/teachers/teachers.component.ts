@@ -34,15 +34,15 @@ export class TeachersComponent {
         this.showDialog = true;
     }
 
-    toggleAvailability(dayIndex: number, periodIndex: number) {
+    toggleAvailability(periodIndex: number, day) {
         if (!this.selectedTeacher) return;
-        this.timeTableService.togglePeriodAvailability(this.selectedTeacher.id, dayIndex, periodIndex);
+        this.timeTableService.togglePeriodAvailability(this.selectedTeacher.id, day, periodIndex);
     }
 
     setBulkStatus(status: 'available' | 'unavailable' | 'neutral') {
         if (!this.selectedTeacher) return;
 
-        const workingDays = this.getWorkingDays();
+        const workingDays = this.timeTableService.timeTable.settings.workingDays;
         const periodsPerDay = this.timeTableService.timeTable.settings.periodsPerDay;
 
         // Clear existing
@@ -51,22 +51,38 @@ export class TeachersComponent {
 
         // Set new status for all periods
         for (let dayIndex = 0; dayIndex < workingDays.length; dayIndex++) {
-            for (let periodIndex = 0; periodIndex < periodsPerDay; periodIndex++) {
-                const key: [number, number] = [dayIndex, periodIndex];
+            const day = workingDays[dayIndex];
 
-                if (status === 'available') {
-                    this.selectedTeacher.timeOn.push(key);
-                } else if (status === 'unavailable') {
-                    this.selectedTeacher.timeOff.push(key);
+            if (day.selected) {
+                for (let periodIndex = 0; periodIndex < periodsPerDay; periodIndex++) {
+                    const key: [number, number] = [dayIndex, periodIndex];
+
+                    if (status === 'available') {
+                        this.selectedTeacher.timeOn.push(key);
+                    } else if (status === 'unavailable') {
+                        this.selectedTeacher.timeOff.push(key);
+                    }
                 }
             }
         }
+
+        // for (let dayIndex = 0; dayIndex < workingDays.length; dayIndex++) {
+        //     for (let periodIndex = 0; periodIndex < periodsPerDay; periodIndex++) {
+        //         const key: [number, number] = [dayIndex, periodIndex];
+
+        //         if (status === 'available') {
+        //             this.selectedTeacher.timeOn.push(key);
+        //         } else if (status === 'unavailable') {
+        //             this.selectedTeacher.timeOff.push(key);
+        //         }
+        //     }
+        // }
     }
 
-    getCellClass(dayIndex: number, periodIndex: number): string {
+    getCellClass(day, periodIndex: number): string {
         if (!this.selectedTeacher) return '';
 
-        const status = this.timeTableService.getPeriodStatus(this.selectedTeacher, dayIndex, periodIndex);
+        const status = this.timeTableService.getPeriodStatus(this.selectedTeacher, day, periodIndex);
         const base = 'transition-colors duration-200';
 
         switch (status) {
@@ -95,10 +111,10 @@ export class TeachersComponent {
     }
 
     // Get PrimeNG icon class based on status
-    getIconClass(dayIndex: number, periodIndex: number): string {
+    getIconClass(day, periodIndex: number): string {
         if (!this.selectedTeacher) return 'pi pi-circle';
 
-        const status = this.timeTableService.getPeriodStatus(this.selectedTeacher, dayIndex, periodIndex);
+        const status = this.timeTableService.getPeriodStatus(this.selectedTeacher, day, periodIndex);
 
         switch (status) {
             case 'available':

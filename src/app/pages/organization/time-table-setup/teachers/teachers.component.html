@@ -106,13 +106,13 @@
                   {{ period }}
                 </td>
                 <td *ngFor="let day of getWorkingDays(); let dayIndex = index"
-                    (click)="toggleAvailability(dayIndex, periodIndex)"
-                    [class]="getCellClass(dayIndex, periodIndex)"
+                    (click)="toggleAvailability( periodIndex,day)"
+                    [class]="getCellClass(day, periodIndex)"
                     class="p-2 border-b cursor-pointer text-center w-20 h-12">
                   
                     <div class="flex items-center justify-center h-full">
                     <i  
-                          [class]="getIconClass(dayIndex, periodIndex)"></i>
+                          [class]="getIconClass(day, periodIndex)"></i>
                     </div>
                 </td>
               </tr>

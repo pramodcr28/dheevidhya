@@ -176,10 +176,10 @@ export class TimeTableService {
         });
     }
 
-    togglePeriodAvailability(teacherId: string, dayIndex: number, periodIndex: number) {
+    togglePeriodAvailability(teacherId: string, day, periodIndex: number) {
         const teacher = this.teachers.find((teacher) => teacher.id === teacherId);
         if (!teacher) return;
-
+        let dayIndex = this.timeTable.settings.workingDays?.findIndex((wd) => wd.name == day.name);
         const key: [number, number] = [dayIndex, periodIndex];
         const keyStr = key.toString();
 
@@ -196,7 +196,8 @@ export class TimeTableService {
         }
     }
 
-    getPeriodStatus(teacher: Teacher, dayIndex: number, periodIndex: number): 'available' | 'unavailable' | 'neutral' {
+    getPeriodStatus(teacher: Teacher, day, periodIndex: number): 'available' | 'unavailable' | 'neutral' {
+        let dayIndex = this.timeTable.settings.workingDays?.findIndex((wd) => wd.name == day.name);
         const isAvailable = teacher.timeOn.some((t) => t[0] === dayIndex && t[1] === periodIndex);
         const isUnavailable = teacher.timeOff.some((t) => t[0] === dayIndex && t[1] === periodIndex);
 
