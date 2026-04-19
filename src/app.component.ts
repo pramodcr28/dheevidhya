@@ -57,6 +57,7 @@ export class AppComponent {
                         fullName: user.fullName,
                         userId: user.userId,
                         branchId: this.commonService?.branch?.id + '' || '',
+                        branchCode: this.commonService?.branch?.code + '' || '',
                         branchName: this.commonService?.branch?.name || '',
                         academicYear: user.academicYear || '',
                         departmentName: department.department.name,

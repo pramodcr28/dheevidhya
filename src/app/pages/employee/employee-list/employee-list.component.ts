@@ -24,7 +24,7 @@ import { ApiLoaderService } from '../../../core/services/loaderService';
 import { MasterDepartmentService } from '../../../core/services/master-department.service';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { SortService } from '../../../shared/sort';
-import { IProfileConfig, ITenantAuthority, ITenantUser, NewTenantUser } from '../../models/user.model';
+import { ITenantAuthority, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantAuthorityService } from '../../service/tenant-authority.service';
 import { UserService } from '../../service/user.service';
@@ -200,7 +200,7 @@ export class EmployeeListComponent {
         this.loader.hide();
     }
 
-    onEmployeeSave(data: { user: NewTenantUser | ITenantUser; latestAcademicYear: IProfileConfig }) {
+    onEmployeeSave(data: ITenantUser) {
         this.submitted = true;
 
         if (!data.latestAcademicYear) {
@@ -221,41 +221,7 @@ export class EmployeeListComponent {
         }
         data.latestAcademicYear.profileType = 'STAFF';
 
-        this.employeeService.create({ user: data.user, latestAcademicYear: data.latestAcademicYear }).subscribe((res: any) => {
-            if (res && res.body.status === 200) {
-                this.hideDialog();
-                this.load(true);
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Employee profile saved successfully'
-                });
-            } else {
-                this.loader.hide();
-                this.messageService.add({
-                    severity: 'error',
-                    summary: res.body.error || 'Error',
-                    detail: res.body.message || 'Failed to save employee data'
-                });
-            }
-        });
-    }
-
-    onUserSave(user: NewTenantUser | ITenantUser) {
-        this.submitted = true;
-
-        if (!user.id) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Warning',
-                detail: 'Cannot save user without ID. Please create user with profile first.'
-            });
-            return;
-        }
-
-        this.loader.show('Updating User Information');
-
-        this.employeeService.create({ user, profile: null }).subscribe((res: any) => {
+        this.employeeService.create(data).subscribe((res: any) => {
             if (res && res.body.status === 200) {
                 this.hideDialog();
                 this.load(true);

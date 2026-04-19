@@ -19,7 +19,7 @@ export type RestTenantUser = RestOf<ITenantUser>;
 
 export type NewRestTenantUser = RestOf<NewTenantUser>;
 
-export type PartialUpdateRestTenantUser = RestOf<PartialUpdateTenantUser>;
+export type PartialUpdateRestTenantUser = RestOf<any>;
 
 export type EntityResponseType = HttpResponse<ITenantUser>;
 export type EntityArrayResponseType = HttpResponse<ITenant[]>;
@@ -93,7 +93,7 @@ export class UserService {
         return tenantUserCollection;
     }
 
-    protected convertDateFromClient<T extends ITenantUser | NewTenantUser | PartialUpdateTenantUser>(tenantUser: T): RestOf<T> {
+    protected convertDateFromClient<T extends ITenantUser | NewTenantUser | PartialUpdateTenantUser>(tenantUser: T): RestOf<any> {
         return {
             ...tenantUser
         };

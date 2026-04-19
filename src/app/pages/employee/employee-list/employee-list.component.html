@@ -240,7 +240,7 @@
 </div>
 
 @if (studentDialog) {
-    <app-employee-dialog [visible]="studentDialog" [employee]="employee" (save)="onEmployeeSave($event)" (saveUser)="onUserSave($event)" (cancel)="hideDialog()"> </app-employee-dialog>
+    <app-employee-dialog [visible]="studentDialog" [employee]="employee" (save)="onEmployeeSave($event)" (cancel)="hideDialog()"> </app-employee-dialog>
 }
 <p-confirmdialog [style]="{ width: '90vw', 'max-width': '450px' }" />
 <p-toast position="top-right" />

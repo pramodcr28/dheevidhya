@@ -524,6 +524,7 @@ export class StudentDialogComponent {
         if (!updatedStudent.id) {
             // updatedStudent.passwordHash = 'User@123';
             updatedStudent.branchId = this.commonService.branch?.id || null;
+            updatedStudent.branchCode = this.commonService.branch?.code;
             updatedStudent.status = UserStatus.ACTIVE;
             if (isStudentProfile) {
                 updatedStudent.status = profileData.latestAcademicYear.status || UserStatus.ACTIVE;

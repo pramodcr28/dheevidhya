@@ -33,8 +33,9 @@ export interface ITenantUser {
     latitude?: number | null;
     longitude?: number | null;
     branchId?: number | null;
+    branchCode: String | null;
     authorities?: ITenantAuthority[] | null;
-    latestAcademicYear?: IProfileConfig | null;
+    latestAcademicYear?: IProfileConfig | NewProfileConfig | null;
     status?: UserStatus | null;
 }
 

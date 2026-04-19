@@ -90,6 +90,7 @@ export interface IStudent {
     satsNumber?: string | null;
     authorities: ITenantAuthority[];
     branchId?: number | null;
+    branchCode: String | null;
     latestAcademicYear?: IProfileConfig | null;
     admissionDetails?: IAdmissionDetails | null;
     previousSchoolDetails?: IPreviousSchoolDetails | null;
@@ -104,6 +105,7 @@ export function createNewStudent(): NewStudent {
     return {
         id: null,
         branchId: null,
+        branchCode: null,
         latestAcademicYear: {
             status: 'ACTIVE' as any,
             id: null

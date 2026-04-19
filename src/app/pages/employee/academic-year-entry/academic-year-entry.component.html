@@ -1,0 +1,185 @@
+<p-toast position="top-right" />
+
+<p-dialog
+    [(visible)]="visible"
+    [style]="{ width: '90vw', maxWidth: '680px' }"
+    [modal]="true"
+    [closable]="false"
+    [closeOnEscape]="true"
+    (onHide)="close()"
+>
+    <!-- ── Header ── -->
+    <ng-template pTemplate="header">
+        <div class="flex items-center justify-between w-full">
+            <h3 class="text-lg font-semibold flex items-center gap-2">
+                <i class="pi pi-calendar-plus text-purple-600"></i>
+                Manage Academic Years
+            </h3>
+            <button type="button" class="p-2 rounded-full hover:bg-gray-100 transition" (click)="close()">
+                <i class="pi pi-times text-gray-600 text-lg"></i>
+            </button>
+        </div>
+    </ng-template>
+
+    <div class="space-y-5">
+
+        <!-- ── Existing years list ── -->
+        <div>
+            <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                Assigned Academic Years
+            </h4>
+
+            @if (yearEntries.length === 0) {
+                <div class="text-center py-6 text-gray-400 text-sm">
+                    <i class="pi pi-inbox text-2xl mb-2 block"></i>
+                    No academic years assigned yet.
+                </div>
+            } @else {
+                <ul class="space-y-2">
+                    @for (entry of yearEntries; track entry.academicYear) {
+                        <li class="flex items-center justify-between gap-3 px-4 py-3 rounded-lg border
+                                   {{ entry.isCurrent
+                                        ? 'bg-purple-50 border-purple-300 dark:bg-purple-900/40 dark:border-purple-600'
+                                        : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700' }}">
+
+                            <div class="flex items-center gap-3">
+                                <i class="pi pi-calendar
+                                          {{ entry.isCurrent ? 'text-purple-600' : 'text-gray-400' }} text-lg">
+                                </i>
+                                <div>
+                                    <p class="font-semibold text-sm text-gray-800 dark:text-gray-100">
+                                        {{ entry.academicYear }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ entry.startDate | date: '01 Apr yyyy' }} — {{ entry.endDate | date: '31 Mar yyyy' }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                @if (entry.isCurrent) {
+                                    <p-tag value="Current" severity="info" [rounded]="true" styleClass="text-[10px] px-2 py-0.5"></p-tag>
+                                }
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <p-divider />
+
+        <!-- ── Add new academic year ── -->
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
+                    Add New Academic Year
+                </h4>
+                @if (!showAddForm) {
+                    <p-button
+                        icon="pi pi-plus"
+                        label="Add Year"
+                        severity="success"
+                        [outlined]="true"
+                        size="small"
+                        (onClick)="showAddForm = true"
+                    >
+                    </p-button>
+                }
+            </div>
+
+            @if (showAddForm) {
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4 space-y-4">
+
+                    <!-- Info banner -->
+                    <div class="flex items-start gap-2 text-xs text-green-800 dark:text-green-300 bg-green-100 dark:bg-green-900/40 rounded px-3 py-2">
+                        <i class="pi pi-info-circle text-green-600 mt-0.5"></i>
+                        <span>
+                            Select a <strong>start year</strong> and an <strong>end year</strong> (must be exactly one year apart).
+                            Each academic year runs from <strong>1 Apr</strong> to <strong>31 Mar</strong>.
+                            Years cannot overlap with existing entries.
+                        </span>
+                    </div>
+
+                    <!-- Datepicker -->
+                    <div>
+                        <label class="block font-semibold mb-1 text-sm">Academic Year Period *</label>
+                        <p-datepicker
+                            [(ngModel)]="newYearDateRange"
+                            (ngModelChange)="onDateRangeChange($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                            selectionMode="range"
+                            view="year"
+                            dateFormat="yy"
+                            [showIcon]="true"
+                            [iconDisplay]="'input'"
+                            placeholder="Select start year → end year"
+                            [style]="{ width: '100%' }"
+                            appendTo="body"
+                        >
+                        </p-datepicker>
+
+                        <!-- Live preview -->
+                        @if (newYearLabel && !dateError) {
+                            <div class="mt-2 flex items-center gap-2 text-sm text-green-700 dark:text-green-300">
+                                <i class="pi pi-check-circle text-green-500"></i>
+                                <span>New year: <strong>{{ newYearLabel }}</strong> — 1 Apr {{ newYearLabel.split('-')[0] }} to 31 Mar {{ newYearLabel.split('-')[1] }}</span>
+                            </div>
+                        }
+
+                        <!-- Overlap / validation error -->
+                        @if (dateError) {
+                            <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400">
+                                <i class="pi pi-exclamation-triangle mt-0.5"></i>
+                                <span>{{ dateError }}</span>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Overlap reference table -->
+                    @if (yearEntries.length > 0) {
+                        <div class="text-xs text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded p-3">
+                            <p class="font-semibold mb-1">Existing ranges (cannot overlap):</p>
+                            @for (entry of yearEntries; track entry.academicYear) {
+                                <div class="flex justify-between py-0.5">
+                                    <span class="font-medium {{ entry.isCurrent ? 'text-purple-600' : '' }}">{{ entry.academicYear }}</span>
+                                    <span>1 Apr {{ entry.startDate.getFullYear() }} – 31 Mar {{ entry.endDate.getFullYear() }}</span>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <!-- Form actions -->
+                    <div class="flex justify-end gap-2 pt-1">
+                        <p-button
+                            label="Cancel"
+                            icon="pi pi-times"
+                            severity="secondary"
+                            [outlined]="true"
+                            size="small"
+                            (onClick)="resetAddForm()"
+                        >
+                        </p-button>
+                        <p-button
+                            label="Add Academic Year"
+                            icon="pi pi-check"
+                            severity="success"
+                            size="small"
+                            [disabled]="!newYearLabel || !!dateError"
+                            (onClick)="addYear()"
+                        >
+                        </p-button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── Footer ── -->
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end w-full">
+            <p-button label="Close" icon="pi pi-times" [outlined]="true" severity="secondary" (click)="close()" class="w-full sm:w-auto">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>

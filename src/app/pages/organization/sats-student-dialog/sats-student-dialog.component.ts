@@ -381,6 +381,7 @@ export class SatsStudentDialogComponent implements OnInit {
         const student: IStudent | NewStudent = {
             ...(this._student?.id ? { id: (this._student as IStudent).id } : { id: null }),
             branchId: this.commonService.branch?.id ?? null,
+            branchCode: this.commonService.branch?.code,
             satsNumber: v.satsNumber,
             login: v.login,
             authorities: this._student?.authorities ?? [],
