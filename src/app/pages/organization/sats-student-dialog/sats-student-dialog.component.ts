@@ -166,7 +166,7 @@ export class SatsStudentDialogComponent implements OnInit {
         const academicYearStr = s?.latestAcademicYear?.academicYear ?? null;
         this.form = this.fb.group({
             academicYear: [academicYearStr],
-            login: [s?.login, Validators.required],
+            login: [s?.login],
             satsNumber: [s?.satsNumber, Validators.required],
             typeOfStudent: [ad?.typeOfStudent ?? null],
             detailDescription: [ad?.detailDescription ?? null],
@@ -290,16 +290,6 @@ export class SatsStudentDialogComponent implements OnInit {
                 }
             }
         }
-        // const filterParams = {
-        //     branch: this.commonService.branch?.id
-        // };
-
-        // this.departmentConfigService.search(0, 100, 'id', 'ASC', filterParams).subscribe((res) => {
-        //     this.associatedDepartments = res.content.map((re: any) => ({
-        //         ...re,
-        //         name: re.department.name
-        //     }));
-        // });
     }
 
     onDepartmentChange(): void {

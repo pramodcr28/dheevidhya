@@ -159,11 +159,6 @@ export class EmployeeDialogComponent implements OnInit {
 
         this.profileForm.get('gender')?.updateValueAndValidity();
         this.profileForm.get('departments')?.updateValueAndValidity();
-
-        if (this.employee.id != null && !this.commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
-            this.employeeForm.get('login')?.disable();
-        }
-
         this.getAssociatedDepartmentsOnAcademicYear(this.currentAcademicYear);
 
         this.employeeForm.valueChanges.subscribe(() => this.hasUnsavedUserChanges.set(true));
@@ -244,7 +239,6 @@ export class EmployeeDialogComponent implements OnInit {
                 return updatedEmployee?.latestAcademicYear?.departments?.includes(d.id);
             })
             .map((d) => d.name);
-        updatedEmployee.latestAcademicYear.username = updatedEmployee.login;
         updatedEmployee.latestAcademicYear.email = updatedEmployee.email;
         updatedEmployee.latestAcademicYear.fullName = updatedEmployee.firstName + ' ' + updatedEmployee.lastName;
         this.save.emit(updatedEmployee);

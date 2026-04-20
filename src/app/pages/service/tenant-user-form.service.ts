@@ -10,7 +10,7 @@ export class TenantUserFormService {
     createTenantUserFormGroup(tenantUser: ITenantUser | Partial<NewTenantUser> = { id: null }): FormGroup {
         return new FormGroup({
             id: new FormControl({ value: tenantUser.id, disabled: true }, { nonNullable: true, validators: [Validators.required] }),
-            login: new FormControl(tenantUser.login, { validators: [Validators.required] }),
+            login: new FormControl(tenantUser.login),
             firstName: new FormControl(tenantUser.firstName, { validators: [Validators.required] }),
             lastName: new FormControl(tenantUser.lastName),
             email: new FormControl(tenantUser.email, { validators: [Validators.email] }),

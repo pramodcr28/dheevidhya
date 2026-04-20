@@ -25,7 +25,7 @@
         <input pInputText formControlName="code" class="w-full" placeholder="e.g., BRH001" />
         <small class="text-red-500"
           *ngIf="editForm.get('code')?.invalid && editForm.get('code')?.touched">
-          Code is required
+          Code is inavlid (2-4 chars, uppercase, starts with 2 letters)
         </small>
       </div>
 

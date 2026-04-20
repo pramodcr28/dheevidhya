@@ -12,7 +12,7 @@ export class BranchFormService {
 
             name: [branch?.name ?? null, [Validators.required, Validators.minLength(3)]],
 
-            code: [branch?.code ?? null, [Validators.required, Validators.minLength(2)]],
+            code: [branch?.code ?? null, [Validators.required, Validators.minLength(2), Validators.maxLength(4), Validators.pattern(/^[A-Z]{2}[A-Z0-9]{0,2}$/)]],
 
             type: [branch?.type ?? null, [Validators.required]],
 

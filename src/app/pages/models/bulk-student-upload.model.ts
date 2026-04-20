@@ -1,6 +1,5 @@
 export interface StudentBasicExcelRow {
     satsNumber: string;
-    login: string;
     firstName: string;
     middleName?: string;
     lastName: string;

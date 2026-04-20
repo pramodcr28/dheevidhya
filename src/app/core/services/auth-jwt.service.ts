@@ -9,6 +9,7 @@ import { ApiResponse } from '../model/common.model';
 import { addBranch, addToken } from '../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../store/user-profile/user-profile.reducer';
 import { BranchService } from './branch.service';
+import { CommonService } from './common.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthServerProvider {
@@ -16,6 +17,7 @@ export class AuthServerProvider {
     private store = inject(Store<{ userProfile: UserProfileState }>);
     branchService = inject(BranchService);
     authenticationError: string;
+    CommonService = inject(CommonService);
     getAccountClaims(token: string | null): any {
         if (!token) return null;
         const payload = token.split('.')[1];
@@ -37,10 +39,11 @@ export class AuthServerProvider {
         this.store.dispatch(addToken({ token: response.data }));
         if (response.data) {
             const claims = this.getAccountClaims(response.data);
-
-            this.branchService.find(+claims.branchId).subscribe((res) => {
-                this.store.dispatch(addBranch({ branch: res.body }));
-            });
+            if (!this.CommonService.getUserAuthorities.includes('SUPER_ADMIN')) {
+                this.branchService.find(+claims.branchId).subscribe((res) => {
+                    this.store.dispatch(addBranch({ branch: res.body }));
+                });
+            }
         } else {
             this.authenticationError = response?.error;
         }

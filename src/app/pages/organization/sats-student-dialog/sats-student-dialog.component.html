@@ -69,12 +69,12 @@
                 <div class="space-y-5 pt-2">
                     <div class="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="flex flex-col gap-1">
+                            <!-- <div class="flex flex-col gap-1">
                                 <label class="form-label required">Registration ID *</label>
                                 <input pInputText formControlName="login" placeholder="SATS Number" class="w-full" [readonly]="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')"  />
                                 <small class="text-red-500" *ngIf="fieldError('login')">Required</small>
                                 <small class="text-red-500 !text-xs" *ngIf="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')">Registration Id is read-only.Please contact your administrator.</small>
-                            </div>
+                            </div> -->
                             <div class="flex flex-col gap-1">
                                 <label class="form-label required">SATS Number *</label>
                                 <input pInputText formControlName="satsNumber" placeholder="SATS Number" class="w-full" [readonly]="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')"  />

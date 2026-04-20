@@ -85,7 +85,6 @@ export class BulkStudentUploadComponent implements OnInit {
         const sample = [
             {
                 satsNumber: 'STU001',
-                login: 'STU001',
                 firstName: 'Ravi',
                 middleName: '',
                 lastName: 'Kumar',
@@ -118,7 +117,6 @@ export class BulkStudentUploadComponent implements OnInit {
             {
                 // Basic
                 satsNumber: 'SATS001',
-                login: 'SATS001',
                 firstName: 'Ravi',
                 middleName: '',
                 lastName: 'Kumar',
@@ -268,11 +266,9 @@ export class BulkStudentUploadComponent implements OnInit {
             return;
         }
 
-        // ── Auto-detect mode from the Excel columns ───────────────────────────
         const detectedMode = this.detectModeFromExcel(data[0]);
 
         if (detectedMode !== this.uploadMode) {
-            // Silently upgrade — never downgrade (basic selected but sats file uploaded)
             this.uploadMode = detectedMode;
             this.messageService.add({
                 severity: 'warn',
@@ -292,7 +288,6 @@ export class BulkStudentUploadComponent implements OnInit {
             const student: StudentExcelRow = {
                 rowNumber: index + 2,
                 satsNumber: str(row.satsNumber),
-                login: str(row.login),
                 firstName: str(row.firstName),
                 middleName: str(row.middleName),
                 lastName: str(row.lastName),
@@ -395,12 +390,6 @@ export class BulkStudentUploadComponent implements OnInit {
             errors.push('SATS Number is required');
         } else if (seenSatsNumbers?.has(student.satsNumber)) {
             errors.push(`Duplicate SATS Number "${student.satsNumber}" found in this file`);
-        }
-
-        if (!student.login) {
-            errors.push('Duplicate Registration Id is required');
-        } else if (seenRegistrations?.has(student.login)) {
-            errors.push(`Duplicate Registration Id" ${student.login}" found in this file`);
         }
 
         if (!student.firstName) errors.push('First Name is required');
@@ -506,35 +495,6 @@ export class BulkStudentUploadComponent implements OnInit {
 
         return { student, isValid: errors.length === 0, errors };
     }
-    // validateStudent(student: StudentExcelRow): ValidationResult {
-    //     const errors: string[] = [];
-
-    //     if (!student.satsNumber) errors.push('SATS Number is required');
-    //     if (!student.firstName) errors.push('First Name is required');
-    //     if (!student.lastName) errors.push('Last Name is required');
-    //     if (!['MALE', 'FEMALE', 'OTHER'].includes(student.gender ?? '')) {
-    //         errors.push('Gender must be MALE, FEMALE, or OTHER');
-    //     }
-    //     if (student.email && !this.isValidEmail(student.email)) {
-    //         errors.push('Email format is invalid');
-    //     }
-    //     if (student.studentContactNumber && isNaN(Number(student.studentContactNumber))) {
-    //         errors.push('Contact Number must be numeric');
-    //     }
-    //     if (!student.district) errors.push('District is required');
-    //     if (!student.state) errors.push('State is required');
-    //     if (!student.pinCode) errors.push('PIN Code is required');
-
-    //     if (this.uploadMode === 'sats') {
-    //         const s = student as StudentSatsExcelRow;
-    //         if (!s.satsNumber) errors.push('SATS Number is required in SATS mode');
-    //         if (s.aadhaarNumber && !/^\d{12}$/.test(s.aadhaarNumber)) {
-    //             errors.push('Aadhaar Number must be 12 digits');
-    //         }
-    //     }
-
-    //     return { student, isValid: errors.length === 0, errors };
-    // }
 
     isValidEmail(email: string): boolean {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
