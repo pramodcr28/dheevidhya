@@ -179,7 +179,9 @@
                                             <p-select
                                                 formControlName="returnFromId"
                                                 [options]="targets"
+                                                [loading]="isLoadingTargets"
                                                 optionLabel="label"
+                                                optionValue="value"
                                                 placeholder="select From"
                                                 styleClass="w-full"
                                                 [showClear]="true"
@@ -193,7 +195,9 @@
                                             <p-select
                                                 formControlName="assignedToId"
                                                 [options]="targets"
+                                                [loading]="isLoadingTargets"
                                                 optionLabel="label"
+                                                optionValue="value"
                                                 placeholder="select target"
                                                 styleClass="w-full"
                                                 [showClear]="true"

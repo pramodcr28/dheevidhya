@@ -17,9 +17,12 @@ import { TextareaModule } from 'primeng/textarea';
 import { TimelineModule } from 'primeng/timeline';
 import { ApiLoaderComponent } from '../../../core/layout/loaderComponent';
 import { CommonService } from '../../../core/services/common.service';
+import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { InventoryItem, InventoryTransaction } from '../../models/inventory.model';
+import { ITenantUser } from '../../models/user.model';
 import { InventoryService } from '../../service/inventory.service';
+import { UserService } from '../../service/user.service';
 
 @Component({
     selector: 'app-add-transaction',
@@ -52,20 +55,19 @@ export class AddTransactionComponent implements OnInit {
     @Input() selectedItem: InventoryItem | null = null;
     formSubmitted = false;
     isSubmitting = false;
-    activeTabIndex = 0; // 0 = History tab, 1 = Add Transaction tab
-
-    // Holds the transactions for selected item
+    isLoadingTargets = false;
+    activeTabIndex = 0;
     itemTransactions: InventoryTransaction[] = [];
     inventoryService = inject(InventoryService);
     loader = inject(ApiLoaderService);
     commonService = inject(CommonService);
+    userService = inject(UserService);
+    departmentConfigService = inject(DepartmentConfigService);
     textInputAssignTypeValues = ['VENDOR', 'STORAGE_LOCATION', 'OTHER'];
-    actionTypeValuesForAssignTo = ['REMOVED', 'PURCHASE', 'LOST', 'FOUND']; //'MAINTENANCE',
+    actionTypeValuesForAssignTo = ['REMOVED', 'PURCHASE', 'LOST', 'FOUND'];
     targets = [];
     transactionTypeOptions = [
         { label: 'Issue Item', value: 'ISSUE', description: 'Issue item to someone' },
-        // { label: 'Send for Maintenance', value: 'MAINTENANCE', description: 'Send item for maintenance' },
-        // { label: 'Item Removed From Inventory', value: 'REMOVED', description: 'Item Removed' },
         { label: 'Purchase Record', value: 'PURCHASE', description: 'Record new purchase' },
         { label: 'Report Lost', value: 'LOST', description: 'Report item as lost' }
     ];
@@ -139,13 +141,11 @@ export class AddTransactionComponent implements OnInit {
         });
     }
 
-    /** ✅ Helper: check if field invalid */
     isFieldInvalid(fieldName: string): boolean {
         const field = this.transactionForm.get(fieldName);
         return !!(field && field.invalid && (field.dirty || field.touched || this.formSubmitted));
     }
 
-    /** ✅ Helper: extract properties */
     getItemProperties(item: InventoryItem | any): Array<{ key: string; value: any }> {
         try {
             const properties = JSON.parse(item.properties);
@@ -155,7 +155,6 @@ export class AddTransactionComponent implements OnInit {
         }
     }
 
-    /** ✅ Status Tag Colors */
     getStatusSeverity(status: string): any {
         const severityMap: { [key: string]: string } = {
             AVAILABLE: 'success',
@@ -170,13 +169,11 @@ export class AddTransactionComponent implements OnInit {
         return severityMap[status] || 'secondary';
     }
 
-    /** ✅ Action Tag Colors */
     getActionSeverity(action: string): any {
         const actionMap: { [key: string]: string } = {
             ISSUE: 'success',
             RETURN: 'info',
             TRANSFER: 'primary',
-            // MAINTENANCE: 'warn',
             ADJUSTMENT: 'secondary',
             DISPOSE: 'danger',
             PURCHASE: 'success',
@@ -218,22 +215,78 @@ export class AddTransactionComponent implements OnInit {
     }
 
     onAssignmentTypeChange(event: any) {
-        this.targets = []; // Reset targets
+        this.targets = [];
+        this.isLoadingTargets = true;
+
         switch (event.value) {
             case 'STUDENT':
-                // TODO: Load students from service and set to this.targets = [{label: '', value: ''}, ...]
+                this.userService
+                    .userSearch(0, 1000, 'id', 'ASC', {
+                        'branch_id.eq': this.commonService.branch?.id,
+                        'authorities.name.equals': 'STUDENT',
+                        'status.equals': 'ACTIVE'
+                    })
+                    .subscribe({
+                        next: (res: any) => {
+                            this.targets = (res.content || []).map((user: ITenantUser) => ({
+                                label: `${user.firstName} ${user.lastName} (${user.login})`,
+                                value: user.id
+                            }));
+                            this.isLoadingTargets = false;
+                        },
+                        error: (err) => {
+                            console.error('Failed to load students', err);
+                            this.isLoadingTargets = false;
+                        }
+                    });
                 break;
+
             case 'TEACHER':
-                // TODO: Load teachers
+                this.userService
+                    .userSearch(0, 1000, 'id', 'ASC', {
+                        'branch_id.eq': this.commonService.branch?.id,
+                        'authorities.name.equals': 'TEACHER',
+                        'status.equals': 'ACTIVE'
+                    })
+                    .subscribe({
+                        next: (res: any) => {
+                            this.targets = (res.content || []).map((user: ITenantUser) => ({
+                                label: `${user.firstName} ${user.lastName} (${user.login})`,
+                                value: user.id
+                            }));
+                            this.isLoadingTargets = false;
+                        },
+                        error: (err) => {
+                            console.error('Failed to load teachers', err);
+                            this.isLoadingTargets = false;
+                        }
+                    });
                 break;
+
             case 'CLASSROOM':
-                // TODO: Load classrooms
+                const departments = this.commonService.associatedDepartments || [];
+                departments.forEach((dept: any) => {
+                    (dept.department?.classes || []).forEach((cls: any) => {
+                        this.targets.push({
+                            label: `${cls.name} (${dept.department?.name || ''})`,
+                            value: cls.id
+                        });
+                    });
+                });
+                this.isLoadingTargets = false;
                 break;
+
             case 'DEPARTMENT':
-                // TODO: Load departments
+                const depts = this.commonService.associatedDepartments || [];
+                this.targets = depts.map((dept: any) => ({
+                    label: dept.department?.name || dept.name || 'Unknown',
+                    value: dept.department?.id || dept.id
+                }));
+                this.isLoadingTargets = false;
                 break;
+
             default:
-                // fallback if none matched
+                this.isLoadingTargets = false;
                 break;
         }
     }
@@ -244,7 +297,6 @@ export class AddTransactionComponent implements OnInit {
             ISSUE: 'This will mark the item as assigned and track its usage.',
             RETURN: 'This will mark the item as available for future assignments.',
             TRANSFER: "This will update the item's location and assignment.",
-            // MAINTENANCE: 'This will mark the item as under maintenance.',
             ADJUSTMENT: 'This will update the inventory records.',
             DISPOSE: 'This will permanently mark the item as disposed.',
             PURCHASE: 'This will record a new item acquisition.',
@@ -258,7 +310,6 @@ export class AddTransactionComponent implements OnInit {
         const statusMap: { [key: string]: string } = {
             ISSUE: 'ASSIGNED',
             RETURN: 'AVAILABLE',
-            // MAINTENANCE: 'UNDER_MAINTENANCE',
             DISPOSE: 'DISPOSED',
             LOST: 'DAMAGED'
         };
@@ -271,7 +322,6 @@ export class AddTransactionComponent implements OnInit {
             ISSUE: 'Issue Item',
             RETURN: 'Return Item',
             TRANSFER: 'Transfer Item',
-            // MAINTENANCE: 'Send to Maintenance',
             ADJUSTMENT: 'Adjust Inventory',
             DISPOSE: 'Dispose Item',
             PURCHASE: 'Record Purchase',
@@ -279,6 +329,7 @@ export class AddTransactionComponent implements OnInit {
         };
         return labelMap[action] || 'Create Transaction';
     }
+
     validateTranaction(): void {
         const action = this.transactionForm.get('action')?.value;
         const quantity = this.transactionForm.get('quantity')?.value;
@@ -318,9 +369,7 @@ export class AddTransactionComponent implements OnInit {
                 this.selectedItem = saved.body;
                 this.resetForm();
                 this.isSubmitting = false;
-
                 this.activeTabIndex = 0;
-
                 this.loadItemTransactions(this.selectedItem!.id);
                 if (this.selectedItem.availableQuantity < this.selectedItem.totalQuantity && !this.transactionTypeOptions.some((type) => type.value == 'RETURN')) {
                     this.transactionTypeOptions.unshift({ label: 'Return Item', value: 'RETURN', description: 'Return item back' });
@@ -334,21 +383,19 @@ export class AddTransactionComponent implements OnInit {
         });
     }
 
-    /** ✅ Cancel action */
     onCancel(): void {
         this.resetForm();
-        // this.cancelled.emit();
     }
 
-    /** ✅ Reset form */
     private resetForm(): void {
         this.transactionForm.reset({
             quantity: 1,
             date: new Date(),
             assignedToType: 'OTHER'
         });
+        this.targets = [];
         this.formSubmitted = false;
         this.isSubmitting = false;
-        this.activeTabIndex = 0; // Reset to History tab
+        this.activeTabIndex = 0;
     }
 }
