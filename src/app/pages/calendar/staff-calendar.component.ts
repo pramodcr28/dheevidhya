@@ -1,8 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
-// PrimeNG Imports
 import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
@@ -481,7 +479,6 @@ export class StaffAttendanceComponent implements OnInit {
 
     onDayClick(day: CalendarDay) {
         if (!day.isCurrentMonth) return;
-
         // 👉 If events exist → show events dialog
         if (day.events.length > 0) {
             this.selectedDayEvents = day.events;
@@ -590,81 +587,12 @@ export class StaffAttendanceComponent implements OnInit {
         }
     }
 
-    // onDayClick(day: CalendarDay) {
-    //     if (!day.isCurrentMonth) return;
-
-    //     if (day.events.length > 0) {
-    //         this.selectedDayEvents = day.events;
-    //         this.selectedDayDate = day.date;
-    //         this.showEventsDialog = true;
-    //         return;
-    //     }
-
-    //     const today = new Date();
-    //     today.setHours(0, 0, 0, 0);
-    //     const selectedDate = new Date(day.date);
-    //     selectedDate.setHours(0, 0, 0, 0);
-
-    //     if (!this.commonService.isStudent && selectedDate > today) {
-    //         this.messageService.add({
-    //             severity: 'warn',
-    //             summary: 'Future Date',
-    //             detail: 'Cannot add attendance for future dates'
-    //         });
-    //         return;
-    //     }
-
-    //     if (day.attendance) {
-    //         const attendance = day.attendance;
-
-    //         const checkIn = this.combineDateAndTime(attendance.attendanceDate, attendance.checkInTime);
-    //         const checkOut = this.combineDateAndTime(attendance.attendanceDate, attendance.checkOutTime);
-    //         if (checkOut < checkIn) {
-    //             checkOut.setDate(checkOut.getDate() + 1);
-    //         }
-
-    //         this.selectedDayAttendance = {
-    //             ...attendance,
-    //             checkInTime: checkIn,
-    //             checkOutTime: checkOut
-    //         };
-    //     } else {
-    //         const baseDate = new Date(day.date);
-    //         const checkIn = new Date(baseDate);
-    //         checkIn.setHours(9, 0, 0, 0);
-    //         const checkOut = new Date(baseDate);
-    //         checkOut.setHours(18, 0, 0, 0);
-    //         this.selectedDayAttendance = {
-    //             staffId: this.commonService.getUserInfo?.userId,
-    //             staffName: this.commonService.getUserInfo?.fullName,
-    //             branchId: this.commonService.branch?.id?.toString() || '',
-    //             departmentId: this.commonService.getUserInfo?.departmentId,
-    //             departmentName: this.commonService.getUserInfo?.departmentName,
-    //             branchName: this.commonService.branch?.name || '',
-    //             attendanceDate: this.datePipe.transform(day.date, 'yyyy-MM-dd') || '',
-    //             status: 'PRESENT',
-    //             checkInTime: checkIn,
-    //             checkOutTime: checkOut
-    //         };
-    //     }
-
-    //     this.hasEvents = day.events.length > 0;
-    //     this.timeErrors = { checkIn: '', checkOut: '' };
-
-    //     if (this.commonService.isStudent) {
-    //         this.showDetailDialog = this.hasEvents;
-    //     } else {
-    //         this.showDetailDialog = true;
-    //     }
-    // }
-
     private normalizeTime(value: any): string | null {
         if (!value) return null;
 
         if (typeof value === 'string' && /^\d{2}:\d{2}(:\d{2})?$/.test(value)) {
             return value;
         }
-
         const date = new Date(value);
         if (!isNaN(date.getTime())) {
             return date.toLocaleTimeString('en-GB', { hour12: false });
@@ -798,7 +726,6 @@ export class StaffAttendanceComponent implements OnInit {
                 }
             }
         }
-
         this.staffAttendanceService
             .addAttendance({
                 ...this.selectedDayAttendance,

@@ -11,11 +11,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonService } from '../../core/services/common.service';
 import { DashboardService, HodDashboardResponse } from '../../pages/service/dashboard.service';
+import { Time12Pipe } from '../../pages/service/time12-pipe.pipe';
 
 @Component({
     selector: 'app-hod-dashboard',
     standalone: true,
-    imports: [CommonModule, CardModule, TagModule, TabViewModule, DividerModule, BadgeModule, TooltipModule, SkeletonModule],
+    imports: [CommonModule, Time12Pipe, CardModule, TagModule, TabViewModule, DividerModule, BadgeModule, TooltipModule, SkeletonModule],
     templateUrl: './hod-dashboard.component.html'
 })
 export class HodDashboardComponent implements OnInit, OnDestroy {

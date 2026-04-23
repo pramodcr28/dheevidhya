@@ -184,9 +184,17 @@ export interface StaffAttendanceRowDTO {
     checkInTime?: string;
     status: string; // PRESENT | ABSENT | LATE | LEAVE | ON_DUTY
     attendancePercentage: number;
+    monthlyStats: MonthlySatsDTO;
     weeklyTrend: any[]; // last 7 days Mon-Sun
 }
 
+export interface MonthlySatsDTO {
+    totalWorkingDays: number;
+    totalPresentDays: number;
+    absentDays: number;
+    leaveDays: number;
+    daysFromMonthStart: number;
+}
 export interface InventoryTransactionDTO {
     id: string;
     itemName: string;
