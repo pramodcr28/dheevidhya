@@ -117,8 +117,10 @@ export class EmployeeDialogComponent implements OnInit {
     }
 
     initializeEmployeeForm(): void {
-        const defaultAcademicYear: string = (this.commonService as any).currentAcademicYear ?? (this.commonService as any).currentUser?.academicYear ?? this.getDefaultAcademicYear();
-
+        let defaultAcademicYear: string = (this.commonService as any).currentAcademicYear ?? (this.commonService as any).currentUser?.academicYear ?? this.getDefaultAcademicYear();
+        if (this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
+            defaultAcademicYear = this.getDefaultAcademicYear();
+        }
         if (!this.employee.id) {
             this.employee = {
                 houseNumber: '',
@@ -231,6 +233,8 @@ export class EmployeeDialogComponent implements OnInit {
         if (!this.commonService.getUserAuthorities.includes('SUPER_ADMIN')) {
             updatedEmployee.branchId = this.commonService.branch?.id || null;
             updatedEmployee.branchCode = this.commonService.branch?.code;
+        } else {
+            updatedEmployee.branchCode = this.allBranches.find((branch) => branch.id === updatedEmployee.branchId)?.code;
         }
 
         updatedEmployee.latestAcademicYear.roles = this.generateRoleConfig(updatedEmployee.authorities!, updatedEmployee);
