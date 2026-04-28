@@ -24,6 +24,7 @@ import { ApiLoaderService } from '../../../core/services/loaderService';
 import { MasterDepartmentService } from '../../../core/services/master-department.service';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { SortService } from '../../../shared/sort';
+import { IDepartmentConfig } from '../../models/org.model';
 import { ITenantAuthority, ITenantUser, NewTenantUser } from '../../models/user.model';
 import { ProfileConfigService } from '../../service/profile-config.service';
 import { TenantAuthorityService } from '../../service/tenant-authority.service';
@@ -101,7 +102,7 @@ export class EmployeeListComponent {
 
         this.masterDepartmentService.query().subscribe(
             (data) => {
-                this.masterDepartments = data.body || [];
+                this.masterDepartments = data.body?.filter((d) => this.commonService.associatedDepartments?.some((dept: IDepartmentConfig) => dept.department.name === d.name)) || [];
             },
             (error) => {
                 this.messageService.add({

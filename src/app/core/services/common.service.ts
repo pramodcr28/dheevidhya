@@ -229,6 +229,12 @@ export class CommonService {
                         visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR'])
                     },
                     {
+                        label: 'Holiday Setup',
+                        icon: 'pi pi-fw pi-calendar-plus',
+                        routerLink: ['/home/holiday-list'],
+                        visible: this.hasRoles(['HEAD_MASTER', 'HEAD_OF_DEPARTMENT', 'PRINCIPAL', 'IT_ADMINISTRATOR'])
+                    },
+                    {
                         label: 'Org Tree',
                         icon: 'pi pi-fw pi-sitemap',
                         routerLink: ['/home/org'],

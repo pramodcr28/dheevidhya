@@ -57,6 +57,7 @@ export const appRoutes: Routes = [
                     { path: 'employees', component: EmployeeListComponent }
                 ]
             },
+            { path: 'holiday-list', loadComponent: () => import('./app/pages/holiday-list/holiday-list.component').then((m) => m.HolidayListComponent), title: 'Holiday Management' },
             { path: 'stats-student-list', component: SatsStudentListComponent },
             // { path: 'students', component: StudentListComponent },
             { path: 'bulk-student-upload', component: BulkStudentUploadComponent },

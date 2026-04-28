@@ -1,0 +1,200 @@
+<p-toast position="top-right" />
+
+<p-dialog
+    [(visible)]="visible"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '900px', maxWidth: '95vw'}"
+    [closeOnEscape]="true"
+    (onHide)="onCancel()"
+>
+    <ng-template pTemplate="header">
+        <div class="flex items-center gap-3">
+            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-500/20">
+                <i class="pi pi-calendar text-orange-600 dark:text-orange-400 text-xl"></i>
+            </div>
+            <div>
+                <h3 class="m-0 text-base font-bold text-gray-900 dark:text-slate-100">
+                    {{ isEditMode ? 'Edit Holiday Configuration' : 'Create New Holiday' }}
+                </h3>
+                <p class="m-0 text-xs text-gray-500 dark:text-slate-400">Configure timing and audience reach</p>
+            </div>
+        </div>
+    </ng-template>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 px-1 py-4">
+        
+        <div class="lg:col-span-7 space-y-6">
+            <section class="space-y-4 rounded-2xl border border-gray-100 bg-gray-50/40 p-5 dark:border-slate-800 dark:bg-slate-900/40">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Basic Info</label>
+                    <input 
+                        pInputText 
+                        type="text" 
+                        [(ngModel)]="formData.title" 
+                        placeholder="Holiday Title (e.g. Independence Day)" 
+                        class="w-full rounded-xl border-gray-200 py-3 dark:bg-slate-800 dark:border-slate-700 dark:text-white" 
+                    />
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-bold uppercase text-gray-400">Type</label>
+                        <p-select 
+                            [options]="typeOptions" 
+                            [(ngModel)]="formData.holidayType" 
+                            optionLabel="label" 
+                            optionValue="value" 
+                            styleClass="w-full rounded-xl" 
+                            appendTo="body" 
+                        />
+                    </div>
+                    
+                    @if (formData.holidayType === 'WEEK_OFF') {
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold uppercase text-gray-400">Day</label>
+                            <p-select 
+                                [options]="weekDays" 
+                                [(ngModel)]="formData.weekOffDay" 
+                                placeholder="Select Day" 
+                                styleClass="w-full rounded-xl" 
+                            />
+                        </div>
+                    }
+                </div>
+
+                @if (formData.holidayType === 'WEEK_OFF') {
+                    <div class="space-y-2 pt-2">
+                        <label class="block text-[10px] font-bold uppercase text-gray-400">Monthly Occurrences</label>
+                        <div class="flex flex-wrap gap-2">
+                            @for (opt of ['ALL','FIRST','SECOND','THIRD','FOURTH']; track opt) {
+                                <button 
+                                    type="button" 
+                                    (click)="toggleOccurrence($any(opt))" 
+                                    [class]="formData.appliestoWeek.includes($any(opt)) 
+                                        ? 'border-orange-500 bg-orange-500 text-white shadow-md shadow-orange-500/20' 
+                                        : 'border-gray-200 bg-white text-gray-500 hover:border-orange-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-slate-500'"
+                                    class="rounded-lg border px-3 py-2 text-xs font-bold transition-all"
+                                >
+                                    {{ opt }}
+                                </button>
+                            }
+                        </div>
+                    </div>
+                } @else {
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold uppercase text-gray-400">Start Date</label>
+                            <p-datepicker [(ngModel)]="formData.startDate" [showIcon]="true" dateFormat="dd/mm/yy" styleClass="w-full" />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold uppercase text-gray-400">End Date</label>
+                            <p-datepicker [(ngModel)]="formData.endDate" [showIcon]="true" dateFormat="dd/mm/yy" [minDate]="formData.startDate!" styleClass="w-full" />
+                        </div>
+                    </div>
+                }
+            </section>
+
+            <div class="space-y-1.5">
+                <label class="block text-[10px] font-bold uppercase text-gray-400 px-1">Internal Notes</label>
+                <textarea 
+                    pTextarea 
+                    [(ngModel)]="formData.description" 
+                    rows="3" 
+                    placeholder="Describe the holiday or add specific instructions..."
+                    class="w-full resize-none rounded-2xl border-gray-200 p-4 text-sm dark:bg-slate-800 dark:border-slate-700 dark:text-white focus:border-orange-500"
+                ></textarea>
+            </div>
+        </div>
+
+        <div class="lg:col-span-5 space-y-6">
+            <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800/50">
+                <label class="mb-4 block text-xs font-bold uppercase tracking-wider text-gray-500">Target Audience</label>
+                
+                <div class="flex flex-wrap gap-2 mb-6">
+                    @for (t of targetTypeOptions; track t.value) {
+                        <button 
+                            (click)="targetType = t.value; onTargetTypeChange()" 
+                            [class]="targetType === t.value 
+                                ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20' 
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'"
+                            class="flex items-center gap-2 rounded-full px-4 py-2 text-[10px] font-bold transition-all"
+                        >
+                            <i [class]="t.icon" class="text-[12px]"></i> {{ t.label }}
+                        </button>
+                    }
+                </div>
+
+                <div class="min-h-[160px] space-y-4">
+                    @switch (targetType) {
+                        @case ('ACADEMIC_UNIT') {
+                            <div class="space-y-1.5 animate-in fade-in duration-300">
+                                <p-treeSelect 
+                                    [(ngModel)]="targetIds" 
+                                    [options]="academicUnitTree" 
+                                    display="chip" 
+                                    selectionMode="multiple" 
+                                    placeholder="Choose Units" 
+                                    styleClass="w-full rounded-xl" 
+                                    appendTo="body" 
+                                />
+                            </div>
+                        }
+                        @case ('ROLE') {
+                            <div class="space-y-1.5 animate-in fade-in duration-300">
+                                <p-multiSelect 
+                                    [(ngModel)]="targetIds" 
+                                    [options]="roleOptions" 
+                                    optionLabel="label" 
+                                    optionValue="value" 
+                                    placeholder="Select Roles" 
+                                    styleClass="w-full rounded-xl" 
+                                    display="chip" 
+                                    appendTo="body" 
+                                />
+                            </div>
+                        }
+                        @default {
+                            <div class="flex flex-col items-center justify-center rounded-xl bg-blue-50/50 p-6 text-center dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10">
+                                <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-500/20">
+                                    <i class="pi pi-globe text-blue-600 dark:text-blue-400"></i>
+                                </div>
+                                <h4 class="m-0 text-xs font-bold text-blue-900 dark:text-blue-200">Broadcast Holiday</h4>
+                                <p class="m-0 text-[10px] text-blue-700/70 dark:text-blue-400/60 mt-1">Visible to all active users in the institution.</p>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            
+            <div class="rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 p-4 dark:border-orange-500/20 dark:bg-orange-500/5">
+                <div class="flex gap-3 text-[11px] leading-relaxed text-orange-700 dark:text-orange-400/80">
+                    <i class="pi pi-shield text-base text-orange-500"></i>
+                    <span>This holiday will be saved in <strong>Draft</strong> mode. It must be submitted and approved by an admin before appearing on calendars.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-5 dark:border-slate-800">
+            <button 
+                type="button" 
+                (click)="onCancel()" 
+                class="rounded-xl px-5 py-2.5 text-sm font-semibold text-gray-500 transition-colors hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            >
+                Discard Changes
+            </button>
+            <button 
+                type="button" 
+                (click)="onSave()" 
+                [disabled]="saving" 
+                class="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 active:scale-95 disabled:opacity-60"
+            >
+                <i class="pi" [class]="saving ? 'pi-spin pi-spinner' : (isEditMode ? 'pi-save' : 'pi-check-circle')"></i>
+                {{ saving ? 'Saving...' : (isEditMode ? 'Update Holiday' : 'Create Holiday') }}
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
