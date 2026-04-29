@@ -88,30 +88,73 @@ export class HolidayListComponent implements OnInit {
         this.fetchPage(page, size, sortField, sortDir);
     }
 
+    generateHolidayListFilters() {
+        const filters: any = {};
+
+        if (this.selectedStatus) {
+            filters['approvalStatus'] = this.selectedStatus;
+        }
+
+        if (this.selectedTypes?.length) {
+            filters['holidayTypes'] = [...this.selectedTypes];
+        }
+
+        filters['targetAudience'] = {};
+
+        this.commonService.getUserAuthorities.forEach((authority) => {
+            if (authority === 'STUDENT' && this.commonService.getStudentInfo) {
+                const s = this.commonService.getStudentInfo;
+
+                filters['targetAudience'] = {
+                    ACADEMIC_UNIT: [`${s.academicYear}:${s.departmentId}:${s.classId}:${s.sectionId}`],
+                    STUDENT: [s.userId]
+                };
+            }
+
+            if (authority !== 'STUDENT' && this.commonService.currentUser) {
+                const u = this.commonService.currentUser;
+
+                const targetIds: string[] = [];
+                u.departments.forEach((d) => {
+                    targetIds.push(`${u.academicYear}:${d.id}`);
+                });
+
+                filters['targetAudience'] = {
+                    ACADEMIC_UNIT: targetIds,
+                    STAFF: [u.userId]
+                };
+            }
+
+            filters['targetAudience']['ROLE'] = [...(filters['targetAudience']['ROLE'] || []), authority];
+            filters['targetAudience']['ALL'] = [];
+            filters['createdBy'] = this.commonService.currentUser.userId;
+        });
+
+        return filters;
+    }
+
     private fetchPage(page: number, size: number, sortBy: string, sortDirection: string) {
         this.loading = true;
-        this.holidayService
-            .search({
-                page,
-                size,
-                sortBy,
-                sortDirection,
-                filters: {
-                    ...(this.selectedStatus ? { approvalStatus: this.selectedStatus } : {}),
-                    ...(this.selectedTypes.length ? { holidayTypes: this.selectedTypes } : {})
-                }
-            })
-            .subscribe({
-                next: (res) => {
-                    this.holidays.set(res.content);
-                    this.totalItems = res.totalElements;
-                    this.loading = false;
-                },
-                error: () => {
-                    this.loading = false;
-                    this.toast('error', 'Error', 'Failed to load holidays');
-                }
-            });
+
+        const request = {
+            page,
+            size,
+            sortBy,
+            sortDirection,
+            filters: this.generateHolidayListFilters()
+        };
+
+        this.holidayService.search(request).subscribe({
+            next: (res) => {
+                this.holidays.set(res.content);
+                this.totalItems = res.totalElements;
+                this.loading = false;
+            },
+            error: () => {
+                this.loading = false;
+                this.toast('error', 'Error', 'Failed to load holidays');
+            }
+        });
     }
 
     clearFilters() {

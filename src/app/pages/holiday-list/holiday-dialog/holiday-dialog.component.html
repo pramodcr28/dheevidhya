@@ -43,6 +43,7 @@
                         <label class="block text-[10px] font-bold uppercase text-gray-400">Type</label>
                         <p-select 
                             [options]="typeOptions" 
+                            appendTo="body"
                             [(ngModel)]="formData.holidayType" 
                             optionLabel="label" 
                             optionValue="value" 
@@ -56,6 +57,7 @@
                             <label class="block text-[10px] font-bold uppercase text-gray-400">Day</label>
                             <p-select 
                                 [options]="weekDays" 
+                                appendTo="body"
                                 [(ngModel)]="formData.weekOffDay" 
                                 placeholder="Select Day" 
                                 styleClass="w-full rounded-xl" 
@@ -86,11 +88,11 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1.5">
                             <label class="block text-[10px] font-bold uppercase text-gray-400">Start Date</label>
-                            <p-datepicker [(ngModel)]="formData.startDate" [showIcon]="true" dateFormat="dd/mm/yy" styleClass="w-full" />
+                            <p-datepicker [(ngModel)]="formData.startDate" [showIcon]="true" appendTo="body" dateFormat="dd/mm/yy" styleClass="w-full" />
                         </div>
                         <div class="space-y-1.5">
                             <label class="block text-[10px] font-bold uppercase text-gray-400">End Date</label>
-                            <p-datepicker [(ngModel)]="formData.endDate" [showIcon]="true" dateFormat="dd/mm/yy" [minDate]="formData.startDate!" styleClass="w-full" />
+                            <p-datepicker [(ngModel)]="formData.endDate" [showIcon]="true" appendTo="body" dateFormat="dd/mm/yy" [minDate]="formData.startDate!" styleClass="w-full" />
                         </div>
                     </div>
                 }

@@ -1,4 +1,3 @@
-// holiday.service.ts
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -6,19 +5,6 @@ import { environment } from '../../../environments/environment';
 import { ApplicationConfigService } from '../../core/services/application-config.service';
 import { Holiday, HolidayDTO } from '../models/holiday.model';
 import { PageResponse } from './staff-attendance.service';
-
-export interface HolidaySearchRequest {
-    page?: number;
-    size?: number;
-    sortBy?: string;
-    sortDirection?: string;
-    filters?: {
-        approvalStatus?: string;
-        holidayTypes?: string[];
-        year?: string;
-        month?: string;
-    };
-}
 
 @Injectable({ providedIn: 'root' })
 export class HolidayService {
@@ -42,7 +28,7 @@ export class HolidayService {
         return this.http.delete<void>(`${this.resourceUrl}/${id}`);
     }
 
-    search(request: HolidaySearchRequest): Observable<PageResponse<Holiday>> {
+    search(request: any): Observable<PageResponse<Holiday>> {
         return this.http.post<PageResponse<Holiday>>(`${this.resourceUrl}/search`, request);
     }
 

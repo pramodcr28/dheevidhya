@@ -113,19 +113,14 @@ export class StaffAttendanceComponent implements OnInit {
     loading = false;
     currentTime = '';
     currentViewDate = new Date();
-
     private datePipe = inject(DatePipe);
-
     todayAttendance: StaffAttendance | null = null;
     chartData: any;
     chartOptions: any;
     calendarDays: CalendarDay[] = [];
     weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
     attendanceHistory: StaffAttendance[] = [];
-    /** All APPROVED holidays for the current visible month (from the dedicated holiday API) */
     holidays: Holiday[] = [];
-
     showDetailDialog = false;
     showEventsDialog = false;
     selectedDayAttendance: StaffAttendance | null = null;
@@ -142,14 +137,10 @@ export class StaffAttendanceComponent implements OnInit {
     ];
 
     timeErrors: { checkIn: string; checkOut: string } = { checkIn: '', checkOut: '' };
-
     monthStats = { present: 0, absent: 0, onDuty: 0, leave: 0, total: 0, percentage: 0 };
-
-    // Holiday display maps
     typeLabels = HOLIDAY_TYPE_LABELS;
     typeColors = HOLIDAY_TYPE_COLORS;
     typeIcons = HOLIDAY_TYPE_ICONS;
-
     commonService = inject(CommonService);
     staffAttendanceService = inject(StaffAttendanceService);
     holidayService = inject(HolidayService);
@@ -163,23 +154,63 @@ export class StaffAttendanceComponent implements OnInit {
         this.loadMonthData();
     }
 
-    // ── Time ──────────────────────────────────────────────────────────────────
-
     updateCurrentTime() {
         const now = new Date();
         this.currentTime = this.datePipe.transform(now, 'hh:mm:ss a') || '';
     }
 
-    // ── Load ──────────────────────────────────────────────────────────────────
+    generateHolidayFilters(monthStart: Date, monthEnd: Date) {
+        const filters: any = {};
+        filters['approvalStatus'] = 'APPROVED';
+        filters['startDate'] = this.datePipe.transform(monthStart, 'yyyy-MM-dd');
+        filters['endDate'] = this.datePipe.transform(monthEnd, 'yyyy-MM-dd');
+        filters['targetAudience'] = {};
 
-    /** Single entry-point: loads holidays first, then attendance if staff */
+        this.commonService.getUserAuthorities.forEach((authority) => {
+            if (authority === 'STUDENT' && this.commonService.getStudentInfo) {
+                const s = this.commonService.getStudentInfo;
+
+                filters['targetAudience'] = {
+                    ACADEMIC_UNIT: [`${s.academicYear}:${s.departmentId}:${s.classId}:${s.sectionId}`],
+                    STUDENT: [s.userId]
+                };
+            }
+
+            if (authority !== 'STUDENT' && this.commonService.currentUser) {
+                const u = this.commonService.currentUser;
+
+                const targetIds: string[] = [];
+                u.departments.forEach((d) => {
+                    targetIds.push(`${u.academicYear}:${d.id}`);
+                });
+
+                filters['targetAudience'] = {
+                    ACADEMIC_UNIT: targetIds,
+                    STAFF: [u.userId]
+                };
+            }
+
+            filters['targetAudience']['ROLE'] = [authority];
+            filters['targetAudience']['ALL'] = [];
+        });
+
+        return filters;
+    }
+
     loadMonthData() {
         this.loading = true;
         const { monthStart, monthEnd } = this.getMonthBounds();
 
-        this.holidayService.getForCalendar(this.datePipe.transform(monthStart, 'yyyy-MM-dd')!, this.datePipe.transform(monthEnd, 'yyyy-MM-dd')!).subscribe({
-            next: (holidays) => {
-                this.holidays = holidays;
+        const request = {
+            page: 0,
+            size: 1000,
+            sortBy: 'startDate',
+            sortDirection: 'asc',
+            filters: this.generateHolidayFilters(monthStart, monthEnd)
+        };
+        this.holidayService.search(request).subscribe({
+            next: (result) => {
+                this.holidays = result.content;
 
                 if (!this.commonService.isStudent) {
                     this.loadAttendance(monthStart, monthEnd);
@@ -188,7 +219,6 @@ export class StaffAttendanceComponent implements OnInit {
                 }
             },
             error: () => {
-                // Don't block the calendar if holiday API fails
                 this.holidays = [];
                 if (!this.commonService.isStudent) {
                     this.loadAttendance(monthStart, monthEnd);
