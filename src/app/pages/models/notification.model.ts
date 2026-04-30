@@ -7,7 +7,6 @@ export enum CategoryType {
     ATTENDANCE = 'ATTENDANCE',
     EXAM_ANNOUNCEMENT = 'EXAM_ANNOUNCEMENT',
     EXAM_RESULT = 'EXAM_RESULT',
-    HOLIDAY = 'HOLIDAY',
     MEETING = 'MEETING',
     APPRECIATION = 'APPRECIATION',
     SCHOOL_ACHIEVEMENT = 'SCHOOL_ACHIEVEMENT',
@@ -49,7 +48,6 @@ export interface Notice {
     examAnnouncement?: ExamAnnouncementDetails;
     examResult?: ExamResultDetails;
     fest?: FestDetails;
-    holiday?: HolidayDetails;
     meeting?: MeetingDetails;
     appreciation?: AppreciationDetails;
     schoolAchievement?: SchoolAchievementDetails;
@@ -72,13 +70,6 @@ export interface MeetingDetails {
     meetingDate: string;
     meetingTime: string;
     venue: string;
-}
-
-export interface HolidayDetails {
-    holidayType: 'Emergency' | 'Government' | 'Weather' | 'Week_off' | 'Festival';
-    holidayStartDate: string;
-    holidayEndDate: string;
-    weekOffDay?: string; // e.g., "Saturday", "Sunday"
 }
 
 export interface FestDetails {

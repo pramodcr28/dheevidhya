@@ -144,6 +144,14 @@ export class StaffAttendanceComponent implements OnInit {
     commonService = inject(CommonService);
     staffAttendanceService = inject(StaffAttendanceService);
     holidayService = inject(HolidayService);
+    weekMap: Record<string, number[]> = {
+        ALL: [1, 2, 3, 4, 5],
+        FIRST: [1],
+        SECOND: [2],
+        THIRD: [3],
+        FOURTH: [4],
+        FIFTH: [5]
+    };
 
     constructor(private messageService: MessageService) {}
 
@@ -269,8 +277,6 @@ export class StaffAttendanceComponent implements OnInit {
         };
     }
 
-    // ── Calendar generation ───────────────────────────────────────────────────
-
     generateCalendar() {
         this.calendarDays = [];
         const year = this.currentViewDate.getFullYear();
@@ -281,13 +287,11 @@ export class StaffAttendanceComponent implements OnInit {
         const lastDate = new Date(year, month + 1, 0).getDate();
         const prevMonthLastDate = new Date(year, month, 0).getDate();
 
-        // Prev-month padding
         for (let i = firstDayOfWeek - 1; i >= 0; i--) {
             const date = new Date(year, month - 1, prevMonthLastDate - i);
             this.calendarDays.push(this.buildDay(date, false));
         }
 
-        // Current month
         for (let i = 1; i <= lastDate; i++) {
             const date = new Date(year, month, i);
             const day = this.buildDay(date, true);
@@ -299,7 +303,6 @@ export class StaffAttendanceComponent implements OnInit {
             this.calendarDays.push(day);
         }
 
-        // Next-month padding
         const remaining = 42 - this.calendarDays.length;
         for (let i = 1; i <= remaining; i++) {
             const date = new Date(year, month + 1, i);
@@ -323,13 +326,10 @@ export class StaffAttendanceComponent implements OnInit {
         return date.getDate() === t.getDate() && date.getMonth() === t.getMonth() && date.getFullYear() === t.getFullYear();
     }
 
-    // ── Holiday resolution ────────────────────────────────────────────────────
+    getWeekOccurrenceInMonth(date: Date): number {
+        return Math.floor((date.getDate() - 1) / 7) + 1;
+    }
 
-    /**
-     * Returns all approved holidays active on a given date.
-     * - WEEK_OFF: matches if the day-of-week equals weekOffDay
-     * - Others: active if date is within [startDate, endDate]
-     */
     getHolidaysForDate(date: Date): Holiday[] {
         const dayOfWeek = date.getDay();
         const dateStr = this.datePipe.transform(date, 'yyyy-MM-dd')!;
@@ -343,13 +343,32 @@ export class StaffAttendanceComponent implements OnInit {
             FRIDAY: 5,
             SATURDAY: 6
         };
-
         return this.holidays.filter((h) => {
             if (h.holidayType === 'WEEK_OFF') {
-                return dayOfWeek === dayMap[(h.weekOffDay ?? 'SUNDAY').toUpperCase()];
+                const holidayDay = (h.weekOffDay ?? 'SUNDAY').toUpperCase();
+
+                if (dayOfWeek !== dayMap[holidayDay]) {
+                    return false;
+                }
+
+                const weekNo = this.getWeekOccurrenceInMonth(date);
+
+                const appliesToWeek: string[] = h.appliestoWeek || [];
+
+                if (appliesToWeek.includes('ALL')) {
+                    return true;
+                }
+
+                for (const w of appliesToWeek) {
+                    const allowedWeeks = this.weekMap[w] || [];
+                    if (allowedWeeks.includes(weekNo)) {
+                        return true;
+                    }
+                }
+
+                return false;
             }
             if (!h.startDate) return false;
-
             const start = h.startDate;
             const end = h.endDate ?? h.startDate;
             return dateStr >= start && dateStr <= end;
@@ -361,8 +380,6 @@ export class StaffAttendanceComponent implements OnInit {
         this.hasEventsToday = todayHolidays.length > 0;
     }
 
-    // ── Navigation ────────────────────────────────────────────────────────────
-
     previousMonth() {
         this.currentViewDate = new Date(this.currentViewDate.getFullYear(), this.currentViewDate.getMonth() - 1, 1);
         this.loadMonthData();
@@ -372,8 +389,6 @@ export class StaffAttendanceComponent implements OnInit {
         this.currentViewDate = new Date(this.currentViewDate.getFullYear(), this.currentViewDate.getMonth() + 1, 1);
         this.loadMonthData();
     }
-
-    // ── Day click ─────────────────────────────────────────────────────────────
 
     onDayClick(day: CalendarDay) {
         if (!day.isCurrentMonth) return;
@@ -430,8 +445,6 @@ export class StaffAttendanceComponent implements OnInit {
         this.showDetailDialog = true;
     }
 
-    // ── Stats & Chart ─────────────────────────────────────────────────────────
-
     calculateMonthStats() {
         this.monthStats = { present: 0, absent: 0, leave: 0, onDuty: 0, total: 0, percentage: 0 };
         this.attendanceHistory.forEach((r) => {
@@ -485,8 +498,6 @@ export class StaffAttendanceComponent implements OnInit {
             this.chartData = { ...this.chartData };
         }
     }
-
-    // ── Cell style helpers ────────────────────────────────────────────────────
 
     hasWeekOffHoliday(holidays: Holiday[]): boolean {
         return holidays.some((h) => h.holidayType === 'WEEK_OFF');
@@ -557,8 +568,6 @@ export class StaffAttendanceComponent implements OnInit {
         return 'border-gray-200 dark:border-gray-700';
     }
 
-    // ── Holiday display helpers ───────────────────────────────────────────────
-
     getHolidayTypeDisplay(type: string): string {
         return HOLIDAY_TYPE_LABELS[type as keyof typeof HOLIDAY_TYPE_LABELS] ?? type;
     }
@@ -588,8 +597,6 @@ export class StaffAttendanceComponent implements OnInit {
         if (!h.weekOffDay) return 'Sunday';
         return h.weekOffDay.charAt(0) + h.weekOffDay.slice(1).toLowerCase();
     }
-
-    // ── Attendance save ───────────────────────────────────────────────────────
 
     saveAttendanceChanges() {
         if (!this.selectedDayAttendance) return;
@@ -649,8 +656,6 @@ export class StaffAttendanceComponent implements OnInit {
             });
     }
 
-    // ── Check-in / Check-out ─────────────────────────────────────────────────
-
     checkIn() {
         const now = new Date();
         const attendance: StaffAttendance = {
@@ -695,8 +700,6 @@ export class StaffAttendanceComponent implements OnInit {
                 error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to check out' })
             });
     }
-
-    // ── Utility ───────────────────────────────────────────────────────────────
 
     getAvatarInitials(fullName: string): string {
         if (!fullName) return '';

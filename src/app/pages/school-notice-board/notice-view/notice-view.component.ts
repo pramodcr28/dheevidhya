@@ -170,50 +170,6 @@ export class NoticeViewComponent {
                 break;
             }
 
-            case 'HOLIDAY': {
-                const h = notice.holiday;
-                if (!h) break;
-                if (h.holidayStartDate) {
-                    items.push({
-                        label: 'From',
-                        value: this.formatDate(h.holidayStartDate),
-                        icon: 'pi pi-calendar',
-                        iconBg: 'bg-amber-50 dark:bg-amber-500/10',
-                        iconColor: 'text-amber-600 dark:text-amber-400'
-                    });
-                }
-                if (h.holidayEndDate) {
-                    items.push({
-                        label: 'To',
-                        value: this.formatDate(h.holidayEndDate),
-                        icon: 'pi pi-calendar-times',
-                        iconBg: 'bg-amber-50 dark:bg-amber-500/10',
-                        iconColor: 'text-amber-600 dark:text-amber-400'
-                    });
-                }
-                if (h.holidayType) {
-                    items.push({
-                        label: 'Holiday Type',
-                        value: h.holidayType,
-                        icon: 'pi pi-sun',
-                        iconBg: 'bg-gray-100 dark:bg-gray-700',
-                        iconColor: ' ',
-                        badge: h.holidayType,
-                        badgeClass: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
-                    });
-                }
-                if (h.weekOffDay) {
-                    items.push({
-                        label: 'Week Off Day',
-                        value: h.weekOffDay,
-                        icon: 'pi pi-clock',
-                        iconBg: 'bg-amber-50 dark:bg-amber-500/10',
-                        iconColor: 'text-amber-600 dark:text-amber-400'
-                    });
-                }
-                break;
-            }
-
             case 'FEST': {
                 const f = notice.fest;
                 if (!f) break;
@@ -390,7 +346,6 @@ export class NoticeViewComponent {
         { value: 'EXAM_ANNOUNCEMENT', label: 'Exam Announcement', icon: 'pi pi-file-edit', bg: 'bg-red-50 dark:bg-red-500/10', color: 'text-red-600 dark:text-red-400', gradient: 'bg-gradient-to-br from-red-500 to-red-700' },
         { value: 'EXAM_RESULT', label: 'Exam Result', icon: 'pi pi-trophy', bg: 'bg-green-50 dark:bg-green-500/10', color: 'text-green-600 dark:text-green-400', gradient: 'bg-gradient-to-br from-green-500 to-green-700' },
         { value: 'FEST', label: 'Festival', icon: 'pi pi-heart', bg: 'bg-purple-50 dark:bg-purple-500/10', color: 'text-purple-600 dark:text-purple-400', gradient: 'bg-gradient-to-br from-purple-500 to-violet-700' },
-        { value: 'HOLIDAY', label: 'Holiday', icon: 'pi pi-sun', bg: 'bg-amber-50 dark:bg-amber-500/10', color: 'text-amber-600 dark:text-amber-400', gradient: 'bg-gradient-to-br from-amber-400 to-amber-700' },
         { value: 'APPRECIATION', label: 'Appreciation', icon: 'pi pi-star', bg: 'bg-pink-50 dark:bg-pink-500/10', color: 'text-pink-600 dark:text-pink-400', gradient: 'bg-gradient-to-br from-pink-500 to-rose-600' },
         { value: 'SCHOOL_ACHIEVEMENT', label: 'School Achievement', icon: 'pi pi-trophy', bg: 'bg-teal-50 dark:bg-teal-500/10', color: 'text-teal-600 dark:text-teal-400', gradient: 'bg-gradient-to-br from-teal-400 to-teal-700' }
     ];

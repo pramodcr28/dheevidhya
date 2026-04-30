@@ -12,13 +12,10 @@
   <form [formGroup]="noticeForm" (ngSubmit)="submit()" class="flex flex-col h-full">
     <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-y-auto pr-2" style="max-height: calc(90vh - 150px);">
       
-      <!-- LEFT SIDE -->
       <div class="space-y-4">
         
-        <!-- General Info -->
         <p-panel header="General Information" [toggleable]="false" styleClass="rounded-xl">
           <div class="space-y-4">
-            <!-- Title -->
             <div>
               <label for="title" class="block text-sm font-semibold mb-2">
                 Title <span class="text-red-500">*</span>
@@ -34,7 +31,6 @@
               </small>
             </div>
 
-            <!-- Priority -->
             <div>
               <label class="block text-sm font-semibold mb-2">
                 Priority <span class="text-red-500">*</span>
@@ -51,8 +47,6 @@
             </div>
           </div>
         </p-panel>
-
-        <!-- Category -->
         <p-panel header="Category Details" [toggleable]="false" styleClass="rounded-xl">
           <div class="space-y-4">
             <div>
@@ -78,10 +72,8 @@
               </p-select>
             </div>
 
-            <!-- Dynamic Category Fields -->
             <ng-container [ngSwitch]="categoryType">
               
-              <!-- Timetable -->
               <div *ngSwitchCase="'TIMETABLE'" formGroupName="timetable">
                 <label class="block text-sm font-semibold mb-2">Effective Date</label>
                 <p-datepicker 
@@ -94,7 +86,6 @@
                 </p-datepicker>
               </div>
 
-              <!-- Attendance -->
               <div *ngSwitchCase="'ATTENDANCE'" formGroupName="attendance" class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
                   <div>
@@ -131,7 +122,6 @@
                 </div>
               </div>
 
-              <!-- Exam Announcement -->
               <div *ngSwitchCase="'EXAM_ANNOUNCEMENT'" formGroupName="examAnnouncement" class="space-y-3">
                 <div>
                   <label class="block text-sm font-semibold mb-2">Exam Title</label>
@@ -174,7 +164,6 @@
                 </div>
               </div>
 
-              <!-- Exam Result -->
               <div *ngSwitchCase="'EXAM_RESULT'" formGroupName="examResult" class="space-y-3">
                 <div>
                   <label class="block text-sm font-semibold mb-2">Exam Title</label>
@@ -203,42 +192,6 @@
                 </div>
               </div>
 
-              <!-- Holiday -->
-              <div *ngSwitchCase="'HOLIDAY'" formGroupName="holiday" class="space-y-3">
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Holiday Type</label>
-                  <p-select 
-                    [options]="holidayTypes" 
-                    formControlName="holidayType" 
-                    optionLabel="label"
-                    optionValue="value"
-                    appendTo="body"
-                    placeholder="Select Type" 
-                    class="w-full"
-                    (onChange)="onHolidayTypeChange()">
-                  </p-select>
-                </div>
-                <ng-container *ngIf="noticeForm.get('holiday.holidayType')?.value !== 'Week_off'">
-                  <div class="grid grid-cols-2 gap-3">
-                    <div>
-                      <label class="block text-sm font-semibold mb-2">Start Date</label>
-                      <p-datepicker formControlName="holidayStartDate" dateFormat="yy-mm-dd" appendTo="body" [showIcon]="true" placeholder="Start Date" class="w-full"></p-datepicker>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-semibold mb-2">End Date</label>
-                      <p-datepicker formControlName="holidayEndDate" dateFormat="yy-mm-dd" appendTo="body" [showIcon]="true" placeholder="End Date" class="w-full"></p-datepicker>
-                    </div>
-                  </div>
-                </ng-container>
-                <ng-container *ngIf="noticeForm.get('holiday.holidayType')?.value === 'Week_off'">
-                  <div>
-                    <label class="block text-sm font-semibold mb-2">Week Off Day</label>
-                    <p-select [options]="weekDays" formControlName="weekOffDay" optionLabel="label" optionValue="value" appendTo="body" placeholder="Select Day" class="w-full"></p-select>
-                  </div>
-                </ng-container>
-              </div>
-
-              <!-- Meeting -->
               <div *ngSwitchCase="'MEETING'" formGroupName="meeting" class="space-y-3">
                 <div>
                   <label class="block text-sm font-semibold mb-2">Meeting Type</label>
@@ -260,7 +213,6 @@
                 </div>
               </div>
 
-              <!-- Appreciation -->
               <div *ngSwitchCase="'APPRECIATION'" formGroupName="appreciation" class="space-y-3">
                 <div>
                   <label class="block text-sm font-semibold mb-2">Achievement Category</label>
@@ -276,7 +228,6 @@
                 </div>
               </div>
 
-              <!-- School Achievement -->
               <div *ngSwitchCase="'SCHOOL_ACHIEVEMENT'" formGroupName="schoolAchievement" class="space-y-3">
                 <div>
                   <label class="block text-sm font-semibold mb-2">Achievement Category</label>
@@ -296,7 +247,6 @@
           </div>
         </p-panel>
 
-        <!-- Audience -->
         <p-panel header="Target Audience" [toggleable]="false" styleClass="rounded-xl">
           <div formGroupName="targetAudience" class="space-y-3">
             <div>
@@ -388,7 +338,6 @@
           </div>
         </p-panel>
 
-        <!-- ── Notification Channels ── -->
         <p-panel header="Notify Via" [toggleable]="false" styleClass="rounded-xl">
           <p class="text-xs text-gray-400 mb-3">
             Push notifications are always sent. Additional channels below are optional overrides.

@@ -70,15 +70,14 @@
                     <div class="space-y-2 pt-2">
                         <label class="block text-[10px] font-bold uppercase text-gray-400">Monthly Occurrences</label>
                         <div class="flex flex-wrap gap-2">
-                            @for (opt of ['ALL','FIRST','SECOND','THIRD','FOURTH']; track opt) {
+                            @for (opt of ['ALL','FIRST','SECOND','THIRD','FOURTH', 'FIFTH']; track opt) {
                                 <button 
                                     type="button" 
                                     (click)="toggleOccurrence($any(opt))" 
-                                    [class]="formData.appliestoWeek.includes($any(opt)) 
+                                    [class]="formData.appliestoWeek.includes(opt) 
                                         ? 'border-orange-500 bg-orange-500 text-white shadow-md shadow-orange-500/20' 
                                         : 'border-gray-200 bg-white text-gray-500 hover:border-orange-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-slate-500'"
-                                    class="rounded-lg border px-3 py-2 text-xs font-bold transition-all"
-                                >
+                                    class="rounded-lg border px-3 py-2 text-xs font-bold transition-all">
                                     {{ opt }}
                                 </button>
                             }

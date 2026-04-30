@@ -47,14 +47,9 @@ export class HolidayDialogComponent implements OnInit, OnChanges {
 
     isEditMode = false;
     saving = false;
-
-    // Direct object for all holiday properties
     formData: any = this.getInitialFormData();
-
-    // Logic control variables
     targetType: TargetType = TargetType.ALL;
     targetIds: any[] = [];
-
     academicUnitTree: TreeNode[] = [];
     roleOptions: any[] = [];
 
@@ -198,11 +193,6 @@ export class HolidayDialogComponent implements OnInit, OnChanges {
             this.collectMatchingNodes(this.academicUnitTree, savedKeys, matched);
             this.targetIds = matched;
         }
-
-        // if (this._noticeData?.id && this._noticeData.targetAudience?.type === TargetType.ACADEMIC_UNIT && this._noticeData.targetAudience?.targetIds) {
-        //     this.selectedAcademicUnits = [];
-        //     this.collectMatchingNodes(this.academicUnitTree, this._noticeData.targetAudience.targetIds, this.selectedAcademicUnits);
-        // }
     }
 
     private collectMatchingNodes(nodes: any[], targetIds: string[], result: any[]): void {
@@ -211,41 +201,6 @@ export class HolidayDialogComponent implements OnInit, OnChanges {
             if (node.children?.length > 0) this.collectMatchingNodes(node.children, targetIds, result);
         }
     }
-
-    // loadDepartments(): void {
-    //     const branchId = this.commonService.branch?.id;
-    //     this.deptService.search(0, 100, 'id', 'ASC', { branch: branchId }).subscribe((res: any) => {
-    //         const departments = res?.content || [];
-    //         const academicYear = this.commonService.currentUser.academicYear || '';
-
-    //         this.academicUnitTree = departments.map((dept: any) => ({
-    //             key: `${academicYear}:${dept.id}`,
-    //             label: `${dept.department?.name} (${academicYear})`,
-    //             children: dept.department?.classes?.map((cls: any) => ({
-    //                 key: `${academicYear}:${dept.id}:${cls.id}`,
-    //                 label: cls.name,
-    //                 children: cls.sections?.map((sec: any) => ({
-    //                     key: `${academicYear}:${dept.id}:${cls.id}:${sec.id}`,
-    //                     label: sec.name
-    //                 }))
-    //             }))
-    //         }));
-
-    //         if (this.isEditMode && this.targetType === TargetType.ACADEMIC_UNIT) {
-    //             const savedKeys = this.holiday?.targetAudience?.targetIds || [];
-    //             const matched: TreeNode[] = [];
-    //             this.mapSavedKeysToNodes(this.academicUnitTree, savedKeys, matched);
-    //             this.targetIds = matched;
-    //         }
-    //     });
-    // }
-
-    // private mapSavedKeysToNodes(nodes: TreeNode[], keys: string[], result: TreeNode[]) {
-    //     for (const node of nodes) {
-    //         if (keys.includes(node.key!)) result.push(node);
-    //         if (node.children) this.mapSavedKeysToNodes(node.children, keys, result);
-    //     }
-    // }
 
     onSave() {
         if (!this.formData.title.trim() || !this.formData.holidayType) {
@@ -264,7 +219,7 @@ export class HolidayDialogComponent implements OnInit, OnChanges {
             finalIds = this.targetIds;
         }
 
-        const dto: HolidayDTO & { appliestoWeek?: WeekOccurrence[] } = {
+        const dto: HolidayDTO = {
             title: this.formData.title.trim(),
             description: this.formData.description,
             holidayType: this.formData.holidayType,
@@ -274,7 +229,6 @@ export class HolidayDialogComponent implements OnInit, OnChanges {
             appliestoWeek: this.formData.holidayType === 'WEEK_OFF' ? this.formData.appliestoWeek : undefined,
             targetAudience: { type: this.targetType, targetIds: finalIds }
         };
-
         const request = this.isEditMode ? this.holidayService.update(this.holiday!.id!, dto) : this.holidayService.create(dto);
         request.subscribe({
             next: (res) => {

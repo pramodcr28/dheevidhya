@@ -9,7 +9,7 @@ export interface Target {
     targetIds?: string[];
 }
 
-export type WeekOccurrence = 'ALL' | 'FIRST' | 'SECOND' | 'THIRD' | 'FOURTH' | 'FIRST_AND_THIRD' | 'SECOND_AND_FOURTH';
+export type WeekOccurrence = 'ALL' | 'FIRST' | 'SECOND' | 'THIRD' | 'FOURTH' | 'FIFTH';
 
 export interface Holiday {
     id?: string;

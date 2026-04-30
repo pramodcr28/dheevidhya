@@ -134,7 +134,6 @@ export class NoticeAddComponent implements OnInit {
         { label: 'Attendance', value: 'ATTENDANCE', icon: 'pi pi-check-circle', colorClass: 'bg-orange-500' },
         { label: 'Exam Announcement', value: 'EXAM_ANNOUNCEMENT', icon: 'pi pi-file-edit', colorClass: 'bg-red-500' },
         { label: 'Exam Result', value: 'EXAM_RESULT', icon: 'pi pi-trophy', colorClass: 'bg-green-500' },
-        { label: 'Holiday', value: 'HOLIDAY', icon: 'pi pi-sun', colorClass: 'bg-amber-500' },
         { label: 'Appreciation', value: 'APPRECIATION', icon: 'pi pi-star', colorClass: 'bg-pink-500' },
         { label: 'School Achievement', value: 'SCHOOL_ACHIEVEMENT', icon: 'pi pi-trophy', colorClass: 'bg-teal-500' }
     ];
@@ -159,14 +158,6 @@ export class NoticeAddComponent implements OnInit {
         { label: 'Emergency', value: 'Emergency' },
         { label: 'Progress Review', value: 'Progress' },
         { label: 'Staff Meeting', value: 'Staff' }
-    ];
-
-    holidayTypes = [
-        { label: 'Emergency', value: 'Emergency' },
-        { label: 'Government', value: 'Government' },
-        { label: 'Weather', value: 'Weather' },
-        { label: 'Week Off', value: 'Week_off' },
-        { label: 'Festival', value: 'Festival' }
     ];
 
     attendanceTypes = [
@@ -378,7 +369,6 @@ export class NoticeAddComponent implements OnInit {
             attendance: this.fb.group({ attendancePercentage: [null], attendanceType: [null], parentMeetingRequired: [false] }),
             examAnnouncement: this.fb.group({ examTitle: [null], examType: [null], examStartDate: [null], examEndDate: [null] }),
             examResult: this.fb.group({ examTitle: [null], examType: [null], resultDeclarationDate: [null] }),
-            holiday: this.fb.group({ holidayType: [null], holidayStartDate: [null], holidayEndDate: [null], weekOffDay: [null] }),
             meeting: this.fb.group({ meetingType: [null], meetingDate: [null], meetingTime: [null], venue: [null] }),
             fest: this.fb.group({ festName: [null], festType: [null], eventStartDate: [null], eventEndDate: [null], venue: [null] }),
             appreciation: this.fb.group({ recipientIds: [null], achievementCategory: [null], recognitionLevel: [null] }),
@@ -387,7 +377,6 @@ export class NoticeAddComponent implements OnInit {
 
         this.noticeForm.get('fest.eventStartDate')?.valueChanges.subscribe(() => this.noticeForm.get('fest.eventEndDate')?.setValue(null));
         this.noticeForm.get('examAnnouncement.examStartDate')?.valueChanges.subscribe(() => this.noticeForm.get('examAnnouncement.examEndDate')?.setValue(null));
-        this.noticeForm.get('holiday.holidayStartDate')?.valueChanges.subscribe(() => this.noticeForm.get('holiday.holidayEndDate')?.setValue(null));
     }
 
     populateForm(): void {
@@ -417,7 +406,6 @@ export class NoticeAddComponent implements OnInit {
         if (this._noticeData.attendance) this.noticeForm.get('attendance')?.patchValue(this._noticeData.attendance);
         if (this._noticeData.examAnnouncement) this.noticeForm.get('examAnnouncement')?.patchValue(this._noticeData.examAnnouncement);
         if (this._noticeData.examResult) this.noticeForm.get('examResult')?.patchValue(this._noticeData.examResult);
-        if (this._noticeData.holiday) this.noticeForm.get('holiday')?.patchValue(this._noticeData.holiday);
         if (this._noticeData.meeting) {
             this.noticeForm.get('meeting')?.patchValue({
                 ...this._noticeData.meeting,
@@ -494,7 +482,6 @@ export class NoticeAddComponent implements OnInit {
                 targetIds: targetIds.length ? targetIds : ['all']
             },
             attachments: raw.attachments ?? [],
-            // Pass selected channels so the backend API can use them if needed in future
             notificationChannels: Array.from(this.selectedChannels)
         } as any;
 
@@ -510,13 +497,6 @@ export class NoticeAddComponent implements OnInit {
             };
         if (raw.categoryType === CategoryType.EXAM_RESULT && this.hasValidData(raw.examResult))
             notice.examResult = { examTitle: raw.examResult.examTitle, examType: raw.examResult.examType, resultDeclarationDate: this.commonService.formatDateForApi(raw.examResult.resultDeclarationDate) };
-        if (raw.categoryType === CategoryType.HOLIDAY && this.hasValidData(raw.holiday))
-            notice.holiday = {
-                holidayType: raw.holiday.holidayType,
-                holidayStartDate: this.commonService.formatDateForApi(raw.holiday.holidayStartDate),
-                holidayEndDate: this.commonService.formatDateForApi(raw.holiday.holidayEndDate),
-                weekOffDay: raw.holiday.weekOffDay
-            };
         if (raw.categoryType === CategoryType.MEETING && this.hasValidData(raw.meeting))
             notice.meeting = { meetingType: raw.meeting.meetingType, meetingDate: this.commonService.formatDateForApi(raw.meeting.meetingDate), meetingTime: raw.meeting.meetingTime, venue: raw.meeting.venue };
         if (raw.categoryType === CategoryType.FEST && this.hasValidData(raw.fest))
@@ -560,7 +540,6 @@ export class NoticeAddComponent implements OnInit {
                 attendance: { attendancePercentage: null, attendanceType: null, parentMeetingRequired: false },
                 examAnnouncement: { examTitle: null, examType: null, examStartDate: null, examEndDate: null },
                 examResult: { examTitle: null, examType: null, resultDeclarationDate: null },
-                holiday: { holidayType: null, holidayStartDate: null, holidayEndDate: null, weekOffDay: null },
                 meeting: { meetingType: null, meetingDate: null, meetingTime: null, venue: null },
                 fest: { festName: null, festType: null, eventStartDate: null, eventEndDate: null, venue: null },
                 appreciation: { recipientIds: null, achievementCategory: null, recognitionLevel: null },
@@ -577,16 +556,5 @@ export class NoticeAddComponent implements OnInit {
             .split(',')
             .map((s) => s.trim())
             .filter((s) => s.length > 0);
-    }
-
-    onHolidayTypeChange(): void {
-        const holidayType = this.noticeForm.get('holiday.holidayType')?.value;
-        const holidayGroup = this.noticeForm.get('holiday') as FormGroup;
-        if (holidayType === 'Week_off') {
-            holidayGroup.get('holidayStartDate')?.setValue(null);
-            holidayGroup.get('holidayEndDate')?.setValue(null);
-        } else {
-            holidayGroup.get('weekOffDay')?.setValue(null);
-        }
     }
 }
