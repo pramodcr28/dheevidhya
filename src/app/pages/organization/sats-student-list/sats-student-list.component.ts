@@ -129,6 +129,10 @@ export class SatsStudentListComponent {
         });
     }
 
+    get hasActiveFilters(): boolean {
+        return !!(this.filters.name || this.filters.deptName?.length || this.filters.admissionClass?.length || this.filters.section?.length || this.filters.academicYear || this.filters.socialCategory?.length || this.filters.gender?.length);
+    }
+
     buildFilters(): Record<string, any> {
         const criteria: Record<string, any> = {};
 
@@ -148,10 +152,6 @@ export class SatsStudentListComponent {
         }
 
         return criteria;
-    }
-
-    get hasActiveFilters(): boolean {
-        return !!(this.filters.name || this.filters.deptName?.length || this.filters.admissionClass?.length || this.filters.section?.length || this.filters.academicYear || this.filters.socialCategory?.length || this.filters.gender?.length);
     }
 
     load(): void {

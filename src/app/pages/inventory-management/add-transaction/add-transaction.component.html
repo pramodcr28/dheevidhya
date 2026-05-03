@@ -9,9 +9,6 @@
                     </div>
                     <div>
                         <h3 class="text-xl font-bold  ">{{ selectedItem.name }} - {{ selectedItem.category?.name }}</h3>
-                        <!-- <p class="text-xs  ">
-          ID: {{ selectedItem.id }}
-        </p> -->
                     </div>
                 </div>
                 <div class="text-right">
@@ -65,26 +62,17 @@
                                 <div class="flex flex-col items-center justify-center py-16   gap-2">
                                     <i class="pi pi-inbox text-6xl text-primary"></i>
                                     <p class="text-xl font-medium m-0">No Transactions found.</p>
-                                    <!-- <p class="text-md text-gray-400 ">Start by adding a new inventory item.</p> -->
                                 </div>
                             }
-                            <!-- Transactions Timeline -->
                             <p-timeline [value]="itemTransactions" align="alternate">
-                                <!-- <ng-template pTemplate="marker">
-                <span class="flex w-4 h-4 rounded-full bg-red-500"></span>
-              </ng-template> -->
-                                <!-- <ng-template #opposite let-transaction >
-                    <span class="text-surface-500 dark:text-surface-400 p-4 ">{{}}</span>
-                </ng-template> -->
+
                                 <ng-template pTemplate="content" let-transaction>
                                     <div class="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                                         <div class="flex items-center justify-between">
                                             <h3 class="text-lg font-semibold  ">{{ transaction.date | date: commonService.displayDateTimeFormate }}</h3>
                                             <p-tag [value]="transaction.action" [severity]="getActionSeverity(transaction.action)"></p-tag>
                                         </div>
-                                        <!-- <div class="text-sm   mt-1 text-right">
-                    {{ transaction.date | date:'MMM d, yyyy, h:mm:ss a' }}
-                  </div> -->
+        
                                         <div class="mt-2">
                                             <div class="text-green-600" *ngIf="transaction.notes">Comments: <span [innerHTML]="transaction.notes"></span></div>
                                             <div *ngIf="!transaction.notes">No comments in this update.</div>
@@ -116,6 +104,8 @@
                                     formControlName="action"
                                     [options]="transactionTypeOptions"
                                     optionLabel="label"
+                                    filterBy="label"
+                                      [filter]="true"
                                     optionValue="value"
                                     placeholder="Select transaction type"
                                     styleClass="w-full"
@@ -151,13 +141,14 @@
                                         placeholder="Select type"
                                         styleClass="w-full"
                                         [showClear]="true"
+                                        filterBy="label"
+                                          [filter]="true"
                                         (onChange)="onAssignmentTypeChange($event)"
                                         [class.ng-invalid]="isFieldInvalid('assignedToType')"
                                     ></p-select>
                                     <small *ngIf="isFieldInvalid('assignedToType')" class="text-red-500 text-xs mt-1">Required</small>
                                 </div>
 
-                                <!-- Assigned To ID -->
                                 @if (this.transactionForm.get('assignedToType').value && textInputAssignTypeValues.includes(this.transactionForm.get('assignedToType').value)) {
                                     @if (this.transactionForm.get('action').value == 'RETURN' || this.transactionForm.get('action').value == 'TRANSFER') {
                                         <div class="col-span-1">
@@ -185,6 +176,8 @@
                                                 placeholder="select From"
                                                 styleClass="w-full"
                                                 [showClear]="true"
+                                                filterBy="label"
+                                                  [filter]="true"
                                                 [class.ng-invalid]="isFieldInvalid('returnFromId')"
                                             ></p-select>
                                         </div>
@@ -202,6 +195,8 @@
                                                 styleClass="w-full"
                                                 [showClear]="true"
                                                 [class.ng-invalid]="isFieldInvalid('assignedToId')"
+                                                filterBy="label"
+                                                [filter]="true"
                                             ></p-select>
                                         </div>
                                     }

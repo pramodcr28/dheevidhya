@@ -8,6 +8,7 @@ import { EditorModule } from 'primeng/editor';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
+import { MultiSelect } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
@@ -20,8 +21,10 @@ import { CommonService } from '../../../core/services/common.service';
 import { DepartmentConfigService } from '../../../core/services/department-config.service';
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { InventoryItem, InventoryTransaction } from '../../models/inventory.model';
+import { IStudent } from '../../models/student.model';
 import { ITenantUser } from '../../models/user.model';
 import { InventoryService } from '../../service/inventory.service';
+import { StudentServiceService } from '../../service/student-service.service';
 import { UserService } from '../../service/user.service';
 
 @Component({
@@ -45,7 +48,8 @@ import { UserService } from '../../service/user.service';
         FormsModule,
         EditorModule,
         TimelineModule,
-        TabsModule
+        TabsModule,
+        MultiSelect
     ],
     templateUrl: './add-transaction.component.html',
     styles: []
@@ -66,6 +70,7 @@ export class AddTransactionComponent implements OnInit {
     textInputAssignTypeValues = ['VENDOR', 'STORAGE_LOCATION', 'OTHER'];
     actionTypeValuesForAssignTo = ['REMOVED', 'PURCHASE', 'LOST', 'FOUND'];
     targets = [];
+    studentService = inject(StudentServiceService);
     transactionTypeOptions = [
         { label: 'Issue Item', value: 'ISSUE', description: 'Issue item to someone' },
         { label: 'Purchase Record', value: 'PURCHASE', description: 'Record new purchase' },
@@ -214,22 +219,32 @@ export class AddTransactionComponent implements OnInit {
         return placeholderMap[type] || 'Enter target';
     }
 
+    buildFilters(): Record<string, any> {
+        const criteria: Record<string, any> = {};
+
+        criteria['branchId.equals'] = this.commonService.branch?.id;
+        criteria['latestAcademicYear.status.equals'] = 'ACTIVE';
+        return criteria;
+    }
+
     onAssignmentTypeChange(event: any) {
         this.targets = [];
         this.isLoadingTargets = true;
 
         switch (event.value) {
             case 'STUDENT':
-                this.userService
-                    .userSearch(0, 1000, 'id', 'ASC', {
-                        'branch_id.eq': this.commonService.branch?.id,
-                        'authorities.name.equals': 'STUDENT',
-                        'status.equals': 'ACTIVE'
+                this.studentService
+                    .search({
+                        page: 0,
+                        size: 1000,
+                        sortBy: 'createdDate',
+                        sortDirection: 'ASC',
+                        filters: this.buildFilters()
                     })
                     .subscribe({
                         next: (res: any) => {
-                            this.targets = (res.content || []).map((user: ITenantUser) => ({
-                                label: `${user.firstName} ${user.lastName} (${user.login})`,
+                            this.targets = (res.content || []).map((user: IStudent) => ({
+                                label: `${user.studentDetails.studentName.firstName} ${user.studentDetails.studentName.lastName} (${user.satsNumber || user.login})`,
                                 value: user.id
                             }));
                             this.isLoadingTargets = false;

@@ -254,13 +254,6 @@ export class AssignmentManagementComponent implements OnInit {
                         });
                     }
                 });
-                // this.assignmentSubmissions = [];
-                // console.log(JSON.stringify(this.students()));
-                // this.students().forEach((stu) => {
-                //     this.assignmentSubmissions.push();
-                // });
-                // this.assignmentSubmissions = response?.content;
-                // console.log(JSON.stringify(this.assignmentSubmissions));
             }
         });
     }

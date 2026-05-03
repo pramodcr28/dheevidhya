@@ -21,7 +21,9 @@ import { DepartmentConfigService } from '../../../core/services/department-confi
 import { ApiLoaderService } from '../../../core/services/loaderService';
 import { ExamTypeLabels } from '../../models/examination.model';
 import { CategoryType, Notice, Priority, Status, TargetType } from '../../models/notification.model';
+import { IStudent } from '../../models/student.model';
 import { ITenantUser } from '../../models/user.model';
+import { StudentServiceService } from '../../service/student-service.service';
 import { UserService } from '../../service/user.service';
 
 export interface NotificationChannelOption {
@@ -209,7 +211,7 @@ export class NoticeAddComponent implements OnInit {
     studentOptions: any[] = [];
     staffOptions: any[] = [];
     roleOptions: any[] = [];
-
+    studentService = inject(StudentServiceService);
     constructor(private fb: FormBuilder) {}
 
     ngOnInit(): void {
@@ -291,21 +293,47 @@ export class NoticeAddComponent implements OnInit {
         }
     }
 
+    buildFilters(): Record<string, any> {
+        const criteria: Record<string, any> = {};
+        criteria['branchId.equals'] = this.commonService.branch?.id;
+        criteria['latestAcademicYear.status.equals'] = 'ACTIVE';
+        return criteria;
+    }
+
     loadStudents(): void {
-        const filterParams = {
-            'branch_id.eq': this.commonService.branch?.id,
-            'authorities.name.equals': 'STUDENT',
-            'status.equals': 'ACTIVE'
-        };
-        this.userService.userSearch(0, 1000, 'id', 'ASC', filterParams).subscribe({
-            next: (res: any) => {
-                this.studentOptions = (res.content || []).map((student: ITenantUser) => ({
-                    label: `${student.firstName} ${student.lastName} (${student.login})`,
-                    value: student.id
-                }));
-            },
-            error: (error) => console.error('Failed to load students', error)
-        });
+        this.studentService
+            .search({
+                page: 0,
+                size: 1000,
+                sortBy: 'createdDate',
+                sortDirection: 'ASC',
+                filters: this.buildFilters()
+            })
+            .subscribe({
+                next: (res: any) => {
+                    this.studentOptions = (res.content || []).map((user: IStudent) => ({
+                        label: `${user.studentDetails.studentName.firstName} ${user.studentDetails.studentName.lastName} (${user.satsNumber || user.login})`,
+                        value: user.id
+                    }));
+                },
+                error: (err) => {
+                    console.error('Failed to load students', err);
+                }
+            });
+        // const filterParams = {
+        //     'branch_id.eq': this.commonService.branch?.id,
+        //     'authorities.name.equals': 'STUDENT',
+        //     'status.equals': 'ACTIVE'
+        // };
+        // this.userService.userSearch(0, 1000, 'id', 'ASC', filterParams).subscribe({
+        //     next: (res: any) => {
+        //         this.studentOptions = (res.content || []).map((student: ITenantUser) => ({
+        //             label: `${student.firstName} ${student.lastName} (${student.login})`,
+        //             value: student.id
+        //         }));
+        //     },
+        //     error: (error) => console.error('Failed to load students', error)
+        // });
     }
 
     loadStaff(): void {

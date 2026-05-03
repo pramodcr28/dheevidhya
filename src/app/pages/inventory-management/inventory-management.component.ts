@@ -54,7 +54,6 @@ export class AssetsManagementComponent implements OnInit {
     inventoryService = inject(InventoryService);
     loader = inject(ApiLoaderService);
     messageService = inject(MessageService);
-    // Options for dropdowns
     statusOptions = [
         { label: 'Available', value: 'AVAILABLE' },
         { label: 'Reserved', value: 'RESERVED' },
@@ -94,7 +93,6 @@ export class AssetsManagementComponent implements OnInit {
         });
     }
 
-    // Open dialog for adding new item
     openAddDialog() {
         this.isEditMode = false;
         this.editingItemId = null;
@@ -102,7 +100,6 @@ export class AssetsManagementComponent implements OnInit {
         this.showAddItemDialog = true;
     }
 
-    // Open dialog for editing existing item
     editItem(item: InventoryItem): void {
         this.isEditMode = true;
         this.editingItemId = item.id;
@@ -125,7 +122,6 @@ export class AssetsManagementComponent implements OnInit {
         };
     }
 
-    /** ✅ Status Tag Colors */
     getStatusSeverity(status: string): any {
         const severityMap: { [key: string]: string } = {
             AVAILABLE: 'success',
