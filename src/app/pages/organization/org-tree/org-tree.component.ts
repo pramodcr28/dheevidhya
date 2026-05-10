@@ -33,8 +33,42 @@ export interface CustomTreeNode extends TreeNode {
     imports: [OrganizationChartModule, CommonModule, ToastModule, SpeedDialModule, ButtonModule, DialogModule, FormsModule, InputTextModule, TextareaModule, InputIconModule, IconFieldModule, ConfirmDialogModule, SelectModule, MessageModule],
     templateUrl: './org-tree.component.html',
     styles: `
+        /* Ensure the host element itself never clips its scrollable child */
+        :host {
+            display: block;
+            overflow: visible !important;
+            height: 100%;
+        }
+
+        /*
+         * If a parent card/layout wraps this component with overflow:hidden,
+         * the inner scroll container can't show its scrollbar.
+         * These rules restore correct overflow on the host boundary.
+         */
+        :host-context(.p-card-content),
+        :host-context(.card-body),
+        :host-context([class*='card']) {
+            overflow: visible !important;
+        }
+
         .p-button-icon .pi .pi-upload {
             font-size: 0.05rem !important;
+        }
+
+        /* Always show horizontal scrollbar track so users know it's scrollable */
+        .org-scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .org-scroll-container::-webkit-scrollbar-track {
+            background: #f1f5f971;
+            border-radius: 4px;
+        }
+        .org-scroll-container::-webkit-scrollbar-thumb {
+            background: #ff7728;
+            border-radius: 4px;
+        }
+        .org-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #fc6900;
         }
     `,
     providers: [MessageService]

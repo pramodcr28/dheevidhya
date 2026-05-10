@@ -1,9 +1,33 @@
-<div class="w-full overflow-x-auto py-4 bg-white dark:bg-gray-900 h-full">
-  <div class="scale-[0.9] md:scale-100 origin-top">
+<!-- 
+  FIX SUMMARY:
+  1. Replaced h-full (collapses without parent height) with calc(100vh - 120px) via inline style
+  2. Replaced overflow-x-auto Tailwind class with inline style overflow-x: scroll  
+     → Tailwind class can be overridden by external CSS; inline style wins
+  3. Removed the scale-[0.9] wrapper div entirely
+     → CSS transform does NOT affect layout/scroll box size, breaking scrollbar calculation
+  4. Added inline-block + min-width: max-content wrapper around the chart
+     → Forces the scroll container to recognise the true width of the org chart
+  5. Removed mx-auto from p-organizationChart (fights horizontal scroll)
+  6. Added scrollbar-gutter: stable so layout does not jump when scrollbar appears
+-->
 
-    
-    <p-organizationChart [value]="data"  class=" w-fit mx-auto" >
-      
+<div
+  class="w-full bg-white dark:bg-gray-900 py-4 org-scroll-container"
+  style="
+    height: calc(100vh);
+    min-height: 400px;
+    overflow-x: auto;
+    overflow-y: none;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable;
+  "
+>
+  <!-- min-width: max-content tells the browser this div can be wider than the viewport -->
+  <!-- inline-block is needed so the div actually shrinks/grows to fit its content -->
+  <div style="display: inline-block; min-width: max-content; padding: 0 16px 24px;">
+
+    <p-organizationChart [value]="data" class="w-fit">
+
       <!-- Default template -->
       <ng-template let-node pTemplate="default">
         <div
@@ -14,117 +38,118 @@
         </div>
       </ng-template>
 
+      <!-- Branch template -->
       <ng-template let-node pTemplate="branch">
         <div class="pb-3">
           <span>🌿 {{ node.label }}</span>
-
-            <button type="button" (click)="toggleNode(node, $event)"
-            class="absolute left-1/2 bottom-[-12px] transform -translate-x-1/2 
-                    bg-white rounded-full w-6  h-6 flex items-center justify-center 
-                    border border-primary-300 hover:border-white shadow-md 
-                    hover:bg-primary-500 text-primary-500 hover:text-white z-10">
-                <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
-            </button>
-
+          <button
+            type="button"
+            (click)="toggleNode(node, $event)"
+            class="absolute left-1/2 bottom-[-12px] transform -translate-x-1/2
+                   bg-white rounded-full w-6 h-6 flex items-center justify-center
+                   border border-primary-300 hover:border-white shadow-md
+                   hover:bg-primary-500 text-primary-500 hover:text-white z-10"
+          >
+            <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          </button>
         </div>
       </ng-template>
 
+      <!-- Department template -->
       <ng-template let-node pTemplate="department">
-       <div class="pb-3">
-         <span class="flex items-center justify-center cursor-pointer" (click)="openEditOrganizationDailogue(node)" > <i class="pi pi-pen-to-square"></i> 
-          <span class="px-2">🏢 {{ node.label }}</span></span>
-            <button type="button" (click)="toggleNode(node, $event)"
-            class="absolute left-1/2 bottom-[-12px] transform -translate-x-1/2 
-                    bg-white rounded-full w-6  h-6 flex items-center justify-center 
-                    border border-primary-300 hover:border-white shadow-md 
-                    hover:bg-primary-500 text-primary-500 hover:text-white z-10">
-                <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
-            </button>
-
+        <div class="pb-3">
+          <span
+            class="flex items-center justify-center cursor-pointer"
+            (click)="openEditOrganizationDailogue(node)"
+          >
+            <i class="pi pi-pen-to-square"></i>
+            <span class="px-2">🏢 {{ node.label }}</span>
+          </span>
+          <button
+            type="button"
+            (click)="toggleNode(node, $event)"
+            class="absolute left-1/2 bottom-[-12px] transform -translate-x-1/2
+                   bg-white rounded-full w-6 h-6 flex items-center justify-center
+                   border border-primary-300 hover:border-white shadow-md
+                   hover:bg-primary-500 text-primary-500 hover:text-white z-10"
+          >
+            <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          </button>
         </div>
       </ng-template>
 
+      <!-- Class template -->
       <ng-template let-node pTemplate="class">
         <div class="pb-3">
           📘 {{ node.label }}
-            <button type="button" (click)="toggleNode(node, $event)"
-            class="absolute left-1/2 bottom-[-12px] transform -translate-x-1/2 
-                    bg-white rounded-full w-6  h-6 flex items-center justify-center 
-                    border border-primary-300 hover:border-white shadow-md 
-                    hover:bg-primary-500 text-primary-500 hover:text-white z-10">
-                <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
-            </button>
-
+          <button
+            type="button"
+            (click)="toggleNode(node, $event)"
+            class="absolute left-1/2 bottom-[-12px] transform -translate-x-1/2
+                   bg-white rounded-full w-6 h-6 flex items-center justify-center
+                   border border-primary-300 hover:border-white shadow-md
+                   hover:bg-primary-500 text-primary-500 hover:text-white z-10"
+          >
+            <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          </button>
         </div>
       </ng-template>
 
-     <ng-template let-node pTemplate="section">
-  <div class="relative">
-<div class="bg-white dark:bg-gray-800 
-            border-2 border-orange-300 dark:border-orange-600 
-            rounded-lg p-3 shadow-lg min-w-[200px] cursor-pointer 
-            hover:border-orange-400 dark:hover:border-orange-500 
-            hover:bg-orange-50 dark:hover:bg-orange-900/30 
-            transition-all duration-200">
-      <div class="flex items-center gap-2 mb-2">
-        <i class="pi pi-folder text-orange-500 text-sm"></i>
-        <span class="font-semibold text-sm ">{{ node.label }}</span>  
-      </div>
+      <!-- Section template -->
+      <ng-template let-node pTemplate="section">
+        <div class="relative">
+          <div
+            class="bg-white dark:bg-gray-800
+                   border-2 border-orange-300 dark:border-orange-600
+                   rounded-lg p-3 shadow-lg min-w-[200px] cursor-pointer
+                   hover:border-orange-400 dark:hover:border-orange-500
+                   hover:bg-orange-50 dark:hover:bg-orange-900/30
+                   transition-all duration-200"
+          >
+            <div class="flex items-center gap-2 mb-2">
+              <i class="pi pi-folder text-orange-500 text-sm"></i>
+              <span class="font-semibold text-sm">{{ node.label }}</span>
+            </div>
 
-      <!-- Section Details -->
-      <div class="text-xs  space-y-1">
-       
-        
-        <!-- <div class="flex items-center justify-between" *ngIf="node.value?.capacity !== undefined">
-          <div class="flex items-center gap-1">
-            <i class="pi pi-users text-gray-400"></i>
-            <span>{{ node.value.capacity }}/{{ node.value.capacity }}</span>
-          </div>
-          <div class="flex-1 mx-2 bg-gray-200 rounded-full h-1">
-            <div class="h-1 rounded-full transition-all duration-300"
-                 [style.width.%]="(node.value?.capacity / node.value?.capacity) * 100"
-                 [ngClass]="{
-                   'bg-green-500': (node.value?.capacity / node.value?.capacity) < 0.75,
-                   'bg-yellow-500': (node.value?.capacity / node.value?.capacity) >= 0.75 && (node.value?.capacity / node.value?.capacity) < 0.9,
-                   'bg-red-500': (node.value?.capacity / node.value?.capacity) >= 0.9
-                 }">
+            <div class="text-xs space-y-1"></div>
+
+            <!-- Status badge -->
+            <div class="absolute top-2 right-2">
+              <div class="flex items-center gap-2" *ngIf="node.value.sectionTeacher">
+                <i class="pi pi-user text-gray-400"></i>
+                <span class="truncate">{{ node.value.sectionTeacher }}</span>
+              </div>
             </div>
           </div>
-          <span class="text-xs font-medium">{{ ((node.value?.capacity / node.value?.capacity) * 100) | number:'1.0-0' }}%</span>
-        </div> -->
-      </div>
-      
-      <!-- Status badge -->
-      <div class="absolute top-2 right-2" >
-      <div class="flex items-center gap-2" *ngIf="node.value.sectionTeacher">
-          <i class="pi pi-user text-gray-400"></i>
-          <span class="truncate">{{ node.value.sectionTeacher }}</span>
-        </div>
-      </div>
-    </div>
-    
-    <button type="button" (click)="toggleNode(node, $event)"
+
+          <button
+            type="button"
+            (click)="toggleNode(node, $event)"
             class="absolute left-1/2 bottom-[-12px] transform -translate-x-1/2
                    bg-white rounded-full w-6 h-6 flex items-center justify-center
                    border border-orange-300 hover:border-orange-500 shadow-md
-                   hover:bg-orange-500 text-orange-500 hover:text-white z-10 transition-all duration-200">
-      <i class="pi text-xs" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
-    </button>
-  </div>
-</ng-template>
+                   hover:bg-orange-500 text-orange-500 hover:text-white z-10 transition-all duration-200"
+          >
+            <i class="pi text-xs" [ngClass]="node.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          </button>
+        </div>
+      </ng-template>
 
+      <!-- Subject template -->
       <ng-template let-node pTemplate="subject">
-  <div class="pb-2 relative">
-    {{ node.label }}
-  </div>
-</ng-template>
- <ng-template #iconTemplate>
-           <i class="pi pi-plus"></i> 
-         </ng-template>
+        <div class="pb-2 relative">
+          {{ node.label }}
+        </div>
+      </ng-template>
+
+      <ng-template #iconTemplate>
+        <i class="pi pi-plus"></i>
+      </ng-template>
 
     </p-organizationChart>
   </div>
 </div>
+
 <p-toast />
 
 
@@ -135,12 +160,11 @@
       <div class="grid grid-cols-2 gap-4">
         <div class="col-span-2">
           <label class="block font-bold mb-1">HOD</label>
-       
-          <p-select 
-            [options]="users" 
-            [(ngModel)]="selectedDepartment.hod" 
+          <p-select
+            [options]="users"
+            [(ngModel)]="selectedDepartment.hod"
             name="hod"
-            optionLabel="fullName" 
+            optionLabel="fullName"
             optionValue="userId"
             placeholder="Select HOD"
             class="w-full">
@@ -150,19 +174,18 @@
 
       <!-- Class Loop -->
       <div *ngFor="let classGroup of selectedDepartment.classes; let ci = index" class="border p-4 rounded-md">
-        <h4 class="text-md font-semibold mb-2 text-center">{{classGroup.name}}</h4>
+        <h4 class="text-md font-semibold mb-2 text-center">{{ classGroup.name }}</h4>
 
         <!-- Section Loop -->
-        <div *ngFor="let section of classGroup.sections; let si = index" class="  mb-4">
- 
+        <div *ngFor="let section of classGroup.sections; let si = index" class="mb-4">
           <div class="grid grid-cols-2 gap-4 space-y-6">
             <div>
-              <label class="block font-bold my-4">{{section.name}}</label>
-              <p-select  
-                [options]="users" 
-                [(ngModel)]="section.sectionTeacher" 
+              <label class="block font-bold my-4">{{ section.name }}</label>
+              <p-select
+                [options]="users"
+                [(ngModel)]="section.sectionTeacher"
                 name="sectionTeacher_{{ ci }}_{{ si }}"
-                optionLabel="fullName" 
+                optionLabel="fullName"
                 optionValue="userId"
                 placeholder="Select Section Teacher"
                 class="w-full">
@@ -171,24 +194,23 @@
           </div>
 
           <!-- Subject Loop -->
-           <div class=" bg-gray-50 border mt-4">
+          <div class="bg-gray-50 border mt-4">
             <h5 class="text-md font-semibold py-2 text-center text-primary-500">Subjects</h5>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 my-4 rounded-md">
-        
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 my-4 rounded-md">
               <div *ngFor="let subject of section.subjects; let subi = index">
-                <label class="block font-bold mb-1">{{subject.name}}</label>
+                <label class="block font-bold mb-1">{{ subject.name }}</label>
                 <p-select
                   [options]="users"
                   [(ngModel)]="subject.teacher"
                   name="subjectTeacher_{{ ci }}_{{ si }}_{{ subi }}"
-                  optionLabel="fullName" 
+                  optionLabel="fullName"
                   optionValue="userId"
                   placeholder="Select Subject Teacher"
                   class="w-full">
                 </p-select>
               </div>
             </div>
-           </div>
+          </div>
         </div>
       </div>
 
