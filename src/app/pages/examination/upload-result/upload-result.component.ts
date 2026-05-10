@@ -79,7 +79,7 @@ export class UploadResultComponent implements OnInit {
         this.store.select(getDepartmentById(this.selectedExam.departmentId)).subscribe((dept: IDepartmentConfig) => {
             this.sections = [];
 
-            dept.department.classes.forEach((clss) => {
+            dept?.department?.classes.forEach((clss) => {
                 clss.sections.forEach((sec: any) => {
                     const sectionSubjects = [];
                     let hasExam = false;

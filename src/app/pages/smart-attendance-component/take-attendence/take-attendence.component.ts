@@ -174,9 +174,9 @@ export class TakeAttendenceComponent implements OnInit {
             slotsByDay[dayIndex].push(slotWithDate);
         });
 
-        for (let i = 1; i <= 5; i++) {
+        for (let i = 0; i <= 6; i++) {
             const date = new Date(this.selectedWeekStart);
-            date.setDate(this.selectedWeekStart.getDate() + i - 1);
+            date.setDate(this.selectedWeekStart.getDate() + i);
 
             this.weekSchedule.push({
                 dayName: this.dayNames[i],
