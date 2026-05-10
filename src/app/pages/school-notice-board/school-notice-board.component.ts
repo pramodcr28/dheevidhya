@@ -156,8 +156,53 @@ export class SchoolNoticeBoardComponent implements OnInit {
             if (authority != 'STUDENT' && this.commonService.currentUser) {
                 const userInfo = this.commonService.currentUser;
                 let targetIds = [];
+                // this.commonService.currentUser.departments.forEach((d) => {
+                //     targetIds.push(userInfo.academicYear + ':' + d.id);
+                //     debugger;
+                //     console.log(d.department);
+                // });
+
                 this.commonService.currentUser.departments.forEach((d) => {
                     targetIds.push(userInfo.academicYear + ':' + d.id);
+                    const dept = d.department;
+                    if (!dept?.classes) {
+                        return;
+                    }
+
+                    dept.classes.forEach((cls) => {
+                        if (!cls.sections) {
+                            return;
+                        }
+
+                        cls.sections.forEach((sec) => {
+                            // Section Teacher
+                            if (sec.sectionTeacher === userInfo.userId) {
+                                targetIds.push(`${userInfo.academicYear}:${d.id}:${cls.id}:${sec.id}`);
+
+                                console.log('Section Teacher', {
+                                    department: dept.name,
+                                    class: cls.name,
+                                    section: sec.name
+                                });
+                            }
+
+                            // Subject Teacher
+                            if (sec.subjects) {
+                                sec.subjects.forEach((sub) => {
+                                    if (sub.teacher === userInfo.userId) {
+                                        targetIds.push(`${userInfo.academicYear}:${d.id}:${cls.id}:${sec.id}`);
+
+                                        console.log('Subject Teacher', {
+                                            subject: sub.name,
+                                            department: dept.name,
+                                            class: cls.name,
+                                            section: sec.name
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    });
                 });
 
                 filters['targetAudience'] = {

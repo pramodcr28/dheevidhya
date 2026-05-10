@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ContactLead, SwitchAcademicYearDTO } from '../model/account.model';
 import { Account } from '../model/auth';
@@ -26,38 +26,79 @@ export class AccountService {
         const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
         return JSON.parse(decoded);
     }
-
     identity(): Observable<Account | null> {
         return this.store
-            .select((state) => {
-                return state?.userProfile?.token;
-            })
+            .select((state) => state?.userProfile?.token)
             .pipe(
-                map((token) => {
+                filter((token): token is string => !!token),
+                take(1),
+                switchMap((token) => {
                     const claims = this.getAccountClaims(token);
 
-                    if (claims) {
-                        this.http.get<any>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'config')).subscribe((result) => {
+                    if (!claims) {
+                        return of(null);
+                    }
+
+                    return this.http.get<any>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'config')).pipe(
+                        map((result) => {
                             let branch = null;
+
                             for (let department of result.departments) {
                                 branch = JSON.parse(JSON.stringify(department.branch));
                                 delete department.branch;
                             }
-                            // this.store.dispatch(addBranch({ branch: branch }));
+
                             this.store.dispatch(loadUserProfile({ userConfig: result }));
-                            this.store.dispatch(addAuthorities({ authorities: claims.authorities || [] }));
-                        });
-                        return {
-                            ...claims,
-                            login: claims.username,
-                            langKey: 'en'
-                        } as Account;
-                    }
-                    return null;
+
+                            this.store.dispatch(
+                                addAuthorities({
+                                    authorities: claims.authorities || []
+                                })
+                            );
+
+                            return {
+                                ...claims,
+                                login: claims.username,
+                                langKey: 'en'
+                            } as Account;
+                        })
+                    );
                 }),
-                shareReplay()
+
+                shareReplay(1)
             );
     }
+    // identity(): Observable<Account | null> {
+    //     return this.store
+    //         .select((state) => {
+    //             return state?.userProfile?.token;
+    //         })
+    //         .pipe(
+    //             map((token) => {
+    //                 const claims = this.getAccountClaims(token);
+
+    //                 if (claims) {
+    //                     this.http.get<any>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'config')).subscribe((result) => {
+    //                         let branch = null;
+    //                         for (let department of result.departments) {
+    //                             branch = JSON.parse(JSON.stringify(department.branch));
+    //                             delete department.branch;
+    //                         }
+    //                         // this.store.dispatch(addBranch({ branch: branch }));
+    //                         this.store.dispatch(loadUserProfile({ userConfig: result }));
+    //                         this.store.dispatch(addAuthorities({ authorities: claims.authorities || [] }));
+    //                     });
+    //                     return {
+    //                         ...claims,
+    //                         login: claims.username,
+    //                         langKey: 'en'
+    //                     } as Account;
+    //                 }
+    //                 return null;
+    //             }),
+    //             shareReplay()
+    //         );
+    // }
     getAcademicYears(): Observable<string[]> {
         return this.http.get<string[]>(this.applicationConfigService.getEndpointFor(environment.ServerUrl + environment.UAA_BASE_URL + 'config/academic-years'));
     }

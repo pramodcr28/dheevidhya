@@ -34,7 +34,6 @@ export class PushNotificationService {
                 return;
             }
         }
-
         this.registerListeners();
     }
 
@@ -68,7 +67,7 @@ export class PushNotificationService {
             const data = action.notification.data;
 
             // ✅ Fix: Use absolute path and dynamic route from data
-            const targetRoute = data?.route ?? '/notice-board';
+            const targetRoute = data?.route ?? '/home/notice-board';
             this.router.navigate([targetRoute]);
         });
 

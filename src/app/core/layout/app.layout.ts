@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { Capacitor } from '@capacitor/core';
 import { ToastModule } from 'primeng/toast';
 import { filter, Subscription } from 'rxjs';
 import { CommonService } from '../services/common.service';
@@ -63,9 +62,9 @@ export class AppLayout implements OnInit {
     }
 
     async ngOnInit(): Promise<void> {
-        if (Capacitor.isNativePlatform()) {
-            await this.pushService.initPush();
-        }
+        // if (Capacitor.isNativePlatform()) {
+        //     await this.pushService.initPush();
+        // }
     }
 
     isOutsideClicked(event: MouseEvent) {

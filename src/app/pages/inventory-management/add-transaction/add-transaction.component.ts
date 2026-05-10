@@ -8,7 +8,6 @@ import { EditorModule } from 'primeng/editor';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
-import { MultiSelect } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
@@ -48,8 +47,8 @@ import { UserService } from '../../service/user.service';
         FormsModule,
         EditorModule,
         TimelineModule,
-        TabsModule,
-        MultiSelect
+        TabsModule
+        // MultiSelect
     ],
     templateUrl: './add-transaction.component.html',
     styles: []
