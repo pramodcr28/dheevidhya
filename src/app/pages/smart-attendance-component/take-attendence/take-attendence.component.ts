@@ -71,7 +71,11 @@ export class TakeAttendenceComponent implements OnInit {
     selectedWeekStart: Date = new Date();
     timeTableService = inject(TimeTableService);
     currentAttendence: AttendanceException[] = [];
-    today: Date = new Date();
+    today: Date = (() => {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        return d;
+    })();
     takeAttandence = false;
     todayAttendence: AttendanceRequest;
     dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -79,7 +83,6 @@ export class TakeAttendenceComponent implements OnInit {
     protected readonly UserStatus = UserStatus;
 
     getUserStatusStyle(status: any): { banner: string; icon: string; label: string } {
-        console.log(status);
         switch (status) {
             case 'EXITED':
                 return {
@@ -114,7 +117,7 @@ export class TakeAttendenceComponent implements OnInit {
     }
 
     loadInstructorTimetable() {
-        let request = {
+        const request = {
             academicYear: this.commonService.currentUser.academicYear,
             instructorIds: [this.commonService.currentUser.userId],
             departmentId: null,
@@ -126,28 +129,36 @@ export class TakeAttendenceComponent implements OnInit {
         });
     }
 
+    private getWeekSunday(fromDate: Date): Date {
+        const d = new Date(fromDate);
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() - d.getDay());
+        return d;
+    }
+
     setCurrentWeek() {
         const today = new Date();
-        const dayOfWeek = today.getDay();
-        const monday = new Date(today);
-        monday.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
-        monday.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+        const sunday = this.getWeekSunday(today);
+        const monday = new Date(sunday);
+        monday.setDate(sunday.getDate() + 1);
         this.selectedWeekStart = monday;
         this.generateWeekSchedule();
     }
 
     isCurrentWeek(): boolean {
         const today = new Date();
-        const dayOfWeek = today.getDay();
-        const monday = new Date(today);
-        monday.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
-        monday.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+        const sunday = this.getWeekSunday(today);
+        const monday = new Date(sunday);
+        monday.setDate(sunday.getDate() + 1);
         return this.selectedWeekStart.getTime() === monday.getTime();
     }
 
     changeWeek(direction: number) {
         const newWeekStart = new Date(this.selectedWeekStart);
         newWeekStart.setDate(newWeekStart.getDate() + direction * 7);
+        newWeekStart.setHours(0, 0, 0, 0);
         this.selectedWeekStart = newWeekStart;
         this.generateWeekSchedule();
     }
@@ -156,10 +167,15 @@ export class TakeAttendenceComponent implements OnInit {
         this.weekSchedule = [];
         const slotsByDay: { [key: number]: SlotWithDate[] } = {};
 
+        const weekSunday = new Date(this.selectedWeekStart);
+        weekSunday.setDate(this.selectedWeekStart.getDate() - 1);
+        weekSunday.setHours(0, 0, 0, 0);
+
         this.instructorTimetable.forEach((slot) => {
             const dayIndex = parseInt(slot.dayIndex);
-            const slotDate = new Date(this.selectedWeekStart);
-            slotDate.setDate(this.selectedWeekStart.getDate() + dayIndex - 1);
+            const slotDate = new Date(weekSunday);
+            slotDate.setDate(weekSunday.getDate() + dayIndex);
+            slotDate.setHours(0, 0, 0, 0);
 
             const slotWithDate: SlotWithDate = {
                 ...slot,
@@ -168,15 +184,14 @@ export class TakeAttendenceComponent implements OnInit {
                 isToday: this.isDateToday(slotDate)
             };
 
-            if (!slotsByDay[dayIndex]) {
-                slotsByDay[dayIndex] = [];
-            }
+            if (!slotsByDay[dayIndex]) slotsByDay[dayIndex] = [];
             slotsByDay[dayIndex].push(slotWithDate);
         });
 
         for (let i = 0; i <= 6; i++) {
-            const date = new Date(this.selectedWeekStart);
-            date.setDate(this.selectedWeekStart.getDate() + i);
+            const date = new Date(weekSunday);
+            date.setDate(weekSunday.getDate() + i);
+            date.setHours(0, 0, 0, 0);
 
             this.weekSchedule.push({
                 dayName: this.dayNames[i],
@@ -199,14 +214,15 @@ export class TakeAttendenceComponent implements OnInit {
     }
 
     isDateTimePast(date: Date, endTime: string): boolean {
+        const now = new Date();
         const slotDateTime = new Date(date);
         const [hours, minutes] = endTime.split(':');
-        slotDateTime.setHours(parseInt(hours), parseInt(minutes));
-        return slotDateTime < this.today;
+        slotDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        return slotDateTime < now;
     }
 
     isDateToday(date: Date): boolean {
-        return formatDate(date, this.commonService.dateFormate, 'en-US') === formatDate(this.today, this.commonService.dateFormate, 'en-US');
+        return date.getTime() === this.today.getTime();
     }
 
     canSelectSlot(slot: SlotWithDate): boolean {
@@ -250,10 +266,7 @@ export class TakeAttendenceComponent implements OnInit {
                             res.content?.forEach((student: IProfileConfig) => {
                                 let status: AttendanceStatus = 'PRESENT';
                                 let exception = exceptions.find((e) => e.studentId === student.userId);
-
-                                if (exception) {
-                                    status = exception.status;
-                                }
+                                if (exception) status = exception.status;
 
                                 this.currentAttendence.push({
                                     studentName: student.fullName,
@@ -262,7 +275,8 @@ export class TakeAttendenceComponent implements OnInit {
                                     _studentStatus: student.status
                                 });
                             });
-                            if (res.content && res.content.length == 0) {
+
+                            if (res.content && res.content.length === 0) {
                                 this.messageService.add({
                                     severity: 'error',
                                     summary: 'Error',
@@ -287,15 +301,11 @@ export class TakeAttendenceComponent implements OnInit {
 
     saveAttendance() {
         if (!this.selectedSlot) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Please select a timetable slot'
-            });
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please select a timetable slot' });
             return;
         }
 
-        let attendanceRecord: AttendanceRequest = {
+        const attendanceRecord: AttendanceRequest = {
             ...this.todayAttendence,
             academicYear: this.commonService.currentUser.academicYear,
             semester: 'Fall',
@@ -311,26 +321,17 @@ export class TakeAttendenceComponent implements OnInit {
             startTime: this.selectedSlot.startTime,
             endTime: this.selectedSlot.endTime,
             period: 0,
-            exceptions: this.currentAttendence.filter((attendence) => attendence.status != 'PRESENT')
+            exceptions: this.currentAttendence.filter((a) => a.status !== 'PRESENT')
         };
 
         this.attendenceService.create(attendanceRecord).subscribe({
-            next: (res) => {
-                this.messageService.add({
-                    text: 'Attendance saved successfully!',
-                    summary: 'Success',
-                    severity: 'success',
-                    closeIcon: 'close'
-                });
+            next: () => {
+                this.messageService.add({ text: 'Attendance saved successfully!', summary: 'Success', severity: 'success', closeIcon: 'close' });
                 this.takeAttandence = true;
                 this.checkAndLoadAttendance();
             },
-            error: (err) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to save attendance'
-                });
+            error: () => {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save attendance' });
             }
         });
     }
@@ -350,13 +351,12 @@ export class TakeAttendenceComponent implements OnInit {
 
     getWeekRange(): string {
         const weekEnd = new Date(this.selectedWeekStart);
-        weekEnd.setDate(this.selectedWeekStart.getDate() + 4);
+        weekEnd.setDate(this.selectedWeekStart.getDate() + 5);
         return `${formatDate(this.selectedWeekStart, 'MMM dd', 'en-US')} - ${formatDate(weekEnd, 'MMM dd, yyyy', 'en-US')}`;
     }
 
     getSelectedSlotDisplay(): string {
         if (!this.selectedSlot) return 'Select a slot';
-
         return `${this.dayNames[parseInt(this.selectedSlot.dayIndex)]} (${formatDate(this.selectedSlot.displayDate, 'MMM dd', 'en-US')}) - ${this.selectedSlot.className.replace(/_/g, ' ')} ${this.selectedSlot.sectionName.replace(/_/g, ' ')} - ${this.selectedSlot.subjectName} (${this.selectedSlot.startTime}-${this.selectedSlot.endTime})`;
     }
 }

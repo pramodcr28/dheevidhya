@@ -25,15 +25,12 @@ export interface StudentBasicExcelRow {
 export interface StudentSatsExcelRow extends StudentBasicExcelRow {
     stdFirstNameKn?: string;
     stdLastNameKn?: string;
-
     fatherFirstNameKn?: string;
     fatherLastNameKn?: string;
     fatherAadhaar?: string;
-
     motherFirstNameKn?: string;
     motherLastNameKn?: string;
     motherAadhaar?: string;
-
     aadhaarNumber?: string;
     religion?: string;
     nationality?: string;
@@ -43,17 +40,14 @@ export interface StudentSatsExcelRow extends StudentBasicExcelRow {
     bhagyalakshmiBondNo?: string;
     childWithSpecialNeed?: string;
     specialCategory?: string;
-
     studentCasteCertNo?: string;
     fatherCasteCertNo?: string;
     motherCasteCertNo?: string;
-
     typeOfStudent?: string;
     mediumOfInstruction?: string;
     motherTongue?: string;
     languageGroup?: string;
     admissionDate?: string;
-
     affiliation?: string;
     tcNo?: string;
     tcDate?: string;
@@ -62,13 +56,11 @@ export interface StudentSatsExcelRow extends StudentBasicExcelRow {
     prevSchoolAddress?: string;
     prevPinCode?: string;
     prevState?: string;
-
     perAddressLine?: string;
     perLocality?: string;
     perDistrict?: string;
     perState?: string;
     perPinCode?: string;
-
     bankName?: string;
     accountNumber?: string;
     ifscCode?: string;
@@ -78,7 +70,7 @@ export type StudentExcelRow = (StudentBasicExcelRow | StudentSatsExcelRow) & {
     rowNumber?: number;
     isValid?: boolean;
     errors?: string[];
-    errorMessage?: string; // server-side error after save
+    errorMessage?: string;
 };
 
 export type UploadMode = 'basic' | 'sats';

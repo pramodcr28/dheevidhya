@@ -70,9 +70,19 @@
         <div class="grid grid-cols-7 gap-2 min-w-[680px]">
             @for (day of weekSchedule; track day.dayIndex) {
                 <div>
-                    <div class="rounded-xl p-2 text-center mb-2" [ngClass]="day.date.toDateString() === today.toDateString() ? 'bg-gradient-to-br from-primary-500 to-primary-600 shadow-md' : 'bg-gray-100 dark:bg-gray-700'">
-                        <div class="text-[10px] font-bold uppercase tracking-wider" [ngClass]="day.date.toDateString() === today.toDateString() ? 'text-white' : ' '">{{ day.dayName }}</div>
-                        <div class="text-[10px] mt-0.5" [ngClass]="day.date.toDateString() === today.toDateString() ? 'text-white/80' : 'text-gray-400 '">{{ day.date | date: 'MMM dd' }}</div>
+                    <!-- Day header — uses .getTime() for reliable midnight comparison -->
+                    <div class="rounded-xl p-2 text-center mb-2"
+                        [ngClass]="day.date.getTime() === today.getTime()
+                            ? 'bg-gradient-to-br from-primary-500 to-primary-600 shadow-md'
+                            : 'bg-gray-100 dark:bg-gray-700'">
+                        <div class="text-[10px] font-bold uppercase tracking-wider"
+                            [ngClass]="day.date.getTime() === today.getTime() ? 'text-white' : ''">
+                            {{ day.dayName }}
+                        </div>
+                        <div class="text-[10px] mt-0.5"
+                            [ngClass]="day.date.getTime() === today.getTime() ? 'text-white/80' : 'text-gray-400'">
+                            {{ day.date | date: 'MMM dd' }}
+                        </div>
                     </div>
 
                     <!-- Slots -->
@@ -90,7 +100,7 @@
                                     'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 hover:border-primary-400 dark:hover:border-primary-500 hover:shadow-md hover:-translate-y-px cursor-pointer': canSelectSlot(slot),
                                     'bg-gray-50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed': !canSelectSlot(slot),
                                     '!border-green-300 dark:!border-green-700 !bg-green-50 dark:!bg-green-900/20': slot.hasAttendance,
-                                    '!border-primary-300 dark:!border-primary-600 !bg-primary-50 dark:!bg-primary-900/20': slot.isToday && canSelectSlot(slot)
+                                    '!border-primary-300 dark:!border-primary-600 !bg-primary-50 dark:!bg-primary-900/20': slot.isToday
                                 }"
                                 (click)="canSelectSlot(slot) && selectSlot(slot)"
                             >
@@ -99,14 +109,14 @@
                                     <span
                                         class="text-[10px] font-bold px-1.5 py-0.5 rounded-md"
                                         [ngClass]="{
-                                            'bg-primary-500 text-white': slot.isToday && canSelectSlot(slot),
+                                            'bg-primary-500 text-white': slot.isToday,
                                             'bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300': canSelectSlot(slot) && !slot.isToday,
-                                            'bg-gray-200 dark:bg-gray-700 text-gray-400 ': !canSelectSlot(slot)
+                                            'bg-gray-200 dark:bg-gray-700 text-gray-400': !canSelectSlot(slot)
                                         }"
                                         >{{ slot.startTime }}-{{ slot.endTime }}</span
                                     >
 
-                                    @if (slot.isToday && canSelectSlot(slot)) {
+                                    @if (slot.isToday) {
                                         <span class="flex items-center gap-1 ml-auto text-[9px] font-semibold text-green-600 dark:text-green-400">
                                             <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse block"></span>
                                             Today
@@ -188,15 +198,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- <button
-                        pButton
-                        type="button"
-                        label="Modify"
-                        icon="pi pi-pencil"
-                        class="p-button-sm p-button-outlined p-button-success"
-                        (click)="takeAttandence = true; checkAndLoadAttendance()"
-                    ></button> -->
                 </div>
             </div>
         }
@@ -229,7 +230,7 @@
                     <div>
                         <div class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1">Date &amp; Time</div>
                         <div class="text-sm font-bold">
-                            {{ dayNames[+selectedSlot.dayIndex ? +(+selectedSlot.dayIndex) : selectedSlot.dayIndex] }},
+                            {{ dayNames[+selectedSlot.dayIndex] }},
                             {{ selectedSlot.displayDate | date: 'MMM dd' }}
                         </div>
                         <div class="flex items-center gap-1 text-xs mt-0.5">
@@ -381,14 +382,6 @@
                 <p class="text-sm text-gray-400 mb-7">
                     {{ selectedSlot.isPast ? 'Record attendance for this past session.' : 'Start recording attendance for this session.' }}
                 </p>
-                <!-- <button
-                    pButton
-                    type="button"
-                    [label]="selectedSlot.isPast ? 'Take Attendance for Past Session' : 'Start Taking Attendance'"
-                    icon="pi pi-users"
-                    [class]="selectedSlot.isPast ? 'p-button-warning p-button-lg' : 'p-button-primary p-button-lg'"
-                    (click)="takeAttandence = true; checkAndLoadAttendance()"
-                ></button> -->
                 <button
                     pButton
                     type="button"
