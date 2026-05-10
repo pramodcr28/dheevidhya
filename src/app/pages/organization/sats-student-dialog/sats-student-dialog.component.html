@@ -200,17 +200,18 @@
                         <p class="section-heading">Student Name *</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div class="flex flex-col gap-1">
-                                <label class="form-label required">First Name (English)</label>
+                                <label class="form-label required">First *</label>
                                 <input pInputText formControlName="stdFirstName" placeholder="First Name" class="w-full" />
                                 <small class="text-red-500" *ngIf="fieldError('stdFirstName')">Required</small>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label class="form-label">Middle Name</label>
+                                <label class="form-label">Middle</label>
                                 <input pInputText formControlName="stdMiddleName" placeholder="Middle Name" class="w-full" />
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label class="form-label">Last Name (English)</label>
+                                <label class="form-label required">Last </label>
                                 <input pInputText formControlName="stdLastName" placeholder="Last Name" class="w-full" />
+                                <small class="text-red-500" *ngIf="fieldError('stdLastName')">Required</small>
                             </div>
                             <div class="flex flex-col gap-1" *ngIf="!basicMode">
                                 <label class="form-label">First Name (ಕನ್ನಡ)</label>

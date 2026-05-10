@@ -109,10 +109,10 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
     }
 
     getAssignmentBadgeClass(a: AssignmentSummaryDTO): string {
-        if (a.submissionStatus === 'REVIEWED') return 'bg-green-50 text-green-700 border-green-200';
-        if (a.submissionStatus === 'SUBMITTED') return 'bg-blue-50 text-blue-700 border-blue-200';
-        if (a.status === 'OVERDUE') return 'bg-red-50 text-red-700 border-red-200';
-        return 'bg-amber-50 text-amber-700 border-amber-200';
+        if (a.submissionStatus === 'REVIEWED') return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300';
+        if (a.submissionStatus === 'SUBMITTED') return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300';
+        if (a.status === 'OVERDUE') return 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300';
+        return 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300';
     }
 
     getAssignmentBadgeLabel(a: AssignmentSummaryDTO): string {
@@ -130,7 +130,13 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
     }
     getExamCountdownClass(d: string) {
         const diff = Math.ceil((new Date(d).getTime() - Date.now()) / 86400000);
-        return diff <= 3 ? 'bg-red-50 text-red-700 border-red-200' : diff <= 7 ? 'bg-amber-50 text-amber-700 border-amber-200' : diff <= 14 ? 'bg-green-50 text-green-700 border-green-200' : 'bg-blue-50 text-blue-700 border-blue-200';
+        return diff <= 3
+            ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300'
+            : diff <= 7
+              ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300'
+              : diff <= 14
+                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-50'
+                : 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300';
     }
     getDaysUntil(d: string) {
         const diff = Math.ceil((new Date(d).getTime() - Date.now()) / 86400000);
@@ -167,11 +173,12 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
 
     getExamStatusClass(s: string) {
         const m: Record<string, string> = {
-            SCHEDULED: 'bg-blue-50 text-blue-700 border-blue-200',
-            DRAFT: 'bg-amber-50 text-amber-700 border-amber-200',
-            ONGOING: 'bg-green-50 text-green-700 border-green-200',
-            CANCELLED: 'bg-red-50 text-red-700 border-red-200'
+            SCHEDULED: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300',
+            DRAFT: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300',
+            ONGOING: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300',
+            CANCELLED: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300',
+            RESULT_DECLARED: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300'
         };
-        return m[s] ?? 'bg-gray-50  border-gray-200';
+        return m[s] ?? 'bg-gray-50  border-gray-200 text-gray-700 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-300';
     }
 }
