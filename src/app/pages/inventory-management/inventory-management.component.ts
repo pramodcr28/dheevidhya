@@ -12,6 +12,7 @@ import { TableModule } from 'primeng/table';
 import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { DheeConfirmationService } from '../../core/services/dhee-confirmation.service';
 import { ApiLoaderService } from '../../core/services/loaderService';
 import { InventoryCategory, InventoryItem } from '../models/inventory.model';
 import { InventoryService } from '../service/inventory.service';
@@ -54,6 +55,7 @@ export class AssetsManagementComponent implements OnInit {
     inventoryService = inject(InventoryService);
     loader = inject(ApiLoaderService);
     messageService = inject(MessageService);
+    confirmationService = inject(DheeConfirmationService);
     statusOptions = [
         { label: 'Available', value: 'AVAILABLE' },
         { label: 'Reserved', value: 'RESERVED' },
@@ -178,17 +180,43 @@ export class AssetsManagementComponent implements OnInit {
     }
 
     deleteItem(item: InventoryItem) {
-        // Implement delete functionality
-        console.log('Delete item:', item);
-        this.inventoryService.delete(item.id).subscribe({
-            next: () => {
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Item deleted successfully' });
-                // console.log('Item deleted successfully');
-                this.fetchInventoryItem();
-            },
-            error: (error) => {
-                console.error('Error deleting item:', error);
+        this.confirmationService.confirm({
+            message: `Are you sure you want to delete ${item.name}?`,
+            header: 'Delete Confirmation',
+            icon: 'pi pi-question-circle',
+            accept: () => {
+                this.loader.show('Deleting Item');
+                this.inventoryService.delete(item.id).subscribe({
+                    next: () => {
+                        this.fetchInventoryItem();
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Item deleted successfully'
+                        });
+                    },
+                    error: () => {
+                        this.loader.hide();
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to delete item'
+                        });
+                    }
+                });
             }
         });
+        // Implement delete functionality
+        // console.log('Delete item:', item);
+        // this.inventoryService.delete(item.id).subscribe({
+        //     next: () => {
+        //         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Item deleted successfully' });
+        //         // console.log('Item deleted successfully');
+        //         this.fetchInventoryItem();
+        //     },
+        //     error: (error) => {
+        //         console.error('Error deleting item:', error);
+        //     }
+        // });
     }
 }
