@@ -36,12 +36,12 @@
           <p class="text-xs opacity-75 mb-1 uppercase tracking-wider">Academic Year</p>
           <p class="text-lg font-semibold">{{userProfile.academicYear}}</p>
         </div>
-        <div class="h-10 w-px bg-white/20 hidden md:block"></div> <a [routerLink]="'/auth/login'">
-          <button type="button" class="flex items-center gap-2 px-5 py-2.5 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium shadow-md transition whitespace-nowrap border border-white/30">
+        <div class="h-10 w-px bg-white/20 hidden md:block"></div> 
+          <button (click)="confirmLogout()" type="button" class="flex items-center gap-2 px-5 py-2.5 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium shadow-md transition whitespace-nowrap border border-white/30">
             <i class="pi pi-fw pi-sign-out"></i>
             <span>Logout</span>         
           </button>
-        </a>
+        
       </div>
 
     </div>

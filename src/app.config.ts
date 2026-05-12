@@ -3,6 +3,7 @@ import { ApplicationConfig, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter, Router, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
+import { Store } from '@ngrx/store';
 import Aura from '@primeng/themes/aura';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
@@ -12,6 +13,8 @@ import { authInterceptor } from './app/core/interceptor/auth-cookie-interceptor.
 import { DheeConfirmationService } from './app/core/services/dhee-confirmation.service';
 import { ApiLoaderService } from './app/core/services/loaderService';
 import { provideAppStore } from './app/core/store/user-profile/store.providers';
+import { clearUserProfile } from './app/core/store/user-profile/user-profile.actions';
+import { UserProfileState } from './app/core/store/user-profile/user-profile.reducer';
 export const appConfig: ApplicationConfig = {
     providers: [
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
@@ -29,12 +32,14 @@ export const appConfig: ApplicationConfig = {
 function errorHandlerInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
     const router = inject(Router);
     const loader = inject(ApiLoaderService);
+    const store = inject(Store<{ userProfile: UserProfileState }>);
     return next(req).pipe(
         catchError((err) => {
             if (err.status === 401 || err.status === 403) {
                 const currentUrl = router.url;
 
                 if (!currentUrl.includes('/auth/login') && !currentUrl.includes('/auth/reset')) {
+                    this.store.dispatch(clearUserProfile());
                     router.navigate(['/auth/login']);
                     loader.hide();
                 }

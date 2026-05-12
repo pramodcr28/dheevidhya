@@ -17,8 +17,8 @@ import { AuthServerProvider } from '../../services/auth-jwt.service';
 import { CommonService } from '../../services/common.service';
 import { LayoutService } from '../../services/layout.service';
 import { PushNotificationService } from '../../services/push-notification.service';
-import { clearUserProfile } from '../../store/user-profile/user-profile.actions';
 import { UserProfileState } from '../../store/user-profile/user-profile.reducer';
+import { getToken } from '../../store/user-profile/user-profile.selectors';
 
 @Component({
     selector: 'app-login',
@@ -65,8 +65,19 @@ export class Login {
         return this.layoutService.layoutConfig().darkTheme ?? false;
     }
 
+    get isNativePlatform(): boolean {
+        return Capacitor.isNativePlatform();
+    }
+
     ngOnInit(): void {
-        this.store.dispatch(clearUserProfile());
+        this.store.select(getToken).subscribe((token) => {
+            if (token) {
+                this.router.navigate(['/home']);
+            }
+            // else {
+            //     this.store.dispatch(clearUserProfile());
+            // }
+        });
     }
 
     ngAfterViewInit(): void {

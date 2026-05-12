@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
 import { ToastModule } from 'primeng/toast';
 import { filter, Subscription } from 'rxjs';
 import { CommonService } from '../services/common.service';
@@ -16,7 +17,10 @@ import { AppTopbar } from './app.topbar';
     imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter, ToastModule],
     template: `<div class="layout-wrapper" [ngClass]="containerClass">
         <p-toast />
-        <app-topbar></app-topbar>
+        @if (!isNativePlatform) {
+            <app-topbar></app-topbar>
+        }
+
         <app-sidebar></app-sidebar>
         <div class="layout-main-container">
             <div class="layout-main">
@@ -36,6 +40,10 @@ export class AppLayout implements OnInit {
     @ViewChild(AppSidebar) appSidebar!: AppSidebar;
 
     @ViewChild(AppTopbar) appTopBar!: AppTopbar;
+
+    get isNativePlatform(): boolean {
+        return Capacitor.isNativePlatform() && !this.router.url.includes('/home');
+    }
 
     constructor(
         public layoutService: LayoutService,

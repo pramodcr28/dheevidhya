@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
@@ -24,6 +24,7 @@ import { UserProfileState } from '../../core/store/user-profile/user-profile.red
 import { selectUserConfig } from '../../core/store/user-profile/user-profile.selectors';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { TenantAuthorityService } from '../service/tenant-authority.service';
+import { clearUserProfile } from './../../core/store/user-profile/user-profile.actions';
 
 interface UserProfile {
     id: string;
@@ -136,7 +137,6 @@ interface UserRoles {
         DropdownModule,
         ChipModule,
         ConfirmDialogModule,
-        RouterLink,
         ConfirmationDialogComponent
     ],
     templateUrl: './profile.component.html',
@@ -154,7 +154,7 @@ export class ProfileComponent {
     messageService = inject(MessageService);
     passwordService = inject(AuthServerProvider);
     fb = inject(FormBuilder);
-
+    router = inject(Router);
     ngOnInit() {
         this.authorityService.query().subscribe((result: any) => {
             this.tenantAuthorities.set(result.body || []);
@@ -169,14 +169,12 @@ export class ProfileComponent {
         });
     }
 
-    // Helper to check role against commonService.getUserAuthorities
     hasRole(roleName: string): boolean {
         const userAuthorities = this.commonService.getUserAuthorities;
         return userAuthorities?.includes(roleName);
     }
 
     getActiveRole(): string {
-        // Priority logic for displaying the primary role
         if (this.hasRole('SUPER_ADMIN')) return 'Super Admin';
         if (this.hasRole('IT_ADMINISTRATOR')) return 'IT Admin';
         if (this.hasRole('PRINCIPAL')) return 'Principal';
@@ -204,7 +202,6 @@ export class ProfileComponent {
         return severityMap[role] || 'info';
     }
 
-    // Formats snake_case strings for UI (e.g. "HEAD_MASTER" -> "Head Master")
     formatRoleName(role: string): string {
         if (!role) return '';
         return role
@@ -257,7 +254,10 @@ export class ProfileComponent {
         );
     }
 
-    confirmLogout() {}
+    confirmLogout() {
+        this.store.dispatch(clearUserProfile());
+        this.router.navigate(['/auth/login']);
+    }
 
     onSubmit() {
         if (this.passwordForm.invalid) {

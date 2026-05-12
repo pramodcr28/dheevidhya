@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { map, take } from 'rxjs';
+import { clearUserProfile } from '../store/user-profile/user-profile.actions';
 import { getToken } from '../store/user-profile/user-profile.selectors';
 
 function isTokenExpired(token: string): boolean {
@@ -26,6 +27,7 @@ export const authGuard: CanActivateFn = (route, state) => {
             if (token && !isTokenExpired(token)) {
                 return true;
             }
+            store.dispatch(clearUserProfile());
             router.navigate(['/auth/login']);
             return false;
         })

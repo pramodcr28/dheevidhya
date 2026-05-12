@@ -1,5 +1,6 @@
-<!-- Shared nav: login page shows all section links (navigate to welcome page) but no Login CTA -->
+  @if (!isNativePlatform) {
 <app-public-nav [showLoginCta]="true" [showDemoCta]="true"></app-public-nav>
+  }
 
 <app-configurator></app-configurator>
 <div class="min-h-screen w-full overflow-hidden bg-gradient-to-br dark:from-surface-600 dark:via-surface-700 dark:to-surface-800 flex relative pt-24">

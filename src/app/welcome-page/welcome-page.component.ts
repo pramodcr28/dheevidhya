@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, HostBinding, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
 import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
 import { AppConfigurator } from '../core/layout/app.configurator';
 import { AccountService } from '../core/services/account.service';
 import { LayoutService } from '../core/services/layout.service';
 import { UserProfileState } from '../core/store/user-profile/user-profile.reducer';
+import { getToken } from '../core/store/user-profile/user-profile.selectors';
 import { AiSectionComponent } from './ai-section/ai-section.component';
 import { BillingSectionComponent } from './billing-section/billing-section.component';
 import { BoardingSectionComponent } from './boarding-section/boarding-section.component';
@@ -45,7 +48,7 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
     private el = inject(ElementRef);
     private observer!: IntersectionObserver;
     private store = inject(Store<{ userProfile: UserProfileState }>);
-
+    public router: Router = inject(Router);
     layoutService = inject(LayoutService);
     accountService = inject(AccountService);
     messageService = inject(MessageService);
@@ -67,6 +70,16 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         setTimeout(() => this.initScrollObserver(), 150);
+
+        this.store.select(getToken).subscribe((token) => {
+            if (token) {
+                this.router.navigate(['/home']);
+            } else {
+                if (Capacitor.isNativePlatform()) {
+                    this.router.navigate(['/auth/login']);
+                }
+            }
+        });
     }
 
     ngOnDestroy(): void {
