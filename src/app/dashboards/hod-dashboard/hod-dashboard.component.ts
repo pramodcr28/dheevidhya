@@ -71,6 +71,15 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (res) => {
                     this.data = res;
+
+                    res?.staffAttendance?.forEach((s) => {
+                        if (!s?.weeklyTrend?.length) {
+                            s.weeklyTrend = [];
+                            return;
+                        }
+
+                        s.weeklyTrend = s.weeklyTrend.sort((a, b) => new Date(a?.date || 0).getTime() - new Date(b?.date || 0).getTime());
+                    });
                     this.loading = false;
                 },
                 error: (err) => {

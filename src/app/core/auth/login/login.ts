@@ -9,7 +9,7 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
-import { mergeMap } from 'rxjs';
+import { finalize, mergeMap } from 'rxjs';
 import { PublicNavComponent } from '../../../welcome-page/public-nav/public-nav.component';
 import { AppConfigurator } from '../../layout/app.configurator';
 import { AccountService } from '../../services/account.service';
@@ -35,8 +35,6 @@ export class Login {
     isLoading = signal(false);
     pushService = inject(PushNotificationService);
     commonService = inject(CommonService);
-
-    /** Forgot password state */
     forgotPasswordVisible = false;
     forgotPasswordSuccess = signal(false);
     forgotPasswordError = signal(false);
@@ -74,9 +72,6 @@ export class Login {
             if (token) {
                 this.router.navigate(['/home']);
             }
-            // else {
-            //     this.store.dispatch(clearUserProfile());
-            // }
         });
     }
 
@@ -92,7 +87,12 @@ export class Login {
 
         this.authServerProvider
             .login(this.loginForm.getRawValue())
-            .pipe(mergeMap(() => this.accountService.identity()))
+            .pipe(
+                finalize(() => {
+                    this.isLoading.set(false);
+                }),
+                mergeMap(() => this.accountService.identity())
+            )
             .subscribe({
                 next: async () => {
                     this.isLoading.set(false);
