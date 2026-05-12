@@ -1,4 +1,4 @@
-import { CommonModule, formatDate } from '@angular/common';
+import { DatePipe, formatDate, NgClass } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -47,14 +47,15 @@ import { IExaminationSubject } from './../../models/examination.model';
         AccordionModule,
         CheckboxModule,
         TreeSelectModule,
-        CommonModule,
         SelectModule,
         InputNumberModule,
         ExamSlotsComponent,
         ToastModule,
         TooltipModule,
         ConfirmationDialogComponent,
-        MenuModule
+        MenuModule,
+        DatePipe,
+        NgClass
     ],
     templateUrl: './add-exam.component.html',
     styles: ``,

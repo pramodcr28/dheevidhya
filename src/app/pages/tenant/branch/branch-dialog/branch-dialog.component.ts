@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -18,7 +18,7 @@ import { BranchFormService } from '../branch-form.service';
 @Component({
     selector: 'app-branch-dialog',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, TextareaModule, SelectModule, ToastModule, CheckboxModule],
+    imports: [FormsModule, ReactiveFormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, TextareaModule, SelectModule, ToastModule, CheckboxModule],
     providers: [MessageService],
     templateUrl: './branch-dialog.component.html'
 })

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -22,7 +22,7 @@ import { AddTransactionComponent } from './add-transaction/add-transaction.compo
 @Component({
     selector: 'app-assets-management',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, DropdownModule, InputTextModule, InputNumberModule, CalendarModule, TagModule, DialogModule, TooltipModule, TableModule, TabViewModule, AddInventoryItemComponent, AddTransactionComponent],
+    imports: [FormsModule, ButtonModule, DropdownModule, InputTextModule, InputNumberModule, CalendarModule, TagModule, DialogModule, TooltipModule, TableModule, TabViewModule, AddInventoryItemComponent, AddTransactionComponent],
     templateUrl: './inventory-management.component.html',
     styles: []
 })

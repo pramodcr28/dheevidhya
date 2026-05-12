@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -24,7 +24,7 @@ import { UserService } from '../../service/user.service';
 @Component({
     selector: 'app-bulk-student-upload',
     standalone: true,
-    imports: [CommonModule, TooltipModule, FormsModule, ButtonModule, DialogModule, FileUploadModule, TableModule, TagModule, ToastModule, ProgressBarModule, CardModule, SelectModule, SelectButtonModule],
+    imports: [TooltipModule, FormsModule, ButtonModule, DialogModule, FileUploadModule, TableModule, TagModule, ToastModule, ProgressBarModule, CardModule, SelectModule, SelectButtonModule],
     providers: [MessageService],
     templateUrl: './bulk-student-upload.component.html'
 })

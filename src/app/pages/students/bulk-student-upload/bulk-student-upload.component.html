@@ -2,357 +2,369 @@
 
 <div class="p-4 sm:p-6">
 
+  <p-card styleClass="mb-6">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-bold">Bulk Student Upload</h2>
+        <p class="mt-1">Upload multiple students at once using Excel</p>
+      </div>
+      <p-selectButton
+        [options]="uploadModeOptions"
+        [(ngModel)]="uploadMode"
+        [ngModelOptions]="{ standalone: true }"
+        optionLabel="label"
+        optionValue="value"
+        (onChange)="resetUpload()"
+        styleClass="ml-auto"
+      ></p-selectButton>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block font-semibold mb-2">Department <span class="text-red-500">*</span></label>
+        <p-select
+          [options]="associatedDepartments"
+          [(ngModel)]="selectedDepartment"
+          [ngModelOptions]="{ standalone: true }"
+          optionLabel="name"
+          placeholder="Select Department"
+          [style]="{ width: '100%' }"
+          >
+          <ng-template pTemplate="item" let-dept>
+            <div class="flex flex-col">
+              <span class="font-medium">{{ dept.department.name }}</span>
+              <small class="text-primary-500">Academic Year: {{ dept.academicYear }}</small>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="selectedItem" let-dept>
+            {{ dept.department.name }} ({{ dept.academicYear }})
+          </ng-template>
+        </p-select>
+        @if (submitted && !selectedDepartment) {
+          <small class="text-red-500 block mt-1">Department is required.</small>
+        }
+      </div>
+
+      <div>
+        <label class="block font-semibold mb-2">Class <span class="text-red-500">*</span></label>
+        <p-select
+          [options]="selectedDepartment?.department.classes"
+          [(ngModel)]="selectedClass"
+          [ngModelOptions]="{ standalone: true }"
+          optionLabel="name"
+          placeholder="Select Class"
+          [disabled]="!selectedDepartment"
+          [style]="{ width: '100%' }"
+        ></p-select>
+        @if (submitted && !selectedClass) {
+          <small class="text-red-500 block mt-1">Class is required.</small>
+        }
+      </div>
+
+      <div>
+        <label class="block font-semibold mb-2">Section <span class="text-red-500">*</span></label>
+        <p-select
+          [options]="selectedClass?.sections"
+          [(ngModel)]="selectedSection"
+          [ngModelOptions]="{ standalone: true }"
+          optionLabel="name"
+          placeholder="Select Section"
+          [disabled]="!selectedClass"
+          [style]="{ width: '100%' }"
+        ></p-select>
+        @if (submitted && !selectedSection) {
+          <small class="text-red-500 block mt-1">Section is required.</small>
+        }
+      </div>
+    </div>
+  </p-card>
+
+  @if (!uploadedStudents().length && !isProcessing()) {
     <p-card styleClass="mb-6">
-          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-        <div>
-            <h2 class="text-2xl sm:text-3xl font-bold">Bulk Student Upload</h2>
-            <p class="mt-1">Upload multiple students at once using Excel</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 py-4 sm:py-6">
+        <div class="flex flex-col items-center justify-center md:border-r md:border-gray-200 md:pr-8 pb-4 md:pb-0">
+          <div class="bg-green-50 rounded-full p-3 sm:p-4 mb-4">
+            <i class="pi pi-download text-green-600 text-2xl sm:text-3xl"></i>
+          </div>
+          <h3 class="text-lg sm:text-xl font-semibold mb-2 text-center">Step 1: Download Template</h3>
+          @if (uploadMode === 'basic') {
+            <p class="mb-1 text-center text-sm">Downloads the <strong>Basic</strong> template with core student fields only.</p>
+          }
+          @if (uploadMode === 'sats') {
+            <p class="mb-1 text-center text-sm">Downloads the <strong>Full SATS</strong> template including academic, personal, address and bank details.</p>
+          }
+          <p-button
+            [label]="uploadMode === 'basic' ? 'Download Basic Template' : 'Download SATS Template'"
+            icon="pi pi-download"
+            styleClass="p-button-success w-full sm:w-auto"
+            (onClick)="downloadTemplate()"
+          ></p-button>
         </div>
-         <p-selectButton
-                [options]="uploadModeOptions"
-                [(ngModel)]="uploadMode"
-                [ngModelOptions]="{ standalone: true }"
-                optionLabel="label"
-                optionValue="value"
-                (onChange)="resetUpload()"
-                styleClass="ml-auto"
-            ></p-selectButton>
-</div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label class="block font-semibold mb-2">Department <span class="text-red-500">*</span></label>
-                <p-select
-                    [options]="associatedDepartments"
-                    [(ngModel)]="selectedDepartment"
-                    [ngModelOptions]="{ standalone: true }"
-                    optionLabel="name"
-                    placeholder="Select Department"
-                    [style]="{ width: '100%' }"
-                >
-                    <ng-template pTemplate="item" let-dept>
-                        <div class="flex flex-col">
-                            <span class="font-medium">{{ dept.department.name }}</span>
-                            <small class="text-primary-500">Academic Year: {{ dept.academicYear }}</small>
-                        </div>
-                    </ng-template>
-                    <ng-template pTemplate="selectedItem" let-dept>
-                        {{ dept.department.name }} ({{ dept.academicYear }})
-                    </ng-template>
-                </p-select>
-                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedDepartment">Department is required.</small>
-            </div>
-
-            <div>
-                <label class="block font-semibold mb-2">Class <span class="text-red-500">*</span></label>
-                <p-select
-                    [options]="selectedDepartment?.department.classes"
-                    [(ngModel)]="selectedClass"
-                    [ngModelOptions]="{ standalone: true }"
-                    optionLabel="name"
-                    placeholder="Select Class"
-                    [disabled]="!selectedDepartment"
-                    [style]="{ width: '100%' }"
-                ></p-select>
-                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedClass">Class is required.</small>
-            </div>
-
-            <div>
-                <label class="block font-semibold mb-2">Section <span class="text-red-500">*</span></label>
-                <p-select
-                    [options]="selectedClass?.sections"
-                    [(ngModel)]="selectedSection"
-                    [ngModelOptions]="{ standalone: true }"
-                    optionLabel="name"
-                    placeholder="Select Section"
-                    [disabled]="!selectedClass"
-                    [style]="{ width: '100%' }"
-                ></p-select>
-                <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedSection">Section is required.</small>
-            </div>
+        <div class="flex flex-col items-center justify-center md:pl-8 pt-4 md:pt-0">
+          <div class="bg-blue-50 rounded-full p-3 sm:p-4 mb-4">
+            <i class="pi pi-upload text-blue-600 text-2xl sm:text-3xl"></i>
+          </div>
+          <h3 class="text-lg sm:text-xl font-semibold mb-2 text-center">Step 2: Upload Filled Template</h3>
+          <p class="mb-4 text-center text-sm">Select the Excel file with student data</p>
+          <p-fileupload
+            mode="basic"
+            accept=".xlsx,.xls"
+            [maxFileSize]="5000000"
+            [auto]="true"
+            chooseLabel="Choose Excel File"
+            chooseIcon="pi pi-upload"
+            styleClass="p-button-primary w-full"
+            (onSelect)="onFileSelect($event)"
+          ></p-fileupload>
+          <p class="text-xs mt-3 text-center text-gray-400">Accepted: .xlsx, .xls &nbsp;·&nbsp; Max 5 MB</p>
         </div>
+      </div>
     </p-card>
+  }
 
-    <p-card *ngIf="!uploadedStudents().length && !isProcessing()" styleClass="mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 py-4 sm:py-6">
-            <div class="flex flex-col items-center justify-center md:border-r md:border-gray-200 md:pr-8 pb-4 md:pb-0">
-                <div class="bg-green-50 rounded-full p-3 sm:p-4 mb-4">
-                    <i class="pi pi-download text-green-600 text-2xl sm:text-3xl"></i>
-                </div>
-                <h3 class="text-lg sm:text-xl font-semibold mb-2 text-center">Step 1: Download Template</h3>
-
-                <ng-container *ngIf="uploadMode === 'basic'">
-                    <p class="mb-1 text-center text-sm">Downloads the <strong>Basic</strong> template with core student fields only.</p>
-                </ng-container>
-                <ng-container *ngIf="uploadMode === 'sats'">
-                    <p class="mb-1 text-center text-sm">Downloads the <strong>Full SATS</strong> template including academic, personal, address and bank details.</p>
-                </ng-container>
-
-                <p-button
-                    [label]="uploadMode === 'basic' ? 'Download Basic Template' : 'Download SATS Template'"
-                    icon="pi pi-download"
-                    styleClass="p-button-success w-full sm:w-auto"
-                    (onClick)="downloadTemplate()"
-                ></p-button>
-            </div>
-
-            <div class="flex flex-col items-center justify-center md:pl-8 pt-4 md:pt-0">
-                <div class="bg-blue-50 rounded-full p-3 sm:p-4 mb-4">
-                    <i class="pi pi-upload text-blue-600 text-2xl sm:text-3xl"></i>
-                </div>
-                <h3 class="text-lg sm:text-xl font-semibold mb-2 text-center">Step 2: Upload Filled Template</h3>
-                <p class="mb-4 text-center text-sm">Select the Excel file with student data</p>
-                <p-fileupload
-                    mode="basic"
-                    accept=".xlsx,.xls"
-                    [maxFileSize]="5000000"
-                    [auto]="true"
-                    chooseLabel="Choose Excel File"
-                    chooseIcon="pi pi-upload"
-                    styleClass="p-button-primary w-full"
-                    (onSelect)="onFileSelect($event)"
-                ></p-fileupload>
-                <p class="text-xs mt-3 text-center text-gray-400">Accepted: .xlsx, .xls &nbsp;·&nbsp; Max 5 MB</p>
-            </div>
-        </div>
+  @if (isProcessing()) {
+    <p-card styleClass="mb-6">
+      <div class="text-center py-6 sm:py-8">
+        <i class="pi pi-spin pi-spinner text-3xl sm:text-4xl text-blue-600 mb-4"></i>
+        <h3 class="text-base sm:text-lg font-semibold mb-3">Processing Excel File…</h3>
+        <p class="mb-4">Please wait while we validate your data</p>
+        <p-progressBar mode="indeterminate"></p-progressBar>
+      </div>
     </p-card>
+  }
 
-    <p-card *ngIf="isProcessing()" styleClass="mb-6">
-        <div class="text-center py-6 sm:py-8">
-            <i class="pi pi-spin pi-spinner text-3xl sm:text-4xl text-blue-600 mb-4"></i>
-            <h3 class="text-base sm:text-lg font-semibold mb-3">Processing Excel File…</h3>
-            <p class="mb-4">Please wait while we validate your data</p>
-            <p-progressBar mode="indeterminate"></p-progressBar>
+  @if (uploadedStudents().length > 0 && !isProcessing()) {
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-4">
+          <div>
+            <h3 class="text-lg sm:text-xl font-bold">
+              Preview Students ({{ uploadedStudents().length }})
+              <span class="text-sm font-normal text-gray-500 ml-2">[{{ uploadMode === 'basic' ? 'Basic' : 'Full SATS' }} mode]</span>
+            </h3>
+            <div class="flex flex-wrap items-center gap-4 mt-2">
+              <div class="flex items-center gap-2">
+                <span class="text-sm">Valid:</span>
+                <p-tag [value]="validCount().toString()" severity="success"></p-tag>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm">Invalid:</span>
+                <p-tag [value]="invalidCount().toString()" severity="danger"></p-tag>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col-2 sm:flex-row gap-2 w-full sm:w-auto">
+            <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-outlined p-button-secondary" (onClick)="resetUpload()"></p-button>
+            <p-button label="Save Valid Students" icon="pi pi-check" [disabled]="validCount() === 0 || !selectedSection" (onClick)="confirmSave()"></p-button>
+          </div>
         </div>
-    </p-card>
-
-    <p-card *ngIf="uploadedStudents().length > 0 && !isProcessing()">
+      </ng-template>
+      <p-table [value]="uploadedStudents()" [scrollable]="true" scrollHeight="500px" styleClass="p-datatable-sm" responsiveLayout="scroll" dataKey="rowNumber">
         <ng-template pTemplate="header">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-4">
-                <div>
-                    <h3 class="text-lg sm:text-xl font-bold">
-                        Preview Students ({{ uploadedStudents().length }})
-                        <span class="text-sm font-normal text-gray-500 ml-2">[{{ uploadMode === 'basic' ? 'Basic' : 'Full SATS' }} mode]</span>
-                    </h3>
-                    <div class="flex flex-wrap items-center gap-4 mt-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm">Valid:</span>
-                            <p-tag [value]="validCount().toString()" severity="success"></p-tag>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm">Invalid:</span>
-                            <p-tag [value]="invalidCount().toString()" severity="danger"></p-tag>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-col-2 sm:flex-row gap-2 w-full sm:w-auto">
-                    <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-outlined p-button-secondary" (onClick)="resetUpload()"></p-button>
-                    <p-button label="Save Valid Students" icon="pi pi-check" [disabled]="validCount() === 0 || !selectedSection" (onClick)="confirmSave()"></p-button>
-                </div>
-            </div>
+          <tr>
+            <th style="width:3rem"></th>
+            <!-- <th class="font-semibold">Registration Id</th> -->
+            <th class="font-semibold">SATS No.</th>
+            <th class="font-semibold">Status</th>
+            <th class="font-semibold">Name</th>
+            <th class="font-semibold">Gender</th>
+            @if (uploadMode === 'sats') {
+              <th class="font-semibold">SATS No.</th>
+            }
+            <th class="font-semibold">Email</th>
+            <th class="font-semibold">Contact</th>
+            <th class="font-semibold">District</th>
+            <th class="font-semibold">State</th>
+            <th class="font-semibold"   pFrozenColumn alignFrozen="right">Errors</th>
+          </tr>
         </ng-template>
-
-        <p-table [value]="uploadedStudents()" [scrollable]="true" scrollHeight="500px" styleClass="p-datatable-sm" responsiveLayout="scroll" dataKey="rowNumber">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th style="width:3rem"></th>
-                     <!-- <th class="font-semibold">Registration Id</th> -->
-                     <th class="font-semibold">SATS No.</th>
-                    <th class="font-semibold">Status</th>
-                   
-                    <th class="font-semibold">Name</th>
-                    <th class="font-semibold">Gender</th>
-                    <th *ngIf="uploadMode === 'sats'" class="font-semibold">SATS No.</th>
-                    <th class="font-semibold">Email</th>
-                    <th class="font-semibold">Contact</th>
-                    <th class="font-semibold">District</th>
-                    <th class="font-semibold">State</th>
-                    <th class="font-semibold"   pFrozenColumn alignFrozen="right">Errors</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-student>
-                <tr [class.bg-red-50]="!student.isValid">
-                  
-                    <td>
-                        <p-button
-                            icon="pi pi-eye"
-                            styleClass="p-button-text p-button-sm p-button-secondary"
-                            [pTooltip]="'View Details'"
-                            tooltipPosition="top"
-                            (onClick)="openStudentDetails(student)"
-                        ></p-button>
-                    </td>
-                    <td>{{ student.satsNumber }}</td>
-                    <!-- <td>{{ student.rowNumber }}</td> -->
-                    <td>
-                        <p-tag [value]="student.isValid ? 'Valid' : 'Invalid'" [severity]="student.isValid ? 'success' : 'danger'"></p-tag>
-                    </td>
-                    
-                    <td>{{ student.firstName }} {{ student.lastName }}</td>
-                    <td>{{ student.gender }}</td>
-                    <td *ngIf="uploadMode === 'sats'">{{ student['satsNumber'] || '—' }}</td>
-                    <td>{{ student.email || '—' }}</td>
-                    <td>{{ student.studentContactNumber || '—' }}</td>
-                    <td>{{ student.district || '—' }}</td>
-                    <td>{{ student.state || '—' }}</td>
-                    <td pFrozenColumn alignFrozen="right">
-                        <span *ngIf="!student.isValid" class="text-red-600 text-xs">
-                            {{ student.errors?.length ? student.errors[0] : (student['errorMessage'] || 'Error') }}
-                            <span *ngIf="(student.errors?.length ?? 0) > 1"> (+{{ (student.errors?.length ?? 0) - 1 }} more)</span>
-                        </span>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </p-card>
-
-    <!-- ── Confirm save dialog ─────────────────────────────────────────── -->
-    <p-dialog
-        [(visible)]="showConfirmDialog"
-        [style]="{ width: '90vw', maxWidth: '450px' }"
-        header="Confirm Save"
-        [modal]="true"
-        [draggable]="false"
-        [resizable]="false"
-    >
-        <div class="flex items-start gap-4 py-4">
-            <div class="bg-yellow-50 rounded-full p-3 flex-shrink-0">
-                <i class="pi pi-exclamation-triangle text-2xl text-yellow-600"></i>
-            </div>
-            <div>
-                <p class="font-semibold mb-2">Save {{ validCount() }} students?</p>
-                <p class="text-sm text-gray-500">This will create user accounts for all valid students using the <strong>{{ uploadMode === 'basic' ? 'Basic' : 'Full SATS' }}</strong> profile.</p>
-            </div>
-        </div>
-        <ng-template pTemplate="footer">
-            <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text" (onClick)="showConfirmDialog = false"></p-button>
-            <p-button label="Confirm" icon="pi pi-check" (onClick)="saveAllStudents()"></p-button>
-        </ng-template>
-    </p-dialog>
-
-    <!-- ── Student detail dialog ───────────────────────────────────────── -->
-    <p-dialog
-        [(visible)]="showStudentDetailDialog"
-        [style]="{ width: '95vw', maxWidth: '72rem' }"
-        [header]="'Student Details – Row ' + selectedStudentDetail?.rowNumber"
-        [modal]="true"
-        [draggable]="false"
-        [resizable]="false"
-    >
-        <div *ngIf="selectedStudentDetail" class="p-2 sm:p-4">
-
-            <!-- Header strip -->
-            <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 pb-4 border-b">
-                <h4 class="text-lg font-bold">{{ selectedStudentDetail.firstName }} {{ selectedStudentDetail.lastName }}</h4>
-                <p-tag [value]="selectedStudentDetail.isValid ? 'Valid' : 'Invalid'" [severity]="selectedStudentDetail.isValid ? 'success' : 'danger'"></p-tag>
-                <span class="text-sm text-gray-500 sm:ml-2">SATS No: <strong>{{ selectedStudentDetail.satsNumber }}</strong></span>
-                <span *ngIf="uploadMode === 'sats' && selectedStudentDetail['satsNumber']" class="text-sm text-gray-500">
-                    SATS No: <strong>{{ selectedStudentDetail['satsNumber'] }}</strong>
+        <ng-template pTemplate="body" let-student>
+          <tr [class.bg-red-50]="!student.isValid">
+            <td>
+              <p-button
+                icon="pi pi-eye"
+                styleClass="p-button-text p-button-sm p-button-secondary"
+                [pTooltip]="'View Details'"
+                tooltipPosition="top"
+                (onClick)="openStudentDetails(student)"
+              ></p-button>
+            </td>
+            <td>{{ student.satsNumber }}</td>
+            <!-- <td>{{ student.rowNumber }}</td> -->
+            <td>
+              <p-tag [value]="student.isValid ? 'Valid' : 'Invalid'" [severity]="student.isValid ? 'success' : 'danger'"></p-tag>
+            </td>
+            <td>{{ student.firstName }} {{ student.lastName }}</td>
+            <td>{{ student.gender }}</td>
+            @if (uploadMode === 'sats') {
+              <td>{{ student['satsNumber'] || '—' }}</td>
+            }
+            <td>{{ student.email || '—' }}</td>
+            <td>{{ student.studentContactNumber || '—' }}</td>
+            <td>{{ student.district || '—' }}</td>
+            <td>{{ student.state || '—' }}</td>
+            <td pFrozenColumn alignFrozen="right">
+              @if (!student.isValid) {
+                <span class="text-red-600 text-xs">
+                  {{ student.errors?.length ? student.errors[0] : (student['errorMessage'] || 'Error') }}
+                  @if ((student.errors?.length ?? 0) > 1) {
+                    <span> (+{{ (student.errors?.length ?? 0) - 1 }} more)</span>
+                  }
                 </span>
-            </div>
-
-            <!-- ── Basic info grid ──────────────────────────────────── -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-
-                <!-- Personal -->
-                <div class="space-y-3">
-                    <h5 class="font-semibold border-b pb-1">Personal Information</h5>
-                    <div><span class="text-xs text-gray-500 block">Gender</span><p class="text-sm font-medium">{{ selectedStudentDetail.gender }}</p></div>
-                    <div><span class="text-xs text-gray-500 block">Date of Birth</span><p class="text-sm font-medium">{{ selectedStudentDetail['dateOfBirth'] || '—' }}</p></div>
-                    <div><span class="text-xs text-gray-500 block">Password</span><p class="text-sm font-medium">{{ selectedStudentDetail['password'] || '—' }}</p></div>
-                </div>
-
-                <!-- Contact -->
-                <div class="space-y-3">
-                    <h5 class="font-semibold border-b pb-1">Contact Information</h5>
-                    <div><span class="text-xs text-gray-500 block">Email</span><p class="text-sm font-medium">{{ selectedStudentDetail.email || '—' }}</p></div>
-                    <div><span class="text-xs text-gray-500 block">Mobile</span><p class="text-sm font-medium">{{ selectedStudentDetail.studentContactNumber || '—' }}</p></div>
-                    <div><span class="text-xs text-gray-500 block">Father</span><p class="text-sm font-medium">{{ selectedStudentDetail['fatherFirstName'] }} {{ selectedStudentDetail['fatherLastName'] }} – {{ selectedStudentDetail['fatherMobile'] || '—' }}</p></div>
-                    <div><span class="text-xs text-gray-500 block">Mother</span><p class="text-sm font-medium">{{ selectedStudentDetail['motherFirstName'] }} {{ selectedStudentDetail['motherLastName'] }} – {{ selectedStudentDetail['motherMobile'] || '—' }}</p></div>
-                </div>
-
-                <!-- Current address -->
-                <div class="space-y-3">
-                    <h5 class="font-semibold border-b pb-1">Current Address</h5>
-                    <div><span class="text-xs text-gray-500 block">Address Line</span><p class="text-sm font-medium">{{ selectedStudentDetail['addressLine'] || '—' }}</p></div>
-                    <div><span class="text-xs text-gray-500 block">Locality</span><p class="text-sm font-medium">{{ selectedStudentDetail['locality'] || '—' }}</p></div>
-                    <div><span class="text-xs text-gray-500 block">District</span><p class="text-sm font-medium">{{ selectedStudentDetail['district'] || '—' }}</p></div>
-                    <div><span class="text-xs text-gray-500 block">State / PIN</span><p class="text-sm font-medium">{{ selectedStudentDetail['state'] || '—' }} – {{ selectedStudentDetail['pinCode'] || '—' }}</p></div>
-                </div>
-            </div>
-
-            <!-- ── SATS-only extended info ──────────────────────────── -->
-            <ng-container *ngIf="uploadMode === 'sats'">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-
-                    <!-- Academic details -->
-                    <div class="space-y-3">
-                        <h5 class="font-semibold border-b pb-1">Admission Details</h5>
-                        <div><span class="text-xs text-gray-500 block">Type of Student</span><p class="text-sm font-medium">{{ selectedStudentDetail['typeOfStudent'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">Medium</span><p class="text-sm font-medium">{{ selectedStudentDetail['mediumOfInstruction'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">Mother Tongue</span><p class="text-sm font-medium">{{ selectedStudentDetail['motherTongue'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">Language Group</span><p class="text-sm font-medium">{{ selectedStudentDetail['languageGroup'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">Admission Date</span><p class="text-sm font-medium">{{ selectedStudentDetail['admissionDate'] || '—' }}</p></div>
-                    </div>
-
-                    <!-- Personal (SATS-extended) -->
-                    <div class="space-y-3">
-                        <h5 class="font-semibold border-b pb-1">Personal (SATS)</h5>
-                        <div><span class="text-xs text-gray-500 block">Aadhaar</span><p class="text-sm font-medium">{{ selectedStudentDetail['aadhaarNumber'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">Religion</span><p class="text-sm font-medium">{{ selectedStudentDetail['religion'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">Nationality</span><p class="text-sm font-medium">{{ selectedStudentDetail['nationality'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">Social Category</span><p class="text-sm font-medium">{{ selectedStudentDetail['socialCategory'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">Special Need</span><p class="text-sm font-medium">{{ selectedStudentDetail['childWithSpecialNeed'] || '—' }}</p></div>
-                    </div>
-
-                    <!-- Previous school -->
-                    <div class="space-y-3">
-                        <h5 class="font-semibold border-b pb-1">Previous School</h5>
-                        <div><span class="text-xs text-gray-500 block">School Name</span><p class="text-sm font-medium">{{ selectedStudentDetail['prevSchoolName'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">Affiliation</span><p class="text-sm font-medium">{{ selectedStudentDetail['affiliation'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">TC No / Date</span><p class="text-sm font-medium">{{ selectedStudentDetail['tcNo'] || '—' }} / {{ selectedStudentDetail['tcDate'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">State</span><p class="text-sm font-medium">{{ selectedStudentDetail['prevState'] || '—' }}</p></div>
-                    </div>
-                </div>
-
-                <!-- Permanent address + Bank -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div class="space-y-3">
-                        <h5 class="font-semibold border-b pb-1">Permanent Address</h5>
-                        <div><span class="text-xs text-gray-500 block">Address Line</span><p class="text-sm font-medium">{{ selectedStudentDetail['perAddressLine'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">Locality</span><p class="text-sm font-medium">{{ selectedStudentDetail['perLocality'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">District</span><p class="text-sm font-medium">{{ selectedStudentDetail['perDistrict'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">State / PIN</span><p class="text-sm font-medium">{{ selectedStudentDetail['perState'] || '—' }} – {{ selectedStudentDetail['perPinCode'] || '—' }}</p></div>
-                    </div>
-                    <div class="space-y-3">
-                        <h5 class="font-semibold border-b pb-1">Bank Details</h5>
-                        <div><span class="text-xs text-gray-500 block">Bank Name</span><p class="text-sm font-medium">{{ selectedStudentDetail['bankName'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">Account Number</span><p class="text-sm font-medium">{{ selectedStudentDetail['accountNumber'] || '—' }}</p></div>
-                        <div><span class="text-xs text-gray-500 block">IFSC Code</span><p class="text-sm font-medium">{{ selectedStudentDetail['ifscCode'] || '—' }}</p></div>
-                    </div>
-                </div>
-            </ng-container>
-
-            <!-- ── Validation errors ────────────────────────────────── -->
-            <div *ngIf="!selectedStudentDetail.isValid" class="mt-4 pt-4 border-t">
-                <p class="text-sm font-bold text-red-500 uppercase mb-3">Error Details</p>
-                <div class="bg-red-50 border border-red-200 rounded p-4 space-y-2">
-                    <!-- Client-side field errors -->
-                    <div *ngFor="let err of selectedStudentDetail.errors" class="flex items-start gap-2">
-                        <i class="pi pi-times-circle text-red-600 text-sm mt-0.5"></i>
-                        <span class="text-sm text-red-700">{{ err }}</span>
-                    </div>
-                    <!-- Server-side error -->
-                    <div *ngIf="selectedStudentDetail['errorMessage']" class="flex items-start gap-2">
-                        <i class="pi pi-exclamation-circle text-red-600 text-lg mt-0.5"></i>
-                        <span class="text-sm text-red-700 font-medium">{{ selectedStudentDetail['errorMessage'] }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <ng-template pTemplate="footer">
-            <p-button label="Close" icon="pi pi-times" styleClass="p-button-outlined p-button-secondary" (onClick)="showStudentDetailDialog = false"></p-button>
+              }
+            </td>
+          </tr>
         </ng-template>
-    </p-dialog>
+      </p-table>
+    </p-card>
+  }
+
+  <!-- ── Confirm save dialog ─────────────────────────────────────────── -->
+  <p-dialog
+    [(visible)]="showConfirmDialog"
+    [style]="{ width: '90vw', maxWidth: '450px' }"
+    header="Confirm Save"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    >
+    <div class="flex items-start gap-4 py-4">
+      <div class="bg-yellow-50 rounded-full p-3 flex-shrink-0">
+        <i class="pi pi-exclamation-triangle text-2xl text-yellow-600"></i>
+      </div>
+      <div>
+        <p class="font-semibold mb-2">Save {{ validCount() }} students?</p>
+        <p class="text-sm text-gray-500">This will create user accounts for all valid students using the <strong>{{ uploadMode === 'basic' ? 'Basic' : 'Full SATS' }}</strong> profile.</p>
+      </div>
+    </div>
+    <ng-template pTemplate="footer">
+      <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text" (onClick)="showConfirmDialog = false"></p-button>
+      <p-button label="Confirm" icon="pi pi-check" (onClick)="saveAllStudents()"></p-button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- ── Student detail dialog ───────────────────────────────────────── -->
+  <p-dialog
+    [(visible)]="showStudentDetailDialog"
+    [style]="{ width: '95vw', maxWidth: '72rem' }"
+    [header]="'Student Details – Row ' + selectedStudentDetail?.rowNumber"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    >
+    @if (selectedStudentDetail) {
+      <div class="p-2 sm:p-4">
+        <!-- Header strip -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 pb-4 border-b">
+          <h4 class="text-lg font-bold">{{ selectedStudentDetail.firstName }} {{ selectedStudentDetail.lastName }}</h4>
+          <p-tag [value]="selectedStudentDetail.isValid ? 'Valid' : 'Invalid'" [severity]="selectedStudentDetail.isValid ? 'success' : 'danger'"></p-tag>
+          <span class="text-sm text-gray-500 sm:ml-2">SATS No: <strong>{{ selectedStudentDetail.satsNumber }}</strong></span>
+          @if (uploadMode === 'sats' && selectedStudentDetail['satsNumber']) {
+            <span class="text-sm text-gray-500">
+              SATS No: <strong>{{ selectedStudentDetail['satsNumber'] }}</strong>
+            </span>
+          }
+        </div>
+        <!-- ── Basic info grid ──────────────────────────────────── -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <!-- Personal -->
+          <div class="space-y-3">
+            <h5 class="font-semibold border-b pb-1">Personal Information</h5>
+            <div><span class="text-xs text-gray-500 block">Gender</span><p class="text-sm font-medium">{{ selectedStudentDetail.gender }}</p></div>
+            <div><span class="text-xs text-gray-500 block">Date of Birth</span><p class="text-sm font-medium">{{ selectedStudentDetail['dateOfBirth'] || '—' }}</p></div>
+            <div><span class="text-xs text-gray-500 block">Password</span><p class="text-sm font-medium">{{ selectedStudentDetail['password'] || '—' }}</p></div>
+          </div>
+          <!-- Contact -->
+          <div class="space-y-3">
+            <h5 class="font-semibold border-b pb-1">Contact Information</h5>
+            <div><span class="text-xs text-gray-500 block">Email</span><p class="text-sm font-medium">{{ selectedStudentDetail.email || '—' }}</p></div>
+            <div><span class="text-xs text-gray-500 block">Mobile</span><p class="text-sm font-medium">{{ selectedStudentDetail.studentContactNumber || '—' }}</p></div>
+            <div><span class="text-xs text-gray-500 block">Father</span><p class="text-sm font-medium">{{ selectedStudentDetail['fatherFirstName'] }} {{ selectedStudentDetail['fatherLastName'] }} – {{ selectedStudentDetail['fatherMobile'] || '—' }}</p></div>
+            <div><span class="text-xs text-gray-500 block">Mother</span><p class="text-sm font-medium">{{ selectedStudentDetail['motherFirstName'] }} {{ selectedStudentDetail['motherLastName'] }} – {{ selectedStudentDetail['motherMobile'] || '—' }}</p></div>
+          </div>
+          <!-- Current address -->
+          <div class="space-y-3">
+            <h5 class="font-semibold border-b pb-1">Current Address</h5>
+            <div><span class="text-xs text-gray-500 block">Address Line</span><p class="text-sm font-medium">{{ selectedStudentDetail['addressLine'] || '—' }}</p></div>
+            <div><span class="text-xs text-gray-500 block">Locality</span><p class="text-sm font-medium">{{ selectedStudentDetail['locality'] || '—' }}</p></div>
+            <div><span class="text-xs text-gray-500 block">District</span><p class="text-sm font-medium">{{ selectedStudentDetail['district'] || '—' }}</p></div>
+            <div><span class="text-xs text-gray-500 block">State / PIN</span><p class="text-sm font-medium">{{ selectedStudentDetail['state'] || '—' }} – {{ selectedStudentDetail['pinCode'] || '—' }}</p></div>
+          </div>
+        </div>
+        <!-- ── SATS-only extended info ──────────────────────────── -->
+        @if (uploadMode === 'sats') {
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Academic details -->
+            <div class="space-y-3">
+              <h5 class="font-semibold border-b pb-1">Admission Details</h5>
+              <div><span class="text-xs text-gray-500 block">Type of Student</span><p class="text-sm font-medium">{{ selectedStudentDetail['typeOfStudent'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">Medium</span><p class="text-sm font-medium">{{ selectedStudentDetail['mediumOfInstruction'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">Mother Tongue</span><p class="text-sm font-medium">{{ selectedStudentDetail['motherTongue'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">Language Group</span><p class="text-sm font-medium">{{ selectedStudentDetail['languageGroup'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">Admission Date</span><p class="text-sm font-medium">{{ selectedStudentDetail['admissionDate'] || '—' }}</p></div>
+            </div>
+            <!-- Personal (SATS-extended) -->
+            <div class="space-y-3">
+              <h5 class="font-semibold border-b pb-1">Personal (SATS)</h5>
+              <div><span class="text-xs text-gray-500 block">Aadhaar</span><p class="text-sm font-medium">{{ selectedStudentDetail['aadhaarNumber'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">Religion</span><p class="text-sm font-medium">{{ selectedStudentDetail['religion'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">Nationality</span><p class="text-sm font-medium">{{ selectedStudentDetail['nationality'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">Social Category</span><p class="text-sm font-medium">{{ selectedStudentDetail['socialCategory'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">Special Need</span><p class="text-sm font-medium">{{ selectedStudentDetail['childWithSpecialNeed'] || '—' }}</p></div>
+            </div>
+            <!-- Previous school -->
+            <div class="space-y-3">
+              <h5 class="font-semibold border-b pb-1">Previous School</h5>
+              <div><span class="text-xs text-gray-500 block">School Name</span><p class="text-sm font-medium">{{ selectedStudentDetail['prevSchoolName'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">Affiliation</span><p class="text-sm font-medium">{{ selectedStudentDetail['affiliation'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">TC No / Date</span><p class="text-sm font-medium">{{ selectedStudentDetail['tcNo'] || '—' }} / {{ selectedStudentDetail['tcDate'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">State</span><p class="text-sm font-medium">{{ selectedStudentDetail['prevState'] || '—' }}</p></div>
+            </div>
+          </div>
+          <!-- Permanent address + Bank -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="space-y-3">
+              <h5 class="font-semibold border-b pb-1">Permanent Address</h5>
+              <div><span class="text-xs text-gray-500 block">Address Line</span><p class="text-sm font-medium">{{ selectedStudentDetail['perAddressLine'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">Locality</span><p class="text-sm font-medium">{{ selectedStudentDetail['perLocality'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">District</span><p class="text-sm font-medium">{{ selectedStudentDetail['perDistrict'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">State / PIN</span><p class="text-sm font-medium">{{ selectedStudentDetail['perState'] || '—' }} – {{ selectedStudentDetail['perPinCode'] || '—' }}</p></div>
+            </div>
+            <div class="space-y-3">
+              <h5 class="font-semibold border-b pb-1">Bank Details</h5>
+              <div><span class="text-xs text-gray-500 block">Bank Name</span><p class="text-sm font-medium">{{ selectedStudentDetail['bankName'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">Account Number</span><p class="text-sm font-medium">{{ selectedStudentDetail['accountNumber'] || '—' }}</p></div>
+              <div><span class="text-xs text-gray-500 block">IFSC Code</span><p class="text-sm font-medium">{{ selectedStudentDetail['ifscCode'] || '—' }}</p></div>
+            </div>
+          </div>
+        }
+        <!-- ── Validation errors ────────────────────────────────── -->
+        @if (!selectedStudentDetail.isValid) {
+          <div class="mt-4 pt-4 border-t">
+            <p class="text-sm font-bold text-red-500 uppercase mb-3">Error Details</p>
+            <div class="bg-red-50 border border-red-200 rounded p-4 space-y-2">
+              <!-- Client-side field errors -->
+              @for (err of selectedStudentDetail.errors; track err) {
+                <div class="flex items-start gap-2">
+                  <i class="pi pi-times-circle text-red-600 text-sm mt-0.5"></i>
+                  <span class="text-sm text-red-700">{{ err }}</span>
+                </div>
+              }
+              <!-- Server-side error -->
+              @if (selectedStudentDetail['errorMessage']) {
+                <div class="flex items-start gap-2">
+                  <i class="pi pi-exclamation-circle text-red-600 text-lg mt-0.5"></i>
+                  <span class="text-sm text-red-700 font-medium">{{ selectedStudentDetail['errorMessage'] }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <ng-template pTemplate="footer">
+      <p-button label="Close" icon="pi pi-times" styleClass="p-button-outlined p-button-secondary" (onClick)="showStudentDetailDialog = false"></p-button>
+    </ng-template>
+  </p-dialog>
 </div>

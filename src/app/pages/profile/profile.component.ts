@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -124,7 +124,6 @@ interface UserRoles {
         ButtonModule,
         ToastModule,
         PasswordModule,
-        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         CardModule,
@@ -137,7 +136,8 @@ interface UserRoles {
         DropdownModule,
         ChipModule,
         ConfirmDialogModule,
-        ConfirmationDialogComponent
+        ConfirmationDialogComponent,
+        DatePipe
     ],
     templateUrl: './profile.component.html',
     styles: ``,

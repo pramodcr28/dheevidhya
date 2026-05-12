@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -10,7 +10,7 @@ import { AppFloatingConfigurator } from '../../layout/app.floatingconfigurator';
 import { AuthServerProvider } from '../../services/auth-jwt.service';
 @Component({
     selector: 'app-reset-finish',
-    imports: [RouterModule, FormsModule, ReactiveFormsModule, CommonModule, ReactiveFormsModule, PasswordModule, InputTextModule, ButtonModule, Message, FormsModule, AppFloatingConfigurator],
+    imports: [RouterModule, FormsModule, ReactiveFormsModule, ReactiveFormsModule, PasswordModule, InputTextModule, ButtonModule, Message, FormsModule, AppFloatingConfigurator],
     templateUrl: './reset-finish.component.html',
     styles: ``
 })

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -18,7 +18,7 @@ import { Section } from './../../models/org.model';
 
 @Component({
     selector: 'app-detailed-reports',
-    imports: [CommonModule, FormsModule, ButtonModule, DropdownModule, InputTextModule, CardModule, BadgeModule, TagModule, TableModule, MultiSelect, DatePickerModule],
+    imports: [FormsModule, ButtonModule, DropdownModule, InputTextModule, CardModule, BadgeModule, TagModule, TableModule, MultiSelect, DatePickerModule],
     templateUrl: './detailed-reports.component.html'
 })
 export class DetailedReportsComponent {

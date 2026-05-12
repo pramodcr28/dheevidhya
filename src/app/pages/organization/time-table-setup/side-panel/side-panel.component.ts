@@ -1,11 +1,11 @@
 // side-panel.component.ts
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-side-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './side-panel.component.html'
 })
 export class SidePanelComponent {

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -25,7 +25,7 @@ import { UserService } from '../../service/user.service';
 @Component({
     selector: 'app-department-setup',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TabsModule, SelectModule, ToastModule, TooltipModule, UserFilterPipePipe, AvatarModule, TagModule, BadgeModule, ConfirmationDialogComponent],
+    imports: [FormsModule, ButtonModule, InputTextModule, TabsModule, SelectModule, ToastModule, TooltipModule, UserFilterPipePipe, AvatarModule, TagModule, BadgeModule, ConfirmationDialogComponent, NgClass],
     templateUrl: './department-setup.component.html',
     styles: [],
     providers: [MessageService]

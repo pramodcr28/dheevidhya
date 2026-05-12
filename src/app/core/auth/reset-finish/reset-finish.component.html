@@ -14,65 +14,88 @@
 
     <!-- Alerts -->
     <div class="space-y-3 mb-6">
-      <p-message *ngIf="error()" severity="error"
+      @if (error()) {
+        <p-message severity="error"
         text="Your password could not be reset. The request is valid only for 24 hours."></p-message>
+      }
 
-      <p-message *ngIf="success()" severity="success"
+      @if (success()) {
+        <p-message severity="success"
         text="Your password has been reset successfully. Redirecting to login..."></p-message>
+      }
 
-      <p-message *ngIf="doNotMatch()" severity="warn"
+      @if (doNotMatch()) {
+        <p-message severity="warn"
         text="The password and confirmation do not match!"></p-message>
+      }
 
-      <p-message *ngIf="initialized() && !key()" severity="error"
+      @if (initialized() && !key()) {
+        <p-message severity="error"
         text="The reset key is missing or invalid. Redirecting to login..."></p-message>
+      }
 
-      <p-message *ngIf="key() && !success()" severity="info" text="Choose a new password"></p-message>
+      @if (key() && !success()) {
+        <p-message severity="info" text="Choose a new password"></p-message>
+      }
     </div>
 
     <!-- Form -->
-    <form *ngIf="key() && !success()" [formGroup]="passwordForm" (ngSubmit)="finishReset()" class="space-y-6">
-
-      <!-- New Password -->
-      <div>
-        <label for="newPassword" class="block mb-2 text-sm font-medium  ">
-          New Password
-        </label>
-        <p-password #newPasswordRef inputId="newPassword" formControlName="newPassword" [feedback]="true"
-          [toggleMask]="true" styleClass="w-full" placeholder="Enter new password">
-        </p-password>
-
-        <div *ngIf="newPasswordRef?.['invalid'] && (newPasswordRef?.['dirty'] || newPasswordRef?.['touched'])"
-          class="text-red-500 text-xs mt-1">
-          <span *ngIf="newPasswordRef?.['errors']?.['required']">Password is required.</span>
-          <span *ngIf="newPasswordRef?.['errors']?.['minlength']">Minimum 4 characters.</span>
-          <span *ngIf="newPasswordRef?.['errors']?.['maxlength']">Maximum 50 characters.</span>
+    @if (key() && !success()) {
+      <form [formGroup]="passwordForm" (ngSubmit)="finishReset()" class="space-y-6">
+        <!-- New Password -->
+        <div>
+          <label for="newPassword" class="block mb-2 text-sm font-medium  ">
+            New Password
+          </label>
+          <p-password #newPasswordRef inputId="newPassword" formControlName="newPassword" [feedback]="true"
+            [toggleMask]="true" styleClass="w-full" placeholder="Enter new password">
+          </p-password>
+          @if (newPasswordRef?.['invalid'] && (newPasswordRef?.['dirty'] || newPasswordRef?.['touched'])) {
+            <div
+              class="text-red-500 text-xs mt-1">
+              @if (newPasswordRef?.['errors']?.['required']) {
+                <span>Password is required.</span>
+              }
+              @if (newPasswordRef?.['errors']?.['minlength']) {
+                <span>Minimum 4 characters.</span>
+              }
+              @if (newPasswordRef?.['errors']?.['maxlength']) {
+                <span>Maximum 50 characters.</span>
+              }
+            </div>
+          }
         </div>
-      </div>
-
-      <!-- Confirm Password -->
-      <div>
-        <label for="confirmPassword" class="block mb-2 text-sm font-medium  ">
-          Confirm Password
-        </label>
-        <p-password #confirmPasswordRef inputId="confirmPassword" formControlName="confirmPassword" [feedback]="false"
-          [toggleMask]="true" styleClass="w-full" placeholder="Confirm new password">
-        </p-password>
-
-        <div *ngIf="confirmPasswordRef?.['invalid'] && (confirmPasswordRef?.['dirty'] || confirmPasswordRef?.['touched'])"
-          class="text-red-500 text-xs mt-1">
-          <span *ngIf="confirmPasswordRef?.['errors']?.['required']">Confirmation is required.</span>
-          <span *ngIf="confirmPasswordRef?.['errors']?.['minlength']">Minimum 4 characters.</span>
-          <span *ngIf="confirmPasswordRef?.['errors']?.['maxlength']">Maximum 50 characters.</span>
+        <!-- Confirm Password -->
+        <div>
+          <label for="confirmPassword" class="block mb-2 text-sm font-medium  ">
+            Confirm Password
+          </label>
+          <p-password #confirmPasswordRef inputId="confirmPassword" formControlName="confirmPassword" [feedback]="false"
+            [toggleMask]="true" styleClass="w-full" placeholder="Confirm new password">
+          </p-password>
+          @if (confirmPasswordRef?.['invalid'] && (confirmPasswordRef?.['dirty'] || confirmPasswordRef?.['touched'])) {
+            <div
+              class="text-red-500 text-xs mt-1">
+              @if (confirmPasswordRef?.['errors']?.['required']) {
+                <span>Confirmation is required.</span>
+              }
+              @if (confirmPasswordRef?.['errors']?.['minlength']) {
+                <span>Minimum 4 characters.</span>
+              }
+              @if (confirmPasswordRef?.['errors']?.['maxlength']) {
+                <span>Maximum 50 characters.</span>
+              }
+            </div>
+          }
         </div>
-      </div>
-
-      <!-- Submit Button -->
-      <div class="pt-4">
-        <p-button label="Validate New Password" type="submit" [disabled]="passwordForm.invalid"
-          styleClass="w-full p-button-primary">
-        </p-button>
-      </div>
-    </form>
+        <!-- Submit Button -->
+        <div class="pt-4">
+          <p-button label="Validate New Password" type="submit" [disabled]="passwordForm.invalid"
+            styleClass="w-full p-button-primary">
+          </p-button>
+        </div>
+      </form>
+    }
 
     <!-- Back to Login Link -->
     <div class="text-center mt-6">

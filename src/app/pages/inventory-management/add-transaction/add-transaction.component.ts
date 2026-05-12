@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -30,7 +30,6 @@ import { UserService } from '../../service/user.service';
     selector: 'app-add-transaction',
     standalone: true,
     imports: [
-        CommonModule,
         ReactiveFormsModule,
         ButtonModule,
         SelectModule,
@@ -47,8 +46,9 @@ import { UserService } from '../../service/user.service';
         FormsModule,
         EditorModule,
         TimelineModule,
-        TabsModule
-        // MultiSelect
+        TabsModule,
+        CurrencyPipe,
+        DatePipe
     ],
     templateUrl: './add-transaction.component.html',
     styles: []

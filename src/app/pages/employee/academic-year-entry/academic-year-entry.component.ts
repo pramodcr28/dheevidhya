@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -20,7 +20,7 @@ export interface AcademicYearEntry {
 @Component({
     selector: 'app-academic-year-manager',
     standalone: true,
-    imports: [CommonModule, FormsModule, DialogModule, ButtonModule, DatePickerModule, TagModule, DividerModule, ToastModule, TooltipModule],
+    imports: [FormsModule, DialogModule, ButtonModule, DatePickerModule, TagModule, DividerModule, ToastModule, TooltipModule],
     templateUrl: './academic-year-entry.component.html',
     providers: [MessageService]
 })

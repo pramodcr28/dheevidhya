@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -20,7 +20,7 @@ import { StudentAttendenceServiceService } from '../../service/student-attendenc
 @Component({
     selector: 'app-my-attendance-report',
     standalone: true,
-    imports: [CommonModule, FormsModule, TagModule, ProgressBarModule, SkeletonModule, SelectButtonModule, CalendarModule, DropdownModule, ToastModule, CardModule, ChipModule, DatePicker],
+    imports: [FormsModule, TagModule, ProgressBarModule, SkeletonModule, SelectButtonModule, CalendarModule, DropdownModule, ToastModule, CardModule, ChipModule, DatePicker, NgClass, CommonModule],
     providers: [MessageService],
     templateUrl: `./my-attendance-report.component.html`
 })

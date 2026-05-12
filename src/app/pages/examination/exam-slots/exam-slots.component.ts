@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -22,7 +22,7 @@ import { ExamStatusService } from '../../service/exam-status.service';
 @Component({
     selector: 'app-exam-slots',
     standalone: true,
-    imports: [CommonModule, FormsModule, DatePickerModule, SelectModule, ButtonModule, TableModule, DragDropModule, CardModule, ToastModule, InputNumberModule, SliderModule, KnobModule, ConfirmationDialogComponent],
+    imports: [FormsModule, DatePickerModule, SelectModule, ButtonModule, TableModule, DragDropModule, CardModule, ToastModule, InputNumberModule, SliderModule, KnobModule, ConfirmationDialogComponent],
     templateUrl: './exam-slots.component.html',
     styles: [],
     providers: [MessageService, DheeConfirmationService]

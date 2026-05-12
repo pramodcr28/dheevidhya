@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass, TitleCasePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -34,7 +34,7 @@ interface TimeSlot {
 @Component({
     selector: 'app-staff-timetable',
     standalone: true,
-    imports: [CommonModule, TooltipModule, ToastModule],
+    imports: [TooltipModule, ToastModule, TitleCasePipe, NgClass],
     providers: [MessageService],
     templateUrl: './staff-timetable.component.html',
     styles: [

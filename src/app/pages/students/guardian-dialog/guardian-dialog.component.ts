@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -25,23 +25,22 @@ import { UserService } from '../../service/user.service';
 @Component({
     selector: 'app-guardian-dialog',
     imports: [
-        SelectModule,
-        RadioButtonModule,
-        InputNumberModule,
-        CommonModule,
-        ButtonModule,
-        RippleModule,
-        InputTextModule,
-        TextareaModule,
-        DialogModule,
-        InputIconModule,
-        IconFieldModule,
-        ConfirmDialogModule,
-        SelectModule,
-        ReactiveFormsModule,
-        ToggleButtonModule,
-        FormsModule
-    ],
+    SelectModule,
+    RadioButtonModule,
+    InputNumberModule,
+    ButtonModule,
+    RippleModule,
+    InputTextModule,
+    TextareaModule,
+    DialogModule,
+    InputIconModule,
+    IconFieldModule,
+    ConfirmDialogModule,
+    SelectModule,
+    ReactiveFormsModule,
+    ToggleButtonModule,
+    FormsModule
+],
     templateUrl: './guardian-dialog.component.html',
     standalone: true
 })

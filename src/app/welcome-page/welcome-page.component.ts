@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, ElementRef, HostBinding, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -25,20 +25,19 @@ import { RoadmapSectionComponent } from './roadmap-section/roadmap-section.compo
     selector: 'app-welcome-page',
     standalone: true,
     imports: [
-        CommonModule,
-        AppConfigurator,
-        FormsModule,
-        PublicNavComponent,
-        HeroSectionComponent,
-        FeaturesSectionComponent,
-        ModulesSectionComponent,
-        BoardingSectionComponent,
-        BillingSectionComponent,
-        AiSectionComponent,
-        RoadmapSectionComponent,
-        ContactSectionComponent,
-        FooterSectionComponent
-    ],
+    AppConfigurator,
+    FormsModule,
+    PublicNavComponent,
+    HeroSectionComponent,
+    FeaturesSectionComponent,
+    ModulesSectionComponent,
+    BoardingSectionComponent,
+    BillingSectionComponent,
+    AiSectionComponent,
+    RoadmapSectionComponent,
+    ContactSectionComponent,
+    FooterSectionComponent
+],
     templateUrl: './welcome-page.component.html',
     styleUrls: ['./welcome-page.component.scss']
 })

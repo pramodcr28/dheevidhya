@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -28,26 +28,25 @@ import { IProfileConfig } from '../../models/user.model';
     selector: 'app-sats-student-dialog',
     standalone: true,
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        DialogModule,
-        TabsModule,
-        ButtonModule,
-        RippleModule,
-        InputTextModule,
-        SelectModule,
-        RadioButtonModule,
-        DatePickerModule,
-        CheckboxModule,
-        TextareaModule,
-        ToggleButtonModule,
-        DividerModule,
-        ToastModule,
-        ConfirmDialogModule,
-        ConfirmationDialogComponent,
-        SelectButtonModule
-    ],
+    FormsModule,
+    ReactiveFormsModule,
+    DialogModule,
+    TabsModule,
+    ButtonModule,
+    RippleModule,
+    InputTextModule,
+    SelectModule,
+    RadioButtonModule,
+    DatePickerModule,
+    CheckboxModule,
+    TextareaModule,
+    ToggleButtonModule,
+    DividerModule,
+    ToastModule,
+    ConfirmDialogModule,
+    ConfirmationDialogComponent,
+    SelectButtonModule
+],
     templateUrl: './sats-student-dialog.component.html',
     providers: [MessageService, DheeConfirmationService]
 })

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -15,7 +15,7 @@ import { ConfirmationDialogComponent } from './app/shared/confirmation-dialog/co
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterModule, ApiLoaderComponent, CommonModule, ToastModule, ConfirmDialogModule, ConfirmationDialogComponent],
+    imports: [RouterModule, ApiLoaderComponent, ToastModule, ConfirmDialogModule, ConfirmationDialogComponent],
     template: ` <p-toast></p-toast>
         <p-confirmDialog> </p-confirmDialog>
         <app-confirmation-dialog></app-confirmation-dialog>

@@ -1,149 +1,149 @@
 <div class="from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
 
-    <!-- Statistics Cards -->
-    <div class="flex items-center justify-between mb-5 px-5">
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-all duration-300">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium  ">Total Categories</p>
-            <p class="text-3xl font-bold  dark:text-white">{{ categories.length }}</p>
-          </div>
-          <div class="ms-[4rem] bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
-            <i class="pi pi-folder text-2xl text-blue-600 dark:text-blue-400"></i>
-          </div>
+  <!-- Statistics Cards -->
+  <div class="flex items-center justify-between mb-5 px-5">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium  ">Total Categories</p>
+          <p class="text-3xl font-bold  dark:text-white">{{ categories.length }}</p>
+        </div>
+        <div class="ms-[4rem] bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
+          <i class="pi pi-folder text-2xl text-blue-600 dark:text-blue-400"></i>
         </div>
       </div>
-      <p-button 
-          label="Add Category" 
-          icon="pi pi-plus" 
-          size="small"
-          styleClass="!px-4 !py-2"
-          (onClick)="showAddCategoryDialog()">
-        </p-button>
-   </div>
-
-    <!-- Categories Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        
-      <!-- Add Category Card -->
-      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-blue-500 dark:hover:border-blue-500 transition-colors duration-300 cursor-pointer group"
-           (click)="showAddCategoryDialog()">
-        <div class="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300">
-          <i class="pi pi-plus text-3xl text-blue-600 dark:text-blue-400"></i>
-        </div>
-        <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">Add New Category</h3>
-        <p class="text-sm text-blue-700 dark:text-blue-300 text-center">Create a new inventory category with custom properties</p>
-      </div>
-      @for (category of categories; track category.id) {
-        <div class="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 cursor-pointer">
-          <!-- Category Header -->
-          <div class="flex items-start justify-between mb-6">
-            <div class="flex items-center gap-3">
-              <div class="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
-                   [style.background-color]="getCategoryColor(category.name) + '20'">
-                <i [class]="getCategoryIcon(category.name)"
-                   class="text-xl"
-                   [style.color]="getCategoryColor(category.name)">
-                </i>
-              </div>
-              <div>
-                <h3 class="text-lg font-semibold  dark:text-white truncate m-0">
-                  {{ category.name }}
-                </h3>
-              </div>
-            </div>
-          </div>
-
-          <!-- Category Stats -->
-          <div class="space-y-3 mb-6">
-            <div class="flex items-center justify-between">
-              <span class="text-sm  ">Properties</span>
-              <span class="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
-                {{ category.propertyDefinitions?.length || 0 }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Property Types Preview -->
-          @if (category.propertyDefinitions && category.propertyDefinitions.length > 0) {
-            <div class="mb-6">
-              <p class="text-xs font-medium   mb-2">Property Types:</p>
-              <div class="flex flex-wrap gap-1">
-                @for (propDef of category.propertyDefinitions.slice(0, 4); track propDef.fieldName) {
-                  <span class="bg-gray-100 dark:bg-gray-700   px-2 py-1 rounded-md text-xs">
-                    {{ getFieldTypeLabel(propDef.fieldType!) }}
-                  </span>
-                }
-                @if (category.propertyDefinitions.length > 4) {
-                  <span class="  text-xs px-2 py-1">
-                    +{{ category.propertyDefinitions.length - 4 }} more
-                  </span>
-                }
-              </div>
-            </div>
-          } @else {
-            <div class="mb-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-              <p class="text-xs text-yellow-700 dark:text-yellow-400 text-center">
-                No properties defined
-              </p>
-            </div>
-          }
-
-          <!-- Action Buttons -->
-          <div class="flex gap-2 justify-end">
-            <p-button 
-              label="Edit" 
-              icon="pi pi-pencil" 
-              severity="secondary" 
-              size="small"
-              styleClass="flex-1 !text-xs !py-2"
-              (onClick)="editCategory(category)">
-            </p-button>
-          </div>
-        </div>
-      }
-
     </div>
-
-    <!-- Empty State -->
-    @if (categories.length === 0) {
-      <div class="text-center py-16">
-        <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-          <i class="pi pi-folder text-4xl text-gray-400 "></i>
-        </div>
-        <h3 class="text-xl font-semibold  dark:text-white mb-2">No Categories Found</h3>
-        <p class="  mb-6">Get started by creating your first inventory category</p>
-        <p-button 
-          label="Add Your First Category" 
-          icon="pi pi-plus" 
-          (onClick)="showAddCategoryDialog()">
-        </p-button>
-      </div>
-    }
+    <p-button
+      label="Add Category"
+      icon="pi pi-plus"
+      size="small"
+      styleClass="!px-4 !py-2"
+      (onClick)="showAddCategoryDialog()">
+    </p-button>
   </div>
 
-  <!-- Add/Edit Category Dialog -->
-  <p-dialog 
-    [header]="dialogMode === 'add' ? 'Add New Category' : 'Edit Category'"
-    [(visible)]="showDialog"
-    [modal]="true"
-    [closable]="true"
-    [draggable]="false"
-    [resizable]="false"
-    styleClass="!w-full !max-w-4xl">
-    
-    <div class="space-y-6">
-      <!-- Category Basic Info -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Category Name -->
-        <div>
-          <label class="block text-sm font-medium   mb-2">Category Name *</label>
-          <input 
-            type="text" 
-             [disabled]="categoryForm.id !== null"
-            [(ngModel)]="categoryForm.name"
-            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-            placeholder="Enter category name">
+  <!-- Categories Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+    <!-- Add Category Card -->
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-blue-500 dark:hover:border-blue-500 transition-colors duration-300 cursor-pointer group"
+      (click)="showAddCategoryDialog()">
+      <div class="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300">
+        <i class="pi pi-plus text-3xl text-blue-600 dark:text-blue-400"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">Add New Category</h3>
+      <p class="text-sm text-blue-700 dark:text-blue-300 text-center">Create a new inventory category with custom properties</p>
+    </div>
+    @for (category of categories; track category.id) {
+      <div class="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 cursor-pointer">
+        <!-- Category Header -->
+        <div class="flex items-start justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <div class="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
+              [style.background-color]="getCategoryColor(category.name) + '20'">
+              <i [class]="getCategoryIcon(category.name)"
+                class="text-xl"
+                [style.color]="getCategoryColor(category.name)">
+              </i>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold  dark:text-white truncate m-0">
+                {{ category.name }}
+              </h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Stats -->
+        <div class="space-y-3 mb-6">
+          <div class="flex items-center justify-between">
+            <span class="text-sm  ">Properties</span>
+            <span class="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
+              {{ category.propertyDefinitions?.length || 0 }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Property Types Preview -->
+        @if (category.propertyDefinitions && category.propertyDefinitions.length > 0) {
+          <div class="mb-6">
+            <p class="text-xs font-medium   mb-2">Property Types:</p>
+            <div class="flex flex-wrap gap-1">
+              @for (propDef of category.propertyDefinitions.slice(0, 4); track propDef.fieldName) {
+                <span class="bg-gray-100 dark:bg-gray-700   px-2 py-1 rounded-md text-xs">
+                  {{ getFieldTypeLabel(propDef.fieldType!) }}
+                </span>
+              }
+              @if (category.propertyDefinitions.length > 4) {
+                <span class="  text-xs px-2 py-1">
+                  +{{ category.propertyDefinitions.length - 4 }} more
+                </span>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="mb-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <p class="text-xs text-yellow-700 dark:text-yellow-400 text-center">
+              No properties defined
+            </p>
+          </div>
+        }
+
+        <!-- Action Buttons -->
+        <div class="flex gap-2 justify-end">
+          <p-button
+            label="Edit"
+            icon="pi pi-pencil"
+            severity="secondary"
+            size="small"
+            styleClass="flex-1 !text-xs !py-2"
+            (onClick)="editCategory(category)">
+          </p-button>
+        </div>
+      </div>
+    }
+
+  </div>
+
+  <!-- Empty State -->
+  @if (categories.length === 0) {
+    <div class="text-center py-16">
+      <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+        <i class="pi pi-folder text-4xl text-gray-400 "></i>
+      </div>
+      <h3 class="text-xl font-semibold  dark:text-white mb-2">No Categories Found</h3>
+      <p class="  mb-6">Get started by creating your first inventory category</p>
+      <p-button
+        label="Add Your First Category"
+        icon="pi pi-plus"
+        (onClick)="showAddCategoryDialog()">
+      </p-button>
+    </div>
+  }
+</div>
+
+<!-- Add/Edit Category Dialog -->
+<p-dialog
+  [header]="dialogMode === 'add' ? 'Add New Category' : 'Edit Category'"
+  [(visible)]="showDialog"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="!w-full !max-w-4xl">
+
+  <div class="space-y-6">
+    <!-- Category Basic Info -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Category Name -->
+      <div>
+        <label class="block text-sm font-medium   mb-2">Category Name *</label>
+        <input
+          type="text"
+          [disabled]="categoryForm.id !== null"
+          [(ngModel)]="categoryForm.name"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          placeholder="Enter category name">
         </div>
 
         <!-- Academic Year Dependent -->
@@ -162,9 +162,9 @@
       <div class="border-t pt-6">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-semibold  dark:text-white">Category Properties</h3>
-          <p-button 
-            label="Add Property" 
-            icon="pi pi-plus" 
+          <p-button
+            label="Add Property"
+            icon="pi pi-plus"
             size="small"
             severity="secondary"
             (onClick)="addProperty()">
@@ -177,147 +177,149 @@
               <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <!-- Field Name -->
-                <div>
-                  <label class="block text-xs font-medium   mb-1">
-                    Field Name *
-                  </label>
-                  <input 
-                    type="text" 
-                    [(ngModel)]="property.fieldName"
-                    name="fieldName"
-                    #fieldNameCtrl="ngModel"
-                    [disabled]="categoryForm.id !== null && !property._new"
-                    pattern="^[a-zA-Z]+$"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                    placeholder="e.g., serialNumber">
-
-                  <small *ngIf="fieldNameCtrl.invalid && fieldNameCtrl.touched" class="text-red-500">
-                    Only alphabets (A–Z) are allowed. No numbers, spaces, or special characters.
-                  </small>
-                </div>
-                  <!-- Label -->
                   <div>
-                    <label class="block text-xs font-medium   mb-1">Label *</label>
-                    <input 
-                      type="text" 
-                      [(ngModel)]="property.label"
+                    <label class="block text-xs font-medium   mb-1">
+                      Field Name *
+                    </label>
+                    <input
+                      type="text"
+                      [(ngModel)]="property.fieldName"
+                      name="fieldName"
+                      #fieldNameCtrl="ngModel"
+                      [disabled]="categoryForm.id !== null && !property._new"
+                      pattern="^[a-zA-Z]+$"
                       class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="e.g., Serial Number">
-                  </div>
+                      placeholder="e.g., serialNumber">
 
-                  <!-- Field Type -->
-                  <div>
-                    <label class="block text-xs font-medium   mb-1">Type *</label>
-                    <p-select 
-                      [(ngModel)]="property.fieldType"
-                      [options]="fieldTypeOptions"
-                      optionLabel="title"
-                      optionValue="value"
-                      placeholder="Select type"
-                      appendTo="body"
-                      [disabled]="categoryForm.id !== null  && !property._new"
-                      styleClass="w-full text-sm"
-                      [overlayOptions]="{responsive:{direction:'top'}}"
-                      (onChange)="onFieldTypeChange(property, $index)">
-                    </p-select>
-                  </div>
-
-                  <!-- Actions -->
-                  <div class="flex items-end gap-2">
-                    <p-toggleButton 
-                      [(ngModel)]="property.required"
-                      onLabel="Required" 
-                      offLabel="Optional"
-                      offIcon="pi pi-times"
-                      size="small"
-                      styleClass="!text-xs">
-                    </p-toggleButton>
-                    <p-button 
-                      icon="pi pi-trash" 
-                      severity="danger" 
-                      size="small"
-                      text="true"
-                      (onClick)="removeProperty($index)">
-                    </p-button>
-                  </div>
-                </div>
-
-                <!-- Options for Dropdown/Radio -->
-                @if (property.fieldType === 'DROPDOWN' || property.fieldType === 'RADIO') {
-                  <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                    <div class="flex items-center justify-between mb-3">
-                      <label class="text-xs font-medium  ">Options</label>
-                      <p-button 
-                        label="Add Option" 
-                        icon="pi pi-plus" 
-                        size="small"
-                        text="true"
-                        (onClick)="addOption(property)">
-                      </p-button>
+                      @if (fieldNameCtrl.invalid && fieldNameCtrl.touched) {
+                        <small class="text-red-500">
+                          Only alphabets (A–Z) are allowed. No numbers, spaces, or special characters.
+                        </small>
+                      }
                     </div>
-                    <div class="space-y-2">
-                      @for (option of property.options || []; track $index) {
-                          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <!-- Field Name -->
+                    <!-- Label -->
                     <div>
-                        <label class="block text-xs font-medium   mb-1">title *</label>
-                        <input 
-                            type="text" 
-                            [(ngModel)]="option.title"
-                            class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                            placeholder="Option title">
+                      <label class="block text-xs font-medium   mb-1">Label *</label>
+                      <input
+                        type="text"
+                        [(ngModel)]="property.label"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="e.g., Serial Number">
+                      </div>
+
+                      <!-- Field Type -->
+                      <div>
+                        <label class="block text-xs font-medium   mb-1">Type *</label>
+                        <p-select
+                          [(ngModel)]="property.fieldType"
+                          [options]="fieldTypeOptions"
+                          optionLabel="title"
+                          optionValue="value"
+                          placeholder="Select type"
+                          appendTo="body"
+                          [disabled]="categoryForm.id !== null  && !property._new"
+                          styleClass="w-full text-sm"
+                          [overlayOptions]="{responsive:{direction:'top'}}"
+                          (onChange)="onFieldTypeChange(property, $index)">
+                        </p-select>
+                      </div>
+
+                      <!-- Actions -->
+                      <div class="flex items-end gap-2">
+                        <p-toggleButton
+                          [(ngModel)]="property.required"
+                          onLabel="Required"
+                          offLabel="Optional"
+                          offIcon="pi pi-times"
+                          size="small"
+                          styleClass="!text-xs">
+                        </p-toggleButton>
+                        <p-button
+                          icon="pi pi-trash"
+                          severity="danger"
+                          size="small"
+                          text="true"
+                          (onClick)="removeProperty($index)">
+                        </p-button>
+                      </div>
                     </div>
 
-                  <!-- Label -->
-                    <div>
-                        <label class="block text-xs font-medium   mb-1">value *</label>
-                        <input 
-                            type="text" 
-                            [(ngModel)]="option.value"
-                            class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                            placeholder="Option value">
-                    </div>
-                  <!-- Actions -->
-                    <div class="flex items-end gap-2">
-                        <p-button 
-                            icon="pi pi-trash" 
-                            severity="danger" 
+                    <!-- Options for Dropdown/Radio -->
+                    @if (property.fieldType === 'DROPDOWN' || property.fieldType === 'RADIO') {
+                      <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <div class="flex items-center justify-between mb-3">
+                          <label class="text-xs font-medium  ">Options</label>
+                          <p-button
+                            label="Add Option"
+                            icon="pi pi-plus"
                             size="small"
                             text="true"
-                            (onClick)="removeOption(property, $index)">
-                            </p-button>
-                    </div>
-                </div>
-                 }
-                    </div>
+                            (onClick)="addOption(property)">
+                          </p-button>
+                        </div>
+                        <div class="space-y-2">
+                          @for (option of property.options || []; track $index) {
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                              <!-- Field Name -->
+                              <div>
+                                <label class="block text-xs font-medium   mb-1">title *</label>
+                                <input
+                                  type="text"
+                                  [(ngModel)]="option.title"
+                                  class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                  placeholder="Option title">
+                                </div>
+
+                                <!-- Label -->
+                                <div>
+                                  <label class="block text-xs font-medium   mb-1">value *</label>
+                                  <input
+                                    type="text"
+                                    [(ngModel)]="option.value"
+                                    class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                    placeholder="Option value">
+                                  </div>
+                                  <!-- Actions -->
+                                  <div class="flex items-end gap-2">
+                                    <p-button
+                                      icon="pi pi-trash"
+                                      severity="danger"
+                                      size="small"
+                                      text="true"
+                                      (onClick)="removeOption(property, $index)">
+                                    </p-button>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                    <i class="pi pi-plus text-2xl text-gray-400  mb-2"></i>
+                    <p class="text-sm  ">No properties defined yet</p>
+                    <p class="text-xs text-gray-400 ">Click "Add Property" to get started</p>
                   </div>
                 }
               </div>
-            }
-          </div>
-        } @else {
-          <div class="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-            <i class="pi pi-plus text-2xl text-gray-400  mb-2"></i>
-            <p class="text-sm  ">No properties defined yet</p>
-            <p class="text-xs text-gray-400 ">Click "Add Property" to get started</p>
-          </div>
-        }
-      </div>
-    </div>
+            </div>
 
-    <ng-template pTemplate="footer">
-      <div class="flex gap-3 justify-end">
-        <p-button 
-          label="Cancel" 
-          severity="secondary" 
-          (onClick)="closeDialog()">
-        </p-button>
-        <p-button 
-          [label]="dialogMode === 'add' ? 'Create Category' : 'Update Category'"
-          [disabled]="!isFormValid()"
-          (onClick)="saveCategory()">
-        </p-button>
-      </div>
-    </ng-template>
-  </p-dialog>
+            <ng-template pTemplate="footer">
+              <div class="flex gap-3 justify-end">
+                <p-button
+                  label="Cancel"
+                  severity="secondary"
+                  (onClick)="closeDialog()">
+                </p-button>
+                <p-button
+                  [label]="dialogMode === 'add' ? 'Create Category' : 'Update Category'"
+                  [disabled]="!isFormValid()"
+                  (onClick)="saveCategory()">
+                </p-button>
+              </div>
+            </ng-template>
+          </p-dialog>
 

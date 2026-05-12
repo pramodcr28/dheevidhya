@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -13,7 +13,7 @@ import { CommonService } from './../../../../core/services/common.service';
 @Component({
     selector: 'app-review',
     standalone: true,
-    imports: [CommonModule, DialogModule, ToastModule, MessageModule, TimetableViewComponent],
+    imports: [DialogModule, ToastModule, MessageModule, TimetableViewComponent],
     providers: [MessageService],
     templateUrl: './review.component.html'
 })

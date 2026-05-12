@@ -1,253 +1,246 @@
 <p-toast></p-toast>
-  <app-confirmation-dialog></app-confirmation-dialog>
- @let isStudent = commonService.getUserAuthorities.includes('STUDENT');
-    @if (displayTimeTableJson  && !displayTimeTableJson.error) {
+<app-confirmation-dialog></app-confirmation-dialog>
+@let isStudent = commonService.getUserAuthorities.includes('STUDENT');
+@if (displayTimeTableJson  && !displayTimeTableJson.error) {
 
-    <div class="relative pb-24 dark:bg-gray-900 min-h-screen">
-        <div class="space-y-6">
-            <div
-                *ngFor="let classSec of displayTimeTableJson.classSections"
-                [ngClass]="{ 'other-section': selectedPeriod && selectedPeriod.classSec !== classSec }"
-                class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
-            >
-                <div class="bg-primary-600 dark:bg-primary-700 p-5">
-                    <div class="flex items-center gap-3 justify-between">
-                        <div class="flex items-center gap-3 flex-1">
-                            <div class="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
-                                <i class="pi pi-graduation-cap text-white text-2xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-white">{{ classSec.className }} - Section {{ classSec.sectionName }}</h3>
-                                <p class="text-primary-100 text-sm mt-0.5">Weekly Schedule</p>
-                            </div>
-                        </div>
-                        <div *ngIf="selectedPeriod && selectedPeriod.classSec === classSec" class="px-4 py-2 bg-blue-500 rounded-lg flex items-center gap-2">
-                            <span class="text-white text-sm font-semibold"> <i class="pi pi-check-circle mr-2"></i>Selected </span>
-                            <button (click)="deselectPeriod(classSec)" class="text-white hover:">
-                                <i class="pi pi-times text-lg"></i>
-                            </button>
-                        </div>
-                    </div>
+  <div class="relative pb-24 dark:bg-gray-900 min-h-screen">
+    <div class="space-y-6">
+      @for (classSec of displayTimeTableJson.classSections; track classSec) {
+        <div
+          [ngClass]="{ 'other-section': selectedPeriod && selectedPeriod.classSec !== classSec }"
+          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+          >
+          <div class="bg-primary-600 dark:bg-primary-700 p-5">
+            <div class="flex items-center gap-3 justify-between">
+              <div class="flex items-center gap-3 flex-1">
+                <div class="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <i class="pi pi-graduation-cap text-white text-2xl"></i>
                 </div>
-
-                <div class="overflow-x-auto p-4">
-                    <div class="w-full grid gap-1.5 min-w-fit" [ngStyle]="{ gridTemplateColumns: 'repeat(' + (classSec._columns?.length + 1 || 7) + ', auto)' }">
-                        <div class="bg-primary-50 dark:bg-primary-900/20 font-bold text-primary-700 dark:text-primary-300 p-3 rounded-lg flex items-center justify-center border-2 border-primary-200 dark:border-primary-800">
-                            <div class="text-center flex-col items-center flex">
-                                <i class="pi pi-calendar text-lg mb-1 block"></i>
-                                <span class="text-xs uppercase tracking-wide">Day</span>
-                            </div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">{{ classSec.className }} - Section {{ classSec.sectionName }}</h3>
+                  <p class="text-primary-100 text-sm mt-0.5">Weekly Schedule</p>
+                </div>
+              </div>
+              @if (selectedPeriod && selectedPeriod.classSec === classSec) {
+                <div class="px-4 py-2 bg-blue-500 rounded-lg flex items-center gap-2">
+                  <span class="text-white text-sm font-semibold"> <i class="pi pi-check-circle mr-2"></i>Selected </span>
+                  <button (click)="deselectPeriod(classSec)" class="text-white hover:">
+                    <i class="pi pi-times text-lg"></i>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="overflow-x-auto p-4">
+            <div class="w-full grid gap-1.5 min-w-fit" [ngStyle]="{ gridTemplateColumns: 'repeat(' + (classSec._columns?.length + 1 || 7) + ', auto)' }">
+              <div class="bg-primary-50 dark:bg-primary-900/20 font-bold text-primary-700 dark:text-primary-300 p-3 rounded-lg flex items-center justify-center border-2 border-primary-200 dark:border-primary-800">
+                <div class="text-center flex-col items-center flex">
+                  <i class="pi pi-calendar text-lg mb-1 block"></i>
+                  <span class="text-xs uppercase tracking-wide">Day</span>
+                </div>
+              </div>
+              @for (col of classSec._columns; track col) {
+                @if (col.type === 'period') {
+                  <div class="bg-surface-50 dark:bg-surface-800 p-2 rounded-lg flex flex-col items-center justify-center border border-surface-200 dark:border-surface-700">
+                    <span class="text-[9px] font-semibold text-surface-500 dark:text-surface-400 tracking-wider">Period</span>
+                    <span class="text-xl font-bold text-primary-600 dark:text-primary-400 mt-0.5">{{ col.index + 1 }}</span>
+                  </div>
+                }
+                @if (col.type === 'break') {
+                  <div class="bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded-lg flex items-center justify-center border-2 border-yellow-300 dark:border-yellow-700 shadow-sm">
+                    <i class="pi pi-clock text-yellow-700 dark:text-yellow-200"></i>
+                  </div>
+                }
+              }
+              @for (schedule of classSec.schedules; track schedule; let dayIdx = $index) {
+                <div class="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center gap-2 min-w-[50px] border-2 border-primary-200 dark:border-primary-800 shadow-sm flex-col">
+                  <div class="p-1.5 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
+                    <i class="pi pi-calendar-plus text-primary-600 dark:text-primary-400 text-base"></i>
+                  </div>
+                  <span class="font-bold   text-sm block">
+                    {{ schedule.dayName }}
+                  </span>
+                </div>
+                @for (headerCol of classSec._columns; track headerCol; let colIndex = $index) {
+                  @if (schedule._cells && schedule._cells[colIndex]; as cell) {
+                    @if (cell.type === 'break' && dayIdx === 0) {
+                      <div
+                        [style.grid-row]="'span ' + classSec.schedules.length"
+                        class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-900/10 rounded-lg border border-yellow-200 dark:border-yellow-700 shadow-inner relative"
+                        >
+                        <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 py-4">
+                          <div class="p-1.5 rounded-full bg-white/60 dark:bg-white/10 shadow-sm">
+                            <i class="pi pi-stopwatch text-yellow-600 dark:text-yellow-200 text-base"></i>
+                          </div>
+                          <div class="text-xs font-bold text-yellow-800 dark:text-yellow-200 uppercase tracking-widest" style="writing-mode: vertical-rl; transform: rotate(180deg)">
+                            {{ cell.breakItem?.name }}
+                          </div>
+                          <div class="text-[10px] text-yellow-700 dark:text-yellow-300 font-mono" style="writing-mode: vertical-rl; transform: rotate(180deg)">{{ cell.breakItem?.duration }} mins</div>
                         </div>
-
-                        <ng-container *ngFor="let col of classSec._columns">
-                            <div *ngIf="col.type === 'period'" class="bg-surface-50 dark:bg-surface-800 p-2 rounded-lg flex flex-col items-center justify-center border border-surface-200 dark:border-surface-700">
-                                <span class="text-[9px] font-semibold text-surface-500 dark:text-surface-400 tracking-wider">Period</span>
-                                <span class="text-xl font-bold text-primary-600 dark:text-primary-400 mt-0.5">{{ col.index + 1 }}</span>
-                            </div>
-
-                            <div *ngIf="col.type === 'break'" class="bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded-lg flex items-center justify-center border-2 border-yellow-300 dark:border-yellow-700 shadow-sm">
-                                <i class="pi pi-clock text-yellow-700 dark:text-yellow-200"></i>
-                            </div>
-                        </ng-container>
-
-                        <ng-container *ngFor="let schedule of classSec.schedules; let dayIdx = index">
-                            <div class="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center gap-2 min-w-[50px] border-2 border-primary-200 dark:border-primary-800 shadow-sm flex-col">
-                                <div class="p-1.5 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
-                                    <i class="pi pi-calendar-plus text-primary-600 dark:text-primary-400 text-base"></i>
-                                </div>
-                                <span class="font-bold   text-sm block">
-                                    {{ schedule.dayName }}
-                                </span>
-                            </div>
-
-                            <ng-container *ngFor="let headerCol of classSec._columns; let colIndex = index">
-                                <ng-container *ngIf="schedule._cells && schedule._cells[colIndex] as cell">
-                                    <div
-                                        *ngIf="cell.type === 'break' && dayIdx === 0"
-                                        [style.grid-row]="'span ' + classSec.schedules.length"
-                                        class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-900/10 rounded-lg border border-yellow-200 dark:border-yellow-700 shadow-inner relative"
-                                    >
-                                        <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 py-4">
-                                            <div class="p-1.5 rounded-full bg-white/60 dark:bg-white/10 shadow-sm">
-                                                <i class="pi pi-stopwatch text-yellow-600 dark:text-yellow-200 text-base"></i>
-                                            </div>
-                                            <div class="text-xs font-bold text-yellow-800 dark:text-yellow-200 uppercase tracking-widest" style="writing-mode: vertical-rl; transform: rotate(180deg)">
-                                                {{ cell.breakItem?.name }}
-                                            </div>
-                                            <div class="text-[10px] text-yellow-700 dark:text-yellow-300 font-mono" style="writing-mode: vertical-rl; transform: rotate(180deg)">{{ cell.breakItem?.duration }} mins</div>
-                                        </div>
-                                    </div>
-
-                                    <ng-container *ngIf="canDragAndDrop; else viewMode">
-                                        <div
-                                            *ngIf="cell.type === 'lecture' || cell.type === 'free'"
-                                            (click)="onPeriodClick(classSec, cell.dayIndex, cell.realPeriodIndex, cell)"
-                                            [pDraggable]="isSelectedPeriod(cell.dayIndex, cell.realPeriodIndex, cell) && timetableJson.id != null ? 'true' : 'false'"
-                                            (onDragStart)="onDragStart(classSec, cell.dayIndex, cell.realPeriodIndex, cell)"
-                                            [pDroppable]="cell.canDrop && timetableJson.id != null ? 'true' : 'false'"
-                                            (onDrop)="onDrop(classSec, cell.dayIndex, cell.realPeriodIndex)"
-                                            [pTooltip]="cell.tooltipText || cell.tooltip"
-                                            tooltipPosition="top"
-                                            [escape]="false"
-                                            class="relative p-2 min-h-[60px] min-w-[95px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md border"
+                      </div>
+                    }
+                    @if (canDragAndDrop) {
+                      @if (cell.type === 'lecture' || cell.type === 'free') {
+                        <div
+                          (click)="onPeriodClick(classSec, cell.dayIndex, cell.realPeriodIndex, cell)"
+                          [pDraggable]="isSelectedPeriod(cell.dayIndex, cell.realPeriodIndex, cell) && timetableJson.id != null ? 'true' : 'false'"
+                          (onDragStart)="onDragStart(classSec, cell.dayIndex, cell.realPeriodIndex, cell)"
+                          [pDroppable]="cell.canDrop && timetableJson.id != null ? 'true' : 'false'"
+                          (onDrop)="onDrop(classSec, cell.dayIndex, cell.realPeriodIndex)"
+                          [pTooltip]="cell.tooltipText || cell.tooltip"
+                          tooltipPosition="top"
+                          [escape]="false"
+                          class="relative p-2 min-h-[60px] min-w-[95px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md border"
                                             [ngClass]="{
                                                 'drag-valid-target': cell.canDrop && selectedPeriod && classSec === selectedPeriod.classSec,
                                                 'drag-conflict-target': !cell.canDrop && selectedPeriod && classSec === selectedPeriod.classSec,
                                                 'selected-period': isSelectedPeriod(cell.dayIndex, cell.realPeriodIndex, cell) && classSec === selectedPeriod.classSec,
                                                 'cursor-pointer': true
                                             }"
-                                        >
-                                            <!-- ✔ Shared inner content -->
-                                            <ng-container *ngIf="isValidatingPeriod(cell.dayIndex, cell.realPeriodIndex); else editContent">
-                                                <div class="h-full flex flex-col justify-center items-center text-center gap-2">
-                                                    <div class="validating-spinner"></div>
-                                                    <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">Validating...</div>
-                                                </div>
-                                            </ng-container>
-
-                                            <ng-template #editContent>
-                                                <div *ngIf="cell.subject?.id; else freeBlock" class="h-full flex flex-col justify-center items-center text-center">
-                                                    <h4 class="font-bold text-sm leading-tight mb-1 truncate w-full">
-                                                        {{ cell.subject?.name || cell.name }}
-                                                    </h4>
-
-                                                    <div class="text-xs   mb-1 truncate w-full">
-                                                        {{ cell.instructor?.name || 'No Instructor' }}
-                                                    </div>
-
-                                                    <div class="text-[8px] font-semibold text-primary-600 dark:text-primary-400">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime)}}</div>
-                                                </div>
-
-                                                <ng-template #freeBlock>
-                                                    <div class="h-full flex flex-col items-center justify-center text-center">
-                                                        <div class="text-xs font-bold uppercase mb-1 text-surface-600 dark:text-surface-400">Free Period</div>
-                                                        <div class="text-[8px] text-surface-500 dark:text-surface-500">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime) }}</div>
-                                                    </div>
-                                                </ng-template>
-                                            </ng-template>
-                                        </div>
-                                    </ng-container>
-
-                                    <ng-template #viewMode>
-                                        <div
-                                            *ngIf="cell.type === 'lecture' || cell.type === 'free'"
-                                            [pTooltip]="cell.tooltipText || cell.tooltip"
-                                            tooltipPosition="top"
-                                            [escape]="false"
-                                            class="relative p-2 min-h-[60px] min-w-[70px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md border"
-                                        >
-                                            <ng-container *ngIf="isValidatingPeriod(cell.dayIndex, cell.realPeriodIndex); else viewContent">
-                                                <div class="h-full flex flex-col justify-center items-center text-center gap-2">
-                                                    <div class="validating-spinner"></div>
-                                                    <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">Validating...</div>
-                                                </div>
-                                            </ng-container>
-
-                                            <ng-template #viewContent>
-                                                <div *ngIf="cell.subject?.id; else freeBlockView" class="h-full flex flex-col justify-center items-center text-center">
-                                                    <h4 class="font-bold text-sm leading-tight mb-1 truncate w-full">
-                                                        {{ cell.subject?.name || cell.name }}
-                                                    </h4>
-
-                                                    <div class="text-xs   mb-1 truncate w-full">
-                                                        {{ cell.instructor?.name || 'No Instructor' }}
-                                                    </div>
-
-                                                    <div class="text-[8px]  font-semibold text-primary-600 dark:text-primary-400">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime) }}</div>
-                                                </div>
-
-                                                <ng-template #freeBlockView>
-                                                    <div class="h-full flex flex-col items-center justify-center text-center">
-                                                        <div class="text-xs font-bold uppercase mb-1 text-surface-600 dark:text-surface-400">Free Period</div>
-                                                        <div class="text-[8px] text-surface-500 dark:text-surface-500">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime) }}</div>
-                                                    </div>
-                                                </ng-template>
-                                            </ng-template>
-                                        </div>
-                                    </ng-template>
-                                </ng-container>
-                            </ng-container>
-                        </ng-container>
-                    </div>
-                </div>
-    @if(!isStudent){
-                <div class="px-4 pb-4">
-                    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3 border border-surface-200 dark:border-surface-700">
-                        <div class="flex flex-wrap items-center gap-3 text-xs">
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded bg-primary-600 dark:bg-primary-500 shadow-sm"></div>
-                                <span class="text-surface-700 dark:text-surface-300 font-medium">Lecture</span>
+                          >
+                          <!-- ✔ Shared inner content -->
+                          @if (isValidatingPeriod(cell.dayIndex, cell.realPeriodIndex)) {
+                            <div class="h-full flex flex-col justify-center items-center text-center gap-2">
+                              <div class="validating-spinner"></div>
+                              <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">Validating...</div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded bg-gradient-to-br from-orange-400 to-amber-500 shadow-sm"></div>
-                                <span class="text-surface-700 dark:text-surface-300 font-medium">Break Time</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded bg-surface-200 dark:bg-surface-700 border border-surface-300 dark:border-surface-600"></div>
-                                <span class="text-surface-700 dark:text-surface-300 font-medium">Free Period</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded bg-blue-500 shadow-sm"></div>
-                                <span class="text-surface-700 dark:text-surface-300 font-medium">Selected</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded bg-green-500 shadow-sm"></div>
-                                <span class="text-surface-700 dark:text-surface-300 font-medium">Valid</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded bg-red-500 shadow-sm"></div>
-                                <span class="text-surface-700 dark:text-surface-300 font-medium">Conflict</span>
-                            </div>
+                          } @else {
+                            @if (cell.subject?.id) {
+                              <div class="h-full flex flex-col justify-center items-center text-center">
+                                <h4 class="font-bold text-sm leading-tight mb-1 truncate w-full">
+                                  {{ cell.subject?.name || cell.name }}
+                                </h4>
+                                <div class="text-xs   mb-1 truncate w-full">
+                                  {{ cell.instructor?.name || 'No Instructor' }}
+                                </div>
+                                <div class="text-[8px] font-semibold text-primary-600 dark:text-primary-400">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime)}}</div>
+                              </div>
+                            } @else {
+                              <div class="h-full flex flex-col items-center justify-center text-center">
+                                <div class="text-xs font-bold uppercase mb-1 text-surface-600 dark:text-surface-400">Free Period</div>
+                                <div class="text-[8px] text-surface-500 dark:text-surface-500">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime) }}</div>
+                              </div>
+                            }
+                          }
                         </div>
-                    </div>
+                      }
+                    } @else {
+                      @if (cell.type === 'lecture' || cell.type === 'free') {
+                        <div
+                          [pTooltip]="cell.tooltipText || cell.tooltip"
+                          tooltipPosition="top"
+                          [escape]="false"
+                          class="relative p-2 min-h-[60px] min-w-[70px] rounded-lg transition-all duration-200 text-sm h-full flex flex-col justify-center hover:shadow-md border"
+                          >
+                          @if (isValidatingPeriod(cell.dayIndex, cell.realPeriodIndex)) {
+                            <div class="h-full flex flex-col justify-center items-center text-center gap-2">
+                              <div class="validating-spinner"></div>
+                              <div class="text-xs font-semibold text-primary-600 dark:text-primary-400">Validating...</div>
+                            </div>
+                          } @else {
+                            @if (cell.subject?.id) {
+                              <div class="h-full flex flex-col justify-center items-center text-center">
+                                <h4 class="font-bold text-sm leading-tight mb-1 truncate w-full">
+                                  {{ cell.subject?.name || cell.name }}
+                                </h4>
+                                <div class="text-xs   mb-1 truncate w-full">
+                                  {{ cell.instructor?.name || 'No Instructor' }}
+                                </div>
+                                <div class="text-[8px]  font-semibold text-primary-600 dark:text-primary-400">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime) }}</div>
+                              </div>
+                            } @else {
+                              <div class="h-full flex flex-col items-center justify-center text-center">
+                                <div class="text-xs font-bold uppercase mb-1 text-surface-600 dark:text-surface-400">Free Period</div>
+                                <div class="text-[8px] text-surface-500 dark:text-surface-500">{{ formatTime(cell.startTime) }} - {{ formatTime(cell.endTime) }}</div>
+                              </div>
+                            }
+                          }
+                        </div>
+                      }
+                    }
+                  }
+                }
+              }
+            </div>
+          </div>
+          @if(!isStudent){
+            <div class="px-4 pb-4">
+              <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3 border border-surface-200 dark:border-surface-700">
+                <div class="flex flex-wrap items-center gap-3 text-xs">
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded bg-primary-600 dark:bg-primary-500 shadow-sm"></div>
+                    <span class="text-surface-700 dark:text-surface-300 font-medium">Lecture</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded bg-gradient-to-br from-orange-400 to-amber-500 shadow-sm"></div>
+                    <span class="text-surface-700 dark:text-surface-300 font-medium">Break Time</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded bg-surface-200 dark:bg-surface-700 border border-surface-300 dark:border-surface-600"></div>
+                    <span class="text-surface-700 dark:text-surface-300 font-medium">Free Period</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded bg-blue-500 shadow-sm"></div>
+                    <span class="text-surface-700 dark:text-surface-300 font-medium">Selected</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded bg-green-500 shadow-sm"></div>
+                    <span class="text-surface-700 dark:text-surface-300 font-medium">Valid</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded bg-red-500 shadow-sm"></div>
+                    <span class="text-surface-700 dark:text-surface-300 font-medium">Conflict</span>
+                  </div>
                 </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+    @if(dailogeType == 'Edit'){
+      <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+        <div class="flex items-center gap-3 bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-3">
+          <button (click)="onCancel()"
+            class="px-4 py-3 rounded-xl bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-200 font-semibold hover:bg-surface-200 dark:hover:bg-surface-600 transition-colors">
+            <i class="pi pi-times me-2"></i>
+            <span>Cancel</span>
+          </button>
+
+          <button (click)="onSaveAsDraft()"
+            class="px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold transition-colors">
+            <i class="pi pi-save me-2"></i>
+            <span>Save as Draft</span>
+          </button>
+
+          <button (click)="onPublish()"
+            class="px-4 py-3 rounded-xl text-white font-bold bg-primary-600 hover:bg-primary-700 transition-colors">
+            <i class="pi pi-check-circle me-2"></i>
+            <span>{{ dailogeType == 'View' ? 'Publish TimeTable' : 'Update Changes' }}</span>
+          </button>
+        </div>
+      </div>
     }
 
-            </div>
-        </div>
-        @if(dailogeType == 'Edit'){ 
-        <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-            <div class="flex items-center gap-3 bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-3">
-                <button (click)="onCancel()" 
-                        class="px-4 py-3 rounded-xl bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-200 font-semibold hover:bg-surface-200 dark:hover:bg-surface-600 transition-colors">
-                    <i class="pi pi-times me-2"></i> 
-                    <span>Cancel</span>
-                </button>
+  </div>
 
-                <button (click)="onSaveAsDraft()" 
-                        class="px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold transition-colors">
-                    <i class="pi pi-save me-2"></i>
-                    <span>Save as Draft</span>
-                </button>
+} @else {
 
-                <button (click)="onPublish()" 
-                        class="px-4 py-3 rounded-xl text-white font-bold bg-primary-600 hover:bg-primary-700 transition-colors">
-                    <i class="pi pi-check-circle me-2"></i>
-                    <span>{{ dailogeType == 'View' ? 'Publish TimeTable' : 'Update Changes' }}</span>
-                </button>
-            </div>
-        </div>
-        }
+  <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 text-center p-6">
 
+    <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-8 max-w-md w-full border border-gray-200 dark:border-gray-700">
+
+      <i class="pi pi-inbox text-5xl text-gray-400 mb-4"></i>
+
+      <h2 class="text-xl font-bold text-gray-700 dark:text-gray-200 mb-2">
+        No Timetable Available
+      </h2>
+
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+        There is no timetable data to display
+      </p>
     </div>
 
-    } @else {
+  </div>
 
-    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 text-center p-6">
-
-        <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-8 max-w-md w-full border border-gray-200 dark:border-gray-700">
-
-            <i class="pi pi-inbox text-5xl text-gray-400 mb-4"></i>
-
-            <h2 class="text-xl font-bold text-gray-700 dark:text-gray-200 mb-2">
-                No Timetable Available
-            </h2>
-
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                There is no timetable data to display
-            </p>
-        </div>
-
-    </div>
-
-    }
+}

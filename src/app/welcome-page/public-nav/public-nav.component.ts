@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, HostListener, inject, Input, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -9,7 +9,7 @@ import { UserProfileState } from '../../core/store/user-profile/user-profile.red
 @Component({
     selector: 'app-public-nav',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [RouterLink],
     templateUrl: './public-nav.component.html',
     styleUrls: ['./public-nav.component.scss']
 })

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -18,7 +18,7 @@ import { InventoryService } from '../../service/inventory.service';
 @Component({
     selector: 'app-add-inventory-item',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputTextModule, InputNumberModule, DatePickerModule, CheckboxModule, TextareaModule, MessageModule, RadioButtonModule],
+    imports: [FormsModule, ButtonModule, SelectModule, InputTextModule, InputNumberModule, DatePickerModule, CheckboxModule, TextareaModule, MessageModule, RadioButtonModule],
     templateUrl: './add-inventory-item.component.html',
     styles: []
 })

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -16,7 +16,7 @@ import { InventoryService } from '../../service/inventory.service';
 @Component({
     selector: 'app-category-management',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, DialogModule, InputTextModule, InputSwitchModule, MenuModule, SelectModule, ToggleButtonModule],
+    imports: [FormsModule, ButtonModule, DialogModule, InputTextModule, InputSwitchModule, MenuModule, SelectModule, ToggleButtonModule],
     templateUrl: './category-management.component.html',
     styles: `
         .p-select-panel {

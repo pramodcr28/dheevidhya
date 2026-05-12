@@ -6,10 +6,12 @@
     Tips & Tricks
   </h4>
   <ul class="space-y-2 text-sm ">
-    <li *ngFor="let tip of getCurrentTips()" class="flex items-start">
-      <i class="pi pi-check text-green-500 mr-2 mt-1 text-xs dark:text-green-400"></i>
-      {{tip}}
-    </li>
+    @for (tip of getCurrentTips(); track tip) {
+      <li class="flex items-start">
+        <i class="pi pi-check text-green-500 mr-2 mt-1 text-xs dark:text-green-400"></i>
+        {{tip}}
+      </li>
+    }
   </ul>
 </div>
 

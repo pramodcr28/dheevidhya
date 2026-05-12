@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ITEMS_PER_PAGE } from '../../../core/model/pagination.constants';
@@ -18,7 +18,7 @@ interface FilterTab {
 @Component({
     selector: 'app-student-exams',
     standalone: true,
-    imports: [CommonModule],
+    imports: [NgClass],
     templateUrl: './student-exams.component.html'
 })
 export class StudentExamsComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { MessageService, TreeNode } from 'primeng/api';
@@ -27,7 +27,7 @@ import { SubmitAssignmentDialogComponent } from './submit-assignment-dialog/subm
 @Component({
     selector: 'app-assignment-management',
     standalone: true,
-    imports: [CommonModule, ButtonModule, TableModule, CardModule, TagModule, AddAssignmentDialogComponent, SubmitAssignmentDialogComponent, TooltipModule, BadgeModule, ConfirmationDialogComponent],
+    imports: [ButtonModule, TableModule, CardModule, TagModule, AddAssignmentDialogComponent, SubmitAssignmentDialogComponent, TooltipModule, BadgeModule, ConfirmationDialogComponent, NgClass, DatePipe, LowerCasePipe],
     templateUrl: './assignment-management.component.html'
 })
 export class AssignmentManagementComponent implements OnInit {

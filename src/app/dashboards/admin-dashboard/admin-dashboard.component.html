@@ -34,7 +34,7 @@
           <p class="text-xs font-semibold text-gray-400  mt-0.5">→ No change</p>
         </div>
       </div>
-<!-- 
+      <!--
       <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 flex items-start gap-3">
         <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-950 flex items-center justify-center flex-shrink-0">
           <i class="pi pi-book text-amber-500 text-lg"></i>
@@ -57,22 +57,26 @@
           <p class="text-xs text-gray-400  mt-0.5">Recent deployments & changes</p>
         </div>
         <div class="px-5 pb-4">
-          <div *ngFor="let item of data?.recentTimeline; let last = last"
-               class="flex gap-3 relative pb-4"
-               [class.pb-0]="last">
-            <!-- connector -->
-            <div *ngIf="!last"
-                 class="absolute left-4 top-7 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
-            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10"
-                 [ngClass]="getTimelineIconClass(item.type)">
-              <i [class]="item.icon + ' text-xs'"></i>
+          @for (item of data?.recentTimeline; track item; let last = $last) {
+            <div
+              class="flex gap-3 relative pb-4"
+              [class.pb-0]="last">
+              <!-- connector -->
+              @if (!last) {
+                <div
+                class="absolute left-4 top-7 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+              }
+              <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10"
+                [ngClass]="getTimelineIconClass(item.type)">
+                <i [class]="item.icon + ' text-xs'"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold  ">{{ item.title }}</p>
+                <p class="text-[11px] text-gray-400  mt-0.5">{{ item.description }}</p>
+              </div>
+              <p class="text-[10px] text-gray-400  whitespace-nowrap pt-1 flex-shrink-0">{{ item.time }}</p>
             </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-xs font-bold  ">{{ item.title }}</p>
-              <p class="text-[11px] text-gray-400  mt-0.5">{{ item.description }}</p>
-            </div>
-            <p class="text-[10px] text-gray-400  whitespace-nowrap pt-1 flex-shrink-0">{{ item.time }}</p>
-          </div>
+          }
         </div>
       </div>
 
@@ -84,33 +88,37 @@
         </div>
         <div class="px-5">
           <div class="grid grid-cols-4 gap-2">
-            <button *ngFor="let qa of quickActions"
-                    (click)="handleQuickAction(qa.action)"
+            @for (qa of quickActions; track qa) {
+              <button
+                (click)="handleQuickAction(qa.action)"
                     class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700
                            bg-white dark:bg-gray-900 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 transition-all group">
               <div class="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center
                           group-hover:bg-orange-500 transition-colors">
-                <i [class]="qa.icon + '   group-hover:text-white text-sm transition-colors'"></i>
-              </div>
-              <span class="text-[10px] font-semibold   text-center leading-tight">{{ qa.label }}</span>
-            </button>
+                  <i [class]="qa.icon + '   group-hover:text-white text-sm transition-colors'"></i>
+                </div>
+                <span class="text-[10px] font-semibold   text-center leading-tight">{{ qa.label }}</span>
+              </button>
+            }
           </div>
         </div>
 
         <!-- System Health -->
         <div class="px-5 pt-4 pb-4">
           <p class="text-xs font-bold   mb-3">System Health</p>
-          <div *ngFor="let h of data?.systemHealth" class="mb-3 last:mb-0">
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-xs font-semibold  ">{{ h.label }}</span>
-              <span class="text-xs font-bold" [style.color]="getHealthColor(h.status)">{{ h.value }}%</span>
+          @for (h of data?.systemHealth; track h) {
+            <div class="mb-3 last:mb-0">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-semibold  ">{{ h.label }}</span>
+                <span class="text-xs font-bold" [style.color]="getHealthColor(h.status)">{{ h.value }}%</span>
+              </div>
+              <div class="h-1.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                <div class="h-full rounded-full transition-all"
+                  [ngClass]="getHealthBarClass(h.status)"
+                [style.width.%]="h.value"></div>
+              </div>
             </div>
-            <div class="h-1.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
-              <div class="h-full rounded-full transition-all"
-                   [ngClass]="getHealthBarClass(h.status)"
-                   [style.width.%]="h.value"></div>
-            </div>
-          </div>
+          }
         </div>
       </div>
 
@@ -146,17 +154,19 @@
           <button class="text-xs font-semibold text-orange-500 hover:text-orange-700 transition-colors">View all →</button>
         </div>
         <div class="px-5 pb-4">
-          <div *ngFor="let n of data?.recentNotices"
-               class="flex gap-3 py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-none">
-            <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
-                  [ngClass]="getNoticeDotClass(n.priority)"></span>
-            <div class="min-w-0">
-              <p class="text-xs   leading-relaxed m-0">
-                <span class="font-bold   text-wrap">{{ n.title }}</span>  <span [innerHTML]="n.content"></span>
-              </p>
-              <p class="text-[10px] text-gray-400  mt-0.5">{{ n.publishedAt | date:'MMM d, h:mm a' }}</p>
+          @for (n of data?.recentNotices; track n) {
+            <div
+              class="flex gap-3 py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-none">
+              <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+              [ngClass]="getNoticeDotClass(n.priority)"></span>
+              <div class="min-w-0">
+                <p class="text-xs   leading-relaxed m-0">
+                  <span class="font-bold   text-wrap">{{ n.title }}</span>  <span [innerHTML]="n.content"></span>
+                </p>
+                <p class="text-[10px] text-gray-400  mt-0.5">{{ n.publishedAt | date:'MMM d, h:mm a' }}</p>
+              </div>
             </div>
-          </div>
+          }
         </div>
       </div>
 
@@ -169,9 +179,9 @@
     <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
 
       <div class="h-20 relative"
-           style="background: linear-gradient(135deg, #EA580C 0%, #F97316 55%, #FDBA74 100%);">
+        style="background: linear-gradient(135deg, #EA580C 0%, #F97316 55%, #FDBA74 100%);">
         <div class="absolute inset-0 opacity-10"
-             style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='1'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E&quot;)"></div>
+        style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='1'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E&quot;)"></div>
         <div class="absolute -bottom-8 left-5 w-16 h-16 rounded-full border-4 border-white dark:border-gray-900 shadow-md
                     bg-gradient-to-br from-orange-600 to-orange-400
                     flex items-center justify-center text-white text-xl font-extrabold">
@@ -219,11 +229,13 @@
 
         <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400  mb-2">Access Roles</p>
         <div class="flex flex-wrap gap-1.5">
-          <span *ngFor="let tag of ['Super Admin','DB Manager','DevOps','Config']"
+          @for (tag of ['Super Admin','DB Manager','DevOps','Config']; track tag) {
+            <span
                 class="px-2.5 py-1 rounded-full text-[10px] font-bold
                        bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
-            {{ tag }}
-          </span>
+              {{ tag }}
+            </span>
+          }
         </div>
       </div>
     </div>
@@ -236,20 +248,22 @@
         </span>
       </div>
       <div class="px-5 pb-4">
-        <div *ngFor="let s of [
+        @for (s of [
           {name:'App Server (Primary)', status:'Online',    cls:'bg-green-500', badge:'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'},
           {name:'Database Server',       status:'Online',    cls:'bg-green-500', badge:'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'},
           {name:'File Server (Backup)',  status:'High Load', cls:'bg-amber-400', badge:'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'},
           {name:'Mail Server',           status:'Online',    cls:'bg-green-500', badge:'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'}
-        ]"
-             class="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-none">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full flex-shrink-0" [ngClass]="s.cls"></span>
-            <span class="text-xs font-semibold  ">{{ s.name }}</span>
+          ]; track s) {
+          <div
+            class="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-none">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full flex-shrink-0" [ngClass]="s.cls"></span>
+              <span class="text-xs font-semibold  ">{{ s.name }}</span>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border"
+            [ngClass]="s.badge">{{ s.status }}</span>
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border"
-                [ngClass]="s.badge">{{ s.status }}</span>
-        </div>
+        }
       </div>
     </div>
 

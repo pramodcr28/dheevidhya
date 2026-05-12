@@ -1,440 +1,461 @@
-<p-dialog 
-  [header]="editMode ? 'Edit Notice' : 'Create New Notice'" 
-  [(visible)]="visible" 
-  [modal]="true" 
-  [style]="{ width: '90vw', maxHeight: '90vh' }" 
-  [breakpoints]="{ '960px': '95vw' }" 
-  (onHide)="close()" 
+<p-dialog
+  [header]="editMode ? 'Edit Notice' : 'Create New Notice'"
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '90vw', maxHeight: '90vh' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  (onHide)="close()"
   [draggable]="false"
   [resizable]="false"
   styleClass="rounded-2xl">
-  
+
   <form [formGroup]="noticeForm" (ngSubmit)="submit()" class="flex flex-col h-full">
     <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-y-auto pr-2" style="max-height: calc(90vh - 150px);">
-      
+
       <div class="space-y-4">
-        
+
         <p-panel header="General Information" [toggleable]="false" styleClass="rounded-xl">
           <div class="space-y-4">
             <div>
               <label for="title" class="block text-sm font-semibold mb-2">
                 Title <span class="text-red-500">*</span>
               </label>
-              <input 
-                pInputText 
-                id="title" 
-                formControlName="title" 
+              <input
+                pInputText
+                id="title"
+                formControlName="title"
                 placeholder="Enter notice title"
                 class="w-full" />
-              <small class="text-red-500" *ngIf="noticeForm.get('title')?.invalid && noticeForm.get('title')?.touched">
-                Title is required (min 5 characters)
-              </small>
-            </div>
+                @if (noticeForm.get('title')?.invalid && noticeForm.get('title')?.touched) {
+                  <small class="text-red-500">
+                    Title is required (min 5 characters)
+                  </small>
+                }
+              </div>
 
-            <div>
-              <label class="block text-sm font-semibold mb-2">
-                Priority <span class="text-red-500">*</span>
-              </label>
-              <p-selectButton 
-                [options]="priorityOptions" 
-                formControlName="priority" 
-                optionLabel="label" 
-                optionValue="value" 
-                appendTo="body"
-                [multiple]="false"
-                styleClass="w-full">
-              </p-selectButton>
-            </div>
-          </div>
-        </p-panel>
-        <p-panel header="Category Details" [toggleable]="false" styleClass="rounded-xl">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-semibold mb-2">
-                Category <span class="text-red-500">*</span>
-              </label>
-              <p-select 
-                [options]="categoryOptions" 
-                optionLabel="label" 
-                optionValue="value" 
-                appendTo="body"
-                formControlName="categoryType" 
-                placeholder="Select category" 
-                class="w-full">
-                <ng-template let-option pTemplate="item">
-                  <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs" [ngClass]="option.colorClass">
-                      <i [class]="option.icon"></i>
-                    </div>
-                    <span>{{option.label}}</span>
-                  </div>
-                </ng-template>
-              </p-select>
-            </div>
-
-            <ng-container [ngSwitch]="categoryType">
-              
-              <div *ngSwitchCase="'TIMETABLE'" formGroupName="timetable">
-                <label class="block text-sm font-semibold mb-2">Effective Date</label>
-                <p-datepicker 
-                  formControlName="effectiveDate" 
-                  dateFormat="yy-mm-dd" 
+              <div>
+                <label class="block text-sm font-semibold mb-2">
+                  Priority <span class="text-red-500">*</span>
+                </label>
+                <p-selectButton
+                  [options]="priorityOptions"
+                  formControlName="priority"
+                  optionLabel="label"
+                  optionValue="value"
                   appendTo="body"
-                  [showIcon]="true"
-                  placeholder="Select effective date" 
+                  [multiple]="false"
+                  styleClass="w-full">
+                </p-selectButton>
+              </div>
+            </div>
+          </p-panel>
+          <p-panel header="Category Details" [toggleable]="false" styleClass="rounded-xl">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold mb-2">
+                  Category <span class="text-red-500">*</span>
+                </label>
+                <p-select
+                  [options]="categoryOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  appendTo="body"
+                  formControlName="categoryType"
+                  placeholder="Select category"
                   class="w-full">
-                </p-datepicker>
+                  <ng-template let-option pTemplate="item">
+                    <div class="flex items-center gap-2">
+                      <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs" [ngClass]="option.colorClass">
+                        <i [class]="option.icon"></i>
+                      </div>
+                      <span>{{option.label}}</span>
+                    </div>
+                  </ng-template>
+                </p-select>
               </div>
 
-              <div *ngSwitchCase="'ATTENDANCE'" formGroupName="attendance" class="space-y-3">
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-sm font-semibold mb-2">Attendance %</label>
-                    <p-inputNumber 
-                      formControlName="attendancePercentage" 
-                      [min]="0" 
-                      [max]="100"
-                      placeholder="%" 
-                      class="w-full">
-                    </p-inputNumber>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-2">Type</label>
-                    <p-select 
-                      [options]="attendanceTypes" 
-                      formControlName="attendanceType" 
-                      optionLabel="label" 
+              @switch (categoryType) {
+                @case ('TIMETABLE') {
+                  <div formGroupName="timetable">
+                    <label class="block text-sm font-semibold mb-2">Effective Date</label>
+                    <p-datepicker
+                      formControlName="effectiveDate"
+                      dateFormat="yy-mm-dd"
                       appendTo="body"
-                      optionValue="value" 
-                      placeholder="Select Type" 
+                      [showIcon]="true"
+                      placeholder="Select effective date"
                       class="w-full">
-                    </p-select>
+                    </p-datepicker>
                   </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <p-checkbox 
-                    formControlName="parentMeetingRequired" 
-                    [binary]="true" 
-                    inputId="parentMeetingRequired" />
-                  <label for="parentMeetingRequired" class="text-sm">
-                    Parent meeting required
+                }
+                @case ('ATTENDANCE') {
+                  <div formGroupName="attendance" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Attendance %</label>
+                        <p-inputNumber
+                          formControlName="attendancePercentage"
+                          [min]="0"
+                          [max]="100"
+                          placeholder="%"
+                          class="w-full">
+                        </p-inputNumber>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Type</label>
+                        <p-select
+                          [options]="attendanceTypes"
+                          formControlName="attendanceType"
+                          optionLabel="label"
+                          appendTo="body"
+                          optionValue="value"
+                          placeholder="Select Type"
+                          class="w-full">
+                        </p-select>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <p-checkbox
+                        formControlName="parentMeetingRequired"
+                        [binary]="true"
+                        inputId="parentMeetingRequired" />
+                        <label for="parentMeetingRequired" class="text-sm">
+                          Parent meeting required
+                        </label>
+                      </div>
+                    </div>
+                  }
+                  @case ('EXAM_ANNOUNCEMENT') {
+                    <div formGroupName="examAnnouncement" class="space-y-3">
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Exam Title</label>
+                        <input pInputText formControlName="examTitle" placeholder="Enter exam title" class="w-full" />
+                      </div>
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Exam Type</label>
+                        <p-select
+                          [options]="examTypes"
+                          formControlName="examType"
+                          appendTo="body"
+                          placeholder="Select Exam Type"
+                          class="w-full">
+                        </p-select>
+                      </div>
+                      <div class="grid grid-cols-2 gap-3">
+                        <div>
+                          <label class="block text-sm font-semibold mb-2">Start Date</label>
+                          <p-datepicker
+                            formControlName="examStartDate"
+                            dateFormat="yy-mm-dd"
+                            appendTo="body"
+                            [showIcon]="true"
+                            placeholder="Start Date"
+                            class="w-full">
+                          </p-datepicker>
+                        </div>
+                        <div>
+                          <label class="block text-sm font-semibold mb-2">End Date</label>
+                          <p-datepicker
+                            formControlName="examEndDate"
+                            dateFormat="yy-mm-dd"
+                            appendTo="body"
+                            [minDate]="noticeForm.get('examAnnouncement.examStartDate')?.value"
+                            [showIcon]="true"
+                            placeholder="End Date"
+                            class="w-full">
+                          </p-datepicker>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                  @case ('EXAM_RESULT') {
+                    <div formGroupName="examResult" class="space-y-3">
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Exam Title</label>
+                        <input pInputText formControlName="examTitle" placeholder="Enter exam title" class="w-full" />
+                      </div>
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Exam Type</label>
+                        <p-select
+                          [options]="examTypes"
+                          formControlName="examType"
+                          appendTo="body"
+                          placeholder="Select Exam Type"
+                          class="w-full">
+                        </p-select>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Result Declaration Date</label>
+                        <p-datepicker
+                          formControlName="resultDeclarationDate"
+                          dateFormat="yy-mm-dd"
+                          appendTo="body"
+                          [showIcon]="true"
+                          placeholder="Select date"
+                          class="w-full">
+                        </p-datepicker>
+                      </div>
+                    </div>
+                  }
+                  @case ('MEETING') {
+                    <div formGroupName="meeting" class="space-y-3">
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Meeting Type</label>
+                        <p-select [options]="meetingTypes" formControlName="meetingType" optionLabel="label" optionValue="value" appendTo="body" placeholder="Select Type" class="w-full"></p-select>
+                      </div>
+                      <div class="grid grid-cols-2 gap-3">
+                        <div>
+                          <label class="block text-sm font-semibold mb-2">Date</label>
+                          <p-datepicker formControlName="meetingDate" dateFormat="yy-mm-dd" appendTo="body" [showIcon]="true" placeholder="Meeting Date" class="w-full"></p-datepicker>
+                        </div>
+                        <div>
+                          <label class="block text-sm font-semibold mb-2">Time</label>
+                          <p-datepicker formControlName="meetingTime" [timeOnly]="true" appendTo="body" [showIcon]="true" placeholder="Meeting Time" class="w-full"></p-datepicker>
+                        </div>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Venue</label>
+                        <input pInputText formControlName="venue" placeholder="Enter venue" class="w-full" />
+                      </div>
+                    </div>
+                  }
+                  @case ('APPRECIATION') {
+                    <div formGroupName="appreciation" class="space-y-3">
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Achievement Category</label>
+                        <p-select [options]="appreciationCategories" formControlName="achievementCategory" optionLabel="label" optionValue="value" appendTo="body" placeholder="Select Category" class="w-full"></p-select>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Recognition Level</label>
+                        <p-select [options]="recognitionLevels" formControlName="recognitionLevel" optionLabel="label" optionValue="value" appendTo="body" placeholder="Select Level" class="w-full"></p-select>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Recipient IDs <span class="text-xs font-normal text-gray-400">(comma-separated)</span></label>
+                        <input pInputText formControlName="recipientIds" placeholder="e.g. user1, user2" class="w-full" />
+                      </div>
+                    </div>
+                  }
+                  @case ('SCHOOL_ACHIEVEMENT') {
+                    <div formGroupName="schoolAchievement" class="space-y-3">
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Achievement Category</label>
+                        <p-select [options]="schoolAchievementCategories" formControlName="achievementCategory" optionLabel="label" optionValue="value" appendTo="body" placeholder="Select Category" class="w-full"></p-select>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Achievement Date</label>
+                        <p-datepicker formControlName="achievementDate" dateFormat="yy-mm-dd" appendTo="body" [showIcon]="true" placeholder="Select Date" class="w-full"></p-datepicker>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-semibold mb-2">Recipient IDs <span class="text-xs font-normal text-gray-400">(comma-separated)</span></label>
+                        <input pInputText formControlName="recipientIds" placeholder="e.g. user1, user2" class="w-full" />
+                      </div>
+                    </div>
+                  }
+                }
+              </div>
+            </p-panel>
+
+            <p-panel header="Target Audience" [toggleable]="false" styleClass="rounded-xl">
+              <div formGroupName="targetAudience" class="space-y-3">
+                <div>
+                  <label class="block text-sm font-semibold mb-2">
+                    Audience Type <span class="text-red-500">*</span>
                   </label>
-                </div>
-              </div>
-
-              <div *ngSwitchCase="'EXAM_ANNOUNCEMENT'" formGroupName="examAnnouncement" class="space-y-3">
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Exam Title</label>
-                  <input pInputText formControlName="examTitle" placeholder="Enter exam title" class="w-full" />
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Exam Type</label>
-                  <p-select 
-                    [options]="examTypes" 
-                    formControlName="examType" 
+                  <p-select
+                    [options]="targetTypeOptions"
+                    optionLabel="label"
+                    optionValue="value"
                     appendTo="body"
-                    placeholder="Select Exam Type" 
+                    formControlName="type"
+                    placeholder="Select audience type"
                     class="w-full">
                   </p-select>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+
+                @if (noticeForm.get('targetAudience.type')?.value === 'ACADEMIC_UNIT') {
                   <div>
-                    <label class="block text-sm font-semibold mb-2">Start Date</label>
-                    <p-datepicker 
-                      formControlName="examStartDate" 
-                      dateFormat="yy-mm-dd" 
+                    <label class="block text-sm font-semibold mb-2">
+                      Select Academic Units <span class="text-red-500">*</span>
+                    </label>
+                    <p-treeSelect
+                      [(ngModel)]="selectedAcademicUnits"
+                      [ngModelOptions]="{standalone: true}"
+                      [options]="academicUnitTree"
+                      placeholder="Select Departments, Classes, or Sections"
+                      [metaKeySelection]="false"
+                      selectionMode="checkbox"
+                      fluid="true"
                       appendTo="body"
-                      [showIcon]="true"
-                      placeholder="Start Date" 
-                      class="w-full">
-                    </p-datepicker>
+                      display="chip"
+                      size="large">
+                    </p-treeSelect>
                   </div>
+                }
+
+                @if (noticeForm.get('targetAudience.type')?.value === 'STUDENT') {
                   <div>
-                    <label class="block text-sm font-semibold mb-2">End Date</label>
-                    <p-datepicker 
-                      formControlName="examEndDate" 
-                      dateFormat="yy-mm-dd" 
-                      appendTo="body"
-                      [minDate]="noticeForm.get('examAnnouncement.examStartDate')?.value"
-                      [showIcon]="true"
-                      placeholder="End Date" 
-                      class="w-full">
-                    </p-datepicker>
+                    <label class="block text-sm font-semibold mb-2">
+                      Select Students <span class="text-red-500">*</span>
+                    </label>
+                    <p-multiSelect
+                      [options]="studentOptions"
+                      formControlName="selectedStudents"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Select students"
+                      [filter]="true"
+                      filterPlaceHolder="Search students"
+                      display="chip"
+                      class="w-full"
+                      appendTo="body">
+                    </p-multiSelect>
                   </div>
-                </div>
-              </div>
+                }
 
-              <div *ngSwitchCase="'EXAM_RESULT'" formGroupName="examResult" class="space-y-3">
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Exam Title</label>
-                  <input pInputText formControlName="examTitle" placeholder="Enter exam title" class="w-full" />
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Exam Type</label>
-                  <p-select 
-                    [options]="examTypes" 
-                    formControlName="examType" 
-                    appendTo="body"
-                    placeholder="Select Exam Type" 
-                    class="w-full">
-                  </p-select>
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Result Declaration Date</label>
-                  <p-datepicker 
-                    formControlName="resultDeclarationDate" 
-                    dateFormat="yy-mm-dd"
-                    appendTo="body" 
-                    [showIcon]="true"
-                    placeholder="Select date"
-                    class="w-full">
-                  </p-datepicker>
-                </div>
-              </div>
-
-              <div *ngSwitchCase="'MEETING'" formGroupName="meeting" class="space-y-3">
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Meeting Type</label>
-                  <p-select [options]="meetingTypes" formControlName="meetingType" optionLabel="label" optionValue="value" appendTo="body" placeholder="Select Type" class="w-full"></p-select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
+                @if (noticeForm.get('targetAudience.type')?.value === 'STAFF') {
                   <div>
-                    <label class="block text-sm font-semibold mb-2">Date</label>
-                    <p-datepicker formControlName="meetingDate" dateFormat="yy-mm-dd" appendTo="body" [showIcon]="true" placeholder="Meeting Date" class="w-full"></p-datepicker>
+                    <label class="block text-sm font-semibold mb-2">
+                      Select Staff <span class="text-red-500">*</span>
+                    </label>
+                    <p-multiSelect
+                      [options]="staffOptions"
+                      formControlName="selectedStaff"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Select staff members"
+                      [filter]="true"
+                      filterPlaceHolder="Search staff"
+                      display="chip"
+                      class="w-full"
+                      appendTo="body">
+                    </p-multiSelect>
                   </div>
+                }
+
+                @if (noticeForm.get('targetAudience.type')?.value === 'ROLE') {
                   <div>
-                    <label class="block text-sm font-semibold mb-2">Time</label>
-                    <p-datepicker formControlName="meetingTime" [timeOnly]="true" appendTo="body" [showIcon]="true" placeholder="Meeting Time" class="w-full"></p-datepicker>
+                    <label class="block text-sm font-semibold mb-2">
+                      Select Roles <span class="text-red-500">*</span>
+                    </label>
+                    <p-multiSelect
+                      [options]="roleOptions"
+                      formControlName="selectedRoles"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Select roles"
+                      [filter]="true"
+                      filterPlaceHolder="Search roles"
+                      display="chip"
+                      class="w-full"
+                      appendTo="body">
+                    </p-multiSelect>
                   </div>
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Venue</label>
-                  <input pInputText formControlName="venue" placeholder="Enter venue" class="w-full" />
-                </div>
+                }
               </div>
+            </p-panel>
 
-              <div *ngSwitchCase="'APPRECIATION'" formGroupName="appreciation" class="space-y-3">
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Achievement Category</label>
-                  <p-select [options]="appreciationCategories" formControlName="achievementCategory" optionLabel="label" optionValue="value" appendTo="body" placeholder="Select Category" class="w-full"></p-select>
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Recognition Level</label>
-                  <p-select [options]="recognitionLevels" formControlName="recognitionLevel" optionLabel="label" optionValue="value" appendTo="body" placeholder="Select Level" class="w-full"></p-select>
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Recipient IDs <span class="text-xs font-normal text-gray-400">(comma-separated)</span></label>
-                  <input pInputText formControlName="recipientIds" placeholder="e.g. user1, user2" class="w-full" />
-                </div>
-              </div>
-
-              <div *ngSwitchCase="'SCHOOL_ACHIEVEMENT'" formGroupName="schoolAchievement" class="space-y-3">
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Achievement Category</label>
-                  <p-select [options]="schoolAchievementCategories" formControlName="achievementCategory" optionLabel="label" optionValue="value" appendTo="body" placeholder="Select Category" class="w-full"></p-select>
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Achievement Date</label>
-                  <p-datepicker formControlName="achievementDate" dateFormat="yy-mm-dd" appendTo="body" [showIcon]="true" placeholder="Select Date" class="w-full"></p-datepicker>
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Recipient IDs <span class="text-xs font-normal text-gray-400">(comma-separated)</span></label>
-                  <input pInputText formControlName="recipientIds" placeholder="e.g. user1, user2" class="w-full" />
-                </div>
-              </div>
-
-            </ng-container>
-          </div>
-        </p-panel>
-
-        <p-panel header="Target Audience" [toggleable]="false" styleClass="rounded-xl">
-          <div formGroupName="targetAudience" class="space-y-3">
-            <div>
-              <label class="block text-sm font-semibold mb-2">
-                Audience Type <span class="text-red-500">*</span>
-              </label>
-              <p-select 
-                [options]="targetTypeOptions" 
-                optionLabel="label" 
-                optionValue="value" 
-                appendTo="body"
-                formControlName="type" 
-                placeholder="Select audience type" 
-                class="w-full">
-              </p-select>
-            </div>
-
-            <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'ACADEMIC_UNIT'">
-              <label class="block text-sm font-semibold mb-2">
-                Select Academic Units <span class="text-red-500">*</span>
-              </label>
-              <p-treeSelect
-                [(ngModel)]="selectedAcademicUnits"
-                [ngModelOptions]="{standalone: true}"
-                [options]="academicUnitTree"
-                placeholder="Select Departments, Classes, or Sections"
-                [metaKeySelection]="false"
-                selectionMode="checkbox"
-                fluid="true"
-                appendTo="body"
-                display="chip"
-                size="large">
-              </p-treeSelect>
-            </div>
-
-            <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'STUDENT'">
-              <label class="block text-sm font-semibold mb-2">
-                Select Students <span class="text-red-500">*</span>
-              </label>
-              <p-multiSelect
-                [options]="studentOptions"
-                formControlName="selectedStudents"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select students"
-                [filter]="true"
-                filterPlaceHolder="Search students"
-                display="chip"
-                class="w-full"
-                appendTo="body">
-              </p-multiSelect>
-            </div>
-
-            <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'STAFF'">
-              <label class="block text-sm font-semibold mb-2">
-                Select Staff <span class="text-red-500">*</span>
-              </label>
-              <p-multiSelect
-                [options]="staffOptions"
-                formControlName="selectedStaff"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select staff members"
-                [filter]="true"
-                filterPlaceHolder="Search staff"
-                display="chip"
-                class="w-full"
-                appendTo="body">
-              </p-multiSelect>
-            </div>
-
-            <div *ngIf="noticeForm.get('targetAudience.type')?.value === 'ROLE'">
-              <label class="block text-sm font-semibold mb-2">
-                Select Roles <span class="text-red-500">*</span>
-              </label>
-              <p-multiSelect
-                [options]="roleOptions"
-                formControlName="selectedRoles"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select roles"
-                [filter]="true"
-                filterPlaceHolder="Search roles"
-                display="chip"
-                class="w-full"
-                appendTo="body">
-              </p-multiSelect>
-            </div>
-          </div>
-        </p-panel>
-
-        <p-panel header="Notify Via" [toggleable]="false" styleClass="rounded-xl">
-          <p class="text-xs text-gray-400 mb-3">
-            Push notifications are always sent. Additional channels below are optional overrides.
-          </p>
-          <div class="grid grid-cols-2 gap-3">
-            <div
-  *ngFor="let channel of notificationChannelOptions"
-  class="flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 select-none"
+            <p-panel header="Notify Via" [toggleable]="false" styleClass="rounded-xl">
+              <p class="text-xs text-gray-400 mb-3">
+                Push notifications are always sent. Additional channels below are optional overrides.
+              </p>
+              <div class="grid grid-cols-2 gap-3">
+                @for (channel of notificationChannelOptions; track channel) {
+                  <div
+                    class="flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 select-none"
   [ngClass]="{
     'border-primary-500 bg-primary-50 dark:bg-primary-950': isChannelSelected(channel.id),
     'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500': !isChannelSelected(channel.id) && !channel.disabled,
     'opacity-50 cursor-not-allowed': channel.disabled
   }"
-  (click)="!channel.disabled && toggleChannel(channel.id)">
-              <div
-                class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200"
-                [ngClass]="isChannelSelected(channel.id) ? channel.activeClass : 'bg-gray-100 dark:bg-gray-800'">
-                <i [class]="channel.icon + ' text-base'" 
-                   [ngClass]="isChannelSelected(channel.id) ? 'text-white' : 'text-gray-400'"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-semibold leading-tight">{{ channel.label }}</div>
-                <div class="text-xs text-gray-400 leading-tight mt-0.5">{{ channel.description }}</div>
-              </div>
-              <div class="flex-shrink-0">
-                <div
-                  class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200"
+                    (click)="!channel.disabled && toggleChannel(channel.id)">
+                    <div
+                      class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200"
+                      [ngClass]="isChannelSelected(channel.id) ? channel.activeClass : 'bg-gray-100 dark:bg-gray-800'">
+                      <i [class]="channel.icon + ' text-base'"
+                      [ngClass]="isChannelSelected(channel.id) ? 'text-white' : 'text-gray-400'"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-semibold leading-tight">{{ channel.label }}</div>
+                      <div class="text-xs text-gray-400 leading-tight mt-0.5">{{ channel.description }}</div>
+                    </div>
+                    <div class="flex-shrink-0">
+                      <div
+                        class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200"
                   [ngClass]="isChannelSelected(channel.id)
                     ? 'border-primary-500 bg-primary-500'
                     : 'border-gray-300 dark:border-gray-600'">
-                  <i *ngIf="isChannelSelected(channel.id)" class="pi pi-check text-white text-xs"></i>
-                </div>
+                        @if (isChannelSelected(channel.id)) {
+                          <i class="pi pi-check text-white text-xs"></i>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
               </div>
-            </div>
+              @if (selectedChannels.size > 1) {
+                <div class="mt-3 flex items-center gap-2 text-xs text-primary-600 dark:text-primary-400">
+                  <i class="pi pi-info-circle"></i>
+                  <span>{{ selectedChannels.size }} channels selected — recipients will be notified via all active channels.</span>
+                </div>
+              }
+            </p-panel>
+
           </div>
-          <div *ngIf="selectedChannels.size > 1" class="mt-3 flex items-center gap-2 text-xs text-primary-600 dark:text-primary-400">
-            <i class="pi pi-info-circle"></i>
-            <span>{{ selectedChannels.size }} channels selected — recipients will be notified via all active channels.</span>
+
+          <!-- RIGHT SIDE -->
+          <div>
+            <p-panel header="Notice Content" [toggleable]="false" styleClass="rounded-xl h-full">
+              <p-editor
+                formControlName="content"
+                [style]="{ height: '500px' }"
+                placeholder="Write notice content here..."
+                class="w-full">
+                <ng-template #header>
+                  <span class="ql-formats">
+                    <select class="ql-size" aria-label="Font Size">
+                      <option value="small"></option>
+                      <option selected></option>
+                    </select>
+                  </span>
+                  <span class="ql-formats">
+                    <button type="button" class="ql-bold" aria-label="Bold"></button>
+                    <button type="button" class="ql-italic" aria-label="Italic"></button>
+                    <button type="button" class="ql-underline" aria-label="Underline"></button>
+                    <button type="button" class="ql-strike" aria-label="Strike"></button>
+                  </span>
+                  <span class="ql-formats">
+                    <select class="ql-color" aria-label="Text Color"></select>
+                    <select class="ql-background" aria-label="Background Color"></select>
+                  </span>
+                  <span class="ql-formats">
+                    <button class="ql-list" value="ordered" aria-label="Ordered List"></button>
+                    <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
+                    <select class="ql-align"></select>
+                  </span>
+                  <span class="ql-formats">
+                    <button class="ql-clean" aria-label="Clear Formatting"></button>
+                  </span>
+                </ng-template>
+              </p-editor>
+            </p-panel>
           </div>
-        </p-panel>
+        </div>
 
-      </div>
-
-      <!-- RIGHT SIDE -->
-      <div>
-        <p-panel header="Notice Content" [toggleable]="false" styleClass="rounded-xl h-full">
-          <p-editor 
-            formControlName="content" 
-            [style]="{ height: '500px' }" 
-            placeholder="Write notice content here..."
-            class="w-full">
-              <ng-template #header>
-                <span class="ql-formats">
-                  <select class="ql-size" aria-label="Font Size">
-                    <option value="small"></option>
-                    <option selected></option>
-                  </select>
-                </span>
-                <span class="ql-formats">
-                  <button type="button" class="ql-bold" aria-label="Bold"></button>
-                  <button type="button" class="ql-italic" aria-label="Italic"></button>
-                  <button type="button" class="ql-underline" aria-label="Underline"></button>
-                  <button type="button" class="ql-strike" aria-label="Strike"></button>
-                </span>
-                <span class="ql-formats">
-                  <select class="ql-color" aria-label="Text Color"></select>
-                  <select class="ql-background" aria-label="Background Color"></select>
-                </span>
-                <span class="ql-formats">
-                  <button class="ql-list" value="ordered" aria-label="Ordered List"></button>
-                  <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
-                  <select class="ql-align"></select>
-                </span>
-                <span class="ql-formats">
-                  <button class="ql-clean" aria-label="Clear Formatting"></button>
-                </span>
-              </ng-template>
-          </p-editor>
-        </p-panel>
-      </div>
-    </div>
-
-    <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
-      <p-button 
-        label="Cancel" 
-        icon="pi pi-times" 
-        severity="secondary"
-        [outlined]="true"
-        type="button"
-        (click)="close()">
-      </p-button>
-      <p-button 
-        [label]="editMode ? 'Update' : 'Publish'" 
-        [icon]="editMode ? 'pi pi-check' : 'pi pi-send'" 
-        type="submit" 
-        [disabled]="!noticeForm.valid">
-      </p-button>
-    </div>
-  </form>
-</p-dialog>
+        <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+          <p-button
+            label="Cancel"
+            icon="pi pi-times"
+            severity="secondary"
+            [outlined]="true"
+            type="button"
+            (click)="close()">
+          </p-button>
+          <p-button
+            [label]="editMode ? 'Update' : 'Publish'"
+            [icon]="editMode ? 'pi pi-check' : 'pi pi-send'"
+            type="submit"
+            [disabled]="!noticeForm.valid">
+          </p-button>
+        </div>
+      </form>
+    </p-dialog>

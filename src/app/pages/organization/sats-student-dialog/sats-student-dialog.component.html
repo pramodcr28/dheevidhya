@@ -2,522 +2,594 @@
 <p-toast></p-toast>
 
 <p-dialog
-    [(visible)]="visible"
-    [style]="{ width: '95vw', maxWidth: '1300px' }"
-    [modal]="true"
-    [maximizable]="true"
-    [closable]="false"
-    [closeOnEscape]="false"
-    [dismissableMask]="false"
->
-    <ng-template pTemplate="header">
-        <div class="flex items-center justify-between w-full gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
-                    <i class="pi pi-user text-white text-base"></i>
-                </div>
-                <div>
-                    <h3 class="text-base font-bold text-gray-800 dark:text-white leading-tight m-0">
-                        {{ student?.id ? 'Edit Student Information' : 'New Student Registration' }}
-                    </h3>
-                    <p class="text-xs text-gray-500">Fill all sections accurately as per SATS portal requirements</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">   
-                        <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-                <button
-                    type="button"
-                    class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
-                    [class.bg-white]="basicMode"
-                    [class.shadow]="basicMode"
-                    [class.text-primary-700]="basicMode"
-                    [class.dark:bg-gray-700]="basicMode"
-                    [class.text-gray-500]="!basicMode"
-                    (click)="basicMode = true"
-                >
-                    <i class="pi pi-list mr-1 !text-xs "></i><span> Basic</span>
-                </button>
-                <button
-                    type="button"
-                    class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
-                    [class.bg-white]="!basicMode"
-                    [class.shadow]="!basicMode"
-                    [class.text-primary-700]="!basicMode"
-                    [class.dark:bg-gray-700]="!basicMode"
-                    [class.text-gray-500]="basicMode"
-                    (click)="basicMode = false"
-                >
-                    <i class="pi pi-database mr-1 !text-xs "></i> <span>All SATS</span>
-                </button>
-            </div>
-                <button type="button" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition" (click)="onCancel()">
-                    <i class="pi pi-times text-gray-500 text-lg"></i>
-                </button>
-            </div>
+  [(visible)]="visible"
+  [style]="{ width: '95vw', maxWidth: '1300px' }"
+  [modal]="true"
+  [maximizable]="true"
+  [closable]="false"
+  [closeOnEscape]="false"
+  [dismissableMask]="false"
+  >
+  <ng-template pTemplate="header">
+    <div class="flex items-center justify-between w-full gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
+          <i class="pi pi-user text-white text-base"></i>
         </div>
-    </ng-template>
+        <div>
+          <h3 class="text-base font-bold text-gray-800 dark:text-white leading-tight m-0">
+            {{ student?.id ? 'Edit Student Information' : 'New Student Registration' }}
+          </h3>
+          <p class="text-xs text-gray-500">Fill all sections accurately as per SATS portal requirements</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
+            [class.bg-white]="basicMode"
+            [class.shadow]="basicMode"
+            [class.text-primary-700]="basicMode"
+            [class.dark:bg-gray-700]="basicMode"
+            [class.text-gray-500]="!basicMode"
+            (click)="basicMode = true"
+            >
+            <i class="pi pi-list mr-1 !text-xs "></i><span> Basic</span>
+          </button>
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
+            [class.bg-white]="!basicMode"
+            [class.shadow]="!basicMode"
+            [class.text-primary-700]="!basicMode"
+            [class.dark:bg-gray-700]="!basicMode"
+            [class.text-gray-500]="basicMode"
+            (click)="basicMode = false"
+            >
+            <i class="pi pi-database mr-1 !text-xs "></i> <span>All SATS</span>
+          </button>
+        </div>
+        <button type="button" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition" (click)="onCancel()">
+          <i class="pi pi-times text-gray-500 text-lg"></i>
+        </button>
+      </div>
+    </div>
+  </ng-template>
 
-    @if (form) {
+  @if (form) {
     <form [formGroup]="form">
-        <p-tabs>
-            <p-tabpanel>
-                <ng-template pTemplate="header">
-                    <span class="flex items-center gap-1.5 text-sm font-medium">
-                        <i class="pi pi-file-edit"></i> Admission Details
-                    </span>
-                </ng-template>
-                <div class="space-y-5 pt-2">
-                    <div class="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <!-- <div class="flex flex-col gap-1">
-                                <label class="form-label required">Registration ID *</label>
-                                <input pInputText formControlName="login" placeholder="SATS Number" class="w-full" [readonly]="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')"  />
-                                <small class="text-red-500" *ngIf="fieldError('login')">Required</small>
-                                <small class="text-red-500 !text-xs" *ngIf="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')">Registration Id is read-only.Please contact your administrator.</small>
-                            </div> -->
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label required">SATS Number *</label>
-                                <input pInputText formControlName="satsNumber" placeholder="SATS Number" class="w-full" [readonly]="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')"  />
-                                <small class="text-red-500" *ngIf="fieldError('satsNumber')">Required</small>
-                                <small class="text-red-500 !text-xs" *ngIf="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')">SATS Number is read-only.Please contact your administrator.</small>
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label required">Department *</label>
-                                <p-select
-                                    [options]="associatedDepartments"
-                                    [(ngModel)]="selectedDepartment"
-                                    [ngModelOptions]="{ standalone: true }"
-                                    (onChange)="onDepartmentChange()"
-                                    optionLabel="name"
-                                    placeholder="Select Department"
-                                    styleClass="max-w-md w-full"
-                                ></p-select>
-                                <small class="text-red-500" *ngIf="submitted && !selectedDepartment">Department is required.</small>
-                            </div>
-                            @if (selectedDepartment) {
-                                <div class="flex flex-col gap-1">
-                                    <label class="form-label required">Class *</label>
-                                    <p-select
-                                        [options]="selectedDepartment?.department?.classes"
-                                        [(ngModel)]="selectedClass"
-                                        [ngModelOptions]="{ standalone: true }"
-                                        (onChange)="onClassChange()"
-                                        optionLabel="name"
-                                        placeholder="Select Class"
-                                        styleClass="w-full"
-                                    ></p-select>
-                                    <small class="text-red-500" *ngIf="submitted && !selectedClass">Class is required.</small>
-                                </div>
-                            }
-                            @if (selectedClass) {
-                                <div class="flex flex-col gap-1">
-                                    <label class="form-label required">Section *</label>
-                                    <p-select
-                                        [options]="selectedClass?.sections"
-                                        [(ngModel)]="selectedSection"
-                                        [ngModelOptions]="{ standalone: true }"
-                                        (onChange)="hasChanges.set(true)"
-                                        optionLabel="name"
-                                        placeholder="Select Section"
-                                        styleClass="w-full"
-                                    ></p-select>
-                                    <small class="text-red-500" *ngIf="submitted && !selectedSection">Section is required.</small>
-                                </div>
-                            }
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" *ngIf="!basicMode">
-                        <div class="flex flex-col gap-1">
-                            <label class="form-label">Type of Student</label>
-                            <p-select formControlName="typeOfStudent" [options]="typeOfStudentOptions" placeholder="Select Type" styleClass="w-full" [showClear]="true" />
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="form-label">Medium of Instruction</label>
-                            <p-select formControlName="mediumOfInstruction" [options]="mediumOptions" placeholder="Select Medium" styleClass="w-full" [showClear]="true" />
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="form-label">Mother Tongue</label>
-                            <p-select formControlName="motherTongue" [options]="motherTongueOptions" placeholder="Select Mother Tongue" styleClass="w-full" [showClear]="true" />
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="form-label">Language Group</label>
-                            <p-select formControlName="languageGroup" [options]="languageGroupOptions" placeholder="Select Language Group" styleClass="w-full" [showClear]="true" />
-                        </div>
-                        <!-- Hide Detail Description in Basic mode -->
-                        <div class="flex flex-col gap-1 sm:col-span-2" *ngIf="!basicMode">
-                            <label class="form-label">Detail Description</label>
-                            <textarea pTextarea formControlName="detailDescription" rows="2" class="w-full" placeholder="Additional admission details..."></textarea>
-                        </div>
-                    </div>
+      <p-tabs>
+        <p-tabpanel>
+          <ng-template pTemplate="header">
+            <span class="flex items-center gap-1.5 text-sm font-medium">
+              <i class="pi pi-file-edit"></i> Admission Details
+            </span>
+          </ng-template>
+          <div class="space-y-5 pt-2">
+            <div class="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- <div class="flex flex-col gap-1">
+                <label class="form-label required">Registration ID *</label>
+                <input pInputText formControlName="login" placeholder="SATS Number" class="w-full" [readonly]="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')"  />
+                <small class="text-red-500" *ngIf="fieldError('login')">Required</small>
+                <small class="text-red-500 !text-xs" *ngIf="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')">Registration Id is read-only.Please contact your administrator.</small>
+              </div> -->
+              <div class="flex flex-col gap-1">
+                <label class="form-label required">SATS Number *</label>
+                <input pInputText formControlName="satsNumber" placeholder="SATS Number" class="w-full" [readonly]="student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')"  />
+                @if (fieldError('satsNumber')) {
+                  <small class="text-red-500">Required</small>
+                }
+                @if (student.id != null && !commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
+                  <small class="text-red-500 !text-xs">SATS Number is read-only.Please contact your administrator.</small>
+                }
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="form-label required">Department *</label>
+                <p-select
+                  [options]="associatedDepartments"
+                  [(ngModel)]="selectedDepartment"
+                  [ngModelOptions]="{ standalone: true }"
+                  (onChange)="onDepartmentChange()"
+                  optionLabel="name"
+                  placeholder="Select Department"
+                  styleClass="max-w-md w-full"
+                ></p-select>
+                @if (submitted && !selectedDepartment) {
+                  <small class="text-red-500">Department is required.</small>
+                }
+              </div>
+              @if (selectedDepartment) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label required">Class *</label>
+                  <p-select
+                    [options]="selectedDepartment?.department?.classes"
+                    [(ngModel)]="selectedClass"
+                    [ngModelOptions]="{ standalone: true }"
+                    (onChange)="onClassChange()"
+                    optionLabel="name"
+                    placeholder="Select Class"
+                    styleClass="w-full"
+                  ></p-select>
+                  @if (submitted && !selectedClass) {
+                    <small class="text-red-500">Class is required.</small>
+                  }
                 </div>
-            </p-tabpanel>
-            <p-tabpanel *ngIf="!basicMode">
-                <ng-template pTemplate="header">
-                    <span class="flex items-center gap-1.5 text-sm font-medium">
-                        <i class="pi pi-building"></i> Previous School
-                    </span>
-                </ng-template>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                    <div class="flex flex-col gap-1">
-                        <label class="form-label">School Type</label>
-                        <p-select formControlName="prevSchoolType" [options]="schoolTypeOptions" placeholder="Select Type" styleClass="w-full" [showClear]="true" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="form-label">Affiliation</label>
-                        <p-select formControlName="affiliation" [options]="affiliationOptions" placeholder="Select Affiliation" styleClass="w-full" [showClear]="true" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="form-label">Transfer Certificate No.</label>
-                        <input pInputText formControlName="tcNo" placeholder="TC Number" class="w-full" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="form-label">TC Date</label>
-                        <p-datepicker formControlName="tcDate" dateFormat="dd/mm/yy" [showButtonBar]="true" styleClass="w-full" placeholder="DD/MM/YYYY" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="form-label">State</label>
-                        <p-select formControlName="prevState" [options]="stateOptions" placeholder="Select State" styleClass="w-full" [showClear]="true" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="form-label">Pin Code</label>
-                        <input pInputText formControlName="prevPinCode" placeholder="6-digit PIN" maxlength="6" class="w-full" />
-                    </div>
-                    <div class="flex flex-col gap-1 sm:col-span-2">
-                        <label class="form-label">School Address</label>
-                        <input pInputText formControlName="prevSchoolAddress" placeholder="Full school address" class="w-full" />
-                    </div>
+              }
+              @if (selectedClass) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label required">Section *</label>
+                  <p-select
+                    [options]="selectedClass?.sections"
+                    [(ngModel)]="selectedSection"
+                    [ngModelOptions]="{ standalone: true }"
+                    (onChange)="hasChanges.set(true)"
+                    optionLabel="name"
+                    placeholder="Select Section"
+                    styleClass="w-full"
+                  ></p-select>
+                  @if (submitted && !selectedSection) {
+                    <small class="text-red-500">Section is required.</small>
+                  }
                 </div>
-            </p-tabpanel>
-            <p-tabpanel>
-                <ng-template pTemplate="header">
-                    <span class="flex items-center gap-1.5 text-sm font-medium">
-                        <i class="pi pi-id-card"></i> Student Details
-                    </span>
-                </ng-template>
-                <div class="space-y-5 pt-2">
-                    <div>
-                        <p class="section-heading">Student Name *</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label required">First *</label>
-                                <input pInputText formControlName="stdFirstName" placeholder="First Name" class="w-full" />
-                                <small class="text-red-500" *ngIf="fieldError('stdFirstName')">Required</small>
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Middle</label>
-                                <input pInputText formControlName="stdMiddleName" placeholder="Middle Name" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label required">Last </label>
-                                <input pInputText formControlName="stdLastName" placeholder="Last Name" class="w-full" />
-                                <small class="text-red-500" *ngIf="fieldError('stdLastName')">Required</small>
-                            </div>
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">First Name (ಕನ್ನಡ)</label>
-                                <input pInputText formControlName="stdFirstNameKn" placeholder="ಮೊದಲ ಹೆಸರು" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Last Name (ಕನ್ನಡ)</label>
-                                <input pInputText formControlName="stdLastNameKn" placeholder="ಕೊನೆ ಹೆಸರು" class="w-full" />
-                            </div>
-                        </div>
-                    </div>
+              }
+            </div>
+          </div>
 
-                    <p-divider></p-divider>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div>
-                            <p class="section-heading">Father's Name</p>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="flex flex-col gap-1">
-                                    <label class="form-label">First Name (English)</label>
-                                    <input pInputText formControlName="fatherFirstName" placeholder="First Name" class="w-full" />
-                                </div>
-                                <div class="flex flex-col gap-1">
-                                    <label class="form-label">Last Name</label>
-                                    <input pInputText formControlName="fatherLastName" placeholder="Last Name" class="w-full" />
-                                </div>
-                                <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                    <label class="form-label">ಮೊದಲ ಹೆಸರು</label>
-                                    <input pInputText formControlName="fatherFirstNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
-                                </div>
-                                <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                    <label class="form-label">ಕೊನೆ ಹೆಸರು</label>
-                                    <input pInputText formControlName="fatherLastNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="section-heading">Mother's Name</p>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="flex flex-col gap-1">
-                                    <label class="form-label">First Name (English)</label>
-                                    <input pInputText formControlName="motherFirstName" placeholder="First Name" class="w-full" />
-                                </div>
-                                <div class="flex flex-col gap-1">
-                                    <label class="form-label">Last Name</label>
-                                    <input pInputText formControlName="motherLastName" placeholder="Last Name" class="w-full" />
-                                </div>
-                                <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                    <label class="form-label">ಮೊದಲ ಹೆಸರು</label>
-                                    <input pInputText formControlName="motherFirstNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
-                                </div>
-                                <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                    <label class="form-label">ಕೊನೆ ಹೆಸರು</label>
-                                    <input pInputText formControlName="motherLastNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <p-divider></p-divider>
-
-                    <div>
-                        <p class="section-heading">Personal Details</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label required">Date of Birth *</label>
-                                <p-datepicker formControlName="dob" dateFormat="dd/mm/yy" [showButtonBar]="true" styleClass="w-full" placeholder="DD/MM/YYYY" [maxDate]="today" />
-                                <small class="text-red-500" *ngIf="fieldError('dob')">Required</small>
-                            </div>
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Age (as on 1st June)</label>
-                                <input pInputText type="number" formControlName="age" placeholder="Age" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label required">Gender *</label>
-                                <p-select formControlName="gender" [options]="genderOptions" placeholder="Select Gender" styleClass="w-full" />
-                                <small class="text-red-500" *ngIf="fieldError('gender')">Required</small>
-                            </div>
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Religion</label>
-                                <p-select formControlName="religion" [options]="religionOptions" placeholder="Select Religion" styleClass="w-full" [showClear]="true" />
-                            </div>
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Nationality</label>
-                                <p-select formControlName="nationality" [options]="nationalityOptions" placeholder="Select" styleClass="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Social Category</label>
-                                <p-select formControlName="socialCategory" [options]="socialCategoryOptions" placeholder="Select Category" styleClass="w-full" [showClear]="true" />
-                            </div>
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Student Aadhaar No.</label>
-                                <input pInputText formControlName="aadhaar" placeholder="12-digit Aadhaar" maxlength="12" class="w-full" />
-                                <small class="text-red-500" *ngIf="fieldError('aadhaar')">Enter valid 12-digit Aadhaar</small>
-                            </div>
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Father's Aadhaar No.</label>
-                                <input pInputText formControlName="fatherAadhaar" placeholder="12-digit Aadhaar" maxlength="12" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Mother's Aadhaar No.</label>
-                                <input pInputText formControlName="motherAadhaar" placeholder="12-digit Aadhaar" maxlength="12" class="w-full" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <p-divider></p-divider>
-
-                    <!-- Caste & Special Category (hide in Basic mode) -->
-                    <div *ngIf="!basicMode">
-                        <p class="section-heading">Caste & Special Category</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Student Caste Cert. No.</label>
-                                <input pInputText formControlName="studentCasteCertNo" placeholder="Certificate Number" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Father's Caste Cert. No.</label>
-                                <input pInputText formControlName="fatherCasteCertNo" placeholder="Certificate Number" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Mother's Caste Cert. No.</label>
-                                <input pInputText formControlName="motherCasteCertNo" placeholder="Certificate Number" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Child with Special Need</label>
-                                <p-select formControlName="childWithSpecialNeed" [options]="specialNeedOptions" styleClass="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Bhagyalakshmi Bond No.</label>
-                                <input pInputText formControlName="bhagyalakshmiBondNo" placeholder="Bond Number" class="w-full" />
-                            </div>
-                            <div class="flex items-center gap-3 pt-5">
-                                <p-checkbox formControlName="belongsToBPL" [binary]="true" inputId="bpl" />
-                                <label for="bpl" class="form-label cursor-pointer !mb-0">Belongs to BPL Family</label>
-                            </div>
-                            @if (form.get('belongsToBPL')?.value) {
-                                <div class="flex flex-col gap-1">
-                                    <label class="form-label">BPL Card Number</label>
-                                    <input pInputText formControlName="bplCardNumber" placeholder="BPL Card Number" class="w-full" />
-                                </div>
-                            }
-                        </div>
-                    </div>
+          @if (!basicMode) {
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div class="flex flex-col gap-1">
+                <label class="form-label">Type of Student</label>
+                <p-select formControlName="typeOfStudent" [options]="typeOfStudentOptions" placeholder="Select Type" styleClass="w-full" [showClear]="true" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="form-label">Medium of Instruction</label>
+                <p-select formControlName="mediumOfInstruction" [options]="mediumOptions" placeholder="Select Medium" styleClass="w-full" [showClear]="true" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="form-label">Mother Tongue</label>
+                <p-select formControlName="motherTongue" [options]="motherTongueOptions" placeholder="Select Mother Tongue" styleClass="w-full" [showClear]="true" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="form-label">Language Group</label>
+                <p-select formControlName="languageGroup" [options]="languageGroupOptions" placeholder="Select Language Group" styleClass="w-full" [showClear]="true" />
+              </div>
+              <!-- Hide Detail Description in Basic mode -->
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1 sm:col-span-2">
+                  <label class="form-label">Detail Description</label>
+                  <textarea pTextarea formControlName="detailDescription" rows="2" class="w-full" placeholder="Additional admission details..."></textarea>
                 </div>
-            </p-tabpanel>
-            <p-tabpanel>
-                <ng-template pTemplate="header">
-                    <span class="flex items-center gap-1.5 text-sm font-medium">
-                        <i class="pi pi-phone"></i> Contact Details
-                    </span>
-                </ng-template>
-                <div class="space-y-5 pt-2">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="flex flex-col gap-1">
-                            <label class="form-label">Admission Date</label>
-                            <p-datepicker formControlName="admissionDate" dateFormat="dd/mm/yy" [showButtonBar]="true" styleClass="w-full" placeholder="DD/MM/YYYY" />
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="form-label">Student Email</label>
-                            <input pInputText type="email" formControlName="studentEmail" placeholder="student@email.com" class="w-full" />
-                            <small class="text-red-500" *ngIf="fieldError('studentEmail')">Invalid email</small>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="form-label">Father's Mobile</label>
-                            <input pInputText formControlName="fatherMobile" placeholder="10-digit mobile" maxlength="10" class="w-full" />
-                            <small class="text-red-500" *ngIf="fieldError('fatherMobile')">Enter valid 10-digit number</small>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="form-label">Mother's Mobile</label>
-                            <input pInputText formControlName="motherMobile" placeholder="10-digit mobile" maxlength="10" class="w-full" />
-                            <small class="text-red-500" *ngIf="fieldError('motherMobile')">Enter valid 10-digit number</small>
-                        </div>
-                    </div>
-
-                    <p-divider></p-divider>
-                    <div>
-                        <p class="section-heading">Current Address</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <!-- Hide address type in Basic mode -->
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Address Type</label>
-                                <p-select formControlName="curAddressType" [options]="addressTypeOptions" placeholder="Urban / Rural" styleClass="w-full" [showClear]="true" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Pin Code</label>
-                                <input pInputText formControlName="curPinCode" placeholder="6-digit PIN" maxlength="6" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">District</label>
-                                <input pInputText formControlName="curDistrict" placeholder="District" class="w-full" />
-                            </div>
-                            <!-- Hide these extra fields in Basic mode -->
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Local Body / Gram Panchayat</label>
-                                <input pInputText formControlName="curLocalBody" placeholder="Local Body" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Ward No.</label>
-                                <input pInputText formControlName="curWard" placeholder="Ward" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1" *ngIf="!basicMode">
-                                <label class="form-label">Locality / Village</label>
-                                <input pInputText formControlName="curLocality" placeholder="Locality" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1 sm:col-span-2 lg:col-span-3">
-                                <label class="form-label">Address Line</label>
-                                <input pInputText formControlName="curAddressLine" placeholder="House No., Street..." class="w-full" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <p-divider></p-divider>
-                    <div *ngIf="!basicMode">
-                        <div class="flex items-center justify-between mb-3">
-                            <p class="section-heading !mb-0">Permanent Address</p>
-                            <p-button
-                                label="Same as Current"
-                                icon="pi pi-copy"
-                                size="small"
-                                [outlined]="true"
-                                severity="secondary"
-                                (click)="copyCurrentToPermanent()"
-                            ></p-button>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Address Type</label>
-                                <p-select formControlName="perAddressType" [options]="addressTypeOptions" placeholder="Urban / Rural" styleClass="w-full" [showClear]="true" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Pin Code</label>
-                                <input pInputText formControlName="perPinCode" placeholder="6-digit PIN" maxlength="6" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">District</label>
-                                <input pInputText formControlName="perDistrict" placeholder="District" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Local Body / Gram Panchayat</label>
-                                <input pInputText formControlName="perLocalBody" placeholder="Local Body" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Ward No.</label>
-                                <input pInputText formControlName="perWard" placeholder="Ward" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="form-label">Locality / Village</label>
-                                <input pInputText formControlName="perLocality" placeholder="Locality" class="w-full" />
-                            </div>
-                            <div class="flex flex-col gap-1 sm:col-span-2 lg:col-span-3">
-                                <label class="form-label">Address Line</label>
-                                <input pInputText formControlName="perAddressLine" placeholder="House No., Street..." class="w-full" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </p-tabpanel>
-            <p-tabpanel *ngIf="!basicMode">
-                <ng-template pTemplate="header">
-                    <span class="flex items-center gap-1.5 text-sm font-medium">
-                        <i class="pi pi-credit-card"></i> Bank Details
-                    </span>
-                </ng-template>
-                <div class="max-w-2xl pt-2">
-                    <div class="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
-                        <p class="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2">
-                            <i class="pi pi-info-circle"></i>
-                            Bank details are required for government scholarship and benefit schemes.
-                        </p>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="flex flex-col gap-1 sm:col-span-2">
-                            <label class="form-label">Bank Name</label>
-                            <input pInputText formControlName="bankName" placeholder="e.g. State Bank of India" class="w-full" />
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="form-label">Account Number</label>
-                            <input pInputText formControlName="accountNumber" placeholder="Bank Account Number" class="w-full" />
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="form-label">IFSC Code</label>
-                            <input pInputText formControlName="ifscCode" placeholder="e.g. SBIN0001234" maxlength="11" class="w-full" style="text-transform: uppercase" />
-                        </div>
-                    </div>
-                </div>
-            </p-tabpanel>
-        </p-tabs>
-    </form>
-    }
-
-    <ng-template pTemplate="footer">
-        <div class="flex items-center justify-between w-full gap-3">
-            <p-button
-                label="Cancel"
-                icon="pi pi-times"
-                [outlined]="true"
-                severity="secondary"
-                (click)="onCancel()"
-            ></p-button>
-            <p-button
-                label="Save Student"
-                icon="pi pi-save"
-                (click)="onSave()"
-                [disabled]="!hasChanges()"
-            ></p-button>
+              }
+            </div>
+          }
         </div>
-    </ng-template>
+      </p-tabpanel>
+      @if (!basicMode) {
+        <p-tabpanel>
+          <ng-template pTemplate="header">
+            <span class="flex items-center gap-1.5 text-sm font-medium">
+              <i class="pi pi-building"></i> Previous School
+            </span>
+          </ng-template>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+            <div class="flex flex-col gap-1">
+              <label class="form-label">School Type</label>
+              <p-select formControlName="prevSchoolType" [options]="schoolTypeOptions" placeholder="Select Type" styleClass="w-full" [showClear]="true" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="form-label">Affiliation</label>
+              <p-select formControlName="affiliation" [options]="affiliationOptions" placeholder="Select Affiliation" styleClass="w-full" [showClear]="true" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="form-label">Transfer Certificate No.</label>
+              <input pInputText formControlName="tcNo" placeholder="TC Number" class="w-full" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="form-label">TC Date</label>
+              <p-datepicker formControlName="tcDate" dateFormat="dd/mm/yy" [showButtonBar]="true" styleClass="w-full" placeholder="DD/MM/YYYY" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="form-label">State</label>
+              <p-select formControlName="prevState" [options]="stateOptions" placeholder="Select State" styleClass="w-full" [showClear]="true" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="form-label">Pin Code</label>
+              <input pInputText formControlName="prevPinCode" placeholder="6-digit PIN" maxlength="6" class="w-full" />
+            </div>
+            <div class="flex flex-col gap-1 sm:col-span-2">
+              <label class="form-label">School Address</label>
+              <input pInputText formControlName="prevSchoolAddress" placeholder="Full school address" class="w-full" />
+            </div>
+          </div>
+        </p-tabpanel>
+      }
+      <p-tabpanel>
+        <ng-template pTemplate="header">
+          <span class="flex items-center gap-1.5 text-sm font-medium">
+            <i class="pi pi-id-card"></i> Student Details
+          </span>
+        </ng-template>
+        <div class="space-y-5 pt-2">
+          <div>
+            <p class="section-heading">Student Name *</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div class="flex flex-col gap-1">
+                <label class="form-label required">First *</label>
+                <input pInputText formControlName="stdFirstName" placeholder="First Name" class="w-full" />
+                @if (fieldError('stdFirstName')) {
+                  <small class="text-red-500">Required</small>
+                }
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="form-label">Middle</label>
+                <input pInputText formControlName="stdMiddleName" placeholder="Middle Name" class="w-full" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="form-label required">Last </label>
+                <input pInputText formControlName="stdLastName" placeholder="Last Name" class="w-full" />
+                @if (fieldError('stdLastName')) {
+                  <small class="text-red-500">Required</small>
+                }
+              </div>
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">First Name (ಕನ್ನಡ)</label>
+                  <input pInputText formControlName="stdFirstNameKn" placeholder="ಮೊದಲ ಹೆಸರು" class="w-full" />
+                </div>
+              }
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Last Name (ಕನ್ನಡ)</label>
+                  <input pInputText formControlName="stdLastNameKn" placeholder="ಕೊನೆ ಹೆಸರು" class="w-full" />
+                </div>
+              }
+            </div>
+          </div>
+
+          <p-divider></p-divider>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <p class="section-heading">Father's Name</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">First Name (English)</label>
+                  <input pInputText formControlName="fatherFirstName" placeholder="First Name" class="w-full" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Last Name</label>
+                  <input pInputText formControlName="fatherLastName" placeholder="Last Name" class="w-full" />
+                </div>
+                @if (!basicMode) {
+                  <div class="flex flex-col gap-1">
+                    <label class="form-label">ಮೊದಲ ಹೆಸರು</label>
+                    <input pInputText formControlName="fatherFirstNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
+                  </div>
+                }
+                @if (!basicMode) {
+                  <div class="flex flex-col gap-1">
+                    <label class="form-label">ಕೊನೆ ಹೆಸರು</label>
+                    <input pInputText formControlName="fatherLastNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
+                  </div>
+                }
+              </div>
+            </div>
+            <div>
+              <p class="section-heading">Mother's Name</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">First Name (English)</label>
+                  <input pInputText formControlName="motherFirstName" placeholder="First Name" class="w-full" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Last Name</label>
+                  <input pInputText formControlName="motherLastName" placeholder="Last Name" class="w-full" />
+                </div>
+                @if (!basicMode) {
+                  <div class="flex flex-col gap-1">
+                    <label class="form-label">ಮೊದಲ ಹೆಸರು</label>
+                    <input pInputText formControlName="motherFirstNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
+                  </div>
+                }
+                @if (!basicMode) {
+                  <div class="flex flex-col gap-1">
+                    <label class="form-label">ಕೊನೆ ಹೆಸರು</label>
+                    <input pInputText formControlName="motherLastNameKn" placeholder="ಕನ್ನಡ" class="w-full" />
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <p-divider></p-divider>
+
+          <div>
+            <p class="section-heading">Personal Details</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div class="flex flex-col gap-1">
+                <label class="form-label required">Date of Birth *</label>
+                <p-datepicker formControlName="dob" dateFormat="dd/mm/yy" [showButtonBar]="true" styleClass="w-full" placeholder="DD/MM/YYYY" [maxDate]="today" />
+                @if (fieldError('dob')) {
+                  <small class="text-red-500">Required</small>
+                }
+              </div>
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Age (as on 1st June)</label>
+                  <input pInputText type="number" formControlName="age" placeholder="Age" class="w-full" />
+                </div>
+              }
+              <div class="flex flex-col gap-1">
+                <label class="form-label required">Gender *</label>
+                <p-select formControlName="gender" [options]="genderOptions" placeholder="Select Gender" styleClass="w-full" />
+                @if (fieldError('gender')) {
+                  <small class="text-red-500">Required</small>
+                }
+              </div>
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Religion</label>
+                  <p-select formControlName="religion" [options]="religionOptions" placeholder="Select Religion" styleClass="w-full" [showClear]="true" />
+                </div>
+              }
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Nationality</label>
+                  <p-select formControlName="nationality" [options]="nationalityOptions" placeholder="Select" styleClass="w-full" />
+                </div>
+              }
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Social Category</label>
+                  <p-select formControlName="socialCategory" [options]="socialCategoryOptions" placeholder="Select Category" styleClass="w-full" [showClear]="true" />
+                </div>
+              }
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Student Aadhaar No.</label>
+                  <input pInputText formControlName="aadhaar" placeholder="12-digit Aadhaar" maxlength="12" class="w-full" />
+                  @if (fieldError('aadhaar')) {
+                    <small class="text-red-500">Enter valid 12-digit Aadhaar</small>
+                  }
+                </div>
+              }
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Father's Aadhaar No.</label>
+                  <input pInputText formControlName="fatherAadhaar" placeholder="12-digit Aadhaar" maxlength="12" class="w-full" />
+                </div>
+              }
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Mother's Aadhaar No.</label>
+                  <input pInputText formControlName="motherAadhaar" placeholder="12-digit Aadhaar" maxlength="12" class="w-full" />
+                </div>
+              }
+            </div>
+          </div>
+
+          <p-divider></p-divider>
+
+          <!-- Caste & Special Category (hide in Basic mode) -->
+          @if (!basicMode) {
+            <div>
+              <p class="section-heading">Caste & Special Category</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Student Caste Cert. No.</label>
+                  <input pInputText formControlName="studentCasteCertNo" placeholder="Certificate Number" class="w-full" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Father's Caste Cert. No.</label>
+                  <input pInputText formControlName="fatherCasteCertNo" placeholder="Certificate Number" class="w-full" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Mother's Caste Cert. No.</label>
+                  <input pInputText formControlName="motherCasteCertNo" placeholder="Certificate Number" class="w-full" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Child with Special Need</label>
+                  <p-select formControlName="childWithSpecialNeed" [options]="specialNeedOptions" styleClass="w-full" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Bhagyalakshmi Bond No.</label>
+                  <input pInputText formControlName="bhagyalakshmiBondNo" placeholder="Bond Number" class="w-full" />
+                </div>
+                <div class="flex items-center gap-3 pt-5">
+                  <p-checkbox formControlName="belongsToBPL" [binary]="true" inputId="bpl" />
+                  <label for="bpl" class="form-label cursor-pointer !mb-0">Belongs to BPL Family</label>
+                </div>
+                @if (form.get('belongsToBPL')?.value) {
+                  <div class="flex flex-col gap-1">
+                    <label class="form-label">BPL Card Number</label>
+                    <input pInputText formControlName="bplCardNumber" placeholder="BPL Card Number" class="w-full" />
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </p-tabpanel>
+      <p-tabpanel>
+        <ng-template pTemplate="header">
+          <span class="flex items-center gap-1.5 text-sm font-medium">
+            <i class="pi pi-phone"></i> Contact Details
+          </span>
+        </ng-template>
+        <div class="space-y-5 pt-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-1">
+              <label class="form-label">Admission Date</label>
+              <p-datepicker formControlName="admissionDate" dateFormat="dd/mm/yy" [showButtonBar]="true" styleClass="w-full" placeholder="DD/MM/YYYY" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="form-label">Student Email</label>
+              <input pInputText type="email" formControlName="studentEmail" placeholder="student@email.com" class="w-full" />
+              @if (fieldError('studentEmail')) {
+                <small class="text-red-500">Invalid email</small>
+              }
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="form-label">Father's Mobile</label>
+              <input pInputText formControlName="fatherMobile" placeholder="10-digit mobile" maxlength="10" class="w-full" />
+              @if (fieldError('fatherMobile')) {
+                <small class="text-red-500">Enter valid 10-digit number</small>
+              }
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="form-label">Mother's Mobile</label>
+              <input pInputText formControlName="motherMobile" placeholder="10-digit mobile" maxlength="10" class="w-full" />
+              @if (fieldError('motherMobile')) {
+                <small class="text-red-500">Enter valid 10-digit number</small>
+              }
+            </div>
+          </div>
+
+          <p-divider></p-divider>
+          <div>
+            <p class="section-heading">Current Address</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <!-- Hide address type in Basic mode -->
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Address Type</label>
+                  <p-select formControlName="curAddressType" [options]="addressTypeOptions" placeholder="Urban / Rural" styleClass="w-full" [showClear]="true" />
+                </div>
+              }
+              <div class="flex flex-col gap-1">
+                <label class="form-label">Pin Code</label>
+                <input pInputText formControlName="curPinCode" placeholder="6-digit PIN" maxlength="6" class="w-full" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="form-label">District</label>
+                <input pInputText formControlName="curDistrict" placeholder="District" class="w-full" />
+              </div>
+              <!-- Hide these extra fields in Basic mode -->
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Local Body / Gram Panchayat</label>
+                  <input pInputText formControlName="curLocalBody" placeholder="Local Body" class="w-full" />
+                </div>
+              }
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Ward No.</label>
+                  <input pInputText formControlName="curWard" placeholder="Ward" class="w-full" />
+                </div>
+              }
+              @if (!basicMode) {
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Locality / Village</label>
+                  <input pInputText formControlName="curLocality" placeholder="Locality" class="w-full" />
+                </div>
+              }
+              <div class="flex flex-col gap-1 sm:col-span-2 lg:col-span-3">
+                <label class="form-label">Address Line</label>
+                <input pInputText formControlName="curAddressLine" placeholder="House No., Street..." class="w-full" />
+              </div>
+            </div>
+          </div>
+
+          <p-divider></p-divider>
+          @if (!basicMode) {
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <p class="section-heading !mb-0">Permanent Address</p>
+                <p-button
+                  label="Same as Current"
+                  icon="pi pi-copy"
+                  size="small"
+                  [outlined]="true"
+                  severity="secondary"
+                  (click)="copyCurrentToPermanent()"
+                ></p-button>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Address Type</label>
+                  <p-select formControlName="perAddressType" [options]="addressTypeOptions" placeholder="Urban / Rural" styleClass="w-full" [showClear]="true" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Pin Code</label>
+                  <input pInputText formControlName="perPinCode" placeholder="6-digit PIN" maxlength="6" class="w-full" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">District</label>
+                  <input pInputText formControlName="perDistrict" placeholder="District" class="w-full" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Local Body / Gram Panchayat</label>
+                  <input pInputText formControlName="perLocalBody" placeholder="Local Body" class="w-full" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Ward No.</label>
+                  <input pInputText formControlName="perWard" placeholder="Ward" class="w-full" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="form-label">Locality / Village</label>
+                  <input pInputText formControlName="perLocality" placeholder="Locality" class="w-full" />
+                </div>
+                <div class="flex flex-col gap-1 sm:col-span-2 lg:col-span-3">
+                  <label class="form-label">Address Line</label>
+                  <input pInputText formControlName="perAddressLine" placeholder="House No., Street..." class="w-full" />
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </p-tabpanel>
+      @if (!basicMode) {
+        <p-tabpanel>
+          <ng-template pTemplate="header">
+            <span class="flex items-center gap-1.5 text-sm font-medium">
+              <i class="pi pi-credit-card"></i> Bank Details
+            </span>
+          </ng-template>
+          <div class="max-w-2xl pt-2">
+            <div class="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+              <p class="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2">
+                <i class="pi pi-info-circle"></i>
+                Bank details are required for government scholarship and benefit schemes.
+              </p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1 sm:col-span-2">
+                <label class="form-label">Bank Name</label>
+                <input pInputText formControlName="bankName" placeholder="e.g. State Bank of India" class="w-full" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="form-label">Account Number</label>
+                <input pInputText formControlName="accountNumber" placeholder="Bank Account Number" class="w-full" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="form-label">IFSC Code</label>
+                <input pInputText formControlName="ifscCode" placeholder="e.g. SBIN0001234" maxlength="11" class="w-full" style="text-transform: uppercase" />
+              </div>
+            </div>
+          </div>
+        </p-tabpanel>
+      }
+    </p-tabs>
+  </form>
+}
+
+<ng-template pTemplate="footer">
+  <div class="flex items-center justify-between w-full gap-3">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      [outlined]="true"
+      severity="secondary"
+      (click)="onCancel()"
+    ></p-button>
+    <p-button
+      label="Save Student"
+      icon="pi pi-save"
+      (click)="onSave()"
+      [disabled]="!hasChanges()"
+    ></p-button>
+  </div>
+</ng-template>
 </p-dialog>

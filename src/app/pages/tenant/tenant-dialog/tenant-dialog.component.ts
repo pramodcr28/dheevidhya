@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -18,7 +18,7 @@ import { TenantFormService } from './tenant-form.service';
 @Component({
     selector: 'app-tenant-dialog',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, DialogModule, ButtonModule, InputTextModule, TextareaModule, SelectModule, ToastModule, DatePickerModule],
+    imports: [FormsModule, ReactiveFormsModule, DialogModule, ButtonModule, InputTextModule, TextareaModule, SelectModule, ToastModule, DatePickerModule],
     providers: [MessageService],
     templateUrl: './tenant-dialog.component.html'
 })

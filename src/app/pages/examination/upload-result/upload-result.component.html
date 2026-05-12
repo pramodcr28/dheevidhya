@@ -1,327 +1,341 @@
-  <app-confirmation-dialog></app-confirmation-dialog>
+<app-confirmation-dialog></app-confirmation-dialog>
 <div class="rounded-lg shadow-sm border border-gray-200">
-    <div class="p-6 border-b border-gray-200">
-        <div class="flex items-center justify-between">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <p-select [(ngModel)]="selectedExam" [options]="exams" optionLabel="examType" placeholder="Select an exam" class="w-full" [loading]="isLoading" (onChange)="onExamChange()">
-                    <ng-template let-exam pTemplate="selectedItem">
-                        <div class="flex items-center">
-                            <i class="pi pi-book mr-2 text-blue-600"></i>
-                            <span class="font-medium">{{ exam.examType }}</span>
-                            <span class="text-sm  dark:text-white ml-2">({{ exam.timeTable.settings.startDate | date: 'shortDate' }})</span>
-                        </div>
-                    </ng-template>
-                    <ng-template let-exam pTemplate="item">
-                        <div class="flex items-center justify-between p-2">
-                            <div class="flex items-center">
-                                <i class="pi pi-book mr-2 text-blue-600"></i>
-                                <div>
-                                    <div class="font-medium">{{ exam.examType }}</div>
-                                    <div class="text-sm  dark:text-white">{{ exam.timeTable.settings.startDate | date: 'shortDate' }}</div>
-                                </div>
-                            </div>
-                            <p-tag [value]="exam.status" [severity]="exam.status === 'RESULT_DECLARED' ? 'success' : 'info'"></p-tag>
-                        </div>
-                    </ng-template>
-                </p-select>
-
-                <p-select [(ngModel)]="selectedSection" [options]="sections" optionLabel="sectionName" placeholder="Select a section" class="w-full" [disabled]="!selectedExam" (onChange)="onSectionChange()">
-                    <ng-template let-section pTemplate="selectedItem">
-                        <div class="flex items-center">
-                            <i class="pi pi-users mr-2 text-green-600"></i>
-                            <span class="font-medium">{{ section.className }}</span>
-                            <span class="text-sm  dark:text-white ml-2">({{ section.sectionName }})</span>
-                        </div>
-                    </ng-template>
-                    <ng-template let-section pTemplate="item">
-                        <div class="flex items-center p-2">
-                            <i class="pi pi-users mr-2 text-green-600"></i>
-                            <div>
-                                <div class="font-medium">{{ section.className }}</div>
-                                <div class="text-sm  dark:text-white">{{ section.sectionName }} - {{ section.departmentName }}</div>
-                            </div>
-                        </div>
-                    </ng-template>
-                </p-select>
+  <div class="p-6 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <p-select [(ngModel)]="selectedExam" [options]="exams" optionLabel="examType" placeholder="Select an exam" class="w-full" [loading]="isLoading" (onChange)="onExamChange()">
+          <ng-template let-exam pTemplate="selectedItem">
+            <div class="flex items-center">
+              <i class="pi pi-book mr-2 text-blue-600"></i>
+              <span class="font-medium">{{ exam.examType }}</span>
+              <span class="text-sm  dark:text-white ml-2">({{ exam.timeTable.settings.startDate | date: 'shortDate' }})</span>
             </div>
-            <div class="flex space-x-2">
-                <button type="button" pButton class="p-button-outlined" (click)="saveResults()" [disabled]="isLoading || isSaving || selectedExam?.status === 'RESULT_DECLARED'">
-                    <i class="pi pi-save mr-2"></i>
-                    <span *ngIf="!isSaving">Save Results</span>
-                    <span *ngIf="isSaving">Saving...</span>
-                </button>
-                <button type="button" pButton class="p-button-success" (click)="declareResults()" [disabled]="!canDeclareResults">
-                    <i class="pi pi-check-circle mr-2"></i>
-                    <span>Declare Result</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="overflow-x-auto" *ngIf="!isLoading && studentResults.length > 0">
-        <table class="min-w-full border-collapse">
-            <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium  dark:text-white uppercase tracking-wider sticky left-0 z-10 border-r border-gray-300">Student Name</th>
-                    <th *ngFor="let subject of selectedSubjects" class="px-4 py-3 text-center text-xs font-medium  dark:text-white uppercase tracking-wider border-r border-gray-200 min-w-[60px]">
-                        <div>{{ subject.name }}</div>
-                        <div class="text-xs text-gray-400 dark:text-gray-50 normal-case mt-1">Max: {{ selectedExam?.totalMarks }}</div>
-                    </th>
-                    <th class="px-4 py-3 text-center text-xs font-medium  dark:text-white uppercase tracking-wider border-r border-gray-200 min-w-[100px]">Result</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-    *ngFor="let student of studentResults; let i = index"
-    class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700"
-    [ngClass]="student.status !== 'ACTIVE' ? 'opacity-60 bg-gray-50 dark:bg-gray-800/50' : ''"
->
-    <td class="px-4 py-3 whitespace-nowrap sticky left-0 z-10 border-r border-gray-300 font-medium dark:text-gray-50 min-w-[120px]"
-        [ngClass]="student.status !== 'ACTIVE' ? 'bg-gray-50 dark:bg-gray-800/50' : 'bg-white dark:bg-gray-900'"
-    >
-        <div class="flex items-center">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
-                 [ngClass]="student.status !== 'ACTIVE' ? 'bg-gray-200 dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'"
-            >
-                <i class="pi pi-user text-sm"
-                   [ngClass]="student.status !== 'ACTIVE' ? 'text-gray-400' : ''"
-                ></i>
-            </div>
-            <div>
-                <div class="text-medium font-bold truncate max-w-[120px] dark:text-gray-50"
-                     [pTooltip]="student.fullName">
-                    {{ student.fullName }}
+          </ng-template>
+          <ng-template let-exam pTemplate="item">
+            <div class="flex items-center justify-between p-2">
+              <div class="flex items-center">
+                <i class="pi pi-book mr-2 text-blue-600"></i>
+                <div>
+                  <div class="font-medium">{{ exam.examType }}</div>
+                  <div class="text-sm  dark:text-white">{{ exam.timeTable.settings.startDate | date: 'shortDate' }}</div>
                 </div>
-                @if (student.status !== 'ACTIVE') {
-                    <span
+              </div>
+              <p-tag [value]="exam.status" [severity]="exam.status === 'RESULT_DECLARED' ? 'success' : 'info'"></p-tag>
+            </div>
+          </ng-template>
+        </p-select>
+
+        <p-select [(ngModel)]="selectedSection" [options]="sections" optionLabel="sectionName" placeholder="Select a section" class="w-full" [disabled]="!selectedExam" (onChange)="onSectionChange()">
+          <ng-template let-section pTemplate="selectedItem">
+            <div class="flex items-center">
+              <i class="pi pi-users mr-2 text-green-600"></i>
+              <span class="font-medium">{{ section.className }}</span>
+              <span class="text-sm  dark:text-white ml-2">({{ section.sectionName }})</span>
+            </div>
+          </ng-template>
+          <ng-template let-section pTemplate="item">
+            <div class="flex items-center p-2">
+              <i class="pi pi-users mr-2 text-green-600"></i>
+              <div>
+                <div class="font-medium">{{ section.className }}</div>
+                <div class="text-sm  dark:text-white">{{ section.sectionName }} - {{ section.departmentName }}</div>
+              </div>
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
+      <div class="flex space-x-2">
+        <button type="button" pButton class="p-button-outlined" (click)="saveResults()" [disabled]="isLoading || isSaving || selectedExam?.status === 'RESULT_DECLARED'">
+          <i class="pi pi-save mr-2"></i>
+          @if (!isSaving) {
+            <span>Save Results</span>
+          }
+          @if (isSaving) {
+            <span>Saving...</span>
+          }
+        </button>
+        <button type="button" pButton class="p-button-success" (click)="declareResults()" [disabled]="!canDeclareResults">
+          <i class="pi pi-check-circle mr-2"></i>
+          <span>Declare Result</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (!isLoading && studentResults.length > 0) {
+    <div class="overflow-x-auto">
+      <table class="min-w-full border-collapse">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium  dark:text-white uppercase tracking-wider sticky left-0 z-10 border-r border-gray-300">Student Name</th>
+            @for (subject of selectedSubjects; track subject) {
+              <th class="px-4 py-3 text-center text-xs font-medium  dark:text-white uppercase tracking-wider border-r border-gray-200 min-w-[60px]">
+                <div>{{ subject.name }}</div>
+                <div class="text-xs text-gray-400 dark:text-gray-50 normal-case mt-1">Max: {{ selectedExam?.totalMarks }}</div>
+              </th>
+            }
+            <th class="px-4 py-3 text-center text-xs font-medium  dark:text-white uppercase tracking-wider border-r border-gray-200 min-w-[100px]">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (student of studentResults; track student; let i = $index) {
+            <tr
+              class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700"
+              [ngClass]="student.status !== 'ACTIVE' ? 'opacity-60 bg-gray-50 dark:bg-gray-800/50' : ''"
+              >
+              <td class="px-4 py-3 whitespace-nowrap sticky left-0 z-10 border-r border-gray-300 font-medium dark:text-gray-50 min-w-[120px]"
+                [ngClass]="student.status !== 'ACTIVE' ? 'bg-gray-50 dark:bg-gray-800/50' : 'bg-white dark:bg-gray-900'"
+                >
+                <div class="flex items-center">
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                    [ngClass]="student.status !== 'ACTIVE' ? 'bg-gray-200 dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'"
+                    >
+                    <i class="pi pi-user text-sm"
+                      [ngClass]="student.status !== 'ACTIVE' ? 'text-gray-400' : ''"
+                    ></i>
+                  </div>
+                  <div>
+                    <div class="text-medium font-bold truncate max-w-[120px] dark:text-gray-50"
+                      [pTooltip]="student.fullName">
+                      {{ student.fullName }}
+                    </div>
+                    @if (student.status !== 'ACTIVE') {
+                      <span
                         class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-0.5"
                         [ngClass]="getUserStatusStyle(student.status).badge"
-                    >
+                        >
                         <i class="text-[9px]" [ngClass]="getUserStatusStyle(student.status).icon"></i>
                         {{ getUserStatusStyle(student.status).label }}
-                    </span>
+                      </span>
+                    }
+                  </div>
+                </div>
+              </td>
+              @if (student.status === 'ACTIVE') {
+                @for (subject of selectedSubjects; track subject; let j = $index) {
+                  <td
+                    class="px-2 py-2 text-center border-r border-gray-200">
+                    <p-inputNumber
+                      type="number"
+                      [(ngModel)]="student.examResults[j].obtainedMarks"
+                      (ngModelChange)="onMarksChange(i, j)"
+                      [min]="0"
+                      [max]="selectedExam?.totalMarks"
+                      [fluid]="true"
+                      [disabled]="selectedExam?.status === 'RESULT_DECLARED'"
+                    ></p-inputNumber>
+                  </td>
                 }
+              } @else {
+                <td
+                  [attr.colspan]="selectedSubjects.length"
+                  class="px-4 py-2 text-center border-r border-gray-200"
+                  >
+                  <div
+                    class="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 border border-dashed w-full"
+                    [ngClass]="getUserStatusStyle(student.status).banner"
+                    >
+                    <i class="text-sm" [ngClass]="getUserStatusStyle(student.status).icon"></i>
+                    <span class="text-xs font-semibold tracking-wide">
+                      {{ getUserStatusStyle(student.status).label }} — Marks entry not allowed
+                    </span>
+                  </div>
+                </td>
+              }
+              <td class="px-2 py-2 text-center border-r border-gray-200">
+                @if (student.status === 'ACTIVE') {
+                  @if (isResultAvailable(student)) {
+                    <div class="text-sm font-medium">
+                      {{ getStudentPercentage(student) }}% ({{ getGrade(getStudentPercentage(student)) }})
+                    </div>
+                    <div class="text-xs" [ngClass]="isStudentPass(student) ? 'text-green-600' : 'text-red-600'">
+                      {{ isStudentPass(student) ? 'Pass' : 'Fail' }}
+                    </div>
+                  }
+                } @else {
+                  <span class="text-xs text-gray-400 dark:text-gray-500 italic">N/A</span>
+                }
+              </td>
+            </tr>
+          }
+          <!-- <tr *ngFor="let student of studentResults; let i = index" class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
+          <td class="px-4 py-3 whitespace-nowrap sticky left-0 z-10 border-r border-gray-300 font-medium  dark:text-gray-50 min-w-[120px]">
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                <i class="pi pi-user  text-sm"></i>
+              </div>
+              <div>
+                <div class="text-medium font-bold truncate max-w-[120px] max dark:text-gray-50" [pTooltip]="student.fullName">
+                  {{ student.fullName }}
+                </div>
+              </div>
             </div>
-        </div>
-    </td>
-
-    @if (student.status === 'ACTIVE') {
-        <td *ngFor="let subject of selectedSubjects; let j = index"
-            class="px-2 py-2 text-center border-r border-gray-200">
+          </td>
+          <td *ngFor="let subject of selectedSubjects; let j = index" class="px-2 py-2 text-center border-r border-gray-200">
             <p-inputNumber
-                type="number"
-                [(ngModel)]="student.examResults[j].obtainedMarks"
-                (ngModelChange)="onMarksChange(i, j)"
-                [min]="0"
-                [max]="selectedExam?.totalMarks"
-                [fluid]="true"
-                [disabled]="selectedExam?.status === 'RESULT_DECLARED'"
-            ></p-inputNumber>
-        </td>
-    } @else {
-        <td
-            [attr.colspan]="selectedSubjects.length"
-            class="px-4 py-2 text-center border-r border-gray-200"
-        >
-            <div
-                class="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 border border-dashed w-full"
-                [ngClass]="getUserStatusStyle(student.status).banner"
-            >
-                <i class="text-sm" [ngClass]="getUserStatusStyle(student.status).icon"></i>
-                <span class="text-xs font-semibold tracking-wide">
-                    {{ getUserStatusStyle(student.status).label }} — Marks entry not allowed
-                </span>
-            </div>
-        </td>
-    }
-
-    <td class="px-2 py-2 text-center border-r border-gray-200">
-        @if (student.status === 'ACTIVE') {
+              type="number"
+              [(ngModel)]="student.examResults[j].obtainedMarks"
+              (ngModelChange)="onMarksChange(i, j)"
+              [min]="0"
+              [max]="selectedExam?.totalMarks"
+              [fluid]="true"
+              [disabled]="selectedExam?.status === 'RESULT_DECLARED'"
+            > </p-inputNumber>
+          </td>
+          <td class="px-2 py-2 text-center border-r border-gray-200">
             <ng-container *ngIf="isResultAvailable(student)">
-                <div class="text-sm font-medium">
-                    {{ getStudentPercentage(student) }}% ({{ getGrade(getStudentPercentage(student)) }})
-                </div>
-                <div class="text-xs" [ngClass]="isStudentPass(student) ? 'text-green-600' : 'text-red-600'">
-                    {{ isStudentPass(student) ? 'Pass' : 'Fail' }}
-                </div>
+              <div class="text-sm font-medium">{{ getStudentPercentage(student) }}% ({{ getGrade(getStudentPercentage(student)) }})</div>
+              <div class="text-xs" [ngClass]="isStudentPass(student) ? 'text-green-600' : 'text-red-600'">
+                {{ isStudentPass(student) ? 'Pass' : 'Fail' }}
+              </div>
             </ng-container>
-        } @else {
-            <span class="text-xs text-gray-400 dark:text-gray-500 italic">N/A</span>
-        }
-    </td>
-</tr>
-                <!-- <tr *ngFor="let student of studentResults; let i = index" class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
-                    <td class="px-4 py-3 whitespace-nowrap sticky left-0 z-10 border-r border-gray-300 font-medium  dark:text-gray-50 min-w-[120px]">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                                <i class="pi pi-user  text-sm"></i>
-                            </div>
-                            <div>
-                                <div class="text-medium font-bold truncate max-w-[120px] max dark:text-gray-50" [pTooltip]="student.fullName">
-                                    {{ student.fullName }}
-                                </div>
-                            </div>
-                        </div>
-                    </td>
+          </td>
+        </tr> -->
+      </tbody>
+    </table>
+  </div>
+}
 
-                    <td *ngFor="let subject of selectedSubjects; let j = index" class="px-2 py-2 text-center border-r border-gray-200">
-                        <p-inputNumber
-                            type="number"
-                            [(ngModel)]="student.examResults[j].obtainedMarks"
-                            (ngModelChange)="onMarksChange(i, j)"
-                            [min]="0"
-                            [max]="selectedExam?.totalMarks"
-                            [fluid]="true"
-                            [disabled]="selectedExam?.status === 'RESULT_DECLARED'"
-                        > </p-inputNumber>
-                    </td>
-                    <td class="px-2 py-2 text-center border-r border-gray-200">
-                        <ng-container *ngIf="isResultAvailable(student)">
-                            <div class="text-sm font-medium">{{ getStudentPercentage(student) }}% ({{ getGrade(getStudentPercentage(student)) }})</div>
-                            <div class="text-xs" [ngClass]="isStudentPass(student) ? 'text-green-600' : 'text-red-600'">
-                            {{ isStudentPass(student) ? 'Pass' : 'Fail' }}
-                            </div>
-                        </ng-container>
-                      </td>
-                </tr> -->
-            </tbody>
-        </table>
-    </div>
+<!-- Loading State -->
+@if (isLoading) {
+  <div class="p-12 text-center">
+    <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
+    <p class="mt-4  dark:text-white">Loading students and results...</p>
+  </div>
+}
 
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="p-12 text-center">
-        <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
-        <p class="mt-4  dark:text-white">Loading students and results...</p>
+<!-- No Data State -->
+@if (!isLoading && studentResults.length === 0) {
+  <div class="p-12 text-center">
+    <div class="w-16 h-16 bg-surface-100 dark:bg-surface-800 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i class="pi pi-inbox text-gray-400 dark:text-gray-50 text-2xl"></i>
     </div>
-
-    <!-- No Data State -->
-    <div *ngIf="!isLoading && studentResults.length === 0" class="p-12 text-center">
-        <div class="w-16 h-16 bg-surface-100 dark:bg-surface-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="pi pi-inbox text-gray-400 dark:text-gray-50 text-2xl"></i>
-        </div>
-        <h3 class="text-lg font-medium  dark:text-gray-50 mb-2">No Students Found</h3>
-        <p class=" dark:text-white">Please ensure you have selected an exam and section with enrolled students.</p>
-    </div>
+    <h3 class="text-lg font-medium  dark:text-gray-50 mb-2">No Students Found</h3>
+    <p class=" dark:text-white">Please ensure you have selected an exam and section with enrolled students.</p>
+  </div>
+}
 </div>
 
-<div *ngIf="selectedSubjects.length === 0 && selectedSection" class="rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+@if (selectedSubjects.length === 0 && selectedSection) {
+  <div class="rounded-lg shadow-sm border border-gray-200 p-12 text-center">
     <div class="w-16 h-16 bg-surface-100 dark:bg-surface-800 rounded-full flex items-center justify-center mx-auto mb-4">
-        <i class="pi pi-bookmark text-gray-400 dark:text-gray-50 text-2xl"></i>
+      <i class="pi pi-bookmark text-gray-400 dark:text-gray-50 text-2xl"></i>
     </div>
     <h3 class="text-lg font-medium  dark:text-gray-50 mb-2">Select Subjects</h3>
     <p class=" dark:text-white">Please select at least one subject to upload results for.</p>
-</div>
+  </div>
+}
 
-<p-dialog 
-    [(visible)]="showDeclareDialog" 
-    [modal]="true" 
-    [closable]="true"
-    [dismissableMask]="false"
-    [draggable]="false"
-    [resizable]="false"
-    [style]="{ width: '550px', padding:'5px' }"
-    (onHide)="cancelDeclareResults()">
-    
-    <ng-template pTemplate="header">
-        <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
-                <i class="pi pi-exclamation-triangle text-orange-600 dark:text-orange-400 text-xl"></i>
-            </div>
-            <div>
-                <h3 class="text-xl font-semibold  dark:text-gray-50">Declare Results</h3>
-                <p class="text-sm   mt-1">Confirm result declaration</p>
-            </div>
-        </div>
-    </ng-template>
+<p-dialog
+  [(visible)]="showDeclareDialog"
+  [modal]="true"
+  [closable]="true"
+  [dismissableMask]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '550px', padding:'5px' }"
+  (onHide)="cancelDeclareResults()">
 
-    <div class="py-4 space-y-4">
-        <!-- Warning Message -->
-        <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-                <i class="pi pi-info-circle text-orange-600 dark:text-orange-400 mt-0.5"></i>
-                <div class="flex-1">
-                    <h4 class="text-sm font-semibold text-orange-900 dark:text-orange-300 mb-2">Important Notice</h4>
-                    <ul class="text-sm text-orange-800 dark:text-orange-400 space-y-1 list-disc list-inside">
-                        <li>Once results are declared, they <strong>cannot be reverted</strong></li>
-                        <li>All students and parents will be able to view the results</li>
-                        <li>Make sure all marks have been entered correctly</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+  <ng-template pTemplate="header">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
+        <i class="pi pi-exclamation-triangle text-orange-600 dark:text-orange-400 text-xl"></i>
+      </div>
+      <div>
+        <h3 class="text-xl font-semibold  dark:text-gray-50">Declare Results</h3>
+        <p class="text-sm   mt-1">Confirm result declaration</p>
+      </div>
+    </div>
+  </ng-template>
 
-        <!-- Notification Option -->
-        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-                <p-checkbox 
-                    [(ngModel)]="sendNotification" 
-                    [binary]="true" 
-                    inputId="sendNotification"
-                    styleClass="mt-0.5">
-                </p-checkbox>
-                <label for="sendNotification" class="flex-1 cursor-pointer">
-                    <div class="font-medium  dark:text-gray-50">Send Notifications</div>
-                    <div class="text-sm   mt-1">
-                        Notify students and parents via email/SMS about the declared results
-                    </div>
-                </label>
-            </div>
+  <div class="py-4 space-y-4">
+    <!-- Warning Message -->
+    <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <i class="pi pi-info-circle text-orange-600 dark:text-orange-400 mt-0.5"></i>
+        <div class="flex-1">
+          <h4 class="text-sm font-semibold text-orange-900 dark:text-orange-300 mb-2">Important Notice</h4>
+          <ul class="text-sm text-orange-800 dark:text-orange-400 space-y-1 list-disc list-inside">
+            <li>Once results are declared, they <strong>cannot be reverted</strong></li>
+            <li>All students and parents will be able to view the results</li>
+            <li>Make sure all marks have been entered correctly</li>
+          </ul>
         </div>
-
-        <!-- Summary Information -->
-        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2">
-            <div class="flex items-center justify-between text-sm">
-                <span class=" ">Exam:</span>
-                <span class="font-medium  dark:text-gray-50">{{ selectedExam?.examType }}</span>
-            </div>
-            <div class="flex items-center justify-between text-sm">
-                <span class=" ">Section:</span>
-                <span class="font-medium  dark:text-gray-50">{{ selectedSection?.className }} - {{ selectedSection?.sectionName }}</span>
-            </div>
-            <div class="flex items-center justify-between text-sm">
-                <span class=" ">Total Students:</span>
-                <span class="font-medium  dark:text-gray-50">{{ studentResults.length }}</span>
-            </div>
-            <div class="flex items-center justify-between text-sm">
-                <span class=" ">Subjects:</span>
-                <span class="font-medium  dark:text-gray-50">{{ selectedSubjects.length }}</span>
-            </div>
-        </div>
-
-        <!-- Confirmation Question -->
-        <div class="text-center pt-2">
-            <p class="text-base font-medium  dark:text-gray-50">
-                Are you sure you want to declare the results?
-            </p>
-            <p class="text-sm   mt-1">
-                This action cannot be undone.
-            </p>
-        </div>
+      </div>
     </div>
 
-    <ng-template pTemplate="footer">
-        <div class="flex gap-3 justify-end">
-            <button 
-                type="button" 
-                pButton 
-                label="Cancel" 
-                icon="pi pi-times" 
-                class="p-button-outlined p-button-secondary"
-                (click)="cancelDeclareResults()"
-                [disabled]="isSaving">
-            </button>
-            <button 
-                type="button" 
-                pButton 
-                label="Declare Results" 
-                icon="pi pi-check" 
-                class="p-button-success"
-                (click)="confirmDeclareResults()"
-                [disabled]="isSaving"
-                [loading]="isSaving">
-            </button>
-        </div>
-    </ng-template>
+    <!-- Notification Option -->
+    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <p-checkbox
+          [(ngModel)]="sendNotification"
+          [binary]="true"
+          inputId="sendNotification"
+          styleClass="mt-0.5">
+        </p-checkbox>
+        <label for="sendNotification" class="flex-1 cursor-pointer">
+          <div class="font-medium  dark:text-gray-50">Send Notifications</div>
+          <div class="text-sm   mt-1">
+            Notify students and parents via email/SMS about the declared results
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Summary Information -->
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2">
+      <div class="flex items-center justify-between text-sm">
+        <span class=" ">Exam:</span>
+        <span class="font-medium  dark:text-gray-50">{{ selectedExam?.examType }}</span>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class=" ">Section:</span>
+        <span class="font-medium  dark:text-gray-50">{{ selectedSection?.className }} - {{ selectedSection?.sectionName }}</span>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class=" ">Total Students:</span>
+        <span class="font-medium  dark:text-gray-50">{{ studentResults.length }}</span>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class=" ">Subjects:</span>
+        <span class="font-medium  dark:text-gray-50">{{ selectedSubjects.length }}</span>
+      </div>
+    </div>
+
+    <!-- Confirmation Question -->
+    <div class="text-center pt-2">
+      <p class="text-base font-medium  dark:text-gray-50">
+        Are you sure you want to declare the results?
+      </p>
+      <p class="text-sm   mt-1">
+        This action cannot be undone.
+      </p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex gap-3 justify-end">
+      <button
+        type="button"
+        pButton
+        label="Cancel"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary"
+        (click)="cancelDeclareResults()"
+        [disabled]="isSaving">
+      </button>
+      <button
+        type="button"
+        pButton
+        label="Declare Results"
+        icon="pi pi-check"
+        class="p-button-success"
+        (click)="confirmDeclareResults()"
+        [disabled]="isSaving"
+        [loading]="isSaving">
+      </button>
+    </div>
+  </ng-template>
 </p-dialog>
 
 <p-toast></p-toast>

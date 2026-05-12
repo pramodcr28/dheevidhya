@@ -1,185 +1,203 @@
 <div class="space-y-6">
-    <form #itemForm="ngForm" class="space-y-6">
-        <div *ngIf="itemForm.submitted && itemForm.invalid" class="mb-4">
-            <p-message severity="error" text="Please fill in all required fields correctly." styleClass="w-full"> </p-message>
+  <form #itemForm="ngForm" class="space-y-6">
+    @if (itemForm.submitted && itemForm.invalid) {
+      <div class="mb-4">
+        <p-message severity="error" text="Please fill in all required fields correctly." styleClass="w-full"> </p-message>
+      </div>
+    }
+    <div class="rounded-lg p-4 min-h-[300px]">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold mb-2"> Category * </label>
+          <p-select
+            [options]="categories"
+            [(ngModel)]="itemFormModel.category"
+            name="category"
+            #categoryField="ngModel"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select Category"
+            styleClass="w-full"
+            [appendTo]="'body'"
+            [class.ng-invalid]="categoryField.invalid && categoryField.touched"
+            (onChange)="onCategoryChange()"
+            required
+            >
+          </p-select>
+
+          @if (categoryField.invalid && categoryField.touched) {
+            <small class="text-red-500 mt-1 block"> Category is required </small>
+          }
         </div>
-        <div class="rounded-lg p-4 min-h-[300px]">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-semibold mb-2"> Category * </label>
-                    <p-select
-                        [options]="categories"
-                        [(ngModel)]="itemFormModel.category"
-                        name="category"
-                        #categoryField="ngModel"
-                        optionLabel="name"
-                        optionValue="id"
-                        placeholder="Select Category"
-                        styleClass="w-full"
-                        [appendTo]="'body'"
-                        [class.ng-invalid]="categoryField.invalid && categoryField.touched"
-                        (onChange)="onCategoryChange()"
-                        required
-                    >
-                    </p-select>
 
-                    <small *ngIf="categoryField.invalid && categoryField.touched" class="text-red-500 mt-1 block"> Category is required </small>
-                </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2"> Item Name * </label>
+          <input pInputText [(ngModel)]="itemFormModel.name" name="name" #nameField="ngModel" placeholder="Enter item name" class="w-full" [class.ng-invalid]="nameField.invalid && nameField.touched" required />
+          @if (nameField.invalid && nameField.touched) {
+            <small class="text-red-500 mt-1 block"> Item name is required </small>
+          }
+        </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2"> Item Name * </label>
-                    <input pInputText [(ngModel)]="itemFormModel.name" name="name" #nameField="ngModel" placeholder="Enter item name" class="w-full" [class.ng-invalid]="nameField.invalid && nameField.touched" required />
-                    <small *ngIf="nameField.invalid && nameField.touched" class="text-red-500 mt-1 block"> Item name is required </small>
-                </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2"> Total Quantity * </label>
+          <p-inputNumber
+            [(ngModel)]="itemFormModel.totalQuantity"
+            name="totalQuantity"
+            #quantityField="ngModel"
+            placeholder="Enter total quantity"
+            styleClass="w-full"
+            [min]="0"
+            [class.ng-invalid]="quantityField.invalid && quantityField.touched"
+            required
+            >
+          </p-inputNumber>
+          @if (quantityField.invalid && quantityField.touched) {
+            <small class="text-red-500 mt-1 block"> Total quantity is required </small>
+          }
+        </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2"> Total Quantity * </label>
-                    <p-inputNumber
-                        [(ngModel)]="itemFormModel.totalQuantity"
-                        name="totalQuantity"
-                        #quantityField="ngModel"
-                        placeholder="Enter total quantity"
-                        styleClass="w-full"
-                        [min]="0"
-                        [class.ng-invalid]="quantityField.invalid && quantityField.touched"
-                        required
-                    >
-                    </p-inputNumber>
-                    <small *ngIf="quantityField.invalid && quantityField.touched" class="text-red-500 mt-1 block"> Total quantity is required </small>
-                </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2"> Total Amount Spent * </label>
+          <p-inputNumber
+            [(ngModel)]="itemFormModel.totalSpend"
+            name="totalSpend"
+            #totalSpendField="ngModel"
+            placeholder="Enter total Amount Spend"
+            styleClass="w-full"
+            [min]="0"
+            [class.ng-invalid]="totalSpendField.invalid && totalSpendField.touched"
+            required
+            >
+          </p-inputNumber>
+          @if (totalSpendField.invalid && totalSpendField.touched) {
+            <small class="text-red-500 mt-1 block"> Total Amount Spent is required </small>
+          }
+        </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2"> Total Amount Spent * </label>
-                    <p-inputNumber
-                        [(ngModel)]="itemFormModel.totalSpend"
-                        name="totalSpend"
-                        #totalSpendField="ngModel"
-                        placeholder="Enter total Amount Spend"
-                        styleClass="w-full"
-                        [min]="0"
-                        [class.ng-invalid]="totalSpendField.invalid && totalSpendField.touched"
-                        required
-                    >
-                    </p-inputNumber>
-                    <small *ngIf="totalSpendField.invalid && totalSpendField.touched" class="text-red-500 mt-1 block"> Total Amount Spent is required </small>
-                </div>
+        @if (selectedCategory?.academicYearDependent) {
+          <div>
+            <label class="block text-sm font-semibold mb-2"> Academic Year </label>
+            <input pInputText [(ngModel)]="itemFormModel.academicYear" name="academicYear" placeholder="e.g., 2024-25" class="w-full" />
+          </div>
+        }
 
-                <div *ngIf="selectedCategory?.academicYearDependent">
-                    <label class="block text-sm font-semibold mb-2"> Academic Year </label>
-                    <input pInputText [(ngModel)]="itemFormModel.academicYear" name="academicYear" placeholder="e.g., 2024-25" class="w-full" />
-                </div>
-
-                @if (selectedCategory && selectedCategory.propertyDefinitions.length > 0) {
-                    <ng-container>
-                        <div *ngFor="let prop of selectedCategory.propertyDefinitions" class="dynamic-property-field">
-                            <label class="block text-sm font-semibold mb-2">
-                                {{ prop.label }}
-                                <span *ngIf="prop.required" class="text-red-500">*</span>
-                            </label>
-
-                            <input
-                                *ngIf="prop.fieldType === 'TEXT'"
-                                pInputText
-                                [(ngModel)]="itemFormModel.properties[prop.fieldName]"
-                                [name]="'prop_' + prop.fieldName"
-                                #dynamicField="ngModel"
-                                [placeholder]="'Enter ' + prop.label.toLowerCase()"
-                                class="w-full"
-                                [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
-                                [required]="prop.required"
-                            />
-
-                            <textarea
-                                *ngIf="prop.fieldType === 'TEXTAREA'"
-                                pInputTextarea
-                                [(ngModel)]="itemFormModel.properties[prop.fieldName]"
-                                [name]="'prop_' + prop.fieldName"
-                                #dynamicField="ngModel"
-                                [placeholder]="'Enter ' + prop.label.toLowerCase()"
-                                class="w-full"
-                                rows="3"
-                                [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
-                                [required]="prop.required"
-                            >
-                            </textarea>
-
-                            <p-inputNumber
-                                *ngIf="prop.fieldType === 'NUMBER'"
-                                [(ngModel)]="itemFormModel.properties[prop.fieldName]"
-                                [name]="'prop_' + prop.fieldName"
-                                #dynamicField="ngModel"
-                                [placeholder]="'Enter ' + prop.label.toLowerCase()"
-                                styleClass="w-full"
-                                [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
-                                [required]="prop.required"
-                            >
-                            </p-inputNumber>
-
-                            <p-date-picker
-                                *ngIf="prop.fieldType === 'DATE'"
-                                [(ngModel)]="itemFormModel.properties[prop.fieldName]"
-                                [name]="'prop_' + prop.fieldName"
-                                #dynamicField="ngModel"
-                                [placeholder]="'Select ' + prop.label.toLowerCase()"
-                                styleClass="w-full"
-                                dateFormat="dd/mm/yy"
-                                [showIcon]="true"
-                                [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
-                                [required]="prop.required"
-                            >
-                            </p-date-picker>
-
-                            <p-select
-                                *ngIf="prop.fieldType === 'DROPDOWN'"
-                                [options]="prop.options"
-                                optionLabel="title"
-                                optionValue="value"
-                                [(ngModel)]="itemFormModel.properties[prop.fieldName]"
-                                [name]="'prop_' + prop.fieldName"
-                                #dynamicField="ngModel"
-                                [placeholder]="'Select ' + prop.label.toLowerCase()"
-                                styleClass="w-full"
-                                [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
-                                [required]="prop.required"
-                            >
-                            </p-select>
-
-
-                            <div *ngIf="prop.fieldType === 'CHECKBOX'" class="flex items-center space-x-2">
-                                <p-checkbox [(ngModel)]="itemFormModel.properties[prop.fieldName]" [required]="prop.required" [name]="'prop_' + prop.fieldName" [binary]="true"> </p-checkbox>
-                                <label class="text-sm">{{ prop.label }}</label>
-                            </div>
-
-                            <div *ngIf="prop.fieldType === 'RADIO'" class="flex flex-col gap-2">
-                              
-                                <div *ngFor="let opt of prop.options; let i = index" class="flex items-center space-x-2">
-                                    <p-radioButton
-                                        [name]="'prop_' + prop.fieldName"
-                                        [value]="opt.value"
-                                        [(ngModel)]="itemFormModel.properties[prop.fieldName]"
-                                        [inputId]="'prop_' + prop.fieldName + '_' + i"
-                                        #dynamicField="ngModel"
-                                        [required]="prop.required"
-                                    >
-                                    </p-radioButton>
-
-                                    <label [for]="'prop_' + prop.fieldName + '_' + i" class="text-sm">
-                                        {{ opt.title }}
-                                    </label>
-                                </div>
-                            </div>
-
-                            <small *ngIf="prop.required && !itemFormModel.properties[prop.fieldName] && prop.label !='Check Box'" class="text-red-500 mt-1 block"> {{ prop.label }} is required </small>
-                        </div>
-                    </ng-container>
+        @if (selectedCategory && selectedCategory.propertyDefinitions.length > 0) {
+          <ng-container>
+            @for (prop of selectedCategory.propertyDefinitions; track prop) {
+              <div class="dynamic-property-field">
+                <label class="block text-sm font-semibold mb-2">
+                  {{ prop.label }}
+                  @if (prop.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+                @if (prop.fieldType === 'TEXT') {
+                  <input
+                    pInputText
+                    [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                    [name]="'prop_' + prop.fieldName"
+                    #dynamicField="ngModel"
+                    [placeholder]="'Enter ' + prop.label.toLowerCase()"
+                    class="w-full"
+                    [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
+                    [required]="prop.required"
+                    />
                 }
-            </div>
-        </div>
+                @if (prop.fieldType === 'TEXTAREA') {
+                  <textarea
+                    pInputTextarea
+                    [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                    [name]="'prop_' + prop.fieldName"
+                    #dynamicField="ngModel"
+                    [placeholder]="'Enter ' + prop.label.toLowerCase()"
+                    class="w-full"
+                    rows="3"
+                    [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
+                    [required]="prop.required"
+                    >
+                  </textarea>
+                }
+                @if (prop.fieldType === 'NUMBER') {
+                  <p-inputNumber
+                    [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                    [name]="'prop_' + prop.fieldName"
+                    #dynamicField="ngModel"
+                    [placeholder]="'Enter ' + prop.label.toLowerCase()"
+                    styleClass="w-full"
+                    [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
+                    [required]="prop.required"
+                    >
+                  </p-inputNumber>
+                }
+                @if (prop.fieldType === 'DATE') {
+                  <p-date-picker
+                    [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                    [name]="'prop_' + prop.fieldName"
+                    #dynamicField="ngModel"
+                    [placeholder]="'Select ' + prop.label.toLowerCase()"
+                    styleClass="w-full"
+                    dateFormat="dd/mm/yy"
+                    [showIcon]="true"
+                    [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
+                    [required]="prop.required"
+                    >
+                  </p-date-picker>
+                }
+                @if (prop.fieldType === 'DROPDOWN') {
+                  <p-select
+                    [options]="prop.options"
+                    optionLabel="title"
+                    optionValue="value"
+                    [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                    [name]="'prop_' + prop.fieldName"
+                    #dynamicField="ngModel"
+                    [placeholder]="'Select ' + prop.label.toLowerCase()"
+                    styleClass="w-full"
+                    [class.ng-invalid]="prop.required && dynamicField.invalid && dynamicField.touched"
+                    [required]="prop.required"
+                    >
+                  </p-select>
+                }
+                @if (prop.fieldType === 'CHECKBOX') {
+                  <div class="flex items-center space-x-2">
+                    <p-checkbox [(ngModel)]="itemFormModel.properties[prop.fieldName]" [required]="prop.required" [name]="'prop_' + prop.fieldName" [binary]="true"> </p-checkbox>
+                    <label class="text-sm">{{ prop.label }}</label>
+                  </div>
+                }
+                @if (prop.fieldType === 'RADIO') {
+                  <div class="flex flex-col gap-2">
+                    @for (opt of prop.options; track opt; let i = $index) {
+                      <div class="flex items-center space-x-2">
+                        <p-radioButton
+                          [name]="'prop_' + prop.fieldName"
+                          [value]="opt.value"
+                          [(ngModel)]="itemFormModel.properties[prop.fieldName]"
+                          [inputId]="'prop_' + prop.fieldName + '_' + i"
+                          #dynamicField="ngModel"
+                          [required]="prop.required"
+                          >
+                        </p-radioButton>
+                        <label [for]="'prop_' + prop.fieldName + '_' + i" class="text-sm">
+                          {{ opt.title }}
+                        </label>
+                      </div>
+                    }
+                  </div>
+                }
+                @if (prop.required && !itemFormModel.properties[prop.fieldName] && prop.label !='Check Box') {
+                  <small class="text-red-500 mt-1 block"> {{ prop.label }} is required </small>
+                }
+              </div>
+            }
+          </ng-container>
+        }
+      </div>
+    </div>
 
-        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <p-button label="Cancel" severity="secondary" icon="pi pi-times" (onClick)="onCancel()"> </p-button>
+    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <p-button label="Cancel" severity="secondary" icon="pi pi-times" (onClick)="onCancel()"> </p-button>
 
-            <p-button [label]="isEditMode ? 'Update Item' : 'Create Item'" icon="pi pi-check" [loading]="isSubmitting" loadingIcon="pi pi-spin pi-spinner" (onClick)="onSave(itemForm)"> </p-button>
-        </div>
-    </form>
+      <p-button [label]="isEditMode ? 'Update Item' : 'Create Item'" icon="pi pi-check" [loading]="isSubmitting" loadingIcon="pi pi-spin pi-spinner" (onClick)="onSave(itemForm)"> </p-button>
+    </div>
+  </form>
 </div>

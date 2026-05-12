@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -17,7 +17,7 @@ import { ConfirmationDialogComponent } from '../../../../shared/confirmation-dia
 @Component({
     selector: 'app-add-assignment-dialog',
     standalone: true,
-    imports: [CommonModule, FormsModule, DialogModule, ButtonModule, InputTextModule, EditorModule, SelectModule, DatePickerModule, TreeSelectModule, SelectModule, ConfirmationDialogComponent],
+    imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, EditorModule, SelectModule, DatePickerModule, TreeSelectModule, SelectModule, ConfirmationDialogComponent],
     templateUrl: './add-assignment-dialog.component.html'
 })
 export class AddAssignmentDialogComponent {

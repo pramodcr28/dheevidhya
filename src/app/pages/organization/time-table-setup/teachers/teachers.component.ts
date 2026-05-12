@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -9,7 +9,7 @@ import { TimeTableService } from '../../../service/time-table.service';
 @Component({
     selector: 'app-teachers',
     standalone: true,
-    imports: [CommonModule, FormsModule, DialogModule, ButtonModule],
+    imports: [FormsModule, DialogModule, ButtonModule],
     templateUrl: './teachers.component.html'
 })
 export class TeachersComponent {

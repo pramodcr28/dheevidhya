@@ -23,7 +23,7 @@ interface SelectedPeriod {
 @Component({
     selector: 'app-timetable-view',
     standalone: true,
-    imports: [CommonModule, ToastModule, TooltipModule, DragDropModule, ConfirmationDialogComponent],
+    imports: [ToastModule, TooltipModule, DragDropModule, ConfirmationDialogComponent, CommonModule],
     providers: [MessageService],
     templateUrl: './timetable-view.component.html',
     styles: [

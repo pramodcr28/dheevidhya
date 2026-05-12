@@ -1,5 +1,6 @@
 // department-list.component.ts
-import { CommonModule } from '@angular/common';
+
+import { LowerCasePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
@@ -16,7 +17,7 @@ import { IMasterDepartment } from '../../../models/org.model';
 @Component({
     selector: 'app-department-list',
     standalone: true,
-    imports: [CommonModule, ButtonModule, CardModule, SkeletonModule, ToastModule],
+    imports: [ButtonModule, CardModule, SkeletonModule, ToastModule, NgClass, LowerCasePipe],
     templateUrl: './department-setup-list.component.html',
     styles: [],
     providers: [MessageService]

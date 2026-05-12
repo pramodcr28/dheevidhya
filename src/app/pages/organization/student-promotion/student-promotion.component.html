@@ -1,466 +1,484 @@
 <p-toast></p-toast>
 
 <div>
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-        <div>
-            <h2 class="text-2xl sm:text-3xl font-bold ">Student Promotion</h2>
-            <p class=" mt-1">Promote students to next academic year</p>
-        </div>
+  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+    <div>
+      <h2 class="text-2xl sm:text-3xl font-bold ">Student Promotion</h2>
+      <p class=" mt-1">Promote students to next academic year</p>
     </div>
+  </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <p-card>
-            <ng-template pTemplate="header">
-                <div class="p-4 border-b bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-800 dark:to-cyan-700">
-                    <h3 class="text-lg font-bold ">Current Student Selection</h3>
-                    <p class="text-sm  mt-1">Select the current section to view students who need promotion</p>
-                </div>
-            </ng-template>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="p-4 border-b bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-800 dark:to-cyan-700">
+          <h3 class="text-lg font-bold ">Current Student Selection</h3>
+          <p class="text-sm  mt-1">Select the current section to view students who need promotion</p>
+        </div>
+      </ng-template>
 
-            <div class="grid grid-cols-3 gap-4 mb-4">
-                <dhee-select
-                    [(ngModel)]="selectedDepartment"
-                    [options]="sourceDepartments"
-                    dataSource="custom"
-                    [displayLabel]="'Department'"
-                    [showAcademicYear]="true"
-                    (onValueChange)="onDepartmentChange()"
-                    [filter]="true"
-                    filterBy="department.name,academicYear"
-                    placeholder="Select Department">
-                </dhee-select>
-                <div>
-                    <label class="block font-semibold mb-2 ">Class <span class="text-red-500">*</span></label>
-                    <p-select 
-                        [options]="selectedDepartment?.department.classes"
-                        [(ngModel)]="selectedClass"
-                        optionLabel="name"
-                        placeholder="Select Class"
-                        [disabled]="!selectedDepartment"
-                        [style]="{ width: '100%' }"
-                        (onChange)="onClassChange()">
-                    </p-select>
-                </div>
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <dhee-select
+          [(ngModel)]="selectedDepartment"
+          [options]="sourceDepartments"
+          dataSource="custom"
+          [displayLabel]="'Department'"
+          [showAcademicYear]="true"
+          (onValueChange)="onDepartmentChange()"
+          [filter]="true"
+          filterBy="department.name,academicYear"
+          placeholder="Select Department">
+        </dhee-select>
+        <div>
+          <label class="block font-semibold mb-2 ">Class <span class="text-red-500">*</span></label>
+          <p-select
+            [options]="selectedDepartment?.department.classes"
+            [(ngModel)]="selectedClass"
+            optionLabel="name"
+            placeholder="Select Class"
+            [disabled]="!selectedDepartment"
+            [style]="{ width: '100%' }"
+            (onChange)="onClassChange()">
+          </p-select>
+        </div>
 
-                <div>
-                    <label class="block font-semibold mb-2 ">Section <span class="text-red-500">*</span></label>
-                    <p-select 
-                        [options]="selectedClass?.sections" 
-                        [(ngModel)]="selectedSection"
-                        optionLabel="name"
-                        placeholder="Select Section"
-                        [disabled]="!selectedClass"
-                        [style]="{ width: '100%' }"
-                        (onChange)="onSectionChange()">
-                    </p-select>
-                </div>
-            </div>
-            <div class="mt-4">
-                <div *ngIf="sourceStudents().length > 0">
-                    <p-table 
-                        [value]="sourceStudents()" 
-                        [(selection)]="selectedStudents"
-                        dataKey="id"
-                        [scrollable]="true" 
-                        scrollHeight="300px" 
-                        styleClass="p-datatable-sm" 
-                        responsiveLayout="scroll">
-                        <ng-template pTemplate="header">
-                            <tr>
-                                <th style="width: 3rem">
-                                    <p-tableHeaderCheckbox [disabled]="areAllStudentsNonSelectable()"></p-tableHeaderCheckbox>
-                                </th>
-                                <th class="font-semibold">Username</th>
-                                <th class="font-semibold">Full Name</th>
-                                <th class="font-semibold">Status</th>
-                                <th class="font-semibold">Actions</th>
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="body" let-student>
+        <div>
+          <label class="block font-semibold mb-2 ">Section <span class="text-red-500">*</span></label>
+          <p-select
+            [options]="selectedClass?.sections"
+            [(ngModel)]="selectedSection"
+            optionLabel="name"
+            placeholder="Select Section"
+            [disabled]="!selectedClass"
+            [style]="{ width: '100%' }"
+            (onChange)="onSectionChange()">
+          </p-select>
+        </div>
+      </div>
+      <div class="mt-4">
+        @if (sourceStudents().length > 0) {
+          <div>
+            <p-table
+              [value]="sourceStudents()"
+              [(selection)]="selectedStudents"
+              dataKey="id"
+              [scrollable]="true"
+              scrollHeight="300px"
+              styleClass="p-datatable-sm"
+              responsiveLayout="scroll">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 3rem">
+                    <p-tableHeaderCheckbox [disabled]="areAllStudentsNonSelectable()"></p-tableHeaderCheckbox>
+                  </th>
+                  <th class="font-semibold">Username</th>
+                  <th class="font-semibold">Full Name</th>
+                  <th class="font-semibold">Status</th>
+                  <th class="font-semibold">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-student>
                             <tr [ngClass]="{
                                     'hover:bg-amber-50 dark:hover:bg-amber-900': isStudentSelectable(student)
                                 }"
-                                [class.student-disabled]="!isStudentSelectable(student)">
-                                <td>
-                                    <p-tableCheckbox 
-                                        [value]="student" 
-                                        [disabled]="!isStudentSelectable(student)">
-                                    </p-tableCheckbox>
-                                </td>
-                                <td class="font-medium">{{ student.username }}</td>
-                                <td class="font-medium">{{ student.fullName }}</td>
-                                <td>
-                                    <p-tag 
-                                        *ngIf="student.status === 'EXITED'"
-                                        value="Exited - Cannot Promote" 
-                                        severity="danger" 
-                                        icon="pi pi-ban">
-                                    </p-tag>
-                                    <p-tag 
-                                        *ngIf="student.status === 'PROMOTED'"
-                                        value="Already Promoted" 
-                                        severity="info" 
-                                        icon="pi pi-check-circle">
-                                    </p-tag>
-                                    <p-tag 
-                                        *ngIf="student.status !== 'PROMOTED' && student.status !== 'EXITED'"
-                                        value="Active - Needs Promotion" 
-                                        severity="warn" 
-                                        icon="pi pi-clock">
-                                    </p-tag>
-                                </td>
-                                <td>
-                                    <div class="flex gap-2">
-                                        <p-button 
-                                            type="button" 
-                                            [text]="true" 
-                                            [rounded]="true" 
-                                            [plain]="true" 
-                                            icon="pi pi-eye" 
-                                            pTooltip="View Details" 
-                                            tooltipPosition="top" 
-                                            (onClick)="openStudentDetails(student)">
-                                        </p-button>
-                                        <p-button 
-                                            *ngIf="student.status !== 'EXITED' && student.status !== 'PROMOTED'"
-                                            type="button" 
-                                            [text]="true" 
-                                            [rounded]="true" 
-                                            severity="danger"
-                                            icon="pi pi-times" 
-                                            pTooltip="Mark as Exited" 
-                                            tooltipPosition="top" 
-                                            (onClick)="openExitDialog(student)">
-                                        </p-button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="emptymessage">
-                            <tr>
-                                <td colspan="5" class="text-center py-8 ">
-                                    <i class="pi pi-users text-3xl mb-2 opacity-50"></i>
-                                    <p>No students need promotion in the selected section.</p>
-                                </td>
-                            </tr>
-                        </ng-template>
-                    </p-table>
-                </div>
+                  [class.student-disabled]="!isStudentSelectable(student)">
+                  <td>
+                    <p-tableCheckbox
+                      [value]="student"
+                      [disabled]="!isStudentSelectable(student)">
+                    </p-tableCheckbox>
+                  </td>
+                  <td class="font-medium">{{ student.username }}</td>
+                  <td class="font-medium">{{ student.fullName }}</td>
+                  <td>
+                    @if (student.status === 'EXITED') {
+                      <p-tag
+                        value="Exited - Cannot Promote"
+                        severity="danger"
+                        icon="pi pi-ban">
+                      </p-tag>
+                    }
+                    @if (student.status === 'PROMOTED') {
+                      <p-tag
+                        value="Already Promoted"
+                        severity="info"
+                        icon="pi pi-check-circle">
+                      </p-tag>
+                    }
+                    @if (student.status !== 'PROMOTED' && student.status !== 'EXITED') {
+                      <p-tag
+                        value="Active - Needs Promotion"
+                        severity="warn"
+                        icon="pi pi-clock">
+                      </p-tag>
+                    }
+                  </td>
+                  <td>
+                    <div class="flex gap-2">
+                      <p-button
+                        type="button"
+                        [text]="true"
+                        [rounded]="true"
+                        [plain]="true"
+                        icon="pi pi-eye"
+                        pTooltip="View Details"
+                        tooltipPosition="top"
+                        (onClick)="openStudentDetails(student)">
+                      </p-button>
+                      @if (student.status !== 'EXITED' && student.status !== 'PROMOTED') {
+                        <p-button
+                          type="button"
+                          [text]="true"
+                          [rounded]="true"
+                          severity="danger"
+                          icon="pi pi-times"
+                          pTooltip="Mark as Exited"
+                          tooltipPosition="top"
+                          (onClick)="openExitDialog(student)">
+                        </p-button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="5" class="text-center py-8 ">
+                    <i class="pi pi-users text-3xl mb-2 opacity-50"></i>
+                    <p>No students need promotion in the selected section.</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        }
 
-                <div *ngIf="sourceStudents().length === 0 && (selectedSection || selectedClass)" class="text-center py-8">
-                    <i class="pi pi-users text-4xl  mb-4"></i>
-                    <h3 class="text-lg font-semibold  mb-2">No Students Found</h3>
-                    <p class="">No active students found in the selected section.</p>
-                </div>
+        @if (sourceStudents().length === 0 && (selectedSection || selectedClass)) {
+          <div class="text-center py-8">
+            <i class="pi pi-users text-4xl  mb-4"></i>
+            <h3 class="text-lg font-semibold  mb-2">No Students Found</h3>
+            <p class="">No active students found in the selected section.</p>
+          </div>
+        }
 
-                <div *ngIf="!selectedSection && !selectedClass" class="text-center py-8">
-                    <i class="pi pi-filter text-4xl  mb-4"></i>
-                    <h3 class="text-lg font-semibold  mb-2">Select Department, Class & Section</h3>
-                    <p class="">Please select department, class, and section to view students.</p>
-                </div>
-            </div>
-        </p-card>
+        @if (!selectedSection && !selectedClass) {
+          <div class="text-center py-8">
+            <i class="pi pi-filter text-4xl  mb-4"></i>
+            <h3 class="text-lg font-semibold  mb-2">Select Department, Class & Section</h3>
+            <p class="">Please select department, class, and section to view students.</p>
+          </div>
+        }
+      </div>
+    </p-card>
 
-        <p-card>
-            <ng-template pTemplate="header">
-                <div class="p-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-800 dark:to-purple-700">
-                    <h3 class="text-lg font-bold ">Promotion Target</h3>
-                    <p class="text-sm  mt-1">Select where to promote the students</p>
-                </div>
-            </ng-template>
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="p-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-800 dark:to-purple-700">
+          <h3 class="text-lg font-bold ">Promotion Target</h3>
+          <p class="text-sm  mt-1">Select where to promote the students</p>
+        </div>
+      </ng-template>
 
-            <div class="grid grid-cols-3 gap-4 mb-4">
-                <dhee-select
-                    [(ngModel)]="targetDepartment"
-                    [options]="targetDepartments"
-                    [disabled]="selectedDepartment == null"
-                    dataSource="custom"
-                    [displayLabel]="'Target Department'"
-                    [showAcademicYear]="true"
-                    [filter]="true"
-                    filterBy="department.name,academicYear"
-                    (onValueChange)="onTargetDepartmentChange()"
-                    placeholder="Select Department">
-                </dhee-select>
-                <div>
-                    <label class="block font-semibold mb-2 ">Target Class <span class="text-red-500">*</span></label>
-                    <p-select 
-                        [options]="targetDepartment?.department.classes"
-                        [(ngModel)]="targetClass"
-                        optionLabel="name"
-                        placeholder="Select Class"
-                        [disabled]="!targetDepartment"
-                        [style]="{ width: '100%' }"
-                        (onChange)="onTargetClassChange()">
-                    </p-select>
-                </div>
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <dhee-select
+          [(ngModel)]="targetDepartment"
+          [options]="targetDepartments"
+          [disabled]="selectedDepartment == null"
+          dataSource="custom"
+          [displayLabel]="'Target Department'"
+          [showAcademicYear]="true"
+          [filter]="true"
+          filterBy="department.name,academicYear"
+          (onValueChange)="onTargetDepartmentChange()"
+          placeholder="Select Department">
+        </dhee-select>
+        <div>
+          <label class="block font-semibold mb-2 ">Target Class <span class="text-red-500">*</span></label>
+          <p-select
+            [options]="targetDepartment?.department.classes"
+            [(ngModel)]="targetClass"
+            optionLabel="name"
+            placeholder="Select Class"
+            [disabled]="!targetDepartment"
+            [style]="{ width: '100%' }"
+            (onChange)="onTargetClassChange()">
+          </p-select>
+        </div>
 
-                <div>
-                    <label class="block font-semibold mb-2 ">Target Section <span class="text-red-500">*</span></label>
-                    <p-select 
-                        [options]="targetClass?.sections" 
-                        [(ngModel)]="targetSection"
-                        optionLabel="name"
-                        placeholder="Select Section"
-                        [disabled]="!targetClass"
-                        [style]="{ width: '100%' }"
-                        (onChange)="onTargetSectionChange()">
-                    </p-select>
-                    
-                </div>
-            </div>
+        <div>
+          <label class="block font-semibold mb-2 ">Target Section <span class="text-red-500">*</span></label>
+          <p-select
+            [options]="targetClass?.sections"
+            [(ngModel)]="targetSection"
+            optionLabel="name"
+            placeholder="Select Section"
+            [disabled]="!targetClass"
+            [style]="{ width: '100%' }"
+            (onChange)="onTargetSectionChange()">
+          </p-select>
 
-            <div class="mt-4">
-                <div *ngIf="targetStudents().length > 0">
-                    <p-table 
-                        [value]="targetStudents()" 
-                        dataKey="id"
-                        [scrollable]="true" 
-                        scrollHeight="300px" 
-                        styleClass="p-datatable-sm" 
-                        responsiveLayout="scroll">
-                        <ng-template pTemplate="header">
-                            <tr>
-                                <th class="font-semibold">Username</th>
-                                <th class="font-semibold">Full Name</th>
-                                <th class="font-semibold">Status</th>
-                                <th class="font-semibold">Actions</th>
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="body" let-student>
-                            <tr class="bg-green-50">
-                                <td class="font-medium">{{ student.username }}</td>
-                                <td class="font-medium">{{ student.fullName }}</td>
-                                <td>
-                                    <p-tag value="Promoted to Target" severity="success" icon="pi pi-check"></p-tag>
-                                </td>
-                                <td>
-                                    <p-button 
-                                        type="button" 
-                                        [text]="true" 
-                                        [rounded]="true" 
-                                        [plain]="true" 
-                                        icon="pi pi-eye" 
-                                        pTooltip="View Details" 
-                                        tooltipPosition="top" 
-                                        (onClick)="openStudentDetails(student)">
-                                    </p-button>
-                                </td>
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="emptymessage">
-                            <tr>
-                                <td colspan="4" class="text-center py-8 ">
-                                    <i class="pi pi-check-circle text-3xl mb-2 opacity-50"></i>
-                                    <p>No students have been promoted to this target section yet.</p>
-                                </td>
-                            </tr>
-                        </ng-template>
-                    </p-table>
-                </div>
+        </div>
+      </div>
 
-                <div *ngIf="targetStudents().length === 0 && (targetSection || targetClass)" class="text-center py-8">
-                    <i class="pi pi-arrow-right text-4xl  mb-4"></i>
-                    <h3 class="text-lg font-semibold  mb-2">Ready for Promotion</h3>
-                    <p class="">Select target section and use the promote button to move students.</p>
-                </div>
+      <div class="mt-4">
+        @if (targetStudents().length > 0) {
+          <div>
+            <p-table
+              [value]="targetStudents()"
+              dataKey="id"
+              [scrollable]="true"
+              scrollHeight="300px"
+              styleClass="p-datatable-sm"
+              responsiveLayout="scroll">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th class="font-semibold">Username</th>
+                  <th class="font-semibold">Full Name</th>
+                  <th class="font-semibold">Status</th>
+                  <th class="font-semibold">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-student>
+                <tr class="bg-green-50">
+                  <td class="font-medium">{{ student.username }}</td>
+                  <td class="font-medium">{{ student.fullName }}</td>
+                  <td>
+                    <p-tag value="Promoted to Target" severity="success" icon="pi pi-check"></p-tag>
+                  </td>
+                  <td>
+                    <p-button
+                      type="button"
+                      [text]="true"
+                      [rounded]="true"
+                      [plain]="true"
+                      icon="pi pi-eye"
+                      pTooltip="View Details"
+                      tooltipPosition="top"
+                      (onClick)="openStudentDetails(student)">
+                    </p-button>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="4" class="text-center py-8 ">
+                    <i class="pi pi-check-circle text-3xl mb-2 opacity-50"></i>
+                    <p>No students have been promoted to this target section yet.</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        }
 
-                <div *ngIf="!targetSection && !targetClass" class="text-center py-8">
-                    <i class="pi pi-target text-4xl  mb-4"></i>
-                    <h3 class="text-lg font-semibold  mb-2">Select Target Section</h3>
-                    <p class="">Please select target department, class, and section.</p>
-                </div>
-            </div>
-        </p-card>
+        @if (targetStudents().length === 0 && (targetSection || targetClass)) {
+          <div class="text-center py-8">
+            <i class="pi pi-arrow-right text-4xl  mb-4"></i>
+            <h3 class="text-lg font-semibold  mb-2">Ready for Promotion</h3>
+            <p class="">Select target section and use the promote button to move students.</p>
+          </div>
+        }
+
+        @if (!targetSection && !targetClass) {
+          <div class="text-center py-8">
+            <i class="pi pi-target text-4xl  mb-4"></i>
+            <h3 class="text-lg font-semibold  mb-2">Select Target Section</h3>
+            <p class="">Please select target department, class, and section.</p>
+          </div>
+        }
+      </div>
+    </p-card>
+  </div>
+
+  <div class="flex justify-end mb-6">
+    <p-button
+      label="Promote Selected Students"
+      icon="pi pi-arrow-up"
+      [disabled]="selectedStudents.length === 0 || !targetSection"
+      (onClick)="openPromotionDialog()">
+    </p-button>
+  </div>
+
+  <p-dialog
+    [(visible)]="showPromotionDialog"
+    [style]="{ width: '90vw', maxWidth: '500px' }"
+    header="Confirm Student Promotion"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false">
+    <div class="flex items-start gap-4 py-4">
+      <div class="bg-blue-50 rounded-full p-3 flex-shrink-0">
+        <i class="pi pi-arrow-up text-2xl text-blue-600"></i>
+      </div>
+      <div>
+        <p class="font-semibold mb-2 ">
+          Are you sure you want to promote {{ selectedStudents.length }} student(s)?
+        </p>
+        <div class="text-sm  space-y-1">
+          <p><strong>From:</strong> {{ selectedClass?.name }} - {{ selectedSection?.name }}</p>
+          <p><strong>To:</strong> {{ targetClass?.name }} - {{ targetSection?.name }}</p>
+          <p><strong>Academic Year:</strong> {{ targetDepartment?.academicYear }}</p>
+        </div>
+        <div class="bg-yellow-50 border border-yellow-200 rounded p-3 mt-3">
+          <p class="text-xs text-yellow-800">
+            <i class="pi pi-exclamation-triangle mr-2"></i>
+            This action will update student records and create promotion history.
+          </p>
+        </div>
+      </div>
     </div>
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Cancel"
+        icon="pi pi-times"
+        styleClass="p-button-text"
+        (onClick)="showPromotionDialog = false">
+      </p-button>
+      <p-button
+        label="Confirm Promotion"
+        icon="pi pi-check"
+        (onClick)="confirmPromotion()">
+      </p-button>
+    </ng-template>
+  </p-dialog>
 
-    <div class="flex justify-end mb-6">
-        <p-button 
-            label="Promote Selected Students" 
-            icon="pi pi-arrow-up" 
-            [disabled]="selectedStudents.length === 0 || !targetSection"
-            (onClick)="openPromotionDialog()">
-        </p-button>
+  <p-dialog
+    [(visible)]="showExitDialog"
+    [style]="{ width: '90vw', maxWidth: '450px' }"
+    header="Mark Student as Exited"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false">
+    <div class="py-4">
+      <div class="flex items-start gap-4 mb-4">
+        <div class="bg-red-50 rounded-full p-3 flex-shrink-0">
+          <i class="pi pi-exclamation-triangle text-2xl text-red-600"></i>
+        </div>
+        <div>
+          <p class="font-semibold mb-2 ">
+            Are you sure you want to mark this student as exited?
+          </p>
+          <p class="text-sm  mb-2">
+            <strong>Student:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.fullName }}</span>
+          </p>
+          <p class="text-sm ">
+            <strong>Username:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.username }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block font-semibold mb-2 ">Exit Reason <span class="text-red-500">*</span></label>
+        <textarea
+          [(ngModel)]="exitReason"
+          rows="3"
+          pTextarea
+          class="w-full"
+          placeholder="Please provide a reason for student exit (e.g., Transfer, Family relocation, etc.)">
+        </textarea>
+      </div>
+
+      <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
+        <p class="text-xs text-yellow-800">
+          <i class="pi pi-info-circle mr-2"></i>
+          This student will not be available for promotion and will be marked as inactive.
+        </p>
+      </div>
     </div>
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Cancel"
+        icon="pi pi-times"
+        styleClass="p-button-text"
+        (onClick)="showExitDialog = false; exitReason = ''">
+      </p-button>
+      <p-button
+        label="Confirm Exit"
+        icon="pi pi-check"
+        severity="danger"
+        [disabled]="!exitReason || exitReason.trim().length === 0"
+        (onClick)="confirmExit()">
+      </p-button>
+    </ng-template>
+  </p-dialog>
 
-    <p-dialog 
-        [(visible)]="showPromotionDialog" 
-        [style]="{ width: '90vw', maxWidth: '500px' }" 
-        header="Confirm Student Promotion" 
-        [modal]="true" 
-        [draggable]="false" 
-        [resizable]="false">
-        <div class="flex items-start gap-4 py-4">
-            <div class="bg-blue-50 rounded-full p-3 flex-shrink-0">
-                <i class="pi pi-arrow-up text-2xl text-blue-600"></i>
+  <p-dialog
+    [(visible)]="showStudentDetailsDialog"
+    [style]="{ width: '90vw', maxWidth: '700px' }"
+    header="Student Details"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false">
+    @if (selectedStudentDetails) {
+      <div class="p-4">
+        <div class="mb-6">
+          <h3 class="text-lg font-bold  mb-3 border-b pb-2">Basic Information</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-semibold ">Full Name</label>
+              <p class="">{{ selectedStudentDetails.fullName }}</p>
             </div>
             <div>
-                <p class="font-semibold mb-2 ">
-                    Are you sure you want to promote {{ selectedStudents.length }} student(s)?
-                </p>
-                <div class="text-sm  space-y-1">
-                    <p><strong>From:</strong> {{ selectedClass?.name }} - {{ selectedSection?.name }}</p>
-                    <p><strong>To:</strong> {{ targetClass?.name }} - {{ targetSection?.name }}</p>
-                    <p><strong>Academic Year:</strong> {{ targetDepartment?.academicYear }}</p>
-                </div>
-                <div class="bg-yellow-50 border border-yellow-200 rounded p-3 mt-3">
-                    <p class="text-xs text-yellow-800">
-                        <i class="pi pi-exclamation-triangle mr-2"></i>
-                        This action will update student records and create promotion history.
-                    </p>
-                </div>
+              <label class="text-sm font-semibold ">Username</label>
+              <p class="">{{ selectedStudentDetails.username }}</p>
             </div>
+            <div>
+              <label class="text-sm font-semibold ">Email</label>
+              <p class="">{{ selectedStudentDetails.email }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-semibold ">Phone</label>
+              <p class="">{{ selectedStudentDetails.phone || 'N/A' }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-semibold ">Status</label>
+              <p-tag
+                [value]="selectedStudentDetails.status || 'ACTIVE'"
+                [severity]="getStatusSeverity(selectedStudentDetails.status)">
+              </p-tag>
+            </div>
+            <div>
+              <label class="text-sm font-semibold ">Academic Year</label>
+              <p class="">{{ selectedStudentDetails.academicYear }}</p>
+            </div>
+          </div>
         </div>
-        <ng-template pTemplate="footer">
-            <p-button 
-                label="Cancel" 
-                icon="pi pi-times" 
-                styleClass="p-button-text" 
-                (onClick)="showPromotionDialog = false">
-            </p-button>
-            <p-button 
-                label="Confirm Promotion" 
-                icon="pi pi-check" 
-                (onClick)="confirmPromotion()">
-            </p-button>
-        </ng-template>
-    </p-dialog>
-
-    <p-dialog 
-        [(visible)]="showExitDialog" 
-        [style]="{ width: '90vw', maxWidth: '450px' }" 
-        header="Mark Student as Exited" 
-        [modal]="true" 
-        [draggable]="false" 
-        [resizable]="false">
-        <div class="py-4">
-            <div class="flex items-start gap-4 mb-4">
-                <div class="bg-red-50 rounded-full p-3 flex-shrink-0">
-                    <i class="pi pi-exclamation-triangle text-2xl text-red-600"></i>
-                </div>
-                <div>
-                    <p class="font-semibold mb-2 ">
-                        Are you sure you want to mark this student as exited?
-                    </p>
-                    <p class="text-sm  mb-2">
-                        <strong>Student:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.fullName }}</span>
-                    </p>
-                    <p class="text-sm ">
-                        <strong>Username:</strong> <span class="text-lg font-semibold text-primary ms-3">{{ studentToExit?.username }}</span>
-                    </p>
-                </div>
+        <div class="mb-6">
+          <h3 class="text-lg font-bold  mb-3 border-b pb-2">Current Class Information</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-semibold ">Class</label>
+              <p class="">{{ selectedStudentDetails.roles?.student?.className }}</p>
             </div>
-            
-            <div class="mb-4">
-                <label class="block font-semibold mb-2 ">Exit Reason <span class="text-red-500">*</span></label>
-                <textarea 
-                    [(ngModel)]="exitReason"
-                    rows="3" 
-                    pTextarea
-                    class="w-full"
-                    placeholder="Please provide a reason for student exit (e.g., Transfer, Family relocation, etc.)">
-                </textarea>
+            <div>
+              <label class="text-sm font-semibold ">Section</label>
+              <p class="">{{ selectedStudentDetails.roles?.student?.sectionName }}</p>
             </div>
-            
-            <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
-                <p class="text-xs text-yellow-800">
-                    <i class="pi pi-info-circle mr-2"></i>
-                    This student will not be available for promotion and will be marked as inactive.
-                </p>
-            </div>
+          </div>
         </div>
-        <ng-template pTemplate="footer">
-            <p-button 
-                label="Cancel" 
-                icon="pi pi-times" 
-                styleClass="p-button-text" 
-                (onClick)="showExitDialog = false; exitReason = ''">
-            </p-button>
-            <p-button 
-                label="Confirm Exit" 
-                icon="pi pi-check" 
-                severity="danger"
-                [disabled]="!exitReason || exitReason.trim().length === 0"
-                (onClick)="confirmExit()">
-            </p-button>
-        </ng-template>
-    </p-dialog>
-
-    <p-dialog 
-        [(visible)]="showStudentDetailsDialog" 
-        [style]="{ width: '90vw', maxWidth: '700px' }" 
-        header="Student Details" 
-        [modal]="true" 
-        [draggable]="false" 
-        [resizable]="false">
-        <div *ngIf="selectedStudentDetails" class="p-4">
-            <div class="mb-6">
-                <h3 class="text-lg font-bold  mb-3 border-b pb-2">Basic Information</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-sm font-semibold ">Full Name</label>
-                        <p class="">{{ selectedStudentDetails.fullName }}</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-semibold ">Username</label>
-                        <p class="">{{ selectedStudentDetails.username }}</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-semibold ">Email</label>
-                        <p class="">{{ selectedStudentDetails.email }}</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-semibold ">Phone</label>
-                        <p class="">{{ selectedStudentDetails.phone || 'N/A' }}</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-semibold ">Status</label>
-                        <p-tag 
-                            [value]="selectedStudentDetails.status || 'ACTIVE'" 
-                            [severity]="getStatusSeverity(selectedStudentDetails.status)">
-                        </p-tag>
-                    </div>
-                    <div>
-                        <label class="text-sm font-semibold ">Academic Year</label>
-                        <p class="">{{ selectedStudentDetails.academicYear }}</p>
-                    </div>
-                </div>
+        @if (selectedStudentDetails.status === 'EXITED') {
+          <div class="mb-6">
+            <h3 class="text-lg font-bold  mb-3 border-b pb-2">Exit Information</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm font-semibold ">Exit Date</label>
+                <p class="">{{ selectedStudentDetails.exitDate | date:'mediumDate' }}</p>
+              </div>
+              <div class="col-span-2">
+                <label class="text-sm font-semibold ">Exit Reason</label>
+                <p class="">{{ selectedStudentDetails.exitReason }}</p>
+              </div>
             </div>
-
-            <div class="mb-6">
-                <h3 class="text-lg font-bold  mb-3 border-b pb-2">Current Class Information</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-sm font-semibold ">Class</label>
-                        <p class="">{{ selectedStudentDetails.roles?.student?.className }}</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-semibold ">Section</label>
-                        <p class="">{{ selectedStudentDetails.roles?.student?.sectionName }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div *ngIf="selectedStudentDetails.status === 'EXITED'" class="mb-6">
-                <h3 class="text-lg font-bold  mb-3 border-b pb-2">Exit Information</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-sm font-semibold ">Exit Date</label>
-                        <p class="">{{ selectedStudentDetails.exitDate | date:'mediumDate' }}</p>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="text-sm font-semibold ">Exit Reason</label>
-                        <p class="">{{ selectedStudentDetails.exitReason }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <ng-template pTemplate="footer">
-            <p-button 
-                label="Close" 
-                icon="pi pi-times" 
-                (onClick)="showStudentDetailsDialog = false">
-            </p-button>
-        </ng-template>
-    </p-dialog>
+          </div>
+        }
+      </div>
+    }
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Close"
+        icon="pi pi-times"
+        (onClick)="showStudentDetailsDialog = false">
+      </p-button>
+    </ng-template>
+  </p-dialog>
 </div>

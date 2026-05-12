@@ -1,9 +1,9 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 
 @Component({
     selector: 'app-hero-section',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './hero-section.component.html',
     styles: `
         @use '../_public-shared' as *;

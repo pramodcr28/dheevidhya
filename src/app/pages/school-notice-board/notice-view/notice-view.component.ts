@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -19,7 +19,7 @@ interface KeyDetailItem {
 @Component({
     selector: 'app-notice-view',
     standalone: true,
-    imports: [CommonModule, DialogModule, ButtonModule, TagModule],
+    imports: [DialogModule, ButtonModule, TagModule, NgClass],
     templateUrl: './notice-view.component.html',
     styles: []
 })

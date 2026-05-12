@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TabViewModule } from 'primeng/tabview';
@@ -11,7 +11,7 @@ import { TeachersComponent } from './teachers/teachers.component';
 @Component({
     selector: 'app-timetable-generator',
     standalone: true,
-    imports: [CommonModule, TabViewModule, GeneralSettingsComponent, ReviewComponent, SidePanelComponent, SubjectsComponent, TeachersComponent, RouterLink],
+    imports: [TabViewModule, GeneralSettingsComponent, ReviewComponent, SidePanelComponent, SubjectsComponent, TeachersComponent, RouterLink],
     templateUrl: './time-table-setup.component.html'
 })
 export class TimetableGeneratorComponent implements OnInit {

@@ -8,7 +8,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { Subscription } from 'rxjs';
 
-import { CommonModule } from '@angular/common';
+
 import { DEFAULT_SORT_DATA, SORT } from '../../../core/model/navigation.constants';
 import { ITEMS_PER_PAGE, PAGE_HEADER } from '../../../core/model/pagination.constants';
 import { BranchService } from '../../../core/services/branch.service';
@@ -21,7 +21,7 @@ import { BranchDialogComponent } from './branch-dialog/branch-dialog.component';
 @Component({
     selector: 'jhi-branch',
     templateUrl: './branch.component.html',
-    imports: [RouterModule, FormsModule, SharedModule, TableModule, ButtonModule, TagModule, TooltipModule, BranchDialogComponent, CommonModule]
+    imports: [RouterModule, FormsModule, SharedModule, TableModule, ButtonModule, TagModule, TooltipModule, BranchDialogComponent]
 })
 export class BranchComponent implements OnInit {
     subscription: Subscription | null = null;

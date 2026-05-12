@@ -1,276 +1,282 @@
 <p-toast></p-toast>
-  <app-confirmation-dialog></app-confirmation-dialog>
+<app-confirmation-dialog></app-confirmation-dialog>
 <div class="min-h-screen pb-20">
-    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
-        <div class="flex items-center justify-between h-20 px-4">
-            <div class="flex items-center gap-4">
-                <button pButton type="button" icon="pi pi-arrow-left" (click)="goBack()" class="p-button-rounded p-button-text p-button-secondary  hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"></button>
-                <div>
-                    <h1 class="text-xl font-bold  dark:text-white flex items-center gap-2">
-                        {{ selectedMasterDepartment?.name }}
-                        <span *ngIf="selectedMasterDepartment?.code" class="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700  ">
-                            {{ selectedMasterDepartment?.code }}
-                        </span>
-                    </h1>
-                    <!-- <p class="text-sm  ">Manage curriculum, staff, and sections</p> -->
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3">
-                @if (selectedAcademicYear) {
-                    <!-- Clone Button -->
-                    <button
-                        pButton
-                        type="button"
-                        label="Clone Year"
-                        icon="pi pi-copy"
-                        (click)="cloneAcademicYear()"
-                        class="p-button-outlined p-button-info p-button-sm"
-                        pTooltip="Create a new academic year based on this configuration"
-                        tooltipPosition="bottom"
-                    ></button>
-
-                    <!-- Edit Button -->
-                    <button pButton type="button" label="Edit Config" icon="pi pi-cog" (click)="editAcademicYear()" class="p-button-outlined p-button-secondary p-button-sm"></button>
-                }
-
-                <!-- New Year Button -->
-                <button pButton type="button" label="New Year" icon="pi pi-plus" (click)="addNewAcademicYear()" class="p-button-raised p-button-primary p-button-sm shadow-md shadow-indigo-200 dark:shadow-none"></button>
-            </div>
+  <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+    <div class="flex items-center justify-between h-20 px-4">
+      <div class="flex items-center gap-4">
+        <button pButton type="button" icon="pi pi-arrow-left" (click)="goBack()" class="p-button-rounded p-button-text p-button-secondary  hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"></button>
+        <div>
+          <h1 class="text-xl font-bold  dark:text-white flex items-center gap-2">
+            {{ selectedMasterDepartment?.name }}
+            @if (selectedMasterDepartment?.code) {
+              <span class="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700  ">
+                {{ selectedMasterDepartment?.code }}
+              </span>
+            }
+          </h1>
+          <!-- <p class="text-sm  ">Manage curriculum, staff, and sections</p> -->
         </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        @if (selectedAcademicYear) {
+          <!-- Clone Button -->
+          <button
+            pButton
+            type="button"
+            label="Clone Year"
+            icon="pi pi-copy"
+            (click)="cloneAcademicYear()"
+            class="p-button-outlined p-button-info p-button-sm"
+            pTooltip="Create a new academic year based on this configuration"
+            tooltipPosition="bottom"
+          ></button>
+
+          <!-- Edit Button -->
+          <button pButton type="button" label="Edit Config" icon="pi pi-cog" (click)="editAcademicYear()" class="p-button-outlined p-button-secondary p-button-sm"></button>
+        }
+
+        <!-- New Year Button -->
+        <button pButton type="button" label="New Year" icon="pi pi-plus" (click)="addNewAcademicYear()" class="p-button-raised p-button-primary p-button-sm shadow-md shadow-indigo-200 dark:shadow-none"></button>
+      </div>
     </div>
+  </div>
 
-    <div class="mt-4">
-        @if (academicYears && academicYears.length > 0) {
-            <div class="mb-8">
-                <p-tabs [(value)]="activeTabIndex" [scrollable]="true" (valueChange)="selectAcademicYear(activeTabIndex)">
-                    <p-tablist>
-                        @for (year of academicYears; track year.deptConfigId) {
-                            <p-tab [value]="year.deptConfigId">
-                                <div class="flex items-center gap-2 px-2 py-1">
-                                    <i class="pi pi-calendar text-primary-500"></i>
-                                    <span class="font-medium">{{ year.academicYear }}</span>
-                                    <!-- <span class="ml-2 w-2 h-2 rounded-full" [ngClass]="year.status ? 'bg-green-500' : 'bg-gray-300'"></span> -->
-                                </div>
-                            </p-tab>
-                        }
-                    </p-tablist>
+  <div class="mt-4">
+    @if (academicYears && academicYears.length > 0) {
+      <div class="mb-8">
+        <p-tabs [(value)]="activeTabIndex" [scrollable]="true" (valueChange)="selectAcademicYear(activeTabIndex)">
+          <p-tablist>
+            @for (year of academicYears; track year.deptConfigId) {
+              <p-tab [value]="year.deptConfigId">
+                <div class="flex items-center gap-2 px-2 py-1">
+                  <i class="pi pi-calendar text-primary-500"></i>
+                  <span class="font-medium">{{ year.academicYear }}</span>
+                  <!-- <span class="ml-2 w-2 h-2 rounded-full" [ngClass]="year.status ? 'bg-green-500' : 'bg-gray-300'"></span> -->
+                </div>
+              </p-tab>
+            }
+          </p-tablist>
 
-                    <p-tabpanels>
-                        @for (year of academicYears; track year.deptConfigId) {
-                            <p-tabpanel [value]="year.deptConfigId" class="p-0 bg-transparent">
-                                @if (selectedDepartment && selectedAcademicYear === year) {
-                                    <form #orgForm="ngForm" class="space-y-8 animate-fade-in">
-                                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col md:flex-row gap-8 items-start md:items-center">
-                                            <div class="flex-1 w-full space-y-1">
-                                                <label class="text-xs font-semibold uppercase tracking-wider  ">Department Head</label>
-                                                <div class="flex items-center gap-3 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-xl border border-gray-100 dark:border-gray-600 transition-colors hover:border-indigo-300">
-                                                    <p-avatar icon="pi pi-user" size="large" shape="circle" styleClass="bg-indigo-100 text-indigo-600"></p-avatar>
-                                                    <p-select
-                                                        [options]="users"
-                                                        [(ngModel)]="selectedDepartment.hod"
-                                                        name="hod"
-                                                        optionLabel="fullName"
-                                                        optionValue="userId"
-                                                        placeholder="Assign HOD"
-                                                        appendTo="body"
-                                                        styleClass="w-full border-none shadow-none bg-transparent"
-                                                    >
-                                                    </p-select>
-                                                </div>
-                                            </div>
+          <p-tabpanels>
+            @for (year of academicYears; track year.deptConfigId) {
+              <p-tabpanel [value]="year.deptConfigId" class="p-0 bg-transparent">
+                @if (selectedDepartment && selectedAcademicYear === year) {
+                  <form #orgForm="ngForm" class="space-y-8 animate-fade-in">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col md:flex-row gap-8 items-start md:items-center">
+                      <div class="flex-1 w-full space-y-1">
+                        <label class="text-xs font-semibold uppercase tracking-wider  ">Department Head</label>
+                        <div class="flex items-center gap-3 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-xl border border-gray-100 dark:border-gray-600 transition-colors hover:border-indigo-300">
+                          <p-avatar icon="pi pi-user" size="large" shape="circle" styleClass="bg-indigo-100 text-indigo-600"></p-avatar>
+                          <p-select
+                            [options]="users"
+                            [(ngModel)]="selectedDepartment.hod"
+                            name="hod"
+                            optionLabel="fullName"
+                            optionValue="userId"
+                            placeholder="Assign HOD"
+                            appendTo="body"
+                            styleClass="w-full border-none shadow-none bg-transparent"
+                            >
+                          </p-select>
+                        </div>
+                      </div>
 
-                                            <div class="hidden md:block w-px h-16 bg-gray-200 dark:bg-gray-700"></div>
+                      <div class="hidden md:block w-px h-16 bg-gray-200 dark:bg-gray-700"></div>
 
-                                            <div class="flex-1 w-full space-y-1">
-                                                <label class="text-xs font-semibold uppercase tracking-wider  ">Department Contact</label>
-                                                <div class="relative">
-                                                    <!-- <i class="pi pi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i> -->
-                                                    <input
-                                                        type="text"
-                                                        pInputText
-                                                        placeholder="department@school.edu"
-                                                        class="w-full pl-10 py-3 rounded-xl border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 focus:bg-white transition-all"
-                                                    />
-                                                </div>
-                                            </div>
+                      <div class="flex-1 w-full space-y-1">
+                        <label class="text-xs font-semibold uppercase tracking-wider  ">Department Contact</label>
+                        <div class="relative">
+                          <!-- <i class="pi pi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i> -->
+                          <input
+                            type="text"
+                            pInputText
+                            placeholder="department@school.edu"
+                            class="w-full pl-10 py-3 rounded-xl border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 focus:bg-white transition-all"
+                            />
+                          </div>
+                        </div>
 
-                                            <div class="flex gap-4">
-                                                <div class="text-center px-4">
-                                                    <div class="text-2xl font-bold  dark:text-white">{{ selectedDepartment.classes?.length || 0 }}</div>
-                                                    <div class="text-xs ">Classes</div>
-                                                </div>
-                                                <div class="text-center px-4 border-l border-gray-200">
-                                                    <div class="text-2xl font-bold  dark:text-white">{{ users.length }}</div>
-                                                    <div class="text-xs ">Staff</div>
-                                                </div>
-                                            </div>
-                                        </div>
+                        <div class="flex gap-4">
+                          <div class="text-center px-4">
+                            <div class="text-2xl font-bold  dark:text-white">{{ selectedDepartment.classes?.length || 0 }}</div>
+                            <div class="text-xs ">Classes</div>
+                          </div>
+                          <div class="text-center px-4 border-l border-gray-200">
+                            <div class="text-2xl font-bold  dark:text-white">{{ users.length }}</div>
+                            <div class="text-xs ">Staff</div>
+                          </div>
+                        </div>
+                      </div>
 
-                                        @if (selectedDepartment.classes && selectedDepartment.classes.length > 0) {
-                                            <div class="space-y-6">
-                                                <div class="flex items-center justify-between">
-                                                    <h3 class="text-lg font-bold  dark:text-white">Class Configuration</h3>
-                                                    <span class="text-sm ">Select a class to view details</span>
-                                                </div>
+                      @if (selectedDepartment.classes && selectedDepartment.classes.length > 0) {
+                        <div class="space-y-6">
+                          <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold  dark:text-white">Class Configuration</h3>
+                            <span class="text-sm ">Select a class to view details</span>
+                          </div>
 
-                                                <div class="flex gap-3 overflow-x-auto p-3 hide-scrollbar">
-                                                    @for (classItem of selectedDepartment.classes; track classItem.id) {
-                                                        <button
-                                                            type="button"
-                                                            (click)="selectClass(classItem)"
-                                                            [ngClass]="activeClass?.id === classItem.id ? 'active-class-tab ring-2 ring-primary-500 ring-offset-2 dark:ring-offset-gray-900' : 'inactive-class-tab'"
-                                                            class="flex items-center gap-2 px-5 py-3 border rounded-lg font-medium transition-all duration-200 whitespace-nowrap min-w-[140px] justify-center relative group"
-                                                        >
-                                                            <span>{{ classItem.name }}</span>
-                                                            <span *ngIf="classItem.sections?.length" class="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-white/20">
-                                                                {{ classItem.sections?.length }}
-                                                            </span>
-                                                        </button>
-                                                    }
-                                                </div>
-                                            </div>
-
-                                            @if (activeClass) {
-                                                <div class="animate-fade-in-up">
-                                                    @if (activeClass.sections && activeClass.sections.length > 0) {
-                                                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                                            @for (section of activeClass.sections; track section.id; let si = $index) {
-                                                                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
-                                                                    <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 flex justify-between items-center">
-                                                                        <div class="flex items-center gap-3">
-                                                                            <div>
-                                                                                <h4 class="font-bold  dark:text-white">{{ section.name }}</h4>
-                                                                                <p class="text-xs ">{{ section.subjects?.length || 0 }} Subjects Assigned</p>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="w-48">
-                                                                            <p-select
-                                                                                [options]="users"
-                                                                                [(ngModel)]="section.sectionTeacher"
-                                                                                appendTo="body"
-                                                                                [name]="'sectionTeacher_' + activeClass.id + '_' + si"
-                                                                                optionLabel="fullName"
-                                                                                optionValue="userId"
-                                                                                placeholder="Assign Teacher"
-                                                                                styleClass="w-full p-inputtext-sm text-xs border-transparent bg-transparent"
-                                                                            >
-                                                                                <ng-template let-item pTemplate="selectedItem">
-                                                                                    <div class="flex items-center gap-2" *ngIf="item">
-                                                                                        <i class="pi pi-user text-green-500 text-xs"></i>
-                                                                                        <span class="text-sm">{{ item.fullName }}</span>
-                                                                                    </div>
-                                                                                </ng-template>
-                                                                            </p-select>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="px-6 py-4 grid grid-cols-2 gap-4 border-b border-gray-50 dark:border-gray-700 bg-white dark:bg-gray-800">
-                                                                        <div class="space-y-1">
-                                                                            <label class="text-[10px] uppercase font-bold text-gray-400">Capacity</label>
-                                                                            <input
-                                                                                type="number"
-                                                                                [(ngModel)]="section.capacity"
-                                                                                [name]="'capacity_' + activeClass.id + '_' + si"
-                                                                                pInputText
-                                                                                placeholder="--"
-                                                                                class="w-full p-1 text-sm border-none bg-gray-50 dark:bg-gray-900 rounded focus:ring-1 focus:ring-indigo-500"
-                                                                            />
-                                                                        </div>
-                                                                        <div class="space-y-1">
-                                                                            <label class="text-[10px] uppercase font-bold text-gray-400">Room</label>
-                                                                            <input
-                                                                                type="text"
-                                                                                [(ngModel)]="section.room"
-                                                                                [name]="'room_' + activeClass.id + '_' + si"
-                                                                                pInputText
-                                                                                placeholder="--"
-                                                                                class="w-full p-1 text-sm border-none bg-gray-50 dark:bg-gray-900 rounded focus:ring-1 focus:ring-indigo-500"
-                                                                            />
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="p-4 bg-gray-50/50 dark:bg-gray-900/20">
-                                                                        <h5 class="text-xs font-semibold  mb-3 flex items-center gap-2"><i class="pi pi-book"></i> Curriculum</h5>
-                                                                        <div class="space-y-2 max-h-[250px] overflow-y-auto pr-1">
-                                                                            @for (subject of section.subjects; track subject.id; let subi = $index) {
-                                                                                <div
-                                                                                    class="flex items-center justify-between p-2 bg-white dark:bg-gray-700 rounded-lg border border-gray-100 dark:border-gray-600 hover:border-indigo-300 transition-colors group"
-                                                                                >
-                                                                                    <div class="flex items-center gap-3 min-w-0 flex-1">
-                                                                                        <div class="w-1.5 h-8 rounded-full bg-orange-400"></div>
-                                                                                        <div class="min-w-0">
-                                                                                            <div class="font-medium text-sm   truncate" pTooltip="{{ subject.name }}">{{ subject.name }}</div>
-                                                                                            <div class="text-xs text-gray-400 flex gap-2">
-                                                                                                <span>{{ subject.periodsPerWeek || 0 }} periods</span>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="w-40 pe-2">
-                                                                                        <label class="text-[10px] uppercase font-bold text-gray-400">Periods Per Week</label>
-                                                                                        <input
-                                                                                            type="text"
-                                                                                            [(ngModel)]="subject.periodsPerWeek"
-                                                                                            [name]="'sub_' + activeClass.id + '_' + si + '_' + subi"
-                                                                                            pInputText
-                                                                                            styleClass="w-full p-inputtext-sm text-xs border-gray-200 bg-gray-50"
-                                                                                        />
-                                                                                    </div>
-
-                                                                                    <div class="w-40">
-                                                                                      <label class="text-[10px] uppercase font-bold text-gray-400">Teacher</label>
-                                                                                        <p-select
-                                                                                            [options]="users | userFilter: subject.id.toString()"
-                                                                                            [(ngModel)]="subject.teacher"
-                                                                                            [name]="'subjectTeacher_' + activeClass.id + '_' + si + '_' + subi"
-                                                                                            optionLabel="fullName"
-                                                                                            optionValue="userId"
-                                                                                            placeholder="Select Teacher"
-                                                                                            appendTo="body"
-                                                                                            styleClass="w-full p-inputtext-sm text-xs border-gray-200 bg-gray-50"
-                                                                                        >
-                                                                                        </p-select>
-                                                                                    </div>
-                                                                                </div>
-                                                                            }
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    } @else {
-                                                        <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300">
-                                                            <div class="p-4 bg-indigo-50 rounded-full mb-4">
-                                                                <i class="pi pi-exclamation-circle text-indigo-500 text-2xl"></i>
-                                                            </div>
-                                                            <h3 class="text-lg font-medium  dark:text-white">No sections found</h3>
-                                                            <p class="">Edit the academic year configuration to add sections to {{ activeClass.name }}.</p>
-                                                        </div>
-                                                    }
-                                                </div>
-                                            }
-                                        } @else {
-                                            <div class="text-center py-16">
-                                                <i class="pi pi-objects-column text-4xl  mb-4"></i>
-                                                <p class="">No class structure defined for this department.</p>
-                                            </div>
-                                        }
-
-                                        <div class="fixed bottom-6 right-6 z-30">
-                                            <button pButton type="button" label="Save Configuration" icon="pi pi-check" (click)="saveSetup()" class="p-button-rounded p-button-lg p-button-success shadow-2xl shadow-green-400/50 px-6"></button>
-                                        </div>
-                                    </form>
+                          <div class="flex gap-3 overflow-x-auto p-3 hide-scrollbar">
+                            @for (classItem of selectedDepartment.classes; track classItem.id) {
+                              <button
+                                type="button"
+                                (click)="selectClass(classItem)"
+                                [ngClass]="activeClass?.id === classItem.id ? 'active-class-tab ring-2 ring-primary-500 ring-offset-2 dark:ring-offset-gray-900' : 'inactive-class-tab'"
+                                class="flex items-center gap-2 px-5 py-3 border rounded-lg font-medium transition-all duration-200 whitespace-nowrap min-w-[140px] justify-center relative group"
+                                >
+                                <span>{{ classItem.name }}</span>
+                                @if (classItem.sections?.length) {
+                                  <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-white/20">
+                                    {{ classItem.sections?.length }}
+                                  </span>
                                 }
-                            </p-tabpanel>
+                              </button>
+                            }
+                          </div>
+                        </div>
+
+                        @if (activeClass) {
+                          <div class="animate-fade-in-up">
+                            @if (activeClass.sections && activeClass.sections.length > 0) {
+                              <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                @for (section of activeClass.sections; track section.id; let si = $index) {
+                                  <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+                                    <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 flex justify-between items-center">
+                                      <div class="flex items-center gap-3">
+                                        <div>
+                                          <h4 class="font-bold  dark:text-white">{{ section.name }}</h4>
+                                          <p class="text-xs ">{{ section.subjects?.length || 0 }} Subjects Assigned</p>
+                                        </div>
+                                      </div>
+                                      <div class="w-48">
+                                        <p-select
+                                          [options]="users"
+                                          [(ngModel)]="section.sectionTeacher"
+                                          appendTo="body"
+                                          [name]="'sectionTeacher_' + activeClass.id + '_' + si"
+                                          optionLabel="fullName"
+                                          optionValue="userId"
+                                          placeholder="Assign Teacher"
+                                          styleClass="w-full p-inputtext-sm text-xs border-transparent bg-transparent"
+                                          >
+                                          <ng-template let-item pTemplate="selectedItem">
+                                            @if (item) {
+                                              <div class="flex items-center gap-2">
+                                                <i class="pi pi-user text-green-500 text-xs"></i>
+                                                <span class="text-sm">{{ item.fullName }}</span>
+                                              </div>
+                                            }
+                                          </ng-template>
+                                        </p-select>
+                                      </div>
+                                    </div>
+
+                                    <div class="px-6 py-4 grid grid-cols-2 gap-4 border-b border-gray-50 dark:border-gray-700 bg-white dark:bg-gray-800">
+                                      <div class="space-y-1">
+                                        <label class="text-[10px] uppercase font-bold text-gray-400">Capacity</label>
+                                        <input
+                                          type="number"
+                                          [(ngModel)]="section.capacity"
+                                          [name]="'capacity_' + activeClass.id + '_' + si"
+                                          pInputText
+                                          placeholder="--"
+                                          class="w-full p-1 text-sm border-none bg-gray-50 dark:bg-gray-900 rounded focus:ring-1 focus:ring-indigo-500"
+                                          />
+                                        </div>
+                                        <div class="space-y-1">
+                                          <label class="text-[10px] uppercase font-bold text-gray-400">Room</label>
+                                          <input
+                                            type="text"
+                                            [(ngModel)]="section.room"
+                                            [name]="'room_' + activeClass.id + '_' + si"
+                                            pInputText
+                                            placeholder="--"
+                                            class="w-full p-1 text-sm border-none bg-gray-50 dark:bg-gray-900 rounded focus:ring-1 focus:ring-indigo-500"
+                                            />
+                                          </div>
+                                        </div>
+
+                                        <div class="p-4 bg-gray-50/50 dark:bg-gray-900/20">
+                                          <h5 class="text-xs font-semibold  mb-3 flex items-center gap-2"><i class="pi pi-book"></i> Curriculum</h5>
+                                          <div class="space-y-2 max-h-[250px] overflow-y-auto pr-1">
+                                            @for (subject of section.subjects; track subject.id; let subi = $index) {
+                                              <div
+                                                class="flex items-center justify-between p-2 bg-white dark:bg-gray-700 rounded-lg border border-gray-100 dark:border-gray-600 hover:border-indigo-300 transition-colors group"
+                                                >
+                                                <div class="flex items-center gap-3 min-w-0 flex-1">
+                                                  <div class="w-1.5 h-8 rounded-full bg-orange-400"></div>
+                                                  <div class="min-w-0">
+                                                    <div class="font-medium text-sm   truncate" pTooltip="{{ subject.name }}">{{ subject.name }}</div>
+                                                    <div class="text-xs text-gray-400 flex gap-2">
+                                                      <span>{{ subject.periodsPerWeek || 0 }} periods</span>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                <div class="w-40 pe-2">
+                                                  <label class="text-[10px] uppercase font-bold text-gray-400">Periods Per Week</label>
+                                                  <input
+                                                    type="text"
+                                                    [(ngModel)]="subject.periodsPerWeek"
+                                                    [name]="'sub_' + activeClass.id + '_' + si + '_' + subi"
+                                                    pInputText
+                                                    styleClass="w-full p-inputtext-sm text-xs border-gray-200 bg-gray-50"
+                                                    />
+                                                  </div>
+
+                                                  <div class="w-40">
+                                                    <label class="text-[10px] uppercase font-bold text-gray-400">Teacher</label>
+                                                    <p-select
+                                                      [options]="users | userFilter: subject.id.toString()"
+                                                      [(ngModel)]="subject.teacher"
+                                                      [name]="'subjectTeacher_' + activeClass.id + '_' + si + '_' + subi"
+                                                      optionLabel="fullName"
+                                                      optionValue="userId"
+                                                      placeholder="Select Teacher"
+                                                      appendTo="body"
+                                                      styleClass="w-full p-inputtext-sm text-xs border-gray-200 bg-gray-50"
+                                                      >
+                                                    </p-select>
+                                                  </div>
+                                                </div>
+                                              }
+                                            </div>
+                                          </div>
+                                        </div>
+                                      }
+                                    </div>
+                                  } @else {
+                                    <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300">
+                                      <div class="p-4 bg-indigo-50 rounded-full mb-4">
+                                        <i class="pi pi-exclamation-circle text-indigo-500 text-2xl"></i>
+                                      </div>
+                                      <h3 class="text-lg font-medium  dark:text-white">No sections found</h3>
+                                      <p class="">Edit the academic year configuration to add sections to {{ activeClass.name }}.</p>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            } @else {
+                              <div class="text-center py-16">
+                                <i class="pi pi-objects-column text-4xl  mb-4"></i>
+                                <p class="">No class structure defined for this department.</p>
+                              </div>
+                            }
+
+                            <div class="fixed bottom-6 right-6 z-30">
+                              <button pButton type="button" label="Save Configuration" icon="pi pi-check" (click)="saveSetup()" class="p-button-rounded p-button-lg p-button-success shadow-2xl shadow-green-400/50 px-6"></button>
+                            </div>
+                          </form>
                         }
-                    </p-tabpanels>
+                      </p-tabpanel>
+                    }
+                  </p-tabpanels>
                 </p-tabs>
-            </div>
-        } @else {
-            <div class="flex flex-col items-center justify-center py-24 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600">
+              </div>
+            } @else {
+              <div class="flex flex-col items-center justify-center py-24 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600">
                 <!-- Icon / Illustration -->
                 <div class="w-20 h-20 flex items-center justify-center rounded-full bg-primary-50 dark:bg-primary-900/30 mb-6">
-                    <i class="pi pi-calendar-times text-4xl text-primary-500"></i>
+                  <i class="pi pi-calendar-times text-4xl text-primary-500"></i>
                 </div>
 
                 <!-- Title -->
@@ -278,12 +284,12 @@
 
                 <!-- Description -->
                 <p class="text-sm   text-center max-w-md mb-6">
-                    Academic year configurations are not available for this department yet. Please create an academic year to start configuring classes, sections, and subjects.
+                  Academic year configurations are not available for this department yet. Please create an academic year to start configuring classes, sections, and subjects.
                 </p>
 
                 <!-- Action (Optional) -->
                 <button pButton type="button" icon="pi pi-plus" label="Create Academic Year" class="p-button-rounded p-button-primary px-6" (click)="addNewAcademicYear()"></button>
-            </div>
-        }
-    </div>
-</div>
+              </div>
+            }
+          </div>
+        </div>

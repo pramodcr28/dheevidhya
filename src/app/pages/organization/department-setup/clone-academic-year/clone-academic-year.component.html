@@ -1,150 +1,163 @@
 <p-toast></p-toast>
 <div class="min-h-screen">
-    <div class="mb-10 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-            <button pButton icon="pi pi-arrow-left" (click)="goBack()" class="p-button-text p-button-rounded bg-white shadow-sm border border-gray-100 dark:bg-slate-800 dark:border-slate-600"></button>
-            <div>
-                <h2 class="text-3xl font-extrabold  tracking-tight">Clone Academic Year</h2>
-                <p class="text-sm  font-semibold">Source: {{ sourceConfig?.academicYear }} ({{ masterDepartment?.name }})</p>
-            </div>
-        </div>
-        <div class="flex gap-4">
-            <button pButton label="Cancel" class="p-button-text  font-bold" (click)="goBack()"></button>
-            <button pButton class="p-button-success shadow-xl text-white shadow-green-200 dark:shadow-none" (click)="saveClone()" [disabled]="!isValidRange || isOverlapping || isNotTwelveMonths" [loading]="isSaving">
-                 <i class="pi pi pi-copy text-white"></i> <span class="text-white font-medium">Finalize Clone</span>
-            </button>
-        </div>
+  <div class="mb-10 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <button pButton icon="pi pi-arrow-left" (click)="goBack()" class="p-button-text p-button-rounded bg-white shadow-sm border border-gray-100 dark:bg-slate-800 dark:border-slate-600"></button>
+      <div>
+        <h2 class="text-3xl font-extrabold  tracking-tight">Clone Academic Year</h2>
+        <p class="text-sm  font-semibold">Source: {{ sourceConfig?.academicYear }} ({{ masterDepartment?.name }})</p>
+      </div>
     </div>
+    <div class="flex gap-4">
+      <button pButton label="Cancel" class="p-button-text  font-bold" (click)="goBack()"></button>
+      <button pButton class="p-button-success shadow-xl text-white shadow-green-200 dark:shadow-none" (click)="saveClone()" [disabled]="!isValidRange || isOverlapping || isNotTwelveMonths" [loading]="isSaving">
+        <i class="pi pi pi-copy text-white"></i> <span class="text-white font-medium">Finalize Clone</span>
+      </button>
+    </div>
+  </div>
 
-    <div class="grid grid-cols-12 gap-8">
-        <div class="col-span-12 lg:col-span-8 space-y-8">
-            <div
+  <div class="grid grid-cols-12 gap-8">
+    <div class="col-span-12 lg:col-span-8 space-y-8">
+      <div
                 [ngClass]="{
                     'border-red-500 bg-red-50 ring-4 ring-red-100 dark:ring-red-900': isNotTwelveMonths || isOverlapping,
                     'bg-white border-gray-200 dark:bg-slate-800 dark:border-slate-600': !isNotTwelveMonths && !isOverlapping
                 }"
-                class="rounded-3xl border p-8 transition-all duration-500 shadow-sm"
-            >
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-xs font-black uppercase tracking-[0.2em]" [ngClass]="isNotTwelveMonths || isOverlapping ? 'text-red-600' : 'text-gray-400'">1. Target Academic Cycle</h3>
+        class="rounded-3xl border p-8 transition-all duration-500 shadow-sm"
+        >
+        <div class="flex justify-between items-center mb-8">
+          <h3 class="text-xs font-black uppercase tracking-[0.2em]" [ngClass]="isNotTwelveMonths || isOverlapping ? 'text-red-600' : 'text-gray-400'">1. Target Academic Cycle</h3>
 
-                    <div *ngIf="isNotTwelveMonths || isOverlapping" class="flex gap-2">
-                        <span class="bg-red-600 text-white dark:bg-red-500 dark:text-red-100 text-[10px] px-3 py-1.5 rounded-lg font-black animate-pulse shadow-lg"> VALIDATION ERROR </span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div [formGroup]="cloneForm" class="space-y-4">
-                        <label class="text-sm font-bold  block">Select Start & End Month</label>
-                        <p-datePicker formControlName="dateRange" selectionMode="range" [(ngModel)]="dateRange" dateFormat="mm/yy" view="month" [showIcon]="true" placeholder="MM/YYYY - MM/YYYY" styleClass="w-full" appendTo="body"> </p-datePicker>
-
-                        <div class="mt-4 space-y-3 bg-white/50 p-4 rounded-xl border border-red-100 dark:bg-slate-700 dark:border-slate-500" *ngIf="isNotTwelveMonths || isOverlapping">
-                            <div *ngIf="isNotTwelveMonths" class="flex items-start gap-3 text-red-700 dark:text-red-400">
-                                <i class="pi pi-info-circle text-lg"></i>
-                                <p class="text-xs font-bold leading-relaxed">Cycle must be exactly 12 months. Your selection is not a full academic year.</p>
-                            </div>
-                            <div *ngIf="isOverlapping" class="flex items-start gap-3 text-red-700 dark:text-red-400">
-                                <i class="pi pi-exclamation-triangle text-lg"></i>
-                                <p class="text-xs font-bold leading-relaxed">
-                                    The year <strong>{{ calculatedAcademicYear }}</strong> already exists. Please select a different range.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div *ngIf="isValidRange" class="bg-primary-600 dark:bg-primary-500 rounded-2xl p-8 text-white shadow-2xl flex dark:shadow-none flex-col justify-center relative overflow-hidden animate-fade-in">
-                        <div class="absolute -right-6 -bottom-6 opacity-10">
-                            <i class="pi pi-calendar" style="font-size: 10rem"></i>
-                        </div>
-                        <p class="text-[10px] font-bold uppercase opacity-70 tracking-widest mb-2">New Academic Year</p>
-                        <p class="text-5xl font-black mb-3">{{ calculatedAcademicYear }}</p>
-                        <div class="flex items-center gap-2 text-xs font-bold bg-white/20 w-fit px-4 py-1.5 rounded-full backdrop-blur-sm dark:bg-slate-600"><i class="pi pi-check-circle"></i> {{ rangeInfo }}</div>
-                    </div>
-                </div>
+          @if (isNotTwelveMonths || isOverlapping) {
+            <div class="flex gap-2">
+              <span class="bg-red-600 text-white dark:bg-red-500 dark:text-red-100 text-[10px] px-3 py-1.5 rounded-lg font-black animate-pulse shadow-lg"> VALIDATION ERROR </span>
             </div>
-
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 dark:bg-slate-800 dark:border-slate-600">
-                <h3 class="text-xs font-black text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em] mb-8">2. Cloning Strategy</h3>
-                <div [formGroup]="cloneForm" class="space-y-4">
-                    @for (option of cloneOptions; track $index) {
-                        <div
-                            class="flex items-start gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer hover:shadow-md"
-                            [ngClass]="cloneForm.get('cloneType')?.value === option.value ? 'border-primary-500 bg-primary-50 dark:bg-primary-950' : 'border-gray-100 dark:border-slate-600'"
-                            (click)="onCloneTypeChange(option.value)" >
-                            <p-radiobutton [value]="option.value" formControlName="cloneType"> </p-radiobutton>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <i class="pi {{ option.icon }} text-primary-500"></i>
-                                    <span class="font-bold ">{{ option.label }}</span>
-                                </div>
-                                <p class="text-xs ">{{ option.description }}</p>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
+          }
         </div>
 
-        <div class="col-span-12 lg:col-span-4" *ngIf="cloneForm.get('cloneType')?.value === 'full'">
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col sticky top-6 h-[calc(100vh-120px)] overflow-hidden dark:bg-slate-800 dark:border-slate-600">
-                <div class="p-6 border-b">
-                    <h3 class="text-xs font-black text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em] mb-6">3. Staff Assignment</h3>
-                    <div class="relative">
-                        <input pInputText type="text" [(ngModel)]="searchSource" placeholder="Search staff members..." class="w-full pl-12 py-3 rounded-2xl border-gray-100 bg-gray-50 text-sm focus:ring-2 focus:ring-primary-100 dark:bg-slate-700 dark:border-slate-600" />
-                    </div>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div [formGroup]="cloneForm" class="space-y-4">
+            <label class="text-sm font-bold  block">Select Start & End Month</label>
+            <p-datePicker formControlName="dateRange" selectionMode="range" [(ngModel)]="dateRange" dateFormat="mm/yy" view="month" [showIcon]="true" placeholder="MM/YYYY - MM/YYYY" styleClass="w-full" appendTo="body"> </p-datePicker>
 
-                <div class="flex-1 overflow-y-auto p-6 space-y-3 bg-gray-50/20 dark:bg-slate-700/20">
-                    <div
-                        *ngFor="let s of filteredStaffList"
-                        (click)="toggleStaff(s)"
-                        [ngClass]="isStaffSelected(s) ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-100 shadow-sm dark:bg-primary-950' : 'border-white bg-white hover:border-gray-200 dark:border-slate-600'"
-                        class="group flex items-center justify-between p-4 border rounded-2xl cursor-pointer transition-all dark:bg-slate-800"
-                    >
-                        <div class="flex items-center gap-4">
-                            <div
-                                [ngClass]="isStaffSelected(s) ? 'bg-primary-600 text-white shadow-primary-200 dark:shadow-primary-900 dark:bg-primary-500' : 'bg-gray-100 text-gray-400 dark:bg-slate-600 dark:text-gray-500'"
-                                class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black shadow-lg transition-colors"
-                            >
-                                {{ s.firstName[0] }}{{ s.lastName[0] }}
-                            </div>
-                            <div>
-                                <p class="text-sm font-black ">{{ s.firstName }} {{ s.lastName }}</p>
-                                <p class="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-tight">{{ getAuthorities(s) }}</p>
-                            </div>
-                        </div>
-                        <i  [ngClass]="isStaffSelected(s) ? 'pi pi-check-circle text-primary-600 dark:text-primary-500 dark:scale-125' : ' pi pi-plus '" class="transition-transform"></i>
-                    </div>
-                </div>
-
-                <div class="p-6 bg-white border-t dark:bg-slate-800 dark:border-slate-600">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Selected Staff</p>
-                            <p class="text-xl font-black ">{{ targetStaff.length }} Members</p>
-                        </div>
-                        <div class="w-12 h-12 rounded-full bg-primary-50 dark:bg-primary-950 flex items-center justify-center text-primary-600 font-black">
-                            <i class="pi pi-users"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-span-12 lg:col-span-4" *ngIf="cloneForm.get('cloneType')?.value !== 'full'">
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 flex flex-col items-center justify-center h-[calc(100vh-120px)] dark:bg-slate-800 dark:border-slate-600">
-                <div class="text-center">
-                    <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-6 mx-auto dark:bg-slate-600 dark:text-gray-500">
-                        <i class="pi pi-users text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold  mb-2">Staff Assignment Disabled</h3>
-                    <p class="text-sm  mb-4">
-                        <span class="font-bold">{{ cloneForm.get('cloneType')?.value === 'structure' ? 'Structure Only' : 'Minimal' }}</span>
-                        cloning does not include staff assignments.
+            @if (isNotTwelveMonths || isOverlapping) {
+              <div class="mt-4 space-y-3 bg-white/50 p-4 rounded-xl border border-red-100 dark:bg-slate-700 dark:border-slate-500">
+                @if (isNotTwelveMonths) {
+                  <div class="flex items-start gap-3 text-red-700 dark:text-red-400">
+                    <i class="pi pi-info-circle text-lg"></i>
+                    <p class="text-xs font-bold leading-relaxed">Cycle must be exactly 12 months. Your selection is not a full academic year.</p>
+                  </div>
+                }
+                @if (isOverlapping) {
+                  <div class="flex items-start gap-3 text-red-700 dark:text-red-400">
+                    <i class="pi pi-exclamation-triangle text-lg"></i>
+                    <p class="text-xs font-bold leading-relaxed">
+                      The year <strong>{{ calculatedAcademicYear }}</strong> already exists. Please select a different range.
                     </p>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest dark:text-gray-500">Select "Full Clone" to enable staff assignment</p>
-                </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          @if (isValidRange) {
+            <div class="bg-primary-600 dark:bg-primary-500 rounded-2xl p-8 text-white shadow-2xl flex dark:shadow-none flex-col justify-center relative overflow-hidden animate-fade-in">
+              <div class="absolute -right-6 -bottom-6 opacity-10">
+                <i class="pi pi-calendar" style="font-size: 10rem"></i>
+              </div>
+              <p class="text-[10px] font-bold uppercase opacity-70 tracking-widest mb-2">New Academic Year</p>
+              <p class="text-5xl font-black mb-3">{{ calculatedAcademicYear }}</p>
+              <div class="flex items-center gap-2 text-xs font-bold bg-white/20 w-fit px-4 py-1.5 rounded-full backdrop-blur-sm dark:bg-slate-600"><i class="pi pi-check-circle"></i> {{ rangeInfo }}</div>
             </div>
+          }
         </div>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 dark:bg-slate-800 dark:border-slate-600">
+        <h3 class="text-xs font-black text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em] mb-8">2. Cloning Strategy</h3>
+        <div [formGroup]="cloneForm" class="space-y-4">
+          @for (option of cloneOptions; track $index) {
+            <div
+              class="flex items-start gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer hover:shadow-md"
+              [ngClass]="cloneForm.get('cloneType')?.value === option.value ? 'border-primary-500 bg-primary-50 dark:bg-primary-950' : 'border-gray-100 dark:border-slate-600'"
+              (click)="onCloneTypeChange(option.value)" >
+              <p-radiobutton [value]="option.value" formControlName="cloneType"> </p-radiobutton>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <i class="pi {{ option.icon }} text-primary-500"></i>
+                  <span class="font-bold ">{{ option.label }}</span>
+                </div>
+                <p class="text-xs ">{{ option.description }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
     </div>
+
+    @if (cloneForm.get('cloneType')?.value === 'full') {
+      <div class="col-span-12 lg:col-span-4">
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col sticky top-6 h-[calc(100vh-120px)] overflow-hidden dark:bg-slate-800 dark:border-slate-600">
+          <div class="p-6 border-b">
+            <h3 class="text-xs font-black text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em] mb-6">3. Staff Assignment</h3>
+            <div class="relative">
+              <input pInputText type="text" [(ngModel)]="searchSource" placeholder="Search staff members..." class="w-full pl-12 py-3 rounded-2xl border-gray-100 bg-gray-50 text-sm focus:ring-2 focus:ring-primary-100 dark:bg-slate-700 dark:border-slate-600" />
+            </div>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6 space-y-3 bg-gray-50/20 dark:bg-slate-700/20">
+            @for (s of filteredStaffList; track s) {
+              <div
+                (click)="toggleStaff(s)"
+                [ngClass]="isStaffSelected(s) ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-100 shadow-sm dark:bg-primary-950' : 'border-white bg-white hover:border-gray-200 dark:border-slate-600'"
+                class="group flex items-center justify-between p-4 border rounded-2xl cursor-pointer transition-all dark:bg-slate-800"
+                >
+                <div class="flex items-center gap-4">
+                  <div
+                    [ngClass]="isStaffSelected(s) ? 'bg-primary-600 text-white shadow-primary-200 dark:shadow-primary-900 dark:bg-primary-500' : 'bg-gray-100 text-gray-400 dark:bg-slate-600 dark:text-gray-500'"
+                    class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black shadow-lg transition-colors"
+                    >
+                    {{ s.firstName[0] }}{{ s.lastName[0] }}
+                  </div>
+                  <div>
+                    <p class="text-sm font-black ">{{ s.firstName }} {{ s.lastName }}</p>
+                    <p class="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-tight">{{ getAuthorities(s) }}</p>
+                  </div>
+                </div>
+                <i  [ngClass]="isStaffSelected(s) ? 'pi pi-check-circle text-primary-600 dark:text-primary-500 dark:scale-125' : ' pi pi-plus '" class="transition-transform"></i>
+              </div>
+            }
+          </div>
+          <div class="p-6 bg-white border-t dark:bg-slate-800 dark:border-slate-600">
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Selected Staff</p>
+                <p class="text-xl font-black ">{{ targetStaff.length }} Members</p>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-primary-50 dark:bg-primary-950 flex items-center justify-center text-primary-600 font-black">
+                <i class="pi pi-users"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (cloneForm.get('cloneType')?.value !== 'full') {
+      <div class="col-span-12 lg:col-span-4">
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 flex flex-col items-center justify-center h-[calc(100vh-120px)] dark:bg-slate-800 dark:border-slate-600">
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-6 mx-auto dark:bg-slate-600 dark:text-gray-500">
+              <i class="pi pi-users text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold  mb-2">Staff Assignment Disabled</h3>
+            <p class="text-sm  mb-4">
+              <span class="font-bold">{{ cloneForm.get('cloneType')?.value === 'structure' ? 'Structure Only' : 'Minimal' }}</span>
+              cloning does not include staff assignments.
+            </p>
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest dark:text-gray-500">Select "Full Clone" to enable staff assignment</p>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
 </div>

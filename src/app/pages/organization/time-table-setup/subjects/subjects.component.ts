@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -11,7 +11,7 @@ import { IMasterSubject } from './../../../models/org.model';
 @Component({
     selector: 'app-subjects',
     standalone: true,
-    imports: [CommonModule, FormsModule, InputNumberModule, ButtonModule, TooltipModule],
+    imports: [FormsModule, InputNumberModule, ButtonModule, TooltipModule, NgClass],
     templateUrl: './subjects.component.html'
 })
 export class SubjectsComponent implements OnInit {

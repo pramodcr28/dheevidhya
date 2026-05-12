@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService, TreeNode } from 'primeng/api';
@@ -29,7 +29,7 @@ export enum TargetType {
 @Component({
     selector: 'app-holiday-dialog',
     standalone: true,
-    imports: [CommonModule, FormsModule, DialogModule, ButtonModule, InputTextModule, SelectModule, MultiSelectModule, DatePickerModule, TextareaModule, ToastModule, ChipModule, TreeSelectModule],
+    imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, SelectModule, MultiSelectModule, DatePickerModule, TextareaModule, ToastModule, ChipModule, TreeSelectModule],
     providers: [MessageService],
     templateUrl: './holiday-dialog.component.html'
 })

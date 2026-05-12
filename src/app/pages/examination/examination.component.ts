@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { CommonService } from '../../core/services/common.service';
@@ -11,7 +11,7 @@ import { UploadResultComponent } from './upload-result/upload-result.component';
 @Component({
     selector: 'app-examination',
     standalone: true,
-    imports: [CommonModule, TabsModule, AddExamComponent, UploadResultComponent, ReportsComponent, StudentResultsComponent, StudentExamsComponent],
+    imports: [TabsModule, AddExamComponent, UploadResultComponent, ReportsComponent, StudentResultsComponent, StudentExamsComponent],
     templateUrl: './examination.component.html'
 })
 export class ExaminationComponent {

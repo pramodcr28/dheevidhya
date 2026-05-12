@@ -1,4 +1,4 @@
-import { CommonModule, formatDate } from '@angular/common';
+import { DatePipe, formatDate, NgClass } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -53,7 +53,7 @@ interface DaySchedule {
 
 @Component({
     selector: 'app-take-attendence',
-    imports: [CommonModule, FormsModule, ButtonModule, SelectModule, TooltipModule, InputTextModule, CardModule, BadgeModule, TagModule, TableModule, ToastModule, DialogModule],
+    imports: [FormsModule, ButtonModule, SelectModule, TooltipModule, InputTextModule, CardModule, BadgeModule, TagModule, TableModule, ToastModule, DialogModule, DatePipe, NgClass],
     templateUrl: './take-attendence.component.html',
     providers: [MessageService]
 })

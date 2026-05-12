@@ -1,31 +1,32 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { ApiLoaderService } from '../services/loaderService';
 
 @Component({
   selector: 'app-api-loader',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
-    <div 
-      *ngIf="isVisible"
-      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
-      role="status"
-      [attr.aria-label]="message"
-    >
-      <div class="bg-white dark:bg-surface-800 rounded-lg p-6 shadow-xl border border-surface-200 dark:border-surface-700 min-w-[280px] max-w-sm mx-4">
-        <div class="flex flex-col items-center space-y-4">
-          <div class="relative">
-            <div class="w-8 h-8 border-4 border-primary-200 dark:border-primary-800 rounded-full animate-spin border-t-primary-500"></div>
+    @if (isVisible) {
+      <div
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+        role="status"
+        [attr.aria-label]="message"
+        >
+        <div class="bg-white dark:bg-surface-800 rounded-lg p-6 shadow-xl border border-surface-200 dark:border-surface-700 min-w-[280px] max-w-sm mx-4">
+          <div class="flex flex-col items-center space-y-4">
+            <div class="relative">
+              <div class="w-8 h-8 border-4 border-primary-200 dark:border-primary-800 rounded-full animate-spin border-t-primary-500"></div>
+            </div>
+            <p class="text-surface-700 dark:text-surface-200 text-center font-medium">
+              {{ message }}
+            </p>
           </div>
-          <p class="text-surface-700 dark:text-surface-200 text-center font-medium">
-            {{ message }}
-          </p>
         </div>
       </div>
-    </div>
-  `,
+    }
+    `,
   styles: [`
     @keyframes spin {
       to {

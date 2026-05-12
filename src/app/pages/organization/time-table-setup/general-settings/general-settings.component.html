@@ -1,37 +1,42 @@
 <div class="space-y-6">
-    <div class="bg-white p-6 rounded-lg shadow-sm border dark:bg-slate-800 dark:border-slate-600">
-        <h4 class="font-medium  mb-4 flex items-center">
-            <i class="pi pi-calendar mr-2"></i>
-            Days Configuration
-        </h4>
-        <div class="flex justify-between items-center mb-4">
-            <span class="text-sm "> Select which days are school days. Others will be considered off. </span>
-        </div>
-
-        <div class="grid grid-cols-7 gap-2 mb-6">
-            <div
-                *ngFor="let day of timeTableService.timeTable?.settings.workingDays"
-                (click)="toggleDaySelection(day)"
-                class="text-center p-3 rounded-lg border-2 cursor-pointer transition"
-                [ngClass]="day.selected ? 'border-green-500 dark:border-green-700 bg-green-50 dark:bg-green-950' : 'border-red-500 dark:border-red-700 bg-red-50 dark:bg-red-950'"
-            >
-                <div class="font-medium text-sm ">{{ day.name }}</div>
-                <div class="mt-1">
-                    <i class="pi pi-check-circle text-green-500 dark:text-green-700" *ngIf="day.selected"></i>
-                    <i class="pi pi-times-circle text-red-500 dark:text-red-700" *ngIf="!day.selected"></i>
-                </div>
-            </div>
-        </div>
+  <div class="bg-white p-6 rounded-lg shadow-sm border dark:bg-slate-800 dark:border-slate-600">
+    <h4 class="font-medium  mb-4 flex items-center">
+      <i class="pi pi-calendar mr-2"></i>
+      Days Configuration
+    </h4>
+    <div class="flex justify-between items-center mb-4">
+      <span class="text-sm "> Select which days are school days. Others will be considered off. </span>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-sm border dark:bg-slate-800 dark:border-slate-600">
-        <h4 class="font-medium  mb-4 flex items-center">
-            <i class="pi pi-cog mr-2"></i>
-            Timetable Settings
-        </h4>
+    <div class="grid grid-cols-7 gap-2 mb-6">
+      @for (day of timeTableService.timeTable?.settings.workingDays; track day) {
+        <div
+          (click)="toggleDaySelection(day)"
+          class="text-center p-3 rounded-lg border-2 cursor-pointer transition"
+          [ngClass]="day.selected ? 'border-green-500 dark:border-green-700 bg-green-50 dark:bg-green-950' : 'border-red-500 dark:border-red-700 bg-red-50 dark:bg-red-950'"
+          >
+          <div class="font-medium text-sm ">{{ day.name }}</div>
+          <div class="mt-1">
+            @if (day.selected) {
+              <i class="pi pi-check-circle text-green-500 dark:text-green-700"></i>
+            }
+            @if (!day.selected) {
+              <i class="pi pi-times-circle text-red-500 dark:text-red-700"></i>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-     <dhee-select
+  <div class="bg-white p-6 rounded-lg shadow-sm border dark:bg-slate-800 dark:border-slate-600">
+    <h4 class="font-medium  mb-4 flex items-center">
+      <i class="pi pi-cog mr-2"></i>
+      Timetable Settings
+    </h4>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <dhee-select
         [(ngModel)]="timeTableService.timeTable.department"
         dataSource="departments"
         [displayLabel]="'Department'"
@@ -41,165 +46,170 @@
         filterBy="department.name,academicYear"
         placeholder="Select Department">
       </dhee-select>
-  
-            <!-- @if (!this.commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
-                <div>
-                    <label class="block font-bold mb-2">Department</label>
-                    <p-select
-                        [options]="commonService.associatedDepartments"
-                        [(ngModel)]="timeTableService.timeTable.department"
-                        [ngModelOptions]="{ standalone: true }"
-                        (onChange)="timeTableService.onDepartmentChange()"
-                        optionLabel="name"
-                        placeholder="Select Department"
-                        [pAutoFocus]="true"
-                        [style]="{ width: '100%' }"
-                    >
-                    </p-select>
-                    <small class="text-red-500" *ngIf="submitted && !timeTableService.timeTable.department"> Department is required. </small>
-                </div>
-            } @else if (associatedDepartments) {
-                <div>
-                    <label class="block font-semibold mb-2 "> Department <span class="text-red-500">*</span> </label>
 
-                    <p-select
-                        [options]="associatedDepartments"
-                        [(ngModel)]="timeTableService.timeTable.department"
-                        [ngModelOptions]="{ standalone: true }"
-                        (onChange)="timeTableService.onDepartmentChange()"
-                        optionLabel="department.name"
-                        placeholder="Select Department"
-                        filter="true"
-                        filterBy="department.name,academicYear"
-                        [pAutoFocus]="true"
-                        [style]="{ width: '100%' }"
-                    >
-                        <ng-template pTemplate="item" let-dept>
-                            <div class="flex flex-col">
-                                <span class="font-medium">
-                                    {{ dept.department.name }}
-                                </span>
-                                <small class="text-primary-500"> Academic Year: {{ dept.academicYear }} </small>
-                            </div>
-                        </ng-template>
-                        <ng-template pTemplate="selectedItem" let-dept> {{ dept.department.name }} ({{ dept.academicYear }}) </ng-template>
-                    </p-select>
+      <!-- @if (!this.commonService.getUserAuthorities.includes('IT_ADMINISTRATOR')) {
+      <div>
+        <label class="block font-bold mb-2">Department</label>
+        <p-select
+          [options]="commonService.associatedDepartments"
+          [(ngModel)]="timeTableService.timeTable.department"
+          [ngModelOptions]="{ standalone: true }"
+          (onChange)="timeTableService.onDepartmentChange()"
+          optionLabel="name"
+          placeholder="Select Department"
+          [pAutoFocus]="true"
+          [style]="{ width: '100%' }"
+          >
+        </p-select>
+        <small class="text-red-500" *ngIf="submitted && !timeTableService.timeTable.department"> Department is required. </small>
+      </div>
+    } @else if (associatedDepartments) {
+      <div>
+        <label class="block font-semibold mb-2 "> Department <span class="text-red-500">*</span> </label>
 
-                    <small class="text-red-500 block mt-1" *ngIf="submitted && !timeTableService.timeTable.department"> Department is required. </small>
-                </div>
-            } -->
-            <!-- @if(commonService.associatedDepartments){
-              <div>
-                <label class="block font-bold mb-2">Department</label>
-                <p-select
-                  [options]="commonService.associatedDepartments"
-                  [(ngModel)]="timeTableService.timeTable.department"
-                  [ngModelOptions]="{standalone: true}"
-                  (onChange)="timeTableService.onDepartmentChange()"
-                  optionLabel="name"
-                  placeholder="Select Department"
-                  [pAutoFocus]="true"
-                  [style]="{ width: '100%' }">
-                </p-select>
-                <small class="text-red-500" *ngIf="submitted && !timeTableService.timeTable.department">
-                  Department is required.
-                </small>
-              </div>
-              } -->
-            <div>
-                <label class="block text-sm font-medium  mb-2">Periods Per Day</label>
-                <p-inputNumber [(ngModel)]="timeTableService.timeTable.settings.periodsPerDay" [min]="1" [max]="12" styleClass="w-full"> </p-inputNumber>
+        <p-select
+          [options]="associatedDepartments"
+          [(ngModel)]="timeTableService.timeTable.department"
+          [ngModelOptions]="{ standalone: true }"
+          (onChange)="timeTableService.onDepartmentChange()"
+          optionLabel="department.name"
+          placeholder="Select Department"
+          filter="true"
+          filterBy="department.name,academicYear"
+          [pAutoFocus]="true"
+          [style]="{ width: '100%' }"
+          >
+          <ng-template pTemplate="item" let-dept>
+            <div class="flex flex-col">
+              <span class="font-medium">
+                {{ dept.department.name }}
+              </span>
+              <small class="text-primary-500"> Academic Year: {{ dept.academicYear }} </small>
             </div>
+          </ng-template>
+          <ng-template pTemplate="selectedItem" let-dept> {{ dept.department.name }} ({{ dept.academicYear }}) </ng-template>
+        </p-select>
 
-            <div>
-                <label class="block text-sm font-medium  mb-2">Default Period Duration (min)</label>
-                <p-inputNumber [(ngModel)]="timeTableService.timeTable.settings.periodDuration" [min]="10" [max]="90" styleClass="w-full" />
-            </div>
+        <small class="text-red-500 block mt-1" *ngIf="submitted && !timeTableService.timeTable.department"> Department is required. </small>
+      </div>
+      } -->
+      <!-- @if(commonService.associatedDepartments){
+      <div>
+        <label class="block font-bold mb-2">Department</label>
+        <p-select
+          [options]="commonService.associatedDepartments"
+          [(ngModel)]="timeTableService.timeTable.department"
+          [ngModelOptions]="{standalone: true}"
+          (onChange)="timeTableService.onDepartmentChange()"
+          optionLabel="name"
+          placeholder="Select Department"
+          [pAutoFocus]="true"
+          [style]="{ width: '100%' }">
+        </p-select>
+        <small class="text-red-500" *ngIf="submitted && !timeTableService.timeTable.department">
+          Department is required.
+        </small>
+      </div>
+      } -->
+      <div>
+        <label class="block text-sm font-medium  mb-2">Periods Per Day</label>
+        <p-inputNumber [(ngModel)]="timeTableService.timeTable.settings.periodsPerDay" [min]="1" [max]="12" styleClass="w-full"> </p-inputNumber>
+      </div>
 
-            <div>
-                <label class="block text-sm font-medium  mb-2">
-                    Default Break Duration (min)
-                    <span class="text-xs  ml-1">(Legacy - use break config below)</span>
-                </label>
-                <p-inputNumber [(ngModel)]="timeTableService.timeTable.settings.breakDuration" [min]="0" [max]="60" styleClass="w-full" />
-            </div>
-            <div>
-                <label class="block text-sm font-medium  mb-2">Start Time</label>
-  <input
-  #timeInput
-  type="time"
-  [(ngModel)]="timeTableService.timeTable.settings.startTime"
-  [ngModelOptions]="{ standalone: true }"
-  (click)="openTimePicker(timeInput)"
-  class="w-full border border-gray-300 rounded-lg p-2 cursor-pointer"
-/>
-            </div>
-            <div>
-                <label class="block text-sm font-medium  mb-2">End Time</label>
-<input
-  #endTimeInput
-  type="time"
-  [(ngModel)]="timeTableService.timeTable.settings.endTime"
-  [ngModelOptions]="{ standalone: true }"
-  (click)="openTimePicker(endTimeInput)"
-  class="w-full border border-gray-300 rounded-lg p-2 cursor-pointer"
-/>
-            </div>
+      <div>
+        <label class="block text-sm font-medium  mb-2">Default Period Duration (min)</label>
+        <p-inputNumber [(ngModel)]="timeTableService.timeTable.settings.periodDuration" [min]="10" [max]="90" styleClass="w-full" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium  mb-2">
+          Default Break Duration (min)
+          <span class="text-xs  ml-1">(Legacy - use break config below)</span>
+        </label>
+        <p-inputNumber [(ngModel)]="timeTableService.timeTable.settings.breakDuration" [min]="0" [max]="60" styleClass="w-full" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium  mb-2">Start Time</label>
+        <input
+          #timeInput
+          type="time"
+          [(ngModel)]="timeTableService.timeTable.settings.startTime"
+          [ngModelOptions]="{ standalone: true }"
+          (click)="openTimePicker(timeInput)"
+          class="w-full border border-gray-300 rounded-lg p-2 cursor-pointer"
+          />
         </div>
-    </div>
+        <div>
+          <label class="block text-sm font-medium  mb-2">End Time</label>
+          <input
+            #endTimeInput
+            type="time"
+            [(ngModel)]="timeTableService.timeTable.settings.endTime"
+            [ngModelOptions]="{ standalone: true }"
+            (click)="openTimePicker(endTimeInput)"
+            class="w-full border border-gray-300 rounded-lg p-2 cursor-pointer"
+            />
+          </div>
+        </div>
+      </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-sm border dark:bg-slate-800 dark:border-slate-600">
+      <div class="bg-white p-6 rounded-lg shadow-sm border dark:bg-slate-800 dark:border-slate-600">
         <div class="flex justify-between items-center mb-4">
-            <h4 class="font-medium  flex items-center">
-                <i class="pi pi-coffee mr-2"></i>
-                Break Configuration
-            </h4>
-            <button type="button" (click)="addBreak()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 text-sm dark:bg-blue-500 dark:hover:bg-blue-600">
-                <i class="pi pi-plus"></i>
-                Add Break
-            </button>
+          <h4 class="font-medium  flex items-center">
+            <i class="pi pi-coffee mr-2"></i>
+            Break Configuration
+          </h4>
+          <button type="button" (click)="addBreak()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 text-sm dark:bg-blue-500 dark:hover:bg-blue-600">
+            <i class="pi pi-plus"></i>
+            Add Break
+          </button>
         </div>
 
         <div class="text-sm  mb-4">Configure breaks to be inserted between periods (e.g., tea break after 2nd period, lunch after 4th period)</div>
 
         <div class="space-y-3">
-            <div *ngFor="let break of timeTableService.timeTable.settings.breaks; let i = index" class="p-4 border rounded-lg dark:border-slate-600" [ngClass]="break.enabled 
+          @for (break of timeTableService.timeTable.settings.breaks; track break; let i = $index) {
+<div class="p-4 border rounded-lg dark:border-slate-600" [ngClass]="break.enabled 
     ? 'bg-blue-50 dark:bg-blue-900' 
     : 'bg-gray-50 dark:bg-gray-800'">
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-                    <div class="md:col-span-1 flex items-center">
-                        <p-checkbox [(ngModel)]="break.enabled" [binary]="true" [ngModelOptions]="{ standalone: true }"> </p-checkbox>
-                    </div>
-                    <div class="md:col-span-3">
-                        <label class="block text-xs font-medium  mb-1">Break Name</label>
-                        <input type="text" [(ngModel)]="break.name" [ngModelOptions]="{ standalone: true }" placeholder="e.g., Lunch Break" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-sm" [disabled]="!break.enabled" />
-                    </div>
-                    <div class="md:col-span-3">
-                        <label class="block text-xs font-medium  mb-1">After Period</label>
-                        <p-inputNumber [(ngModel)]="break.afterPeriod" [ngModelOptions]="{ standalone: true }" [min]="1" [max]="getMaxPeriodForBreak()" placeholder="Period #" styleClass="w-full" [disabled]="!break.enabled"> </p-inputNumber>
-                    </div>
-                    <div class="md:col-span-3">
-                        <label class="block text-xs font-medium  mb-1">Duration (min)</label>
-                        <p-inputNumber [(ngModel)]="break.duration" [ngModelOptions]="{ standalone: true }" [min]="5" [max]="60" placeholder="Minutes" styleClass="w-full" [disabled]="!break.enabled"> </p-inputNumber>
-                    </div>
-
-                    <div class="md:col-span-2 flex justify-end">
-                        <button type="button" (click)="removeBreak(i)" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center gap-1 text-sm dark:bg-red-400 dark:hover:bg-red-500">
-                            <i class="pi pi-trash text-xs"></i>
-                            Remove
-                        </button>
-                    </div>
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                <div class="md:col-span-1 flex items-center">
+                  <p-checkbox [(ngModel)]="break.enabled" [binary]="true" [ngModelOptions]="{ standalone: true }"> </p-checkbox>
                 </div>
-                <div *ngIf="break.enabled" class="mt-2 text-xs  flex items-center gap-1">
-                    <i class="pi pi-info-circle"></i>
-                    This break will be inserted after period {{ break.afterPeriod }}
+                <div class="md:col-span-3">
+                  <label class="block text-xs font-medium  mb-1">Break Name</label>
+                  <input type="text" [(ngModel)]="break.name" [ngModelOptions]="{ standalone: true }" placeholder="e.g., Lunch Break" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-sm" [disabled]="!break.enabled" />
                 </div>
+                <div class="md:col-span-3">
+                  <label class="block text-xs font-medium  mb-1">After Period</label>
+                  <p-inputNumber [(ngModel)]="break.afterPeriod" [ngModelOptions]="{ standalone: true }" [min]="1" [max]="getMaxPeriodForBreak()" placeholder="Period #" styleClass="w-full" [disabled]="!break.enabled"> </p-inputNumber>
+                </div>
+                <div class="md:col-span-3">
+                  <label class="block text-xs font-medium  mb-1">Duration (min)</label>
+                  <p-inputNumber [(ngModel)]="break.duration" [ngModelOptions]="{ standalone: true }" [min]="5" [max]="60" placeholder="Minutes" styleClass="w-full" [disabled]="!break.enabled"> </p-inputNumber>
+                </div>
+                <div class="md:col-span-2 flex justify-end">
+                  <button type="button" (click)="removeBreak(i)" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center gap-1 text-sm dark:bg-red-400 dark:hover:bg-red-500">
+                    <i class="pi pi-trash text-xs"></i>
+                    Remove
+                  </button>
+                </div>
+              </div>
+              @if (break.enabled) {
+                <div class="mt-2 text-xs  flex items-center gap-1">
+                  <i class="pi pi-info-circle"></i>
+                  This break will be inserted after period {{ break.afterPeriod }}
+                </div>
+              }
             </div>
+          }
 
-            <div *ngIf="!timeTableService.timeTable.settings.breaks || timeTableService.timeTable.settings.breaks.length === 0" class="text-center py-8 ">
-                <i class="pi pi-coffee text-4xl mb-2"></i>
-                <p>No breaks configured. Click "Add Break" to add breaks like tea break or lunch break.</p>
+          @if (!timeTableService.timeTable.settings.breaks || timeTableService.timeTable.settings.breaks.length === 0) {
+            <div class="text-center py-8 ">
+              <i class="pi pi-coffee text-4xl mb-2"></i>
+              <p>No breaks configured. Click "Add Break" to add breaks like tea break or lunch break.</p>
             </div>
+          }
         </div>
+      </div>
     </div>
-</div>
