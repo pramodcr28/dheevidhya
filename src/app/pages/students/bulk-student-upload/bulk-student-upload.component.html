@@ -3,20 +3,30 @@
 <div class="p-4 sm:p-6">
 
   <p-card styleClass="mb-6">
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+
       <div>
-        <h2 class="text-2xl sm:text-3xl font-bold">Bulk Student Upload</h2>
-        <p class="mt-1">Upload multiple students at once using Excel</p>
+        <h2 class="text-2xl sm:text-3xl font-bold">
+          Bulk Student Upload
+        </h2>
+
+        <p class="mt-1">
+          Upload multiple students at once using Excel
+        </p>
       </div>
-      <p-selectButton
-        [options]="uploadModeOptions"
-        [(ngModel)]="uploadMode"
-        [ngModelOptions]="{ standalone: true }"
-        optionLabel="label"
-        optionValue="value"
-        (onChange)="resetUpload()"
-        styleClass="ml-auto"
-      ></p-selectButton>
+
+      <div class="self-end sm:self-auto w-auto">
+        <p-selectButton
+          [options]="uploadModeOptions"
+          [(ngModel)]="uploadMode"
+          [ngModelOptions]="{ standalone: true }"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="resetUpload()"
+          styleClass="text-sm">
+        </p-selectButton>
+      </div>
+
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

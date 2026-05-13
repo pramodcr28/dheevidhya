@@ -5,12 +5,77 @@
   [(visible)]="visible"
   [style]="{ width: '95vw', maxWidth: '1300px' }"
   [modal]="true"
-  [maximizable]="true"
+  [maximizable]="false"
   [closable]="false"
   [closeOnEscape]="false"
   [dismissableMask]="false"
   >
+
   <ng-template pTemplate="header">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-4">
+
+    <!-- Left Section -->
+    <div class="flex items-start sm:items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0">
+        <i class="pi pi-user text-white text-base"></i>
+      </div>
+
+      <div>
+        <h3 class="text-base font-bold text-gray-800 dark:text-white leading-tight m-0">
+          {{ student?.id ? 'Edit Student Information' : 'New Student Registration' }}
+        </h3>
+
+        <p class="text-xs text-gray-500 mt-0.5">
+          Fill all sections accurately as per SATS portal requirements
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Section -->
+    <div class="flex items-center justify-end gap-3 w-full sm:w-auto">
+
+      <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
+          [class.bg-white]="basicMode"
+          [class.shadow]="basicMode"
+          [class.text-primary-700]="basicMode"
+          [class.dark:bg-gray-700]="basicMode"
+          [class.text-gray-500]="!basicMode"
+          (click)="basicMode = true">
+
+          <i class="pi pi-list mr-1 !text-xs"></i>
+          <span>Basic</span>
+        </button>
+
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
+          [class.bg-white]="!basicMode"
+          [class.shadow]="!basicMode"
+          [class.text-primary-700]="!basicMode"
+          [class.dark:bg-gray-700]="!basicMode"
+          [class.text-gray-500]="basicMode"
+          (click)="basicMode = false">
+
+          <i class="pi pi-database mr-1 !text-xs"></i>
+          <span>All SATS</span>
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+        (click)="onCancel()">
+
+        <i class="pi pi-times text-gray-500 text-lg"></i>
+      </button>
+
+    </div>
+  </div>
+</ng-template>
+  <!-- <ng-template pTemplate="header">
     <div class="flex items-center justify-between w-full gap-4">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
@@ -55,7 +120,7 @@
         </button>
       </div>
     </div>
-  </ng-template>
+  </ng-template> -->
 
   @if (form) {
     <form [formGroup]="form">

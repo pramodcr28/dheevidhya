@@ -1,4 +1,3 @@
-
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -125,7 +124,6 @@ export class BulkStudentUploadComponent implements OnInit {
                 email: 'ravi@example.com',
                 studentContactNumber: '9999999999',
                 password: 'User@123',
-                // SATS identity
                 stdFirstNameKn: 'ರವಿ',
                 stdLastNameKn: 'ಕುಮಾರ್',
                 aadhaarNumber: '123412341234',
@@ -138,7 +136,6 @@ export class BulkStudentUploadComponent implements OnInit {
                 childWithSpecialNeed: 'NONE',
                 specialCategory: '',
                 studentCasteCertNo: '',
-                // Father
                 fatherFirstName: 'Suresh',
                 fatherLastName: 'Kumar',
                 fatherFirstNameKn: 'ಸುರೇಶ್',
@@ -146,7 +143,6 @@ export class BulkStudentUploadComponent implements OnInit {
                 fatherMobile: '9888888888',
                 fatherAadhaar: '432143214321',
                 fatherCasteCertNo: '',
-                // Mother
                 motherFirstName: 'Latha',
                 motherLastName: 'Kumar',
                 motherFirstNameKn: 'ಲತಾ',
@@ -154,13 +150,11 @@ export class BulkStudentUploadComponent implements OnInit {
                 motherMobile: '9777777777',
                 motherAadhaar: '567856785678',
                 motherCasteCertNo: '',
-                // Admission
                 typeOfStudent: 'SAME_STATE',
                 mediumOfInstruction: 'KANNADA',
                 motherTongue: 'KANNADA',
                 languageGroup: 'FIRST_LANGUAGE',
                 admissionDate: '2024-06-01',
-                // Previous school
                 affiliation: 'KSEEB',
                 tcNo: 'TC12345',
                 tcDate: '2024-05-30',

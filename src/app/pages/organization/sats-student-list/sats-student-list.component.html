@@ -1,7 +1,7 @@
 <app-confirmation-dialog></app-confirmation-dialog>
 <p-toast></p-toast>
 
-<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 mx-3 lg:mx-0">
   <div>
     <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
       <i class="pi pi-users text-blue-600"></i>
@@ -9,14 +9,14 @@
     </h2>
     <p class="text-sm text-gray-500 mt-0.5">Student Registration</p>
   </div>
-  <div class="flex gap-2 flex-wrap">
+  <div class="flex gap-2 flex-wrap justify-end self-end sm:self-auto">
     <p-button icon="pi pi-filter" [label]="showFilters() ? 'Hide Filters' : 'Show Filters'" [outlined]="!showFilters()" severity="secondary" size="small" (onClick)="toggleFilters()" [badge]="hasActiveFilters ? '!' : ''"></p-button>
     <p-button label="New Student" icon="pi pi-plus" size="small" (click)="openNew()"></p-button>
   </div>
 </div>
 
 @if (showFilters()) {
-  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 mb-4 shadow-sm animate-fade-in">
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 mb-4 shadow-sm animate-fade-in mx-3 lg:mx-0">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       <div class="flex flex-col gap-1">
         <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Department</label>
@@ -101,7 +101,7 @@
   </div>
 }
 
-<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mx-3 lg:mx-0">
   <p-table
     [value]="students()"
     [lazy]="true"
@@ -395,4 +395,4 @@
         </div>
 
       </div>
-    </p-dialog>
+</p-dialog>
