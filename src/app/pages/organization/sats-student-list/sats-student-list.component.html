@@ -144,7 +144,6 @@
 
       <tr class="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors" [class.opacity-70]="!canEdit">
 
-        <!-- Student Name — truncated, full name on tooltip -->
         <td class="px-3 py-2 max-w-[180px]" pFrozenColumn alignFrozen="left">
           <div class="flex items-center gap-2 min-w-0">
             <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold" [ngClass]="[avatarBg(rowIndex), avatarText(rowIndex)]">
@@ -165,21 +164,18 @@
           </div>
         </td>
 
-        <!-- SATS Number -->
         <td class="px-3 py-2 text-sm text-lg font-bold text-primary-600 dark:text-primary-400 max-w-[120px]">
           <span class="truncate block" [pTooltip]="student.login || ''" tooltipPosition="top">
             {{ student.login || '—' }}
           </span>
         </td>
 
-        <!-- SATS Number -->
         <td class="px-3 py-2 text-sm text-lg font-bold text-primary-600 dark:text-primary-400 max-w-[120px]">
           <span class="truncate block" [pTooltip]="student.satsNumber || ''" tooltipPosition="top">
             {{ student.satsNumber || '—' }}
           </span>
         </td>
 
-        <!-- Status -->
         <td class="px-3 py-2 max-w-[100px]">
           @if (student.latestAcademicYear?.status) {
             <p-tag [value]="student.latestAcademicYear.status" [severity]="getStatusSeverity(student.latestAcademicYear.status)" styleClass="text-xs font-semibold"></p-tag>
@@ -188,7 +184,6 @@
           }
         </td>
 
-        <!-- Academic Year -->
         <td class="px-3 py-2 max-w-[150px]">
           @if (student.latestAcademicYear?.academicYear) {
             <span
@@ -209,7 +204,6 @@
           }
         </td>
 
-        <!-- Gender -->
         <td class="px-3 py-2 max-w-[100px]">
           @if (student.studentDetails?.gender) {
             <p-tag [value]="getGenderTag(student.studentDetails.gender).label" [severity]="getGenderTag(student.studentDetails.gender).severity"></p-tag>
@@ -218,7 +212,6 @@
           }
         </td>
 
-        <!-- Department — truncated with tooltip -->
         <td class="px-3 py-2 max-w-[150px]">
           <span
             class="text-sm text-gray-800 dark:text-gray-200 truncate block max-w-[130px]"
@@ -229,7 +222,6 @@
           </span>
         </td>
 
-        <!-- Class - Section — truncated with tooltip -->
         <td class="px-3 py-2 max-w-[150px]">
           <div class="flex flex-col justify-center items-start gap-0.5">
             <span
@@ -249,7 +241,6 @@
           </div>
         </td>
 
-        <!-- Guardian — truncated with tooltip -->
         <td class="px-3 py-2 max-w-[160px]" >
           <div class="flex flex-col leading-tight min-w-0">
             <span
@@ -267,7 +258,6 @@
           </div>
         </td>
 
-        <!-- Actions — frozen right -->
         <td class="px-3 py-2" pFrozenColumn alignFrozen="right">
           <div class="flex items-center justify-center gap-1">
             @if (canEdit) {

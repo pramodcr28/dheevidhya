@@ -16,65 +16,74 @@
     [showCurrentPageReport]="true"
     [rowsPerPageOptions]="[10, 20, 30, 50]"
     styleClass="el-prime-table"
-    [responsiveLayout]="'scroll'"
+       styleClass="p-datatable-striped rounded-2xl overflow-hidden shadow-sm"
+    [scrollable]="true"
     >
-    <ng-template pTemplate="caption">
-      <div class="flex flex-wrap items-center gap-3 border-b border-gray-100 bg-white px-5 py-3.5 dark:border-slate-800 dark:bg-[#161b27]">
-        <div class="flex flex-col items-center gap-2">
-          <p-multiSelect
-            [options]="masterDepartments"
-            [(ngModel)]="selectedDepartments"
-            optionLabel="name"
-            optionValue="name"
-            placeholder="Select department"
-            [filter]="true"
-            filterPlaceHolder="Search departments"
-            display="chip"
-            class="max-w-[200px]"
-            appendTo="body"
-            (onChange)="load(true)"
-            >
-          </p-multiSelect>
-        </div>
+  <ng-template pTemplate="caption">
 
-        <div class="flex flex-col items-center gap-2">
-          <p-multiSelect
-            [options]="roleOptions"
-            [(ngModel)]="selectedRoles"
-            optionLabel="label"
-            optionValue="value"
-            class="max-w-[180px]"
-            placeholder="Select roles"
-            [filter]="true"
-            filterPlaceHolder="Search roles"
-            display="chip"
-            appendTo="body"
-            (onChange)="load(true)"
-            >
-          </p-multiSelect>
-        </div>
+  <div class="flex flex-col sm:flex-row sm:items-center gap-3 border-b border-gray-100 bg-white px-5 py-3.5 dark:border-slate-800 dark:bg-[#161b27]">
+    <div class="flex flex-wrap items-center gap-3">
 
-        @if (selectedDepartments || selectedRoles.length) {
-          <button
-            type="button"
-            (click)="clearFilters()"
-            class="inline-flex items-center gap-1.5 rounded-md border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-600 transition-colors hover:bg-orange-100 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-400 dark:hover:bg-orange-500/15"
-            >
-            <i class="pi pi-times text-[10px]"></i>
-            Clear
-          </button>
-        }
-        <div class="flex-1"></div>
-        <button type="button" (click)="openNew()" class="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-orange-600 active:scale-95">
-          <i class="pi pi-plus text-xs"></i>
-          New
+      <p-multiSelect
+        [options]="masterDepartments"
+        [(ngModel)]="selectedDepartments"
+        optionLabel="name"
+        optionValue="name"
+        placeholder="Select department"
+        [filter]="true"
+        filterPlaceHolder="Search departments"
+        display="chip"
+        class="w-[180px]"
+        appendTo="body"
+        (onChange)="load(true)">
+      </p-multiSelect>
+
+      <p-multiSelect
+        [options]="roleOptions"
+        [(ngModel)]="selectedRoles"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select roles"
+        [filter]="true"
+        filterPlaceHolder="Search roles"
+        display="chip"
+        class="w-[180px]"
+        appendTo="body"
+        (onChange)="load(true)">
+      </p-multiSelect>
+
+      @if (selectedDepartments?.length || selectedRoles?.length) {
+        <button
+          type="button"
+          (click)="clearFilters()"
+          class="inline-flex items-center gap-1.5 rounded-md border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-600 transition-colors hover:bg-orange-100 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-400 dark:hover:bg-orange-500/15">
+
+          <i class="pi pi-times text-[10px]"></i>
+          Clear
         </button>
-      </div>
-    </ng-template>
+      }
 
+    </div>
+
+    <div class="flex justify-end sm:ml-auto w-full sm:w-auto">
+
+      <button
+        type="button"
+        (click)="openNew()"
+        class="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-orange-600 active:scale-95">
+
+        <i class="pi pi-plus text-xs"></i>
+        New
+      </button>
+
+    </div>
+
+  </div>
+
+</ng-template>
     <ng-template pTemplate="header">
       <tr class="bg-gray-50/80 dark:bg-slate-800/40">
-        <th class="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-800 dark:text-slate-200">Full Name</th>
+        <th class="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-800 dark:text-slate-200" pFrozenColumn alignFrozen="left">Full Name</th>
         <th class="px-4 py-3.5 text-right text-[11px] font-semibold uppercase tracking-widest text-gray-800 dark:text-slate-200">Username</th>
         <th
           pSortableColumn="email"
@@ -101,12 +110,12 @@
           >
           <span class="inline-flex items-center gap-1">Status <p-sortIcon field="status" /></span>
         </th>
-        <th class="px-4 py-3.5 text-right text-[11px] font-semibold uppercase tracking-widest text-gray-800 dark:text-slate-200">Actions</th>
+        <th class="px-2 py-3.5 text-right text-[11px] font-semibold uppercase tracking-widest text-gray-800 dark:text-slate-200" pFrozenColumn alignFrozen="right"></th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-employee let-rowIndex="rowIndex">
       <tr class="group border-t border-gray-100 bg-white transition-colors hover:bg-gray-50/60 dark:border-slate-800 dark:bg-transparent dark:hover:bg-slate-800/25">
-        <td class="px-4 py-3.5">
+        <td class="px-4 py-3.5" pFrozenColumn alignFrozen="left">
           <div class="flex items-center gap-3">
             <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold" [ngClass]="[avatarBg(rowIndex), avatarText(rowIndex)]">
               {{ (employee.firstName?.[0] ?? '') + (employee.lastName?.[0] ?? '') }}
@@ -175,7 +184,7 @@
           </span>
         </td>
 
-        <td class="px-4 py-3.5">
+        <td class="px-2 py-3.5" pFrozenColumn alignFrozen="right">
           <div class="flex items-center justify-start gap-1">
             @if (commonService.currentUser.userId != employee.id?.toString()) {
               <button
