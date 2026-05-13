@@ -37,9 +37,9 @@ export interface AssignmentSummaryDTO {
     sectionName: string;
     dueDate: string;
     assignedDate: string;
-    type: string; // HOMEWORK | PROJECT | EXAM | QUIZ
-    status: string; // AssignmentStatus
-    submissionStatus?: string; // SubmissionStatus (student only)
+    type: string;
+    status: string;
+    submissionStatus?: string;
     grade?: string;
 }
 
@@ -48,7 +48,7 @@ export interface ProfileSummaryDTO {
     fullName: string;
     email: string;
     contactNumber: string;
-    profileType: string; // STUDENT | STAFF | HOD | ADMIN
+    profileType: string;
     academicYear: string;
     employeeId: string;
     departments: string[];
@@ -63,19 +63,16 @@ export interface ProfileSummaryDTO {
     // admin/hod
     responsibilities?: string;
 }
-
-// ── 1. Admin Dashboard ────────────────────────────────────────────────────────
-
 export interface LoginTrendDTO {
-    day: string; // Mon, Tue …
+    day: string;
     students: number;
     staff: number;
 }
 
 export interface SystemHealthDTO {
     label: string;
-    value: number; // 0-100 %
-    status: string; // ok | warn | critical
+    value: number;
+    status: string;
 }
 
 export interface TimelineItemDTO {
@@ -83,7 +80,7 @@ export interface TimelineItemDTO {
     title: string;
     description: string;
     time: string;
-    type: string; // success | warning | info | danger
+    type: string;
 }
 
 export interface AdminDashboardResponse {
@@ -100,13 +97,11 @@ export interface AdminDashboardResponse {
     profile: ProfileSummaryDTO;
 }
 
-// ── 2. Staff Dashboard ────────────────────────────────────────────────────────
-
 export interface TimetablePeriodDTO {
     id: string;
     periodNumber: number;
     name: string;
-    type: string; // lecture | break | free
+    type: string;
     startTime: string;
     endTime: string;
     subjectName: string;
@@ -132,7 +127,7 @@ export interface MonthlyAttendanceDTO {
     presentDays: number;
     totalDays: number;
     percentage: number;
-    dailyDots: (boolean | null)[]; // true=present, false=absent, null=holiday
+    dailyDots: (boolean | null)[];
 }
 
 export interface StaffDashboardResponse {
@@ -182,10 +177,10 @@ export interface StaffAttendanceRowDTO {
     subjectName: string;
     classes: string;
     checkInTime?: string;
-    status: string; // PRESENT | ABSENT | LATE | LEAVE | ON_DUTY
+    status: string;
     attendancePercentage: number;
     monthlyStats: MonthlySatsDTO;
-    weeklyTrend: any[]; // last 7 days Mon-Sun
+    weeklyTrend: any[];
 }
 
 export interface MonthlySatsDTO {
@@ -199,10 +194,10 @@ export interface InventoryTransactionDTO {
     id: string;
     itemName: string;
     issuedTo: string;
-    action: string; // TransactionType
+    action: string;
     date: string;
     quantity: number;
-    status: string; // ItemStatus
+    status: string;
 }
 
 export interface HodDashboardResponse {
@@ -213,8 +208,6 @@ export interface HodDashboardResponse {
     inventory: InventoryTransactionDTO[];
     profile: ProfileSummaryDTO;
 }
-
-// ── 4. Student Dashboard ──────────────────────────────────────────────────────
 
 export interface StudentAttendanceSummaryDTO {
     totalSessions: number;
@@ -255,66 +248,38 @@ export interface StudentDashboardResponse {
     profile: ProfileSummaryDTO;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  DashboardService
-// ─────────────────────────────────────────────────────────────────────────────
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
     private readonly http = inject(HttpClient);
     private readonly appCfg = inject(ApplicationConfigService);
 
-    // ── Base URL builders — one per microservice ──────────────────────────────
-    //
-    //  ADMIN service  → handles: profile counts, dept/branch stats, inventory
     private adminBase(): string {
         return this.appCfg.getEndpointFor(environment.ServerUrl + environment.ACADEMICS_BASE_URL + 'api/dashboard');
     }
 
-    //  ACADEMICS service → handles: timetable, student-attendance, exams,
-    //                                assignments, staff-attendance
     private academicsBase(): string {
         return this.appCfg.getEndpointFor(environment.ServerUrl + environment.ACADEMICS_BASE_URL + 'api/dashboard');
     }
 
-    //  NOTIFICATION service → handles: notices
     private notificationBase(): string {
         return this.appCfg.getEndpointFor(environment.ServerUrl + environment.ACADEMICS_BASE_URL + 'api/dashboard');
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  1. IT Admin Dashboard
-    //     GET  {ADMIN_BASE_URL}/api/dashboard/admin?branchId=&academicYear=
-    // ─────────────────────────────────────────────────────────────────────────
     getAdminDashboard(staffId: string, branchId: string, academicYear: string): Observable<AdminDashboardResponse> {
         const params = new HttpParams().set('staffId', staffId).set('branchId', branchId).set('academicYear', academicYear);
         return this.http.get<AdminDashboardResponse>(`${this.adminBase()}/admin`, { params });
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  2. Staff Dashboard
-    //     GET  {ACADEMICS_BASE_URL}/api/dashboard/staff
-    //            ?staffId=&departmentId=&academicYear=&date=
-    // ─────────────────────────────────────────────────────────────────────────
     getStaffDashboard(staffId: string, departmentId: string, academicYear: string): Observable<StaffDashboardResponse> {
         const params = new HttpParams().set('staffId', staffId).set('departmentId', departmentId).set('academicYear', academicYear).set('date', new Date().toISOString().split('T')[0]);
         return this.http.get<StaffDashboardResponse>(`${this.academicsBase()}/staff`, { params });
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  3. HOD Dashboard
-    //     GET  {ACADEMICS_BASE_URL}/api/dashboard/hod
-    //            ?departmentId=&branchId=&academicYear=
-    // ─────────────────────────────────────────────────────────────────────────
     getHodDashboard(staffId: string, departmentId: string, branchId: string, academicYear: string): Observable<HodDashboardResponse> {
         const params = new HttpParams().set('staffId', staffId).set('departmentId', departmentId).set('branchId', branchId).set('academicYear', academicYear);
         return this.http.get<HodDashboardResponse>(`${this.academicsBase()}/hod`, { params });
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  4. Student Dashboard
-    //     GET  {ACADEMICS_BASE_URL}/api/dashboard/student
-    //            ?studentId=&departmentId=&academicYear=
-    // ─────────────────────────────────────────────────────────────────────────
     getStudentDashboard(studentId: string, departmentId: string, academicYear: string): Observable<StudentDashboardResponse> {
         const params = new HttpParams().set('studentId', studentId).set('departmentId', departmentId).set('academicYear', academicYear);
         return this.http.get<StudentDashboardResponse>(`${this.academicsBase()}/student`, { params });

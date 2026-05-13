@@ -1,6 +1,6 @@
 // staff-attendance.service.ts  (updated — add these two methods)
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -73,16 +73,12 @@ export interface AnalyticsRequest {
 
 @Injectable({ providedIn: 'root' })
 export class StaffAttendanceService {
-    private apiUrl = environment.ServerUrl + environment.ACADEMICS_BASE_URL + 'api/staff-attendance';
-
-    private httpOptions = {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    };
+    private apiUrl = environment.ServerUrl + environment.ACADEMICS_BASE_URL + 'api/staffattendance';
 
     constructor(private http: HttpClient) {}
 
     addAttendance(attendance: StaffAttendance): Observable<StaffAttendance> {
-        return this.http.post<StaffAttendance>(this.apiUrl, attendance, this.httpOptions);
+        return this.http.post<StaffAttendance>(this.apiUrl, attendance);
     }
 
     getAttendance(id: string): Observable<StaffAttendance> {
@@ -94,16 +90,16 @@ export class StaffAttendanceService {
     }
 
     searchAttendance(request: SearchRequest): Observable<PageResponse<StaffAttendance>> {
-        return this.http.post<PageResponse<StaffAttendance>>(`${this.apiUrl}/search`, request, this.httpOptions);
+        return this.http.post<PageResponse<StaffAttendance>>(`${this.apiUrl}/search`, request);
     }
 
     // ── NEW: fetch all analytics data in one call ──────────────
     getAnalytics(request: AnalyticsRequest): Observable<StaffAttendanceAnalytics> {
-        return this.http.post<StaffAttendanceAnalytics>(`${this.apiUrl}/analytics`, request, this.httpOptions);
+        return this.http.post<StaffAttendanceAnalytics>(`${this.apiUrl}/analytics`, request);
     }
 
     // ── NEW: fetch paginated staff summary report ──────────────
     generateReport(request: SearchRequest): Observable<PageResponse<StaffAttendanceReport>> {
-        return this.http.post<PageResponse<StaffAttendanceReport>>(`${this.apiUrl}/report`, request, this.httpOptions);
+        return this.http.post<PageResponse<StaffAttendanceReport>>(`${this.apiUrl}/report`, request);
     }
 }

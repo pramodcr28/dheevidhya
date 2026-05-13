@@ -304,10 +304,6 @@ export const STUDENT_EXAMS: DashboardExam[] = [
     }
 ];
 
-// ═══════════════════════════════════════════
-// SERVICE: assignment-service
-// ═══════════════════════════════════════════
-
 export const STAFF_ASSIGNMENTS: DashboardAssignment[] = [
     { id: 'as-01', title: 'Calculus Problem Set 7', subjectName: 'Calculus I', className: '11', sectionName: 'A', dueDate: '2026-03-10', assignedDate: '2026-03-03', type: 'HOMEWORK', status: AssignmentStatus.PUBLISHED },
     { id: 'as-02', title: 'Statistics Chapter Quiz', subjectName: 'Statistics', className: '12', sectionName: 'C', dueDate: '2026-03-07', assignedDate: '2026-03-01', type: 'QUIZ', status: AssignmentStatus.ONGOING },
@@ -358,10 +354,6 @@ export const STUDENT_ASSIGNMENTS: DashboardAssignment[] = [
     }
 ];
 
-// ═══════════════════════════════════════════
-// SERVICE: notice-service
-// ═══════════════════════════════════════════
-
 export const STAFF_NOTICES: DashboardNotice[] = [
     { id: 'sn1', title: 'Exam timetable released', content: 'March mid-term timetable published on portal.', categoryType: CategoryType.EXAM_ANNOUNCEMENT, priority: Priority.HIGH, publishedAt: '2026-03-06T09:00:00' },
     { id: 'sn2', title: 'Staff meeting — Friday 3PM', content: 'Conference Room 1 · Agenda: Semester review.', categoryType: CategoryType.MEETING, priority: Priority.MEDIUM, publishedAt: '2026-03-05T10:00:00' },
@@ -383,10 +375,6 @@ export const STUDENT_NOTICES: DashboardNotice[] = [
     { id: 'nn4', title: 'Fee reminder — Term 2', content: 'Term 2 fees due by March 15.', categoryType: CategoryType.GENERAL, priority: Priority.HIGH, publishedAt: '2026-03-03T09:00:00' },
     { id: 'nn5', title: 'Sports day schedule updated', content: 'Practice schedule updated for all classes.', categoryType: CategoryType.GENERAL, priority: Priority.LOW, publishedAt: '2026-03-01T09:00:00' }
 ];
-
-// ═══════════════════════════════════════════
-// SERVICE: attendance-service
-// ═══════════════════════════════════════════
 
 export const STAFF_CLASS_ATTENDANCE = {
     classLabel: 'Class 11-A',
@@ -420,13 +408,8 @@ export const STAFF_MONTHLY_ATTENDANCE = {
     presentDays: 18,
     totalDays: 20,
     percentage: 90,
-    // true = present, false = absent, null = holiday/weekend
     dailyDots: [true, true, true, true, false, true, true, true, true, true, true, false, true, true, true, true, true, true, null, null] as (boolean | null)[]
 };
-
-// ═══════════════════════════════════════════
-// SERVICE: staff-attendance-service (HOD view)
-// ═══════════════════════════════════════════
 
 export const HOD_STAFF_ATTENDANCE: StaffAttendanceRow[] = [
     {
