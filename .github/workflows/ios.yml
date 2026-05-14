@@ -1,4 +1,4 @@
-name: Build iOS Capacitor App
+name: Build Signed iOS IPA
 
 on:
   workflow_dispatch:
@@ -17,11 +17,6 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Verify Node Version
-        run: |
-          node -v
-          npm -v
-
       - name: Install Dependencies
         run: npm install
 
@@ -31,29 +26,49 @@ jobs:
       - name: Sync Capacitor iOS
         run: npx cap sync ios
 
-      - name: Show iOS Structure
-        run: |
-          ls -R ios/App
-
-      - name: Show Available Simulators
-        run: |
-          xcrun simctl list devices
-
-      - name: Build iOS App
+      - name: Build Archive
         run: |
           cd ios/App
 
           xcodebuild \
             -project App.xcodeproj \
             -scheme App \
-            -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath $PWD/build/App.xcarchive \
             CODE_SIGNING_ALLOWED=NO \
-            build
+            archive
 
-      - name: Upload Build Artifacts
+      - name: Create ExportOptions.plist
+        run: |
+          cat > ios/App/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+          "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>development</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Export IPA
+        run: |
+          cd ios/App
+
+          xcodebuild \
+            -exportArchive \
+            -archivePath build/App.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath build/output
+
+      - name: Show IPA Files
+        run: |
+          ls -R ios/App/build/output
+
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: ios-build
-          path: |
-            ~/Library/Developer/Xcode/DerivedData
+          name: ios-ipa
+          path: ios/App/build/output
