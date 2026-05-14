@@ -15,7 +15,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
 
       - name: Verify Node Version
         run: |
@@ -31,39 +30,24 @@ jobs:
       - name: Sync Capacitor iOS
         run: npx cap sync ios
 
-      - name: Update Capacitor iOS
-        run: npx cap update ios
-
-      - name: Show iOS Folder Structure
+      - name: Show iOS Structure
         run: |
-          ls -R ios
-
-      - name: Install CocoaPods
-        run: |
-          cd ios/App
-          pod install --repo-update
-
-      - name: Verify iOS Files
-        run: |
-          ls ios/App
-          ls ios/App/App.xcworkspace
+          ls -R ios/App
 
       - name: Build iOS App
         run: |
           cd ios/App
 
           xcodebuild \
-            -workspace App.xcworkspace \
+            -project App.xcodeproj \
             -scheme App \
             -sdk iphonesimulator \
-            -configuration Debug \
             -destination 'platform=iOS Simulator,name=iPhone 15' \
             build
 
-      - name: Upload iOS Build Artifacts
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
           path: |
-            ios/App/build
             ~/Library/Developer/Xcode/DerivedData
